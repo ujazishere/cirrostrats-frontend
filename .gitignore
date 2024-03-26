@@ -1,0 +1,47 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+todo-example
+backend
+
+/fastapi-mongo
+/farmstack-project
+
+/fast-api
+
+.env
+#luis local
+/fast-api/venv
+/fast-api/__pycache__/main.cpython-38.pyc
+
+# /fast-api/__pycache__
+
+/node_modules
+
+# Uj local
+/fast-api/venv
+/fast-api/__pycache__
+/fast-api/win_local.bat
