@@ -175,6 +175,10 @@ form {
   padding: 0.5em;
   cursor: pointer;
 }
+.home__search:disabled {
+  background-color: #5b6166;
+  cursor: not-allowed;
+}
 .home__link {
   margin: 0.5em 0;
   font-size: 1.2rem;
