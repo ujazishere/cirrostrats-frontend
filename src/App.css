@@ -354,7 +354,10 @@ form {
 }
 
 /* details*/
-
+.weather__title {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
 .details {
   display: flex;
   flex-direction: column;
@@ -362,6 +365,7 @@ form {
   margin: 0 auto;
   width: 90%;
   position: relative;
+  margin-top: 2em;
 }
 .details__title {
   font-size: 2rem;
@@ -435,7 +439,7 @@ form {
   display: flex;
   justify-content: end;
   position: absolute;
-
+  z-index: 999;
   right: 0;
   opacity: 0.6;
 }
@@ -455,6 +459,11 @@ form {
   padding: 0.8em 0;
   align-items: center;
   cursor: pointer;
+}
+
+.card__header--dark {
+  background: #2d333b;
+  color: white;
 }
 
 .card__icon {
