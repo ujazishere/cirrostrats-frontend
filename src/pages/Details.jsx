@@ -5,20 +5,19 @@ import Card from "../components/Card";
 import DetailCard from "../components/Cards/DetailCard";
 
 const Details = () => {
-  const [flightData, setFlightData] = useState([]);
+  const [aiportData, setAiportData] = useState([]);
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
   useEffect(() => {
     async function fetchData() {
       const airportId = searchValue.id;
-      console.log("airpoidId", searchValue);
       const res = await axios.get(`http://127.0.0.1:8000/airports/${airportId}`); //replace dep_dest with above endpoints as needed
 
       if (!res.status === 200) {
         throw new Error("network error occured");
       }
 
-      setFlightData(res.data);
+      setAiportData(res.data);
     }
     if (searchValue) fetchData();
   }, [searchValue]);
@@ -74,15 +73,16 @@ const Details = () => {
       </div> */}
 
       {/* <Card arrow={false} detailCard={true} flightDetail={flightData} /> */}
-      {flightData && <DetailCard flightDetails={flightData} />}
-      <Card arrow={true} title="depature" flightDetails={flightData} />
-      <Card
+      {/* {aiportData && <DetailCard flightDetails={aiportData} />} */}
+      {aiportData && <Card arrow={false} flightDetails={aiportData} weatherData />}
+      {/* <Card arrow={true} title="depature" flightDetails={aiportData} /> */}
+      {/* <Card
         routeCard={true}
         title="Route"
-        text="(FL360) LANNA J48 CSN FANPO Q40 AEX DOOBI2"
-        link="https://skyvector.com/?fpl=%20KEWR%20LANNA%20J48%20CSN%20FANPO%20Q40%20AEX%20DOOBI2%20KIAH"
-      />
-      <Card arrow={true} title="arrival" />
+        // text="(FL360) LANNA J48 CSN FANPO Q40 AEX DOOBI2"
+        // link="https://skyvector.com/?fpl=%20KEWR%20LANNA%20J48%20CSN%20FANPO%20Q40%20AEX%20DOOBI2%20KIAH"
+      /> */}
+      {/* <Card arrow={true} title="arrival" /> */}
     </div>
   );
 };
