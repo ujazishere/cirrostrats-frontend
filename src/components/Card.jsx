@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-const Card = ({ arrow, title, routeCard, text }) => {
+const Card = ({ arrow, title, routeCard, text, weatherData, flightDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
 
   const handleToggleCard = ({ flightDetails }) => {
     setToggleCard(prev => !prev);
   };
-
+  console.log(flightDetails);
   if (routeCard)
     return (
       <div className="card">
@@ -29,6 +29,53 @@ const Card = ({ arrow, title, routeCard, text }) => {
       </div>
     );
 
+  if (weatherData) {
+    const { METAR, TAF, D_ATIS, name } = flightDetails || {};
+    return (
+      <>
+        <h3 className="weather__title">
+          <span>Weather for </span> {name}
+        </h3>
+
+        <div className="card">
+          {/* <h3 className="card__title" onClick={handleToggleCard}>
+          <span className="card__icon"> {arrow ? "▼" : null} </span>
+          {title}
+        </h3> */}
+
+          <div>
+            {/* // user the incoming depature or arrival text to change the styling  as well  */}
+            {/* <div className="card__depature__title card__header--dark ">
+            {/* <p className="card__depature__time">05:40 EST</p> */}
+            {/* <h3>KEWR</h3> */}
+            {/* <p className="card__depature__gate">C - C70</p> */}
+
+            <div className="card__depature__subtitle card__header--dark">
+              <h3 className="card__depature__subtitle__title">D-ATIS </h3>
+              <span className="card__depature__time">34 mins ago</span>
+            </div>
+            <div className="card__depature__details">
+              <p>{D_ATIS}</p>
+            </div>
+            <div className="card__depature__subtitle  card__header--dark">
+              <h3 className="card__depature__subtitle__title">METAR</h3>
+              <span className="card__depature__time">34 mins ago</span>
+            </div>
+            <div className="card__depature__details">
+              <p>{METAR}</p>
+            </div>
+            <div className="card__depature__subtitle  card__header--dark">
+              <h3 className="card__depature__subtitle__title">TAF</h3>
+              <span className="card__depature__time">166 mins ago</span>
+            </div>
+            <div className="card__depature__details">
+              <p>{TAF}</p>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
     <div className="card">
       <h3 className="card__title" onClick={handleToggleCard}>
@@ -48,29 +95,21 @@ const Card = ({ arrow, title, routeCard, text }) => {
           <span className="card__depature__time">34 mins ago</span>
         </div>
         <div className="card__depature__details">
-          <p>
-            EWR ATIS INFO P 2251Z. 14004KT 10SM FEW200 BKN250 11/M01 A3028 (THREE ZERO TWO EIGHT). ILS RWY 22L APCH IN
-            USE. DEPARTING RY 22R FROM INT W 10,150 FEET TODA. GBAS OUT OF SERVICE. ATTN ALL ACFT, 5G NOTAMS IN EFFECT
-            FOR EWR, CONTACT FSS FREQ. USE CAUTION FOR BIRDS AND CRANES IN THE VICINITY OF EWR. READBACK ALL RUNWAY HOLD
-            SHORT INSTRUCTIONS AND ASSIGNED ALT. ...ADVS YOU HAVE INFO P.
-          </p>
+          <p></p>
         </div>
         <div className="card__depature__subtitle">
           <h3 className="card__depature__subtitle__title">METAR</h3>
           <span className="card__depature__time">34 mins ago</span>
         </div>
         <div className="card__depature__details">
-          <p>KEWR 082251Z 13004KT 10SM FEW200 BKN250 11/M01 A3028 RMK AO2 SLP253 T01061011</p>
+          <p></p>
         </div>
         <div className="card__depature__subtitle">
           <h3 className="card__depature__subtitle__title">TAF</h3>
           <span className="card__depature__time">166 mins ago</span>
         </div>
         <div className="card__depature__details">
-          <p>
-            KEWR 082039Z 0821/0924 15005KT P6SM SCT250 FM090600 11006KT P6SM BKN025 FM090800 11007KT P6SM OVC015
-            FM091700 10010KT P6SM OVC015 FM092000 10010G18KT 5SM -RA SCT008 OVC012 TEMPO 0922/0924 2SM RA BR
-          </p>
+          <p></p>
         </div>
       </div>
     </div>
