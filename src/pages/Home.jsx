@@ -1,12 +1,16 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import Input from "../components/Input";
+import { weatherData } from "../components/test";
 
 const Home = () => {
+  const { metar, taf, d_atis } = weatherData;
+
   return (
     <div className="home">
       <h2 className="home__title">Cirrostrats </h2>
 
+      <p>{metar}</p>
       <Input />
 
       <NavLink to="/guide" className="home__link">

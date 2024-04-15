@@ -74,7 +74,7 @@ const Details = () => {
 
       {/* <Card arrow={false} detailCard={true} flightDetail={flightData} /> */}
       {/* {aiportData && <DetailCard flightDetails={aiportData} />} */}
-      {aiportData && <Card arrow={false} flightDetails={aiportData} weatherData />}
+      {aiportData && <Card arrow={false} flightDetails={aiportData} />}
       {/* <Card arrow={true} title="depature" flightDetails={aiportData} /> */}
       {/* <Card
         routeCard={true}

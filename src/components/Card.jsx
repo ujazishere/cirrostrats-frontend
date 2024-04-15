@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-const Card = ({ arrow, title, routeCard, text, weatherData, flightDetails }) => {
+import HighlightText from "./utility/HighlighText";
+import { weatherData } from "./test";
+
+const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
 
+  const weatherDataAtis = weatherData["d-atis"];
+
+  const coloredText = HighlightText({
+    text: weatherDataAtis.dataString,
+    highlightedPhrases: weatherDataAtis.highlight,
+  });
   const handleToggleCard = ({ flightDetails }) => {
     setToggleCard(prev => !prev);
   };
-  console.log(flightDetails);
   if (routeCard)
     return (
       <div className="card">
@@ -55,7 +63,7 @@ const Card = ({ arrow, title, routeCard, text, weatherData, flightDetails }) => 
               <span className="card__depature__time">34 mins ago</span>
             </div>
             <div className="card__depature__details">
-              <p>{D_ATIS}</p>
+              <p>{coloredText}</p>
             </div>
             <div className="card__depature__subtitle  card__header--dark">
               <h3 className="card__depature__subtitle__title">METAR</h3>
