@@ -6,6 +6,7 @@ import { weatherData } from "./test";
 const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
 
+  console.log("flightDetails", flightDetails);
   const weatherDataAtis = weatherData["d-atis"];
 
   const coloredText = HighlightText({
