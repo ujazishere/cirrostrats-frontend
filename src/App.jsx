@@ -11,6 +11,9 @@ import UTCTime from "./components/UTCTime";
 import Table from "./components/Table";
 import Dummy from "./components/Dummy";
 import "./App.css";
+import WeatherInfo from './components/Cards/WeatherInfo';
+import "./WeatherInfo.css";
+
 
 function App() {
   return (

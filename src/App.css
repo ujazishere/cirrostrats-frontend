@@ -182,15 +182,10 @@ form {
 .home__link {
   margin: 0.5em 0;
   font-size: 1.2rem;
+  color: black; /* Change color to black */
+  text-decoration: none; /* Optional: Remove underline */
 }
-.home__content {
-  background-color: var(--black);
-  border-radius: 5px;
-  padding: 1em;
-  width: 90%;
-  color: white;
-  margin: 0.5em 0;
-}
+
 .home__number,
 .home__link {
   text-decoration: underline;
@@ -415,8 +410,9 @@ form {
 .detail__depature__time,
 .detail__arrival__time {
   margin-bottom: 0.8em;
-  font-size: 1.2rem;
+  font-size: 14px;
 }
+
 
 .detail__gate__title {
   font-size: 1rem;
@@ -431,8 +427,9 @@ form {
 
 .utc__container {
   background-color: #5b6166;
+  top: 70px; 
   border-radius: 5px;
-  padding: 0.9em 0.5em;
+  padding: 5px 10px; 
   font-size: 0.8em;
   color: white;
   font-weight: bold;
@@ -466,16 +463,14 @@ form {
   color: white;
 }
 
-.card__icon {
-  font-size: 1rem;
-  margin-right: 0.3em;
-}
+
 .card__depature__title {
   display: flex;
   justify-content: space-between;
   padding: 0.7em 0.5em;
   border-bottom: 1px solid #333537;
   font-weight: bold;
+  
 }
 .card__depature__subtitle {
   border-bottom: 1px solid #333537;
@@ -487,12 +482,22 @@ form {
 
 .card__depature__subtitle__title {
   margin-right: 0.5em;
-  font-size: 1.3rem;
+  font-size: 18px;
+
 }
+
+.card__depature__time {
+  font-size: 12px;
+}
+
 
 .card__depature__details {
   border-bottom: 1px solid #333537;
   padding: 0.8em 1em;
+  font-weight: bold;
+  font-family: Menlo;
+  text-align: left;
+
 }
 .card__route__text {
   font-size: 1.2rem;
@@ -504,6 +509,52 @@ form {
   margin-left: 0.5em;
   font-size: 1rem;
 }
+
+/* code for highlight text inside the table*/
+
+.box_around_text {
+  border-radius: 4px;
+  border: 1px solid #2D333B; 
+  border-collapse: collapse;
+  padding-left: 2px;
+  padding-right: 2px;
+
+}
+
+.dark-mode .box_around_text {
+  background-color: #2D333B(159, 26, 26);
+  border-radius: 4px;
+  border: 1px solid #ffffff; 
+  border-collapse: collapse;
+}
+
+.pink_text_color {
+    color: #be38e1; 
+    padding: 4px; 
+    border-radius: 5px;
+}
+
+.red_text_color {
+    color: rgb(227, 79, 79); 
+    padding: 4px; 
+    border-radius: 5px;
+}
+
+.yellow_highlight {
+  background-color: rgba(251, 118, 118, 0.847);
+}
+
+.yellow_warning {
+  background-color: rgba(255, 247, 159, 0.999);
+  padding: 1.5px; 
+  border-radius: 7px;
+}
+
+.dark-mode .yellow_warning {
+  color: #000000;
+}
+
+
 
 /* table*/
 .table__container {

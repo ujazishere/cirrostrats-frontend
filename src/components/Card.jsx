@@ -20,7 +20,7 @@ const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
     return (
       <div className="card">
         <h3 className="card__title">
-          <span className="card__icon"> {arrow ? "▼" : null} </span>
+          /*<span className="card__icon"> {arrow ? "▼" : null} </span>
           {title}
 
           <NavLink
