@@ -78,7 +78,7 @@ const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
               <span className="card__depature__time">166 mins ago</span>
             </div>
             <div className="card__depature__details">
-              <p>{TAF}</p>
+              {/*<p>{TAF}</p>*/}
             </div>
           </div>
         </div>
