@@ -42,6 +42,12 @@ backend
 /node_modules
 
 # Uj local
+win_local.bat
 /fast-api/venv
 /fast-api/__pycache__
 /fast-api/win_local.bat
+
+
+# is local
+
+mac_local.sh

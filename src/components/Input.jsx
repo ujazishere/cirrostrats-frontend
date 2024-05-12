@@ -9,6 +9,7 @@ import match from "autosuggest-highlight/match";
 
 //use material ui to search and filter when the data is large
 //send request each key stroke for now in future use debounce delays the request by a time frame
+// This inpute field gets rendered as soon as you access the web and fethes the database from the backend.
 const Input = () => {
   const [airports, setAirports] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +19,7 @@ const Input = () => {
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
+      // Fetches all the airports from the fastAPI backend from the database
       const res = await axios.get(`http://127.0.0.1:8000/airports`); //replace dep_dest with above endpoints as needed
 
       if (!res.status === 200) {
@@ -60,7 +62,7 @@ const Input = () => {
   const handleSubmit = e => {
     e.preventDefault();
     console.log("searchValue", searchValue);
-    //pass the seach value here, details will fetch the data from api and render it
+    //pass the search value here, details will fetch the data from api and render it
     navigate("/details", { state: { searchValue } });
   };
 
