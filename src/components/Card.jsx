@@ -78,7 +78,7 @@ const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
               <span className="card__depature__time">166 mins ago</span>
             </div>
             <div className="card__depature__details">
-              {/*<p>{TAF}</p>*/}
+              {/* <p>{TAF}</p> */}
             </div>
           </div>
         </div>
@@ -86,6 +86,7 @@ const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
     );
   }
   return (
+    /// All of this seems irrelevant since it shows snippets of the summary box. This is a weather Card.
     <div className="card">
       <h3 className="card__title" onClick={handleToggleCard}>
         <span className="card__icon"> {arrow ? "▼" : null} </span>

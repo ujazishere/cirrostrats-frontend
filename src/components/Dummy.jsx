@@ -2,28 +2,29 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 
-const Details = () => {
-  const [airportData, setAirportData] = useState([]);
+
+
+
+
+///This all needs to be changed since its copied from weather page i.e Card.jsx and Input.jsx
+const Dummy = () => {
+  const [airportData, setAiportData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/dummy`);
-        if (res.status !== 200) {
-          throw new Error("Network error occurred");
-        }
-        setAirportData(res.data);
-      } catch (error) {
-        console.error("Error fetching data:", error.message);
-        // Handle error state or display an error message
+      const res = await axios.get(`http://127.0.0.1:8000/dummy`); //replace dep_dest with above endpoints as needed
+      console.log(res)
+      if (!res.status === 200) {
+        throw new Error("network error occured");
       }
+
+      setAiportData(res.data);
     }
-    if (searchValue) {
-      fetchData();
-    }
-  }, [searchValue]);
+    fetchData();
+  }, []);
 
   return (
     <div className="details">
@@ -42,7 +43,7 @@ const Details = () => {
 
             <div className="detail__gate">
               <p className="detail__gate__title">Gate</p>
-              <h3>C - C111</h3>
+              <h3>{airportData.departure_gate}</h3>
             </div>
             <div className="detail__depature__time">
               <p className="detail__depature__local">Scheduled Local</p>
@@ -50,7 +51,7 @@ const Details = () => {
             </div>
             <div className="detail__depature__utc__time">
               <p className="detail__depature__utc">UTC</p>
-              <h3>STD 1040Z</h3>
+              <h3>{airportData.scheduled_departure_time}</h3>
               <h3>ETD 1040Z</h3>
             </div>
           </div>
@@ -60,7 +61,7 @@ const Details = () => {
 
             <div className="detail__gate">
               <p className="detail__gate__title">Gate</p>
-              <h3>C - C39</h3>
+              <h3>{airportData.arrival_gate}</h3>
             </div>
             <div className="detail__arrival__time">
               <p className="detail__arrival__local"> Scheduled Local</p>
@@ -97,7 +98,18 @@ const Details = () => {
             </tr>
             <tr>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                BOS ATIS INFO O 1854Z. 14009KT 10SM FEW040 SCT080 BKN100 BKN250 13/07 A2988 (TWO NINER EIGHT EIGHT) RMK SLP117 VIRGA DSNT S. APPROACHES ARE BEING CONDUCTED TO PARALLEL RUNWAYS. ILS 4R, VA 4L, DEP 9. RWY 33R IS APPROVED FOR TURN OFF. READBACK ALL HOLD SHORT INSTRCNS AND ASSIGNED ALTITUDES. INCREASED BIRD ACTIVITY IN THE VICINITY OF LOGAN AIRPORT. NUMEROUS CRANES IN BOSTON AREA AND IN VICINITY OF LOGAN AIRPORT. NOTAM 04/191 IN EFFECT FOR GENERAL AVIATION RAMP CONGESTION. ...ADVS YOU HAVE INFO O.
+                {console.log('Here in DATIS')}
+
+                {/* TODO: This isn't working. works after adding the key call and saving the file but throws error when refreshing browser. Investigate */}
+                {isLoading ? (
+                  'Loading D-ATIS...'
+                ) : (
+                  airportData.dep_weather?.['D-ATIS'] || 'D-ATIS not available'
+                )}
+                {/* {airportData.dep_weather['D-ATIS']} */}
+
+
+
               </td>
             </tr>
             <tr>
@@ -105,7 +117,7 @@ const Details = () => {
             </tr>
             <tr>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                KBOS 121854Z 12009KT 10SM FEW040 SCT080 BKN100 BKN250 13/07 A2988 RMK AO2 SLP117 VIRGA DSNT S T01280072
+                {/* {airportData.dep_weather['METAR']} */}
               </td>
             </tr>
             <tr>
@@ -124,7 +136,7 @@ const Details = () => {
         </table>
       </div>
 
-      <table class="route">
+      <table className="route">
             <tr>
                 <th>ROUTE Show on - SkyVector Map </th>
             </tr>
@@ -185,4 +197,4 @@ const Details = () => {
   );
 };
 
-export default Details;
+export default Dummy;
