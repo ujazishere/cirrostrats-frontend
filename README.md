@@ -19,3 +19,10 @@
 
    d. **The backend for this project is at the following repo :**
    https://github.com/luisarevalo21/cirrostrats-backend
+
+
+
+dev notes:
+Ensure following code is within package.json to allow other networks/containers to listen to the project when running the project on an isolated container.
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",

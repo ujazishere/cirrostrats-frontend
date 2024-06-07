@@ -1,0 +1,16 @@
+FROM node:21.7.1-alpine
+
+WORKDIR /app
+
+COPY package*.json .
+
+RUN node -v
+
+RUN apk update && \
+    apk add npm
+
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "run", "dev"]
