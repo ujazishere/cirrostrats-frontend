@@ -7,14 +7,15 @@ COPY package*.json .
 
 # Update npm
 RUN apk update && \
-    apk add npm
+    apk add npm 
 
-RUN npm install
+    
+RUN npm install --include=dev
 
-# Install dependencies
-RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
+
+ENV NODE_ENV=development
 
 CMD ["npm", "run", "dev"]
