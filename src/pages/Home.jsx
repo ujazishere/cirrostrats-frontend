@@ -5,7 +5,7 @@ import Input from "../components/Input";
 const Home = () => {
   return (
     <div className="home">
-      <h2 className="home__title">......Check Weather, Gate And Flight Information.</h2>
+      <h2 className="home__title">Check Weather, Gate And Flight Information.</h2>
 
       <Input />
 

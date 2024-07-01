@@ -7,76 +7,79 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
-//use material ui to search and filter when the data is large
-//send request each key stroke for now in future use debounce delays the request by a time frame
-// This inpute field gets rendered as soon as you access the web and fethes the database from the backend.
 const Input = () => {
   const [airports, setAirports] = useState([]);
+  const [filteredAirports, setFilteredAirports] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
-      // Fetches all the airports from the fastAPI backend from the database
-      const res = await axios.get(`http://127.0.0.1:8000/airports`); //replace dep_dest with above endpoints as needed
-
-      if (!res.status === 200) {
-        throw new Error("network error occured");
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/airports`);
+        const { data } = res;
+        const options = data.map(d => ({
+          value: `${d.name} (${d.code})`,
+          label: `${d.name} (${d.code})`,
+          name: d.name,
+          code: d.code,
+          id: d.id,
+        }));
+        setAirports(options);
+      } catch (error) {
+        console.error("Error fetching airports:", error);
+      } finally {
+        setIsLoading(false);
       }
-
-      const { data } = res;
-
-      const options = data.map(d => ({
-        value: `${d.name} (${d.code})`,
-        label: `${d.name} (${d.code})`,
-        name: d.name,
-        code: d.code,
-        id: d.id,
-      }));
-
-      setAirports(options);
-      setIsLoading(false);
     }
     fetchData();
   }, []);
 
   const handleChange = (e, value) => {
-    // if (e === null) {
-    //   setSearchValue("");
-    //   return;
-    // }
-    setSearchValue({ ...value });
+    setSearchValue(value ? { ...value } : "");
   };
 
-  const handleInputChange = async (inputValue, e) => {
-    if (e === "") {
-      return;
+  const handleInputChange = async (event, newInputValue) => {
+    setInputValue(newInputValue);
+    if (newInputValue.length >= 3) {
+      const filtered = airports.filter(airport => 
+        airport.name.toLowerCase().includes(newInputValue.toLowerCase()) ||
+        airport.code.toLowerCase().includes(newInputValue.toLowerCase())
+      );
+      setFilteredAirports(filtered);
+    } else {
+      setFilteredAirports([]);
     }
-
-    const res = await axios.get(`http://127.0.0.1:8000/airports/airport?search=${e}`);
-    const { data } = res;
-    console.log("data", data);
   };
+
   const handleSubmit = e => {
     e.preventDefault();
     console.log("searchValue", searchValue);
-    //pass the search value here, details will fetch the data from api and render it
     navigate("/details", { state: { searchValue } });
   };
 
   return (
-    <form action="" onSubmit={handleSubmit}>
-      {/* <label htmlFor="Check weather, gate and flight information"></label> */}
-      {/* <input type="text" className="home__input" onChange={handleChange} /> */}
+    <form onSubmit={handleSubmit}>
       <Autocomplete
-        options={airports}
+        options={filteredAirports}
         onChange={handleChange}
-        autoComplete
         onInputChange={handleInputChange}
+        inputValue={inputValue}
         className="home__input"
-        renderInput={params => <TextField {...params} label="airports" margin="normal" />}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Airports"
+            margin="normal"
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: null, // This removes the dropdown arrow
+            }}
+          />
+        )}
         renderOption={(props, option, { inputValue }) => {
           const matches = match(option.name, inputValue, { insideWords: true });
           const parts = parse(option.name, matches);
@@ -97,8 +100,12 @@ const Input = () => {
             </li>
           );
         }}
+        noOptionsText="Where are you flying to?"
+        filterOptions={(x) => x}
+        disableClearable // This removes the clear button
+        forcePopupIcon={false} // This ensures the popup icon (dropdown arrow) is not shown
       />
-      <button className="home__search" disabled={searchValue === "" ? true : false}>
+      <button className="home__search" type="submit">
         Search
       </button>
     </form>
