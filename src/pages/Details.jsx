@@ -11,7 +11,7 @@ const Details = () => {
   useEffect(() => {
     async function fetchData() {
       const airportId = searchValue.id;
-      const res = await axios.get(`http://127.0.0.1:8000/airports/${airportId}`); //replace dep_dest with above endpoints as needed
+      const res = await axios.get(`http://127.0.0.1:8000/airports/${airportId}`); 
 
       if (!res.status === 200) {
         throw new Error("network error occured");

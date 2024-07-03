@@ -53,6 +53,15 @@ const Input = () => {
         airport.code.toLowerCase().includes(newInputValue.toLowerCase())
       );
       setFilteredAirports(filtered);
+
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/airports/airport?search=${newInputValue}`);
+        const { data } = res;
+        // console.log("API data", data); You can do whatever you want with the data here.
+    } catch (error) {
+      console.error("Error fetching airport data:", error);
+    }
+
     } else {
       setFilteredAirports([]);
     }
@@ -61,6 +70,7 @@ const Input = () => {
   const handleSubmit = e => {
     e.preventDefault();
     console.log("searchValue", searchValue);
+    // This /details will go into the App.jsx look for the route thenn go the pages/Details.jsx
     navigate("/details", { state: { searchValue } });
   };
 
