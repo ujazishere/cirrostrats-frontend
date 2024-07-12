@@ -7,8 +7,6 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
-
-
 const Input = () => {
   const [airports, setAirports] = useState([]);
   const [filteredAirports, setFilteredAirports] = useState([]);
@@ -16,10 +14,6 @@ const Input = () => {
   const [searchValue, setSearchValue] = useState("");
   const [inputValue, setInputValue] = useState("");
   const navigate = useNavigate();
-
-
-
-
 
   useEffect(() => {
     async function fetchData() {
@@ -80,8 +74,6 @@ const Input = () => {
     navigate("/details", { state: { searchValue } });
   };
 
-  
-
   return (
     <form onSubmit={handleSubmit}>
       <Autocomplete
@@ -95,7 +87,6 @@ const Input = () => {
             {...params}
             label="Airports"
             margin="normal"
-            defaultValue={inputValue}
             InputProps={{
               ...params.InputProps,
               endAdornment: null, // This removes the dropdown arrow
