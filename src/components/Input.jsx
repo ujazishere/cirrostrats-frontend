@@ -45,9 +45,9 @@ const Input = () => {
   const handleInputChange = async (event, newInputValue) => {
     setInputValue(newInputValue);
     // Log keystrokes to console
-    console.log(`Keystroke logged: ${newInputValue}`);
 
     if (newInputValue.length >= 3) {
+      console.log(`Keystroke logged: ${newInputValue}`);
       const filtered = airports.filter(airport => 
         airport.name.toLowerCase().includes(newInputValue.toLowerCase()) ||
         airport.code.toLowerCase().includes(newInputValue.toLowerCase())
