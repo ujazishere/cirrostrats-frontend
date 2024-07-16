@@ -6,16 +6,21 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
+import { debounce } from 'lodash';
 
 const Input = () => {
-  const [airports, setAirports] = useState([]);
-  const [filteredAirports, setFilteredAirports] = useState([]);
+
+  const [query, setQuery] = useState('');     
+  const [results, setResults] = useState([]);     
+  const [airports, setAirports] = useState([]);     
+  const [filteredAirports, setFilteredAirports] = useState([]);     // filteredAirports is an empty array and setFilteredAirports is filling it up with search matches of all airports
   const [isLoading, setIsLoading] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState("");         // handeling key strokes into the searchbar.
   const navigate = useNavigate();
 
   useEffect(() => {
+    // This runs as soon as the homepage page loads up. It will load up all the airports from the backend's mongodb for use in react.
     async function fetchData() {
       setIsLoading(true);
       try {
@@ -30,7 +35,7 @@ const Input = () => {
         }));
         setAirports(options);
       } catch (error) {
-        console.error("Error fetching airports:", error);
+        console.error("Error fetching airports from backend's MongoDB. Check backend server connection:", error);
       } finally {
         setIsLoading(false);
       }
@@ -38,24 +43,26 @@ const Input = () => {
     fetchData();
   }, []);
 
+  // This is called when an option from the auto complete is selected
   const handleChange = (e, value) => {
-    setSearchValue(value ? { ...value } : "");
+    setSearchValue(value ? { ...value } : "");    // `?` operator checks if value is truthy. kinda like if statement. sets that to searchValue if it is, else sets to empty "".
   };
 
+  // newInputValue are the keystrokes. The following function is ran for 3 or more key strokes.
   const handleInputChange = async (event, newInputValue) => {
     setInputValue(newInputValue);
-    // Log keystrokes to console
-
     if (newInputValue.length >= 3) {
       console.log(`Keystroke logged: ${newInputValue}`);
       const filtered = airports.filter(airport => 
         airport.name.toLowerCase().includes(newInputValue.toLowerCase()) ||
         airport.code.toLowerCase().includes(newInputValue.toLowerCase())
       );
+      // before this above code the `filtered`object is none but then its populated with airports that match the newInputValue
       setFilteredAirports(filtered);
 
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/airports/airport?search=${newInputValue}`);
+        // airport is the optional parameter its not serving any good purpose at the moment check backend route in route.py for explanation.
+        const res = await axios.get(`http://127.0.0.1:8000/search/airport?search=${newInputValue}`);
         const { data } = res;
         // console.log("API data", data); You can do whatever you want with the data here.
     } catch (error) {
@@ -85,7 +92,7 @@ const Input = () => {
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Airports"
+            label="Try searching a gate in newark. Eg. 71x"
             margin="normal"
             InputProps={{
               ...params.InputProps,

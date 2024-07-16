@@ -5,9 +5,6 @@ Practice readibility and simplicity. Aviod code duplication. Include description
         
         mark ETD time as red when STD is past ETD
         
-        zulu time dymanic with the weather published times using js instead of the static python way.
-        `ext d` work. Make javascript functions and use functions widely.
-        
         Hide datis table when N/A instead of showing N/A
         WIP - summery box shadow and expand/collapse (fast)animation.  
         work on script to extract data - aviation_stack_data_pull.py
