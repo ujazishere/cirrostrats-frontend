@@ -16,6 +16,14 @@ const Home = () => {
         Live Map
       </NavLink>
 
+      <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+      <meta name="google-signin-client_id" content="678901205467-g2hk1dmj5krq4ua0n3uc4r2s1d98mtq5.apps.googleusercontent.com"></meta>
+
+      <div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+
+
       <div className="home__content">
 
       </div>

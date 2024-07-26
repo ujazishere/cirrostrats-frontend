@@ -63,22 +63,8 @@ const Input = () => {
     e.preventDefault();
     if (selectedValue) {
       navigate("/details", { state: { searchValue: selectedValue } });
-    }
-  };
-
-  const handleBlur = () => {
-    if (inputRef.current) {
-      inputRef.current.setAttribute('data-value', inputRef.current.value);
-    }
-  };
-
-  const handleFocus = () => {
-    if (inputRef.current) {
-      const storedValue = inputRef.current.getAttribute('data-value');
-      if (storedValue) {
-        inputRef.current.value = storedValue;
-        setInputValue(storedValue);
-      }
+    } else if (inputValue) {
+      navigate("/details", { state: { searchValue: inputValue } });
     }
   };
 
@@ -105,8 +91,6 @@ const Input = () => {
             InputProps={{
               ...params.InputProps,
               endAdornment: null,
-              onBlur: handleBlur,
-              onFocus: handleFocus,
             }}
           />
         )}
@@ -134,6 +118,10 @@ const Input = () => {
         filterOptions={(x) => x}
         disableClearable
         forcePopupIcon={false}
+        freeSolo
+        selectOnFocus
+        clearOnBlur={false}
+        handleHomeEndKeys
       />
       <button className="home__search" type="submit">
         Search
