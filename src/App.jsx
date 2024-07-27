@@ -10,32 +10,29 @@ import Details from "./pages/Details";
 import UTCTime from "./components/UTCTime";
 import Table from "./components/Table";
 import Dummy from "./components/Dummy";
-import "./App.css";
 import WeatherInfo from './components/Cards/WeatherInfo';
 import "./WeatherInfo.css";
-
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import Input from './components/Input'; // Adjusted import path
 
 function App() {
   return (
-    <div className="App">
-      <Navbar />
-      <UTCTime />
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/guide" element={<Guide />} />
-        <Route path="/story" element={<Story />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/source" element={<Source />} />
-        <Route path="/details" element={<Details />} />
-        <Route path="/table" element={<Table />} />
-        <Route path="/dummy" element={<Dummy />} />
-
-        {/* <Route path="/about" element={<About />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/contact" element={<Contact />} /> */}
-      </Routes>
-    </div>
+    <GoogleOAuthProvider clientId="678901205467-g2hk1dmj5krq4ua0n3uc4r2s1d98mtq5.apps.googleusercontent.com">
+      <div className="App">
+        <Navbar />
+        <UTCTime />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/guide" element={<Guide />} />
+          <Route path="/story" element={<Story />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/source" element={<Source />} />
+          <Route path="/details" element={<Details />} />
+          <Route path="/table" element={<Table />} />
+          <Route path="/dummy" element={<Dummy />} />
+        </Routes>
+      </div>
+    </GoogleOAuthProvider>
   );
 }
 

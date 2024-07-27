@@ -6,6 +6,7 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
+
 const Input = () => {
   const [airports, setAirports] = useState([]);
   const [filteredAirports, setFilteredAirports] = useState([]);
@@ -37,6 +38,7 @@ const Input = () => {
     }
     fetchData();
   }, []);
+
 
   const handleInputChange = async (event, newInputValue) => {
     setInputValue(newInputValue);
