@@ -6,6 +6,8 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+console.log(`apiUrl${apiUrl}`)
 
 const Input = () => {
   const [airports, setAirports] = useState([]);
@@ -20,7 +22,7 @@ const Input = () => {
     async function fetchData() {
       setIsLoading(true);
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/airports`);
+        const res = await axios.get(`${apiUrl}/airports`);
         const { data } = res;
         const options = data.map(d => ({
           value: `${d.name} (${d.code})`,
@@ -51,11 +53,14 @@ const Input = () => {
       setFilteredAirports(filtered);
 
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/search/airport?search=${newInputValue}`);
+        // airport is the optional parameter its not serving any good purpose at the moment check backend route in route.py for explanation.
+        const res = await axios.get(`http://127.0.0.1:8000/query/airport?search=${newInputValue}`);
         const { data } = res;
-      } catch (error) {
-        console.error("Error fetching airport data:", error);
-      }
+        console.log("API data", data); // You can do whatever you want with the data here.
+    } catch (error) {
+      console.error("Error fetching airport data:", error);
+    }
+
     } else {
       setFilteredAirports([]);
     }

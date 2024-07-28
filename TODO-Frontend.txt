@@ -5,7 +5,11 @@ Practice readibility and simplicity. Aviod code duplication. Include description
         
         mark ETD time as red when STD is past ETD
         
+        Fix searchbar keystrokes disappearing.
+        Localstorage- explore.
+        integrate user auth for login through google/facebook/email etc.
         Hide datis table when N/A instead of showing N/A
+        account for nas alongside weather- in airport lookup query
         WIP - summery box shadow and expand/collapse (fast)animation.  
         work on script to extract data - aviation_stack_data_pull.py
         Media queries for mobile vs desktop view. use css media queries. Check bootstrap navbar. Target screens(IPAD, smaller, etc)
@@ -13,49 +17,35 @@ Practice readibility and simplicity. Aviod code duplication. Include description
         
 
 **UV:   
+        Use debounce to reduce time consuming tasks do not fire often causing performance bottlenecks.
+        Add flightnumbers, gates and airports in the database as document. See if it is even possible.
+            Backend Optimization:
+            a. Use a fast database:
+            Consider using a database optimized for quick searches like Elasticsearch or MongoDB with proper indexing.
+            b. Implement caching:
+            Use Redis or a similar in-memory data store to cache frequent searches and results.
+            c. Use efficient search algorithms:
+            Implement trie data structures or inverted indexes for fast prefix matching.
+            d. Asynchronous processing:
+            Use async operations to handle multiple requests simultaneously.
+        establish backup for mongoDB in case if mongoDB stops working you can revert to basic database and indexing.
+        Localstorage- explore for caching.
+        Put in 'TAF(Ammended)', 'METAR(SPECI)' and D-ATIS(SPECIAL) in their title for special weather published times.
+        Integrate weather page with  the flight deet page--> reduce duplication ---> Make a react componenent and reuse it.
         Priority: Each individual scrape should be separate function in views. also separate scrape from api fetch.
-        Priority: Integrate frontend into this project as a separate branch and also declutter django include fastapi
-        Build docker image for react  
         ***Separate logic and implement simple machine learning technique to detect certain words.
-        delete dummy2.css since its not needed
-        Need redundency for dep and destination pull. current one is unstable giving errors during async.
         date implementatiton. Current web is error prone for flight lookups during evenings since the lookup inquires zulu time search.
-        clean up code. clean up the mess: separate scraping, add notes all along
-        account for nas alongside weather- in airport lookup query
         weather sources should show aviationweather link on each metar/taf/datis: https://aviationweather.gov/data/metar/?id=KEWR&hours=0
-        figure out dummy files for ease of work for ismail and Luis.
-        django hybrid. google auth. fast api to figure out back end python comms with front end react.
-        move file paths to one file and call those paths everywhere else. 
         Have software engineers proofread the code and logic.
         Ask pilot's what would they search to get gate information. store these searches and use that for parsing.
-        Put in 'TAF(Ammended)', 'METAR(SPECI)' and D-ATIS(SPECIAL) in their title for special weather published times.
-        Integrate weather page with  the flight deet page--> reduce duplication--> use js
         box up the associated taf section with respect to ETA. Give pilots freedown:
             make airport id and departure time and arrival time consistent(stuck on top) like utc throughout the page for ETA on TAF comparison
         make -ve temps turquoise
         prepare search query logic for disecting typical searches.
-            store typical searches server side for quick access and use celery for event update checks:
-                for gates scrapes, weather updates for most used airports, 
-                implement async for parrallel/multi level processing of tasks instead of typical syncronous,series wise, step by step operation.
-            Implement ML and NN. X vs ground truth vals.
-
-        fix massive bug on flight_aware route date time conflict with real scheduled_time.
-            maybe include search with date, time or display info with date as zulu time
-            currently it senses the most recent route that is not None type probs giving future date
-            use: if scheduled_out is current_utc and route is not none:
-                but current utc date_time has source latency.   
-        Extract all airports D-Atis info during all weather conditinos for analyses and classification
-            Add thunderstorm, freezing and such symbols on title.
-            Add departure/approach runways in use.
-        integrate EDCT info  from https://www.fly.faa.gov/edct/jsp/edctLookUp.jsp
-            ask then faa guys you have been reaching out to for jms issue
-        
-        Remove sql database and create own for seamless lightweight version.
         Fix bug that takes in 2 flight routes for singular flight number.
             Add option to scroll left and right for dates.
             Load data incrementally so as to avoid waiting for all data to be fetched.
         consolidate menu pages within the Menu_page class in views.py
-        Fix up weather page and include ability to pull multiple airports
 
         fix freeze bug on the EC2. After running lengthy scrape for a few days cmd seems to get stuck.
             Discard while loop instead use:use a task scheduling library like Celery with a task queue such as RabbitMQ or Redis to handle the scheduled tasks asynchronously.
