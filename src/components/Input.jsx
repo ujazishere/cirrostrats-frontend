@@ -54,7 +54,7 @@ const Input = () => {
 
       try {
         // airport is the optional parameter its not serving any good purpose at the moment check backend route in route.py for explanation.
-        const res = await axios.get(`http://127.0.0.1:8000/query/airport?search=${newInputValue}`);
+        const res = await axios.get(`${apiUrl}/query/airport?search=${newInputValue}`);
         const { data } = res;
         console.log("API data", data); // You can do whatever you want with the data here.
     } catch (error) {
