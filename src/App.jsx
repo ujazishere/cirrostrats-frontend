@@ -20,6 +20,7 @@ import Input from './components/Input'; // Adjusted import path
 function App() {
   return (
     <GoogleOAuthProvider clientId="678901205467-g2hk1dmj5krq4ua0n3uc4r2s1d98mtq5.apps.googleusercontent.com">
+    <script async defer crossOrigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
     
       <div className="App">
         <Navbar />

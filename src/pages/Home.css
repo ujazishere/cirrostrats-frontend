@@ -1,0 +1,85 @@
+/* Home.css */
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin-top: -30px;
+  }
+  
+  .home-title {
+    text-align: center;
+  }
+  
+  .home-link {
+    margin: 10px 0;
+    text-decoration: underline;
+    color: #000000;
+    font-size: 1rem;
+  }
+  
+  
+  .search-container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .search-container input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    margin-right: 10px;
+    box-sizing: border-box;
+  }
+  
+  .search-container button {
+    box-sizing: border-box;
+    padding: 10px;
+    margin-right: 10px;
+    margin-top: 5px;
+  }
+  
+  .logout-button {
+    background-color: #4285F4;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 15px;
+  }
+  
+  .logout-button:hover {
+    background-color: #3367D6;
+  }
+  
+  .auth-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 600px) {
+    .home-title {
+      font-size: 35px;
+    }
+  
+    .home-link {
+      font-size: 0.9rem;
+    }
+  
+    .logout-button {
+      font-size: 0.9rem;
+      padding: 8px 16px;
+    }
+  }
+  
