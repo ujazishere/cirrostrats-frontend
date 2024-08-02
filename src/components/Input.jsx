@@ -7,7 +7,7 @@ import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-console.log(`apiUrl${apiUrl}`)
+// console.log(`apiUrl: ${apiUrl}`)
 
 const Input = () => {
   const [airports, setAirports] = useState([]);
@@ -19,6 +19,8 @@ const Input = () => {
   const inputRef = useRef(null);
 
   useEffect(() => {
+    // useEffect is supposed to runs on every render. evrytime sommething changes on the page this function is ran.
+    console.log("USERASDVNK");
     async function fetchData() {
       setIsLoading(true);
       try {
@@ -102,6 +104,7 @@ const Input = () => {
           />
         )}
         renderOption={(props, option, { inputValue }) => {
+          console.log("PROPS",props,"option", option, "INPUT",inputValue)
           const matches = match(option.name, inputValue, { insideWords: true });
           const parts = parse(option.name, matches);
           return (
