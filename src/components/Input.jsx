@@ -5,9 +5,10 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
+import "./Input.css"; // Import the CSS file
 
 const apiUrl = import.meta.env.VITE_API_URL;
-console.log(`apiUrl${apiUrl}`)
+console.log(`apiUrl${apiUrl}`);
 
 const Input = () => {
   const [airports, setAirports] = useState([]);
@@ -15,6 +16,8 @@ const Input = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
+  const [isActive, setIsActive] = useState(false); // New state for active search bar
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false); // New state for header visibility
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
@@ -41,7 +44,6 @@ const Input = () => {
     fetchData();
   }, []);
 
-
   const handleInputChange = async (event, newInputValue) => {
     setInputValue(newInputValue);
     if (newInputValue.length >= 3) {
@@ -53,14 +55,12 @@ const Input = () => {
       setFilteredAirports(filtered);
 
       try {
-        // airport is the optional parameter its not serving any good purpose at the moment check backend route in route.py for explanation.
         const res = await axios.get(`http://127.0.0.1:8000/query/airport?search=${newInputValue}`);
         const { data } = res;
-        console.log("API data", data); // You can do whatever you want with the data here.
-    } catch (error) {
-      console.error("Error fetching airport data:", error);
-    }
-
+        console.log("API data", data);
+      } catch (error) {
+        console.error("Error fetching airport data:", error);
+      }
     } else {
       setFilteredAirports([]);
     }
@@ -75,65 +75,84 @@ const Input = () => {
     }
   };
 
+  const handleFocus = () => {
+    if (window.innerWidth <= 768) { // Check if the device is mobile
+      setIsActive(true);
+      setIsHeaderHidden(true); // Hide the header when the search bar is active
+    }
+  };
+
+  const handleBlur = () => {
+    setIsActive(false);
+    setIsHeaderHidden(false); // Show the header when the search bar is not active
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
-      <Autocomplete
-        options={filteredAirports}
-        value={selectedValue}
-        onChange={(event, newValue) => {
-          setSelectedValue(newValue);
-        }}
-        inputValue={inputValue}
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-          handleInputChange(event, newInputValue);
-        }}
-        className="home__input"
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            inputRef={inputRef}
-            label="Try searching a gate in newark. Eg. 71x"
-            margin="normal"
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: null,
-            }}
-          />
-        )}
-        renderOption={(props, option, { inputValue }) => {
-          const matches = match(option.name, inputValue, { insideWords: true });
-          const parts = parse(option.name, matches);
-          return (
-            <li {...props}>
-              <div>
-                {parts.map((part, index) => (
-                  <span
-                    key={index}
-                    style={{
-                      fontWeight: part.highlight ? 700 : 400,
-                    }}
-                  >
-                    {part.text}
-                  </span>
-                ))}
-              </div>
-            </li>
-          );
-        }}
-        noOptionsText="Where are you flying to?"
-        filterOptions={(x) => x}
-        disableClearable
-        forcePopupIcon={false}
-        freeSolo
-        selectOnFocus
-        clearOnBlur={false}
-        handleHomeEndKeys
-      />
-      <button className="home__search" type="submit">
-        Search
-      </button>
-    </form>
+    <div>
+      <header className={`home__header ${isHeaderHidden ? "home__header--hidden" : ""}`}>
+        <h1>My App</h1>
+      </header>
+      <form onSubmit={handleSubmit}>
+        <Autocomplete
+          options={filteredAirports}
+          value={selectedValue}
+          onChange={(event, newValue) => {
+            setSelectedValue(newValue);
+          }}
+          inputValue={inputValue}
+          onInputChange={(event, newInputValue) => {
+            setInputValue(newInputValue);
+            handleInputChange(event, newInputValue);
+          }}
+          className={`home__input ${isActive ? "home__input--active" : ""}`} // Apply the active class
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              inputRef={inputRef}
+              label="Try searching a gate in Newark. Eg. 71x"
+              margin="normal"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: null,
+              }}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+            />
+          )}
+          renderOption={(props, option, { inputValue }) => {
+            const matches = match(option.name, inputValue, { insideWords: true });
+            const parts = parse(option.name, matches);
+            return (
+              <li {...props}>
+                <div>
+                  {parts.map((part, index) => (
+                    <span
+                      key={index}
+                      style={{
+                        fontWeight: part.highlight ? 700 : 400,
+                      }}
+                    >
+                      {part.text}
+                    </span>
+                  ))}
+                </div>
+              </li>
+            );
+          }}
+          noOptionsText="Where are you flying to?"
+          filterOptions={(x) => x}
+          disableClearable
+          forcePopupIcon={false}
+          freeSolo
+          selectOnFocus
+          clearOnBlur={false}
+          handleHomeEndKeys
+        />
+        <button className="home__search" type="submit">
+          Search
+        </button>
+      </form>
+    </div>
   );
 };
 

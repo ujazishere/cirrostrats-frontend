@@ -1,0 +1,34 @@
+/* styles.css */
+
+.home__input--active {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    transition: top 0.3s ease-in-out;
+  }
+  
+  .home__header--hidden {
+    top: -60px; /* Adjust based on the height of your header */
+    transition: top 0.3s ease-in-out;
+  }
+  
+  .home__header {
+    position: relative;
+    top: 0;
+    width: 100%;
+    z-index: 999;
+    transition: top 0.3s ease-in-out;
+  }
+  
+  .home__suggestions {
+    position: fixed;
+    top: 60px; /* Adjust based on the height of your search bar */
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: white;
+    border: 1px solid #ddd;
+  }
+  
