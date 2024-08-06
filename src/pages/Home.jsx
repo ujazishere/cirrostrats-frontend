@@ -1,14 +1,31 @@
-import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import Input from "../components/Input";
 import { useGoogleLogin } from "@react-oauth/google";
 import GoogleButton from "react-google-button";
 import axios from "axios";
 import "./Home.css"; // Import the CSS file
+import React, { useState, useEffect } from 'react';
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false); // Add this state if it's needed
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerWidth <= 768) { // Mobile breakpoint
+        if (window.scrollY > 50) {
+          setIsHeaderHidden(true);
+        } else {
+          setIsHeaderHidden(false);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -33,11 +50,19 @@ const Home = () => {
     setUserInfo(null);
   };
 
+  const handleSubmit = (value) => {
+    // Handle the form submission
+    console.log('Submitted value:', value);
+    // Add your logic here for what should happen when the form is submitted
+  };
+
   return (
     <div className="home">
-      <h2 className="home-title">Check Weather, Gate And Flight Information.</h2>
+      <header className={`home__header ${isHeaderHidden ? "home__header--hidden" : ""}`}>
+        <h2 className="home-title">Check Weather, Gate And Flight Information.</h2>
+      </header>
+      <Input onSubmit={handleSubmit} setIsSearchActive={setIsSearchActive} />
       <div className="search-container">
-        <Input />
       </div>
       <NavLink to="/guide" className="home-link">
         Guide
@@ -61,7 +86,6 @@ const Home = () => {
       )}
 
       <div className="home-content">
-        {/* Your content here */}
       </div>
     </div>
   );

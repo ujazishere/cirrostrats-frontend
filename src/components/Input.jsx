@@ -1,158 +1,73 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import Autocomplete from "@mui/material/Autocomplete";
-import TextField from "@mui/material/TextField";
-import parse from "autosuggest-highlight/parse";
-import match from "autosuggest-highlight/match";
-import "./Input.css"; // Import the CSS file
+import React, { useState, useEffect, useRef } from 'react';
+import { Autocomplete, TextField } from '@mui/material';
 
-const apiUrl = import.meta.env.VITE_API_URL;
-console.log(`apiUrl${apiUrl}`);
-
-const Input = () => {
-  const [airports, setAirports] = useState([]);
-  const [filteredAirports, setFilteredAirports] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [inputValue, setInputValue] = useState("");
+const Input = ({ options, onSubmit }) => {
   const [selectedValue, setSelectedValue] = useState(null);
-  const [isActive, setIsActive] = useState(false); // New state for active search bar
-  const [isHeaderHidden, setIsHeaderHidden] = useState(false); // New state for header visibility
-  const navigate = useNavigate();
+  const [inputValue, setInputValue] = useState('');
+  const [isActive, setIsActive] = useState(false);
+  const [isFixed, setIsFixed] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      try {
-        const res = await axios.get(`${apiUrl}/airports`);
-        const { data } = res;
-        const options = data.map(d => ({
-          value: `${d.name} (${d.code})`,
-          label: `${d.name} (${d.code})`,
-          name: d.name,
-          code: d.code,
-          id: d.id,
-        }));
-        setAirports(options);
-      } catch (error) {
-        console.error("Error fetching airports from backend's MongoDB. Check backend server connection:", error);
-      } finally {
-        setIsLoading(false);
+    const handleScroll = () => {
+      if (window.innerWidth <= 768) { // Mobile breakpoint
+        if (window.scrollY > 50) {
+          setIsFixed(false);
+        } else {
+          setIsFixed(true);
+        }
       }
-    }
-    fetchData();
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleInputChange = async (event, newInputValue) => {
-    setInputValue(newInputValue);
-    if (newInputValue.length >= 3) {
-      console.log(`Keystroke logged: ${newInputValue}`);
-      const filtered = airports.filter(airport => 
-        airport.name.toLowerCase().includes(newInputValue.toLowerCase()) ||
-        airport.code.toLowerCase().includes(newInputValue.toLowerCase())
-      );
-      setFilteredAirports(filtered);
-
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/query/airport?search=${newInputValue}`);
-        const { data } = res;
-        console.log("API data", data);
-      } catch (error) {
-        console.error("Error fetching airport data:", error);
-      }
-    } else {
-      setFilteredAirports([]);
-    }
-  };
-
-  const handleSubmit = e => {
-    e.preventDefault();
-    if (selectedValue) {
-      navigate("/details", { state: { searchValue: selectedValue } });
-    } else if (inputValue) {
-      navigate("/details", { state: { searchValue: inputValue } });
-    }
-  };
-
   const handleFocus = () => {
-    if (window.innerWidth <= 768) { // Check if the device is mobile
-      setIsActive(true);
-      setIsHeaderHidden(true); // Hide the header when the search bar is active
+    setIsActive(true);
+    if (window.innerWidth <= 768) {
+      setIsFixed(true);
+      document.body.style.overflow = 'hidden';
     }
   };
 
   const handleBlur = () => {
     setIsActive(false);
-    setIsHeaderHidden(false); // Show the header when the search bar is not active
+    if (window.innerWidth <= 768) {
+      document.body.style.overflow = '';
+    }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onSubmit(selectedValue);
   };
 
   return (
-    <div>
-      <header className={`home__header ${isHeaderHidden ? "home__header--hidden" : ""}`}>
-        <h1>My App</h1>
-      </header>
-      <form onSubmit={handleSubmit}>
-        <Autocomplete
-          options={filteredAirports}
-          value={selectedValue}
-          onChange={(event, newValue) => {
-            setSelectedValue(newValue);
-          }}
-          inputValue={inputValue}
-          onInputChange={(event, newInputValue) => {
-            setInputValue(newInputValue);
-            handleInputChange(event, newInputValue);
-          }}
-          className={`home__input ${isActive ? "home__input--active" : ""}`} // Apply the active class
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              inputRef={inputRef}
-              label="Try searching a gate in Newark. Eg. 71x"
-              margin="normal"
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: null,
-              }}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-            />
-          )}
-          renderOption={(props, option, { inputValue }) => {
-            const matches = match(option.name, inputValue, { insideWords: true });
-            const parts = parse(option.name, matches);
-            return (
-              <li {...props}>
-                <div>
-                  {parts.map((part, index) => (
-                    <span
-                      key={index}
-                      style={{
-                        fontWeight: part.highlight ? 700 : 400,
-                      }}
-                    >
-                      {part.text}
-                    </span>
-                  ))}
-                </div>
-              </li>
-            );
-          }}
-          noOptionsText="Where are you flying to?"
-          filterOptions={(x) => x}
-          disableClearable
-          forcePopupIcon={false}
-          freeSolo
-          selectOnFocus
-          clearOnBlur={false}
-          handleHomeEndKeys
-        />
-        <button className="home__search" type="submit">
-          Search
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className={`search-form ${isFixed ? 'fixed' : ''}`}>
+      <Autocomplete
+        options={options}
+        value={selectedValue}
+        onChange={(event, newValue) => setSelectedValue(newValue)}
+        inputValue={inputValue}
+        onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+        className={`home__input ${isActive ? "home__input--active" : ""}`}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            inputRef={inputRef}
+            label="Try searching a gate in Newark. Eg. 71x"
+            margin="normal"
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: null,
+            }}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+          />
+        )}
+      />
+    </form>
   );
 };
 

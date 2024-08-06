@@ -4,6 +4,38 @@
 }
 
 
+@media (max-width: 768px) {
+  .home__header {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .home__header--hidden {
+    transform: translateY(-100%);
+  }
+
+  .search-form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .search-form.fixed {
+    position: fixed;
+    transform: translateY(0);
+  }
+
+  .search-form:not(.fixed) {
+    transform: translateY(-100%);
+  }
+
+  .home__input--active {
+    /* Add any additional styles for the active state */
+  }
+}
 
 * {
   padding: 0;
