@@ -1,3 +1,95 @@
+.navbar, .searchbar-container {
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+  background-color: white; /* Ensure the background is the same as your app's background */
+  transition: top 0.3s, opacity 0.3s;
+}
+
+.navbar.hidden {
+  top: -100px; /* Adjust this value as necessary to hide the navbar */
+  opacity: 0;
+}
+
+.searchbar-container {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px; /* Space below the searchbar */
+  display: flex;
+  justify-content: center;
+}
+
+.searchbar-container.expanded {
+  top: 0;
+}
+
+.searchbar-container input {
+  width: 100%;
+  max-width: 600px; /* Limit the width on larger screens */
+}
+
+@media (min-width: 768px) {
+  .navbar, .searchbar-container {
+    position: static; /* Reset the position on larger screens */
+  }
+
+}
+
+@media (max-width: 767px) {
+  .home__title {
+  }
+}
+
+
+
+@media (max-width: 767px) {
+  /* Adjust title size */
+  .home__title {
+    font-size: 18px;
+    margin-bottom: 200px; /* Adjust this as necessary */
+  }
+
+  /* Ensure searchbar is centered and doesn't overlap */
+  .searchbar-container {
+    width: 100%;
+    padding: 0;
+    margin: 20px 0;
+  }
+
+  /* Adjust link spacing and size */
+  .home__link {
+    margin: 15px 0;
+    font-size: 1rem;
+    display: block;
+  }
+
+  /* Add spacing below the Google login button */
+  .google-login-button {
+    margin-top: 20px; /* Add space above the button */
+    width: 90%; /* Ensure it fits within the screen */
+  }
+
+  /* Stack elements vertically */
+  .home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: auto; /* Let the height grow based on content */
+    margin-top: 20px; /* Additional margin if needed */
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 :root {
   --black: #24292e;
   --white: white;
@@ -143,10 +235,13 @@ html {
   height: 60vh;
 }
 
+
+
 .home__title {
-  font-size: 2.3rem;
-  margin: 0.5em 0;
+  font-size: 25px;
   font-weight: bold;
+  margin-top: 160px; /* Adjust this margin to push the title down */
+  text-align: center;
 }
 
 form {
@@ -179,12 +274,14 @@ form {
   background-color: #5b6166;
   cursor: not-allowed;
 }
+
 .home__link {
-  margin: 0.5em 0;
+  margin: 10px 0;
   font-size: 1.2rem;
-  color: black; /* Change color to black */
-  text-decoration: none; /* Optional: Remove underline */
+  color: black;
+  text-decoration: none;
 }
+
 
 .home__number,
 .home__link {
@@ -800,4 +897,5 @@ table.comparison-table td:first-child {
     color: #adbac7;
     text-decoration: underline;
   }
+
 }

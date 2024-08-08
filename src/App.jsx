@@ -15,12 +15,9 @@ import "./WeatherInfo.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Input from './components/Input'; // Adjusted import path
 
-
-
 function App() {
   return (
     <GoogleOAuthProvider clientId="678901205467-g2hk1dmj5krq4ua0n3uc4r2s1d98mtq5.apps.googleusercontent.com">
-    
       <div className="App">
         <Navbar />
         <UTCTime />

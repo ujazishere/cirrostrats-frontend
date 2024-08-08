@@ -41,7 +41,6 @@ const Input = () => {
     fetchData();
   }, []);
 
-
   const handleInputChange = async (event, newInputValue) => {
     setInputValue(newInputValue);
     if (newInputValue.length >= 3) {
@@ -75,65 +74,82 @@ const Input = () => {
     }
   };
 
+  const handleFocus = () => {
+    document.querySelector(".navbar").classList.add("hidden");
+    document.querySelector(".searchbar-container").classList.add("expanded");
+  };
+
+  const handleBlur = () => {
+    // Optionally, delay the removal of classes to prevent quick flicker if focus/blur events happen rapidly
+    setTimeout(() => {
+      document.querySelector(".navbar").classList.remove("hidden");
+      document.querySelector(".searchbar-container").classList.remove("expanded");
+    }, 300);
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
-      <Autocomplete
-        options={filteredAirports}
-        value={selectedValue}
-        onChange={(event, newValue) => {
-          setSelectedValue(newValue);
-        }}
-        inputValue={inputValue}
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-          handleInputChange(event, newInputValue);
-        }}
-        className="home__input"
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            inputRef={inputRef}
-            label="Try searching a gate in newark. Eg. 71x"
-            margin="normal"
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: null,
-            }}
-          />
-        )}
-        renderOption={(props, option, { inputValue }) => {
-          const matches = match(option.name, inputValue, { insideWords: true });
-          const parts = parse(option.name, matches);
-          return (
-            <li {...props}>
-              <div>
-                {parts.map((part, index) => (
-                  <span
-                    key={index}
-                    style={{
-                      fontWeight: part.highlight ? 700 : 400,
-                    }}
-                  >
-                    {part.text}
-                  </span>
-                ))}
-              </div>
-            </li>
-          );
-        }}
-        noOptionsText="Where are you flying to?"
-        filterOptions={(x) => x}
-        disableClearable
-        forcePopupIcon={false}
-        freeSolo
-        selectOnFocus
-        clearOnBlur={false}
-        handleHomeEndKeys
-      />
-      <button className="home__search" type="submit">
-        Search
-      </button>
-    </form>
+    <div className="searchbar-container">
+      <form onSubmit={handleSubmit}>
+        <Autocomplete
+          options={filteredAirports}
+          value={selectedValue}
+          onChange={(event, newValue) => {
+            setSelectedValue(newValue);
+          }}
+          inputValue={inputValue}
+          onInputChange={(event, newInputValue) => {
+            setInputValue(newInputValue);
+            handleInputChange(event, newInputValue);
+          }}
+          className="home__input"
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              inputRef={inputRef}
+              label="Try searching a gate in newark. Eg. 71x"
+              margin="normal"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: null,
+                onFocus: handleFocus,
+                onBlur: handleBlur,
+              }}
+            />
+          )}
+          renderOption={(props, option, { inputValue }) => {
+            const matches = match(option.name, inputValue, { insideWords: true });
+            const parts = parse(option.name, matches);
+            return (
+              <li {...props}>
+                <div>
+                  {parts.map((part, index) => (
+                    <span
+                      key={index}
+                      style={{
+                        fontWeight: part.highlight ? 700 : 400,
+                      }}
+                    >
+                      {part.text}
+                    </span>
+                  ))}
+                </div>
+              </li>
+            );
+          }}
+          noOptionsText="Where are you flying to?"
+          filterOptions={(x) => x}
+          disableClearable
+          forcePopupIcon={false}
+          freeSolo
+          selectOnFocus
+          clearOnBlur={false}
+          handleHomeEndKeys
+        />
+        <button className="home__search" type="submit">
+          Search
+        </button>
+      </form>
+    </div>
   );
 };
 
