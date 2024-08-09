@@ -1,44 +1,3 @@
-@keyframes bounceIn {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(30%);
-    opacity: 1;
-  }
-  80% {
-    transform: translateY(-10%);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-/* Bounce-out animation */
-@keyframes bounceOut {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  20% {
-    transform: translateY(-10%);
-    opacity: 1;
-  }
-  50% {
-    transform: translateY(30%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-}
-
-
-
-
-
 .navbar, .searchbar-container {
   position: fixed;
   width: 100%;
@@ -87,7 +46,6 @@
 
   .utc__container.hidden {
     display: none; /* Hide the UTC clock when search bar is expanded */
-    animation: bounceOut 0.5s ease-in;
   }
 
 
@@ -103,7 +61,6 @@
   .navbar.hidden {
     top: -100px; /* Adjust this value as necessary to hide the navbar */
     opacity: 0;
-    animation: bounceOut 0.5s ease-in;
   }
 
   .hidden {
@@ -116,11 +73,6 @@
     left: 0;
     width: 100%;
     z-index: 1000;
-  }
-
-  .searchbar-container.expanded {
-    top: 0;
-    animation: bounceIn 0.5s ease-out;
   }
 
 }
@@ -151,7 +103,7 @@ html {
   border-bottom: 1px solid #e9ecef;
   padding: 2em;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-  z-index: 10000;
+  z-index: 1000;
   position: fixed;
   width: 100%;
   display: flex;

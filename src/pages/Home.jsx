@@ -4,6 +4,7 @@ import Input from "../components/Input";
 import { useGoogleLogin } from '@react-oauth/google';
 import GoogleButton from 'react-google-button';
 import axios from 'axios';
+import UTCTime from "../components/UTCTime"; // Import the UTC time component
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -45,17 +46,20 @@ const Home = () => {
     margin: '15px'
   };
 
+  const googleButtonStyle = {
+    position: 'fixed',
+    bottom: '150px',  // Adjust distance from the bottom
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: 9999     // Ensure it appears above other elements
+  };
+
   return (
     <div className="home">
       <h2 className="home__title">Check Weather, Gate And Flight Information.</h2>
+      <UTCTime /> {/* Add the UTC time component */}
       <Input />
-      <NavLink to="/guide" className="home__link">
-        Guide
-      </NavLink>
-      <NavLink to="https://cirrostrats.us/live_map" className="home__link">
-        Live Map
-      </NavLink>
-      
+
       {isLoggedIn ? (
         <div>
           <p>Logged in as: {userInfo?.name}</p>
@@ -69,7 +73,9 @@ const Home = () => {
           </button>
         </div>
       ) : (
-        <GoogleButton onClick={() => googleLogin()} />
+        <div style={googleButtonStyle} className="google-button">
+          <GoogleButton onClick={() => googleLogin()} />
+        </div>
       )}
 
       <div className="home__content">

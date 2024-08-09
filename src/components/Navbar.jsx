@@ -1,43 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
+
 const Navbar = () => {
   const [showLinks, setShowLinks] = useState(false);
+  const sidebarRef = useRef(null);
+  const overlayRef = useRef(null);
+
+  const toggleSidebar = () => {
+    setShowLinks(prev => !prev);
+  };
+
+  const closeSidebar = () => {
+    setShowLinks(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && overlayRef.current && !overlayRef.current.contains(event.target)) {
+        closeSidebar();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div className="navbar">
       <h2>
         <NavLink
           to="/"
           className="navbar__title"
-          style={isActive => ({
+          style={({ isActive }) => ({
             color: isActive ? "white" : "black",
             textDecoration: "none",
           })}
-          onClick={() => setShowLinks(false)}
+          onClick={closeSidebar}
         >
           Cirrostrats
         </NavLink>
       </h2>
 
-      <span className="material-symbols-outlined navbar__menu" onClick={() => setShowLinks(prev => !prev)}>
+      <span className="material-symbols-outlined navbar__menu" onClick={toggleSidebar}>
         menu
       </span>
 
-      <nav className={`navbar__nav ${showLinks ? "open" : "closed"}`}>
+      {showLinks && <div className="sidebar-overlay" ref={overlayRef} onClick={closeSidebar}></div>}
+
+      <nav className={`navbar__nav ${showLinks ? "open" : "closed"}`} ref={sidebarRef}>
         <ul className="navbar__list">
-          <li className="navbar__list__item">
-            <NavLink
-              to="/"
-              className={({ isActive }) => (isActive ? "active" : "navbar__list__item__link")}
-              onClick={() => setShowLinks(prev => !prev)}
-            >
-              Search
-            </NavLink>
-          </li>
           <li className="navbar__list__item">
             <NavLink
               to="story"
               className={({ isActive }) => (isActive ? "active" : "navbar__list__item__link")}
-              onClick={() => setShowLinks(prev => !prev)}
+              onClick={closeSidebar}
             >
               Our Story
             </NavLink>
@@ -46,7 +62,7 @@ const Navbar = () => {
             <NavLink
               to="contact"
               className={({ isActive }) => (isActive ? "active" : "navbar__list__item__link")}
-              onClick={() => setShowLinks(prev => !prev)}
+              onClick={closeSidebar}
             >
               Contact Us
             </NavLink>
@@ -55,7 +71,7 @@ const Navbar = () => {
             <NavLink
               to="source"
               className={({ isActive }) => (isActive ? "active" : "navbar__list__item__link")}
-              onClick={() => setShowLinks(prev => !prev)}
+              onClick={closeSidebar}
             >
               Source
             </NavLink>
@@ -64,19 +80,19 @@ const Navbar = () => {
             <NavLink
               to="guide"
               className={({ isActive }) => (isActive ? "active" : "navbar__list__item__link")}
-              onClick={() => setShowLinks(prev => !prev)}
+              onClick={closeSidebar}
             >
               Guide
             </NavLink>
           </li>
           <li className="navbar__list__item">
-            <NavLink
-              to="report"
-              className={({ isActive }) => (isActive ? "navbar__list__item__link active" : "navbar__list__item__link")}
-              onClick={() => setShowLinks(prev => !prev)}
+            <a
+              href="https://cirrostrats.us/live_map"
+              className="navbar__list__item__link"
+              onClick={closeSidebar}
             >
-              Report
-            </NavLink>
+              Live Map
+            </a>
           </li>
         </ul>
       </nav>

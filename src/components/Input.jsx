@@ -7,7 +7,7 @@ import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-console.log(`apiUrl${apiUrl}`)
+console.log(`apiUrl${apiUrl}`);
 
 const Input = () => {
   const [airports, setAirports] = useState([]);
@@ -52,14 +52,12 @@ const Input = () => {
       setFilteredAirports(filtered);
 
       try {
-        // airport is the optional parameter its not serving any good purpose at the moment check backend route in route.py for explanation.
         const res = await axios.get(`http://127.0.0.1:8000/query/airport?search=${newInputValue}`);
         const { data } = res;
-        console.log("API data", data); // You can do whatever you want with the data here.
-    } catch (error) {
-      console.error("Error fetching airport data:", error);
-    }
-
+        console.log("API data", data);
+      } catch (error) {
+        console.error("Error fetching airport data:", error);
+      }
     } else {
       setFilteredAirports([]);
     }
@@ -77,13 +75,36 @@ const Input = () => {
   const handleFocus = () => {
     document.querySelector(".navbar").classList.add("hidden");
     document.querySelector(".searchbar-container").classList.add("expanded");
+
+    // Hide additional elements
+    document.querySelector(".home__title").classList.add("hidden");
+    document.querySelector(".google-button").classList.add("hidden");
+
+    const utcElement = document.querySelector(".utc__container");
+    if (utcElement) {
+      utcElement.classList.add("hidden");
+      console.log("UTC time element hidden");
+    } else {
+      console.log("UTC time element not found");
+    }
   };
 
   const handleBlur = () => {
-    // Optionally, delay the removal of classes to prevent quick flicker if focus/blur events happen rapidly
     setTimeout(() => {
       document.querySelector(".navbar").classList.remove("hidden");
       document.querySelector(".searchbar-container").classList.remove("expanded");
+
+      // Show additional elements again
+      document.querySelector(".home__title").classList.remove("hidden");
+      document.querySelector(".google-button").classList.remove("hidden");
+
+      const utcElement = document.querySelector(".utc__container");
+      if (utcElement) {
+        utcElement.classList.remove("hidden");
+        console.log("UTC time element shown");
+      } else {
+        console.log("UTC time element not found");
+      }
     }, 300);
   };
 
