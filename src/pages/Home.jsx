@@ -51,7 +51,7 @@ const Home = () => {
     bottom: '150px',  // Adjust distance from the bottom
     left: '50%',
     transform: 'translateX(-50%)',
-    zIndex: 9999     // Ensure it appears above other elements
+    zIndex:  99    // Ensure it appears above other elements
   };
 
   return (

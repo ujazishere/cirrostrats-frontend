@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Card from "../components/Card";
 import DetailCard from "../components/Cards/DetailCard";
+import UTCTime from "../components/UTCTime"; // Import the UTC time component
+
 
 const Details = () => {
   const [aiportData, setAiportData] = useState([]);
@@ -24,6 +26,8 @@ const Details = () => {
 
   return (
     <div className="details">
+    <UTCTime /> {/* Add the UTC time component */}
+
       {/* <h2 className="details__title">United Flight Information</h2> */}
 
       {/* <div className="detail">
