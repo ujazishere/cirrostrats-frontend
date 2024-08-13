@@ -18,6 +18,7 @@ const Input = () => {
   const navigate = useNavigate();
   const inputRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [typingTimer, setTypingTimer] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -42,25 +43,37 @@ const Input = () => {
     fetchData();
   }, []);
 
-  const handleInputChange = async (event, newInputValue) => {
+  const handleInputChange = (event, newInputValue) => {
     setInputValue(newInputValue);
-    if (newInputValue.length >= 3) {
-      console.log(`Keystroke logged: ${newInputValue}`);
-      const filtered = airports.filter(airport => 
-        airport.name.toLowerCase().includes(newInputValue.toLowerCase()) ||
-        airport.code.toLowerCase().includes(newInputValue.toLowerCase())
-      );
-      setFilteredAirports(filtered);
+    
+    if (typingTimer) {
+      clearTimeout(typingTimer);
+    }
 
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/query/airport?search=${newInputValue}`);
-        const { data } = res;
-        console.log("API data", data);
-      } catch (error) {
-        console.error("Error fetching airport data:", error);
-      }
+    if (newInputValue.length > 0) {
+      const newTimer = setTimeout(() => {
+        fetchSuggestions(newInputValue);
+      }, 300);
+      setTypingTimer(newTimer);
     } else {
       setFilteredAirports([]);
+    }
+  };
+
+  const fetchSuggestions = async (value) => {
+    console.log(`Fetching suggestions for: ${value}`);
+    const filtered = airports.filter(airport => 
+      airport.name.toLowerCase().includes(value.toLowerCase()) ||
+      airport.code.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredAirports(filtered);
+
+    try {
+      const res = await axios.get(`http://127.0.0.1:8000/query/airport?search=${value}`);
+      const { data } = res;
+      console.log("API data", data);
+    } catch (error) {
+      console.error("Error fetching airport data:", error);
     }
   };
 

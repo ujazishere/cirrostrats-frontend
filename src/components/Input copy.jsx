@@ -17,6 +17,7 @@ const Input = () => {
   const [selectedValue, setSelectedValue] = useState(null);
   const navigate = useNavigate();
   const inputRef = useRef(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -73,10 +74,9 @@ const Input = () => {
   };
 
   const handleFocus = () => {
+    setIsExpanded(true);
     document.querySelector(".navbar").classList.add("hidden");
     document.querySelector(".searchbar-container").classList.add("expanded");
-
-    // Hide additional elements
     document.querySelector(".home__title").classList.add("hidden");
     document.querySelector(".google-button").classList.add("hidden");
 
@@ -89,29 +89,34 @@ const Input = () => {
     }
   };
 
-  const handleBlur = () => {
-    setTimeout(() => {
-      document.querySelector(".navbar").classList.remove("hidden");
-      document.querySelector(".searchbar-container").classList.remove("expanded");
+  const handleBlur = (event) => {
+    // Check if the related target is within the Autocomplete component
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setTimeout(() => {
+        setIsExpanded(false);
+        document.querySelector(".navbar").classList.remove("hidden");
+        document.querySelector(".searchbar-container").classList.remove("expanded");
 
-      // Show additional elements again
-      document.querySelector(".home__title").classList.remove("hidden");
-      document.querySelector(".google-button").classList.remove("hidden");
+        // Show additional elements again
+        document.querySelector(".home__title").classList.remove("hidden");
+        document.querySelector(".google-button").classList.remove("hidden");
 
-      const utcElement = document.querySelector(".utc__container");
-      if (utcElement) {
-        utcElement.classList.remove("hidden");
-        console.log("UTC time element shown");
-      } else {
-        console.log("UTC time element not found");
-      }
-    }, 300);
+        const utcElement = document.querySelector(".utc__container");
+        if (utcElement) {
+          utcElement.classList.remove("hidden");
+          console.log("UTC time element shown");
+        } else {
+          console.log("UTC time element not found");
+        }
+      }, 300);
+    }
   };
 
   return (
     <div className="searchbar-container">
       <form onSubmit={handleSubmit}>
         <Autocomplete
+          open={isExpanded}
           options={filteredAirports}
           value={selectedValue}
           onChange={(event, newValue) => {
@@ -132,8 +137,6 @@ const Input = () => {
               InputProps={{
                 ...params.InputProps,
                 endAdornment: null,
-                onFocus: handleFocus,
-                onBlur: handleBlur,
               }}
             />
           )}
@@ -165,6 +168,9 @@ const Input = () => {
           selectOnFocus
           clearOnBlur={false}
           handleHomeEndKeys
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          disablePortal
         />
         <button className="home__search" type="submit">
           Search
