@@ -16,11 +16,13 @@ const Details = () => {
   useEffect(() => {
     async function fetchData() {
       const airportId = searchValue.id;
-      const res = await axios.get(`${apiUrl}/airports/${airportId}`); 
+      console.log('FINISHED HERE')
+      const res = await axios.get(`${apiUrl}/query/${airportId}`); 
       console.log('SEARCH VAL HERE',airportId)
       console.log('RES',res)
 
       if (!res.status === 200) {
+        console.log('ERRORRRRRRRR')
         throw new Error("network error occured");
       }
 

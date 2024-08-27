@@ -20,11 +20,13 @@ const Input = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [typingTimer, setTypingTimer] = useState(null);
 
-  useEffect(() => {
+  // TODO: This is being run two times
+  useEffect(() => {     // UseEffect renders the data from the /airports route right away which returns the mongo db for airports collection.
     async function fetchData() {
+      console.log("Fetching data from backend");
       setIsLoading(true);
       try {
-        const res = await axios.get(`${apiUrl}/airports`);    // Returns id, name and code as mongo document field keys.
+        const res = await axios.get(`${apiUrl}/airports`);    // Returns id, name and code as mongo document field keys from the backend using http://127.0.0.1:8000/airports.
         const { data } = res;
         const options = data.map(d => ({
           value: `${d.name} (${d.code})`,   // This value item isnt the most helpful it seems
@@ -39,6 +41,8 @@ const Input = () => {
       } finally {
         setIsLoading(false);    // Once fetch is completed the setLoading is set to false.
       }
+
+      console.log("Done fetching data");
     }
     fetchData();
   }, []);
