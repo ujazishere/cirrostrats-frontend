@@ -5,6 +5,9 @@ import Card from "../components/Card";
 import DetailCard from "../components/Cards/DetailCard";
 import UTCTime from "../components/UTCTime"; // Import the UTC time component
 
+const apiUrl = import.meta.env.VITE_API_URL;
+console.log(`apiUrl${apiUrl}`);
+
 
 const Details = () => {
   const [aiportData, setAiportData] = useState([]);
@@ -13,7 +16,9 @@ const Details = () => {
   useEffect(() => {
     async function fetchData() {
       const airportId = searchValue.id;
-      const res = await axios.get(`http://127.0.0.1:8000/airports/${airportId}`); 
+      const res = await axios.get(`${apiUrl}/airports/${airportId}`); 
+      console.log('SEARCH VAL HERE',airportId)
+      console.log('RES',res)
 
       if (!res.status === 200) {
         throw new Error("network error occured");

@@ -24,20 +24,20 @@ const Input = () => {
     async function fetchData() {
       setIsLoading(true);
       try {
-        const res = await axios.get(`${apiUrl}/airports`);
+        const res = await axios.get(`${apiUrl}/airports`);    // Returns id, name and code as mongo document field keys.
         const { data } = res;
         const options = data.map(d => ({
-          value: `${d.name} (${d.code})`,
+          value: `${d.name} (${d.code})`,   // This value item isnt the most helpful it seems
           label: `${d.name} (${d.code})`,
           name: d.name,
           code: d.code,
           id: d.id,
         }));
-        setAirports(options);
+        setAirports(options);     // This will set airports to the fetched airports from the backend.
       } catch (error) {
         console.error("Error fetching airports from backend's MongoDB. Check backend server connection:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoading(false);    // Once fetch is completed the setLoading is set to false.
       }
     }
     fetchData();
@@ -61,6 +61,7 @@ const Input = () => {
   };
 
   const fetchSuggestions = async (value) => {
+    // TODO: This only includes filters that look into the airport collection. Need it to include flight numbers and gates as well.
     console.log(`Fetching suggestions for: ${value}`);
     const filtered = airports.filter(airport => 
       airport.name.toLowerCase().includes(value.toLowerCase()) ||
@@ -69,7 +70,10 @@ const Input = () => {
     setFilteredAirports(filtered);
 
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/query/airport?search=${value}`);
+      // Not sure how or why the `airport` bit in the route is a variable and I cannot change it anything else.
+      // Wanted it to be 
+      const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
+      
       const { data } = res;
       console.log("API data", data);
     } catch (error) {
@@ -79,6 +83,7 @@ const Input = () => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    // selectedValue is the mongodb document with value, label, name, code and id
     if (selectedValue) {
       navigate("/details", { state: { searchValue: selectedValue } });
     } else if (inputValue) {
