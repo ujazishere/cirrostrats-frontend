@@ -6,8 +6,9 @@ import { weatherData } from "./test";
 const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
 
-  console.log("flightDetails", flightDetails);
+  console.log("flightDetails", flightDetails.metar);
   const weatherDataAtis = weatherData["d-atis"];
+  const metar = flightDetails.METAR
 
   const coloredText = HighlightText({
     text: weatherDataAtis.dataString,
@@ -71,7 +72,7 @@ const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
               <span className="card__depature__time">34 mins ago</span>
             </div>
             <div className="card__depature__details">
-              <p>{METAR}</p>
+              <p>{flightDetails.metar}</p>
             </div>
             <div className="card__depature__subtitle  card__header--dark">
               <h3 className="card__depature__subtitle__title">TAF</h3>
@@ -119,6 +120,7 @@ const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
           <span className="card__depature__time">166 mins ago</span>
         </div>
         <div className="card__depature__details">
+
           <p></p>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Card from "../components/Card";
+import Dummy from "../components/Dummy";
 import DetailCard from "../components/Cards/DetailCard";
 import UTCTime from "../components/UTCTime"; // Import the UTC time component
 
@@ -11,6 +12,7 @@ console.log(`apiUrl${apiUrl}`);
 
 const Details = () => {
   const [aiportData, setAiportData] = useState([]);
+  const [flightData, setFlightData] = useState([]);
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
   const noResults = location?.state?.noResults;
@@ -27,6 +29,7 @@ const Details = () => {
  
  
       const airportId = searchValue.id;
+      console.log('SEARCH VALLLLLLL',searchValue)
       console.log('Details.jsx useEffect')
       // This gets the actual weather from backend using mongoDB.
       const res = await axios.get(`${apiUrl}/airport/${airportId}`); 
@@ -38,6 +41,8 @@ const Details = () => {
       }
 
       setAiportData(res.data);
+      // if there is flight data then setFlightData(res.data))
+
     }
     if (searchValue) fetchData();
   }, [searchValue]);
@@ -45,72 +50,13 @@ const Details = () => {
   return (
     <div className="details">
     <UTCTime /> {/* Add the UTC time component */}
-
-      {/* <h2 className="details__title">United Flight Information</h2> */}
-
-      {/* <div className="detail">
-        <h3>▼ {title}</h3>
-      </div> */}
-      {/* 
-      <div className="details__card">
-        <h3 className="details__card__title">UA492 N37502</h3>
-
-        <div className="detail__body">
-          <div className="detail__depature">
-            <h3 className="detail__depature__title">KEWR</h3>
-
-            <div className="detail__gate">
-              <p className="detail__gate__title">Gate</p>
-              <h3>C - C111</h3>
-            </div>
-            <div className="detail__depature__time">
-              <p className="detail__depature__local">Scheduled Local</p>
-              <h3>05:40 EST</h3>
-            </div>
-            <div className="detail__depature__utc__time">
-              <p className="detail__depature__utc">UTC</p>
-              <h3>STD 1040Z</h3>
-              <h3>ETD 1040Z</h3>
-            </div>
-          </div>
-
-          <div className="detail__arrival">
-            <h3 className="detail__arrival__title ">KIAH</h3>
-
-            <div className="detail__gate">
-              <p className="detail__gate__title">Gate</p>
-              <h3>C - C39</h3>
-            </div>
-            <div className="detail__arrival__time">
-              <p className="detail__arrival__local"> Scheduled Local</p>
-              <h3>08:49 CST</h3>
-            </div>
-            <div className="detail__arrival__utc__time">
-              <p className="detail__arrival__utc">UTC</p>
-              <h3>STA 1449Z</h3>
-              <h3>STA 1449Z</h3>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* <Card arrow={false} detailCard={true} flightDetail={flightData} /> */}
-      {/* {aiportData && <DetailCard flightDetails={aiportData} />} */}
-
-
+      
       {/* The following code for Card component states that if airportData is truthy it will render the Card component */}
       {/* the && is the 'if' operator in this case checking if the airportData is truthy. */}
       {aiportData && <Card arrow={false} flightDetails={aiportData} />}
+      {/* {aiportData && <Dummy arrow={false} flightDetails={aiportData} />} */}
+      {/* {flightData && <Dummy arrow={false} flightDetails={aiportData} />} */}
 
-
-      {/* <Card arrow={true} title="depature" flightDetails={aiportData} /> */}
-      {/* <Card
-        routeCard={true}
-        title="Route"
-        // text="(FL360) LANNA J48 CSN FANPO Q40 AEX DOOBI2"
-        // link="https://skyvector.com/?fpl=%20KEWR%20LANNA%20J48%20CSN%20FANPO%20Q40%20AEX%20DOOBI2%20KIAH"
-      /> */}
-      {/* <Card arrow={true} title="arrival" /> */}
     </div>
   );
 };

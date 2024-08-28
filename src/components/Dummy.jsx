@@ -7,11 +7,11 @@ import { useLocation } from "react-router-dom";
 
 
 ///This all needs to be changed since its copied from weather page i.e Card.jsx and Input.jsx
-const Dummy = () => {
+const Dummy = ({arrow, flightDetails}) => {
   const [airportData, setAiportData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
-  const searchValue = location?.state?.searchValue;
+  // const searchValue = location?.state?.searchValue;
 
   useEffect(() => {
     async function fetchData() {

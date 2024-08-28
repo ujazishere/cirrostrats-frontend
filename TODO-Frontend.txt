@@ -2,19 +2,19 @@ Practice readibility and simplicity. Aviod code duplication. Include description
 
 
 **IS:   use command shift f to find targetted tasks - "TODO: is"
-        
+        Investigate why components are being rendered multiple times.
+        Use this regex pattern in react to highlight - box pattern for altimeter pattern
+            f.ALTIMETER_PATTERN = r"((?<= )A)(\d{4})"
         mark ETD time as red when STD is past ETD
-        
-        Fix searchbar keystrokes disappearing.
-        Localstorage- explore.
-        integrate user auth for login through google/facebook/email etc.
         Hide datis table when N/A instead of showing N/A
-        account for nas alongside weather- in airport lookup query
         WIP - summery box shadow and expand/collapse (fast)animation.  
         work on script to extract data - aviation_stack_data_pull.py
+        Localstorage- explore.
         Media queries for mobile vs desktop view. use css media queries. Check bootstrap navbar. Target screens(IPAD, smaller, etc)
             make side bar
-        
+        DONE! account for nas alongside weather- in airport lookup query
+        DONE! integrate user auth for login through google/facebook/email etc.
+        DONE! Fix searchbar keystrokes disappearing.
 
 **UV:   
         Use debounce to reduce time consuming tasks do not fire often causing performance bottlenecks.
