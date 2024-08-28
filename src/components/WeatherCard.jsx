@@ -3,12 +3,14 @@ import { NavLink } from "react-router-dom";
 import HighlightText from "./utility/HighlighText";
 import { weatherData } from "./test";
 
-const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
+const WeatherCard = ({ arrow, title, routeCard, text, flightDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
 
-  console.log("flightDetails", flightDetails.metar);
+  console.log("flightDetails", flightDetails.metar,);
   const weatherDataAtis = weatherData["d-atis"];
-  const metar = flightDetails.METAR
+  const metar = flightDetails.metar
+  const taf = flightDetails.taf
+  const d_atis = flightDetails.d_atis
 
   const coloredText = HighlightText({
     text: weatherDataAtis.dataString,
@@ -65,21 +67,21 @@ const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
               <span className="card__depature__time">34 mins ago</span>
             </div>
             <div className="card__depature__details">
-              <p>{coloredText}</p>
+              <p>{d_atis}</p>
             </div>
             <div className="card__depature__subtitle  card__header--dark">
               <h3 className="card__depature__subtitle__title">METAR</h3>
               <span className="card__depature__time">34 mins ago</span>
             </div>
             <div className="card__depature__details">
-              <p>{flightDetails.metar}</p>
+              <p>{metar}</p>
             </div>
             <div className="card__depature__subtitle  card__header--dark">
               <h3 className="card__depature__subtitle__title">TAF</h3>
               <span className="card__depature__time">166 mins ago</span>
             </div>
             <div className="card__depature__details">
-              {/* <p>{TAF}</p> */}
+              <p>{taf}</p>
             </div>
           </div>
         </div>
@@ -128,4 +130,4 @@ const Card = ({ arrow, title, routeCard, text, flightDetails }) => {
   );
 };
 
-export default Card;
+export default WeatherCard;
