@@ -13,16 +13,27 @@ const Details = () => {
   const [aiportData, setAiportData] = useState([]);
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
+  const noResults = location?.state?.noResults;
   useEffect(() => {
     async function fetchData() {
+
+      // The purpose of this if was to send oddball search queries to the backend for processing.
+      // This seems more complex than initially thought since noResults i always truthy 
+      // Selecting an airport from a dropdown makes the filtered airports null which is causing it to be truthy all the time.
+      // if (noResults) {
+        // const res = await axios.get(`${apiUrl}/query/${searchValue}`); 
+        
+      // } else {
+ 
+ 
       const airportId = searchValue.id;
-      console.log('FINISHED HERE')
-      const res = await axios.get(`${apiUrl}/query/${airportId}`); 
-      console.log('SEARCH VAL HERE',airportId)
-      console.log('RES',res)
+      console.log('Details.jsx useEffect')
+      // This gets the actual weather from backend using mongoDB.
+      const res = await axios.get(`${apiUrl}/airport/${airportId}`); 
+      console.log('RES',res.data)
+      // TODO: set airportdata to res.data then use it on the Card component to display
 
       if (!res.status === 200) {
-        console.log('ERRORRRRRRRR')
         throw new Error("network error occured");
       }
 
@@ -85,7 +96,13 @@ const Details = () => {
 
       {/* <Card arrow={false} detailCard={true} flightDetail={flightData} /> */}
       {/* {aiportData && <DetailCard flightDetails={aiportData} />} */}
+
+
+      {/* The following code for Card component states that if airportData is truthy it will render the Card component */}
+      {/* the && is the 'if' operator in this case checking if the airportData is truthy. */}
       {aiportData && <Card arrow={false} flightDetails={aiportData} />}
+
+
       {/* <Card arrow={true} title="depature" flightDetails={aiportData} /> */}
       {/* <Card
         routeCard={true}

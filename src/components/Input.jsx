@@ -71,25 +71,41 @@ const Input = () => {
       airport.name.toLowerCase().includes(value.toLowerCase()) ||
       airport.code.toLowerCase().includes(value.toLowerCase())
     );
+    console.log('filtered_airports_length', filtered.length)
     setFilteredAirports(filtered);
+    // This checks if the filtered is empty, if it is then it will send the query to the backend
+    if (filtered.length === 0) {
+      console.log('No filtered airports and hence sending query to backend')
 
-    try {
-      // Not sure how or why the `airport` bit in the route is a variable and I cannot change it anything else.
-      // Wanted it to be 
-      const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
-      
-      const { data } = res;
-      console.log("API data", data);
-    } catch (error) {
-      console.error("Error fetching airport data:", error);
-    }
-  };
+      try {
+        // Not sure how or why the `airport` bit in the route is a variable and I cannot change it anything else.
+        // Wanted it to be 
+        const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
+        
+        const { data } = res;
+        console.log("API data", data);
+      } catch (error) {
+        console.error("Error fetching airport data:", error);
+      }
+    };
+
+  }
+
+
 
   const handleSubmit = e => {
     e.preventDefault();
+    
+    // Determine if filteredAirports is empty or not
+    const noResults = filteredAirports.length === 0;
+    console.log('NORRRR', noResults)
     // selectedValue is the mongodb document with value, label, name, code and id
+    console.log('filtered_airports_length', filteredAirports.length)
     if (selectedValue) {
-      navigate("/details", { state: { searchValue: selectedValue } });
+      navigate("/details", { state: { searchValue: selectedValue} });
+      // Could've added the noResults to pass in but the filtered airport's length becomes none when  selected an airport from filtered airports.
+      // This is causing it to be True all the time.
+      // navigate("/details", { state: { searchValue: selectedValue, noResults } });
     } else if (inputValue) {
       navigate("/details", { state: { searchValue: inputValue } });
     }
@@ -105,7 +121,7 @@ const Input = () => {
     const utcElement = document.querySelector(".utc__container");
     if (utcElement) {
       utcElement.classList.add("hidden");
-      console.log("UTC time element hidden");
+      // console.log("UTC time element hidden");
     } else {
       console.log("UTC time element not found");
     }
