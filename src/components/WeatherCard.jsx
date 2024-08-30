@@ -10,7 +10,8 @@ const WeatherCard = ({ arrow, title, routeCard, text, flightDetails }) => {
   const weatherDataAtis = weatherData["d-atis"];
   const metar = flightDetails.metar
   const taf = flightDetails.taf
-  const d_atis = flightDetails.d_atis
+  console.log("datis", flightDetails.datis,);
+  const datis = flightDetails.datis
 
   const coloredText = HighlightText({
     text: weatherDataAtis.dataString,
@@ -67,7 +68,7 @@ const WeatherCard = ({ arrow, title, routeCard, text, flightDetails }) => {
               <span className="card__depature__time">34 mins ago</span>
             </div>
             <div className="card__depature__details">
-              <p>{d_atis}</p>
+              <p>{datis}</p>
             </div>
             <div className="card__depature__subtitle  card__header--dark">
               <h3 className="card__depature__subtitle__title">METAR</h3>

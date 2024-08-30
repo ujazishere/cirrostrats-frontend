@@ -16,8 +16,7 @@ const Details = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        console.log('SEARCH VALLLLLLL', searchValue);
-        console.log('Details.jsx useEffect');
+        console.log('searchValue in Details.jsx', searchValue);
 
         let res;
         if (searchValue?.id) {
@@ -25,12 +24,12 @@ const Details = () => {
           const airportId = searchValue.id;
           res = await axios.get(`${apiUrl}/airport/${airportId}`);
         } else {
-          console.log("axdfagaha")
+          console.log("Couoldn't find airport in the suggestion. sending to /rawQuery.")
           // Fetching data using raw query
           res = await axios.get(`${apiUrl}/rawQuery/${searchValue}`);
         }
 
-        console.log('RES', res.data);
+        console.log('res.data from Details.jsx', res.data);
 
         if (res.status !== 200) {
           throw new Error("Network error occurred");
