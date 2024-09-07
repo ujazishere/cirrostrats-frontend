@@ -3,24 +3,24 @@ import { NavLink } from "react-router-dom";
 import HighlightText from "./utility/HighlighText";
 import { weatherData } from "./test";
 
-const WeatherCard = ({ arrow, title, routeCard, text, flightDetails }) => {
+const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails: weatherDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
 
-  console.log("flightDetails", flightDetails.metar,);
+  console.log("WeatherCard - metar", weatherDetails.metar,);
   const weatherDataAtis = weatherData["d-atis"];
-  const metar = flightDetails.metar
-  const taf = flightDetails.taf
-  console.log("datis", flightDetails.datis,);
-  const datis = flightDetails.datis
+  const metar = weatherDetails.metar;
+  const taf = weatherDetails.taf;
+  console.log("datis", weatherDetails.datis,);
+  const datis = weatherDetails.datis;
 
-  const coloredText = HighlightText({
+  const coloredText = HighlightText({     // This is for highlighting weather. Need to have regex implemented here
     text: weatherDataAtis.dataString,
     highlightedPhrases: weatherDataAtis.highlight,
   });
-  const handleToggleCard = ({ flightDetails }) => {
+  const handleToggleCard = ({ flightDetails }) => {     // I dont know that this is for.
     setToggleCard(prev => !prev);
   };
-  if (routeCard)
+  if (routeCard)    // This will only trigger if the routeCard is passed in as prop in the WeatherCard thing on Details.jsx
     return (
       <div className="card">
         <h3 className="card__title">
@@ -43,7 +43,7 @@ const WeatherCard = ({ arrow, title, routeCard, text, flightDetails }) => {
     );
 
   if (weatherData) {
-    const { METAR, TAF, D_ATIS, name } = flightDetails || {};
+    const { METAR, TAF, D_ATIS, name } = weatherDetails || {};
     return (
       <>
         <h3 className="weather__title">

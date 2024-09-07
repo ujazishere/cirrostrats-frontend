@@ -9,33 +9,30 @@ const apiUrl = import.meta.env.VITE_API_URL;
 console.log(`apiUrl${apiUrl}`);
 
 const Details = () => {
-  const [airportWx, setAirportWx] = useState([]);
+  const [airportData, setAirportData] = useState([]);
   const [flightData, setFlightData] = useState([]);
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
-  // const noResults = location?.state?.noResults;
 
-  console.log(location)
-  console.log('searchValue in Details.jsx', searchValue);
   useEffect(() => {
     async function fetchData() {
       try {
+        console.log('searchValue in Details.jsx', searchValue);
 
         let res;
         if (searchValue?.id) {
           // Fetching weather data using the airport ID
           const airportId = searchValue.id;
           res = await axios.get(`${apiUrl}/airport/${airportId}`);
-          console.log("Returning airportData")
-          setAirportWx(res.data);
+          setAirportData(res.data);
         } else {
-          console.log("Couldn't find airport in the suggestion. sending to /rawQuery.")
+          console.log("Couoldn't find airport in the suggestion. sending to /rawQuery.")
           // Fetching data using raw query
           res = await axios.get(`${apiUrl}/rawQuery/${searchValue}`);
           setFlightData(res.data);
         }
 
-        console.log('res.data from Details.jsx', res.data, airportWx);
+        console.log('res.data from Details.jsx', res.data);
 
         if (res.status !== 200) {
           throw new Error("Network error occurred");
@@ -57,8 +54,8 @@ const Details = () => {
       
       {/* The following code for Card component states that if airportData is truthy it will render the Card component */}
       {/* {aiportData && <WeatherCard arrow={false} flightDetails={aiportData} />} */}
-      {airportWx && airportWx.length > 0 ? (
-        <WeatherCard arrow={false} weatherDetails={airportWx} />
+      {airportData ? (
+        <WeatherCard arrow={false} weatherDetails={airportData} />
       ) : flightData ? (
         <FlightCard flightDetails={flightData} />
       ) : null}

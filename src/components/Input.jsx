@@ -102,7 +102,7 @@ const Input = () => {
     // selectedValue is the mongodb document with value, label, name, code and id
     console.log('filtered_airports_length', filteredAirports.length)
     if (selectedValue) {
-      console.log('SELECTED VALUE',selectedValue)
+      console.log('selectedValue',selectedValue)
       navigate("/details", { state: { searchValue: selectedValue} });
       // Could've added the noResults to pass in but the filtered airport's length becomes none when  selected an airport from filtered airports.
       // This is causing it to be True all the time.
