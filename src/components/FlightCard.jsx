@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import { weatherData } from "./test";
+
 
 
 
@@ -41,7 +43,7 @@ const FlightCard = ({flightDetails}) => {
             <div className="detail__depature__utc__time">
               <p className="detail__depature__utc">UTC</p>
               <h3>{flightDetails.scheduled_departure_time}</h3>
-              <h3>ETD 1040Z</h3>
+              <h3>{flightDetails.scheduled_departure_time}</h3>
             </div>
           </div>
 
@@ -58,8 +60,8 @@ const FlightCard = ({flightDetails}) => {
             </div>
             <div className="detail__arrival__utc__time">
               <p className="detail__arrival__utc">UTC</p>
-              <h3>STA 1449Z</h3>
-              <h3>STA 1449Z</h3>
+              <h3>{flightDetails.scheduled_arrival_time}</h3>
+              <h3>{flightDetails.scheduled_arrival_time}</h3>
             </div>
           </div>
         </div>
@@ -77,9 +79,9 @@ const FlightCard = ({flightDetails}) => {
           <tbody>
             <tr>
               <td style={{ width: "100%", textAlign: "left" }}>
-                <span style={{ float: "left", width: "33%" }}>11:35 EDT</span>
-                <span style={{ float: "left", width: "33%", textAlign: "center" }}>KBOS</span>
-                <span style={{ float: "right", width: "33%", textAlign: "right" }}>B-B24</span>
+                <span style={{ float: "left", width: "33%" }}>{flightDetails.scheduled_departure_time}</span>
+                <span style={{ float: "left", width: "33%", textAlign: "center" }}>{flightDetails.departure_ID}</span>
+                <span style={{ float: "right", width: "33%", textAlign: "right" }}>{flightDetails.departure_gate}</span>
               </td>
             </tr>
             <tr>
@@ -96,17 +98,14 @@ const FlightCard = ({flightDetails}) => {
                   flightDetails.dep_weather?.['D-ATIS'] || 'D-ATIS not available'
                 )}
                 {/* {flightDetails.dep_weather['D-ATIS']} */}
-
-
-
               </td>
             </tr>
             <tr>
               <td>METAR <span className="small-text">56 mins ago</span></td>
             </tr>
-            <tr>
-              <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                {/* {flightDetails.dep_weather['METAR']} */}
+            <tr style={{ textOverflow: "ellipsis" }}>
+              <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
+                METAR-DUMMY
               </td>
             </tr>
             <tr>
@@ -114,11 +113,7 @@ const FlightCard = ({flightDetails}) => {
             </tr>
             <tr style={{ textOverflow: "ellipsis" }}>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
-                KBOS 121731Z 1218/1324 12010KT P6SM FEW030 BKN070
-                FM130000 19005KT P6SM BKN050
-                FM130500 24005KT P6SM SCT060
-                FM131600 13006KT P6SM FEW070
-                FM132200 17010KT P6SM SCT060
+                TAF-DUMMY
               </td>
             </tr>
           </tbody>
@@ -146,9 +141,9 @@ const FlightCard = ({flightDetails}) => {
           <tbody>
             <tr>
               <td style={{ width: "100%", textAlign: "left" }}>
-                <span style={{ float: "left", width: "33%" }}>14:17 MDT</span>
-                <span style={{ float: "left", width: "33%", textAlign: "center" }}>KDEN</span>
-                <span style={{ float: "right", width: "33%", textAlign: "right" }}>B-B47</span>
+                <span style={{ float: "left", width: "33%" }}>{flightDetails.scheduled_arrival_time}</span>
+                <span style={{ float: "left", width: "33%", textAlign: "center" }}>{flightDetails.destination_ID}</span>
+                <span style={{ float: "right", width: "33%", textAlign: "right" }}>{flightDetails.arrival_gate}</span>
               </td>
             </tr>
             <tr>
@@ -156,7 +151,7 @@ const FlightCard = ({flightDetails}) => {
             </tr>
             <tr>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                DEN DEP INFO K 2053Z. 19007KT 10SM FEW045 SCT100 BKN200 13/08 A2994 (TWO NINER NINER FOUR) RMK AO2 SLP096 60011 53003. LLWS ADZYS IN EFCT. HAZUS WX INFO FOR CO, KS, NE, WY AVBL FM FLT SVC. DEPG RWY8, RWY17L, RWY25. NOTICE TO AIR MISSION. TWY ED CLSD BTN TWY P7 AND TWY M .. DEN DME OTS. BIRD ACTIVITY VICINITY ARPT. ALL ACFT IN CONCOURSE AREA ADZ RAMP TWR OF DP AND TRSN. ...ADVS YOU HAVE INFO K.
+                D-ATIS-DUMMY
               </td>
             </tr>
             <tr>
@@ -164,7 +159,7 @@ const FlightCard = ({flightDetails}) => {
             </tr>
             <tr>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                KDEN 122053Z 20007KT 10SM FEW045 SCT100 BKN200 13/08 A2994 RMK AO2 SLP096 60011 T01280083 53003 $
+                METAR-DUMMY
               </td>
             </tr>
             <tr>
@@ -172,11 +167,7 @@ const FlightCard = ({flightDetails}) => {
             </tr>
             <tr style={{ textOverflow: "ellipsis" }}>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
-                KDEN 122059Z 1221/1324 21006KT P6SM VCSH BKN060 BKN100
-                FM130000 14006KT P6SM SCT060 SCT100
-                FM130500 21007KT P6SM SCT100
-                FM131500 VRB06KT P6SM SCT120
-                FM131900 01008KT P6SM SCT070
+                TAF-DUMMY
               </td>
             </tr>
           </tbody>
