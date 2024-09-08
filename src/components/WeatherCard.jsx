@@ -107,6 +107,6 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails: weatherDet
       </div>
     </div>
   );
-});
+};
 
 export default WeatherCard;

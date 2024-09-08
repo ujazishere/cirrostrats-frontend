@@ -16,6 +16,7 @@ const Details = () => {
   // const noResults = location?.state?.noResults;
 
   console.log(location)
+  console.log('airportWx', airportWx)
   console.log('searchValue in Details.jsx', searchValue);
   useEffect(() => {
     async function fetchData() {
@@ -56,8 +57,12 @@ const Details = () => {
       <UTCTime /> {/* Add the UTC time component */}
       
       {/* The following code for Card component states that if airportData is truthy it will render the Card component */}
+      {/* This is old code */}
       {/* {aiportData && <WeatherCard arrow={false} flightDetails={aiportData} />} */}
-      {airportWx && airportWx.length > 0 ? (
+
+      {/* The following thing looks for searchValue's ID that is the airport weather logic. if its returned airport then it will return WeatherCard */}
+      {/* Otherwise it will return the FlightCard */}
+      {searchValue.id? (
         <WeatherCard arrow={false} weatherDetails={airportWx} />
       ) : flightData ? (
         <FlightCard flightDetails={flightData} />
