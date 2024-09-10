@@ -12,7 +12,7 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails: weatherDet
   const taf = weatherDetails.taf;
   console.log("datis", weatherDetails.datis,);
   const datis = weatherDetails.datis;
-
+  
   const coloredText = HighlightText({     // This is for highlighting weather. Need to have regex implemented here
     text: weatherDataAtis.dataString,
     highlightedPhrases: weatherDataAtis.highlight,

@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useLocation } from "react-router-dom";
-import { weatherData } from "./test";
 
-
-
-
-
-
-///This all needs to be changed since its copied from weather page i.e Card.jsx and Input.jsx
-const FlightCard = ({flightDetails}) => {
+const FlightCard = ({ flightDetails }) => {
   const [isLoading, setIsLoading] = useState(true);
-  console.log('flightDetaiils',flightDetails)
-  // const location = useLocation();
-  // const searchValue = location?.state?.searchValue;
+  const [DATIS, setDATIS] = useState('Loading D-ATIS...');
+  const [METAR, setMETAR] = useState('Loading METAR...');
+  const [TAF, setTAF] = useState('Loading TAF...');
 
+  useEffect(() => {
+    if (flightDetails && flightDetails.dep_weather) {
+      setIsLoading(false);
+      setDATIS(flightDetails.dep_weather['D-ATIS'] || 'D-ATIS not available');
+      setMETAR(flightDetails.dep_weather['METAR'] || 'METAR not available');
+      setTAF(flightDetails.dep_weather['TAF'] || 'TAF not available');
+    }
+  }, [flightDetails]);
 
+  if (!flightDetails) {
+    return <div>Loading flight details...</div>;
+  }
 
   return (
     <div className="details">
-      {/* <h2 className="details__title">United Flight Information</h2> */}
-
-      <div className="detail">
-        {/* <h3>▼ {title}</h3> */}
-      </div>
-      
       <div className="details__card">
         <h3 className="details__card__title">UA492 N37502</h3>
 
@@ -43,7 +39,6 @@ const FlightCard = ({flightDetails}) => {
             <div className="detail__depature__utc__time">
               <p className="detail__depature__utc">UTC</p>
               <h3>{flightDetails.scheduled_departure_time}</h3>
-              <h3>{flightDetails.scheduled_departure_time}</h3>
             </div>
           </div>
 
@@ -60,7 +55,6 @@ const FlightCard = ({flightDetails}) => {
             </div>
             <div className="detail__arrival__utc__time">
               <p className="detail__arrival__utc">UTC</p>
-              <h3>{flightDetails.scheduled_arrival_time}</h3>
               <h3>{flightDetails.scheduled_arrival_time}</h3>
             </div>
           </div>
@@ -89,15 +83,7 @@ const FlightCard = ({flightDetails}) => {
             </tr>
             <tr>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                {console.log('Here in DATIS')}
-
-                {/* TODO: This isn't working. works after adding the key call and saving the file but throws error when refreshing browser. Investigate */}
-                {isLoading ? (
-                  'Loading D-ATIS...'
-                ) : (
-                  flightDetails.dep_weather?.['D-ATIS'] || 'D-ATIS not available'
-                )}
-                {/* {flightDetails.dep_weather['D-ATIS']} */}
+                {isLoading ? 'Loading D-ATIS...' : DATIS}
               </td>
             </tr>
             <tr>
@@ -105,7 +91,7 @@ const FlightCard = ({flightDetails}) => {
             </tr>
             <tr style={{ textOverflow: "ellipsis" }}>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
-                METAR-DUMMY
+                {isLoading ? 'Loading METAR...' : METAR}
               </td>
             </tr>
             <tr>
@@ -113,7 +99,7 @@ const FlightCard = ({flightDetails}) => {
             </tr>
             <tr style={{ textOverflow: "ellipsis" }}>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
-                TAF-DUMMY
+                {isLoading ? 'Loading TAF...' : TAF}
               </td>
             </tr>
           </tbody>
@@ -121,13 +107,15 @@ const FlightCard = ({flightDetails}) => {
       </div>
 
       <table className="route">
-            <tr>
-                <th>ROUTE Show on - SkyVector Map </th>
-            </tr>
-            <tr>
-                <td>FL340 AGDOX Q816 HOCKE MONEE BAE HELLO SAUGI PORDR AALLE3</td>
-            </tr>
-        </table>
+        <tbody>
+          <tr>
+            <th>ROUTE Show on - SkyVector Map </th>
+          </tr>
+          <tr>
+            <td>FL340 AGDOX Q816 HOCKE MONEE BAE HELLO SAUGI PORDR AALLE3</td>
+          </tr>
+        </tbody>
+      </table>
 
       <div className="table-container">
         <table className="comparison-table">
