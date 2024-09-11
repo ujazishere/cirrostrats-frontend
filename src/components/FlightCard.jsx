@@ -28,9 +28,9 @@ const FlightCard = ({ flightDetails }) => {
       // Destination weather
       if (flightDetails.des_weather) {
         console.log("Destination weather:", flightDetails.des_weather); // Debug log
-        setDESDATIS(flightDetails.des_weather['D-ATIS'] || 'D-ATIS not available');
-        setDESMETAR(flightDetails.des_weather['METAR'] || 'METAR not available');
-        setDESTAF(flightDetails.des_weather['TAF'] || 'TAF not available');
+        setDESDATIS(flightDetails.dest_weather['D-ATIS'] || 'D-ATIS not available');
+        setDESMETAR(flightDetails.dest_weather['METAR'] || 'METAR not available');
+        setDESTAF(flightDetails.dest_weather['TAF'] || 'TAF not available');
       } else {
         console.log("Destination weather not found"); // Debug log
       }
@@ -40,6 +40,8 @@ const FlightCard = ({ flightDetails }) => {
   if (!flightDetails) {
     return <div>Loading flight details...</div>;
   }
+
+
 
   return (
     <div className="details">
