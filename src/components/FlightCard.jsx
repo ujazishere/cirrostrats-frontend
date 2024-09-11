@@ -5,13 +5,35 @@ const FlightCard = ({ flightDetails }) => {
   const [DATIS, setDATIS] = useState('Loading D-ATIS...');
   const [METAR, setMETAR] = useState('Loading METAR...');
   const [TAF, setTAF] = useState('Loading TAF...');
+  const [DESDATIS, setDESDATIS] = useState('Loading D-ATIS...');
+  const [DESMETAR, setDESMETAR] = useState('Loading METAR...');
+  const [DESTAF, setDESTAF] = useState('Loading TAF...');
 
   useEffect(() => {
-    if (flightDetails && flightDetails.dep_weather) {
+    console.log("flightDetails:", flightDetails); // Debug log
+
+    if (flightDetails) {
       setIsLoading(false);
-      setDATIS(flightDetails.dep_weather['D-ATIS'] || 'D-ATIS not available');
-      setMETAR(flightDetails.dep_weather['METAR'] || 'METAR not available');
-      setTAF(flightDetails.dep_weather['TAF'] || 'TAF not available');
+
+      // Departure weather
+      if (flightDetails.dep_weather) {
+        console.log("Departure weather:", flightDetails.dep_weather); // Debug log
+        setDATIS(flightDetails.dep_weather['D-ATIS'] || 'D-ATIS not available');
+        setMETAR(flightDetails.dep_weather['METAR'] || 'METAR not available');
+        setTAF(flightDetails.dep_weather['TAF'] || 'TAF not available');
+      } else {
+        console.log("Departure weather not found"); // Debug log
+      }
+
+      // Destination weather
+      if (flightDetails.des_weather) {
+        console.log("Destination weather:", flightDetails.des_weather); // Debug log
+        setDESDATIS(flightDetails.des_weather['D-ATIS'] || 'D-ATIS not available');
+        setDESMETAR(flightDetails.des_weather['METAR'] || 'METAR not available');
+        setDESTAF(flightDetails.des_weather['TAF'] || 'TAF not available');
+      } else {
+        console.log("Destination weather not found"); // Debug log
+      }
     }
   }, [flightDetails]);
 
@@ -139,7 +161,7 @@ const FlightCard = ({ flightDetails }) => {
             </tr>
             <tr>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                D-ATIS-DUMMY
+                {isLoading ? 'Loading Destination D-ATIS...' : DESDATIS}
               </td>
             </tr>
             <tr>
@@ -147,7 +169,7 @@ const FlightCard = ({ flightDetails }) => {
             </tr>
             <tr>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                METAR-DUMMY
+                {isLoading ? 'Loading Destination METAR...' : DESMETAR}
               </td>
             </tr>
             <tr>
@@ -155,7 +177,7 @@ const FlightCard = ({ flightDetails }) => {
             </tr>
             <tr style={{ textOverflow: "ellipsis" }}>
               <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
-                TAF-DUMMY
+                {isLoading ? 'Loading Destination TAF...' : DESTAF}
               </td>
             </tr>
           </tbody>
