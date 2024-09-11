@@ -10,29 +10,29 @@ const FlightCard = ({ flightDetails }) => {
   const [DESTAF, setDESTAF] = useState('Loading TAF...');
 
   useEffect(() => {
-    console.log("flightDetails:", flightDetails); // Debug log
+    console.log("flightDetails:", flightDetails); 
 
     if (flightDetails) {
       setIsLoading(false);
 
       // Departure weather
       if (flightDetails.dep_weather) {
-        console.log("Departure weather:", flightDetails.dep_weather); // Debug log
+        console.log("Departure weather:", flightDetails.dep_weather); 
         setDATIS(flightDetails.dep_weather['D-ATIS'] || 'D-ATIS not available');
         setMETAR(flightDetails.dep_weather['METAR'] || 'METAR not available');
         setTAF(flightDetails.dep_weather['TAF'] || 'TAF not available');
       } else {
-        console.log("Departure weather not found"); // Debug log
+        console.log("Departure weather not found"); 
       }
 
       // Destination weather
-      if (flightDetails.des_weather) {
-        console.log("Destination weather:", flightDetails.des_weather); // Debug log
+      if (flightDetails.dest_weather) {
+        console.log("Destination weather:", flightDetails.des_weather); /
         setDESDATIS(flightDetails.dest_weather['D-ATIS'] || 'D-ATIS not available');
         setDESMETAR(flightDetails.dest_weather['METAR'] || 'METAR not available');
         setDESTAF(flightDetails.dest_weather['TAF'] || 'TAF not available');
       } else {
-        console.log("Destination weather not found"); // Debug log
+        console.log("Destination weather not found"); 
       }
     }
   }, [flightDetails]);
