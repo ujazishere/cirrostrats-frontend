@@ -5,12 +5,11 @@ import { weatherData } from "./test";
 
 const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails: weatherDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
+  console.log('INSIDE WEATHERCARD', weatherDetails)
 
-  console.log("WeatherCard - metar", weatherDetails.metar,);
   const weatherDataAtis = weatherData["d-atis"];
   const metar = weatherDetails.metar;
   const taf = weatherDetails.taf;
-  console.log("datis", weatherDetails.datis,);
   const datis = weatherDetails.datis;
   
   const coloredText = HighlightText({     // This is for highlighting weather. Need to have regex implemented here

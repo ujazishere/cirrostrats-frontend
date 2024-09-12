@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import WeatherCard from "../components/WeatherCard";
 
 const FlightCard = ({ flightDetails }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -9,40 +10,7 @@ const FlightCard = ({ flightDetails }) => {
   const [DESMETAR, setDESMETAR] = useState('Loading METAR...');
   const [DESTAF, setDESTAF] = useState('Loading TAF...');
 
-  useEffect(() => {
-    console.log("flightDetails:", flightDetails); 
-
-    if (flightDetails) {
-      setIsLoading(false);
-
-      // Departure weather
-      if (flightDetails.dep_weather) {
-        console.log("Departure weather:", flightDetails.dep_weather); 
-        setDATIS(flightDetails.dep_weather['D-ATIS'] || 'D-ATIS not available');
-        setMETAR(flightDetails.dep_weather['METAR'] || 'METAR not available');
-        setTAF(flightDetails.dep_weather['TAF'] || 'TAF not available');
-      } else {
-        console.log("Departure weather not found"); 
-      }
-
-      // Destination weather
-      if (flightDetails.dest_weather) {
-        console.log("Destination weather:", flightDetails.des_weather); /
-        setDESDATIS(flightDetails.dest_weather['D-ATIS'] || 'D-ATIS not available');
-        setDESMETAR(flightDetails.dest_weather['METAR'] || 'METAR not available');
-        setDESTAF(flightDetails.dest_weather['TAF'] || 'TAF not available');
-      } else {
-        console.log("Destination weather not found"); 
-      }
-    }
-  }, [flightDetails]);
-
-  if (!flightDetails) {
-    return <div>Loading flight details...</div>;
-  }
-
-
-
+  console.log('flightDetails in FlightCard.jsx', flightDetails)
   return (
     <div className="details">
       <div className="details__card">
@@ -87,21 +55,12 @@ const FlightCard = ({ flightDetails }) => {
 
       <div className="table-container">
         <table className="comparison-table">
-          <thead>
-            <tr>
-              <th>
-                <div className="header-button">Departure</div>
-              </th>
-            </tr>
-          </thead>
           <tbody>
             <tr>
-              <td style={{ width: "100%", textAlign: "left" }}>
-                <span style={{ float: "left", width: "33%" }}>{flightDetails.scheduled_departure_time}</span>
-                <span style={{ float: "left", width: "33%", textAlign: "center" }}>{flightDetails.departure_ID}</span>
-                <span style={{ float: "right", width: "33%", textAlign: "right" }}>{flightDetails.departure_gate}</span>
-              </td>
             </tr>
+            {flightDetails.dep_weather? (
+              <WeatherCard arrow={false} weatherDetails={flightDetails.dep_weather} />
+            ) : null}
             <tr>
               <td>D-ATIS <span className="small-text">56 mins ago</span></td>
             </tr>

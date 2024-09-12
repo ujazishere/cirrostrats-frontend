@@ -15,8 +15,6 @@ const Details = () => {
   const searchValue = location?.state?.searchValue;
   // const noResults = location?.state?.noResults;
 
-  console.log(location)
-  console.log('airportWx', airportWx)
   console.log('searchValue in Details.jsx', searchValue);
   useEffect(() => {
     async function fetchData() {
