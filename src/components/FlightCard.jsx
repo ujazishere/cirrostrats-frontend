@@ -54,37 +54,11 @@ const FlightCard = ({ flightDetails }) => {
       </div>
 
       <div className="table-container">
-        <table className="comparison-table">
+        <table className="flight_card">
           <tbody>
-            <tr>
-            </tr>
             {flightDetails.dep_weather? (
               <WeatherCard arrow={false} weatherDetails={flightDetails.dep_weather} />
             ) : null}
-            <tr>
-              <td>D-ATIS <span className="small-text">56 mins ago</span></td>
-            </tr>
-            <tr>
-              <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                {isLoading ? 'Loading D-ATIS...' : DATIS}
-              </td>
-            </tr>
-            <tr>
-              <td>METAR <span className="small-text">56 mins ago</span></td>
-            </tr>
-            <tr style={{ textOverflow: "ellipsis" }}>
-              <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
-                {isLoading ? 'Loading METAR...' : METAR}
-              </td>
-            </tr>
-            <tr>
-              <td>TAF <span className="small-text">139 mins ago</span></td>
-            </tr>
-            <tr style={{ textOverflow: "ellipsis" }}>
-              <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
-                {isLoading ? 'Loading TAF...' : TAF}
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -101,49 +75,16 @@ const FlightCard = ({ flightDetails }) => {
       </table>
 
       <div className="table-container">
-        <table className="comparison-table">
-          <thead>
-            <tr>
-              <th>
-                <div className="header-button">Destination</div>
-              </th>
-            </tr>
-          </thead>
+        <table className="flight_card">
           <tbody>
-            <tr>
-              <td style={{ width: "100%", textAlign: "left" }}>
-                <span style={{ float: "left", width: "33%" }}>{flightDetails.scheduled_arrival_time}</span>
-                <span style={{ float: "left", width: "33%", textAlign: "center" }}>{flightDetails.destination_ID}</span>
-                <span style={{ float: "right", width: "33%", textAlign: "right" }}>{flightDetails.arrival_gate}</span>
-              </td>
-            </tr>
-            <tr>
-              <td>D-ATIS <span className="small-text">16 mins ago</span></td>
-            </tr>
-            <tr>
-              <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                {isLoading ? 'Loading Destination D-ATIS...' : DESDATIS}
-              </td>
-            </tr>
-            <tr>
-              <td>METAR <span className="small-text">16 mins ago</span></td>
-            </tr>
-            <tr>
-              <td style={{ textAlign: "left", fontFamily: "Menlo, monospace" }}>
-                {isLoading ? 'Loading Destination METAR...' : DESMETAR}
-              </td>
-            </tr>
-            <tr>
-              <td>TAF <span className="small-text">10 mins ago</span></td>
-            </tr>
-            <tr style={{ textOverflow: "ellipsis" }}>
-              <td style={{ textAlign: "left", fontFamily: "Menlo, monospace", whiteSpace: "wrap", textOverflow: "ellipsis", maxHeight: "none", height: "auto" }}>
-                {isLoading ? 'Loading Destination TAF...' : DESTAF}
-              </td>
-            </tr>
+            {flightDetails.dep_weather? (
+              <WeatherCard arrow={false} weatherDetails={flightDetails.dest_weather} />
+            ) : null}
           </tbody>
         </table>
       </div>
+
+
     </div>
   );
 };

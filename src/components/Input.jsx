@@ -20,28 +20,26 @@ const Input = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [typingTimer, setTypingTimer] = useState(null);
 
-  // TODO: This is being run two times
-  useEffect(() => {     // UseEffect renders the data from the /airports route right away which returns the mongo db for airports collection.
+  useEffect(() => {
     async function fetchData() {
       console.log("Fetching data from backend");
       setIsLoading(true);
       try {
-        const res = await axios.get(`${apiUrl}/airports`);    // Returns id, name and code as mongo document field keys from the backend using http://127.0.0.1:8000/airports.
+        const res = await axios.get(`${apiUrl}/airports`);
         const { data } = res;
         const options = data.map(d => ({
-          value: `${d.name} (${d.code})`,   // This value item isnt the most helpful it seems
+          value: `${d.name} (${d.code})`,
           label: `${d.name} (${d.code})`,
           name: d.name,
           code: d.code,
           id: d.id,
         }));
-        setAirports(options);     // This will set airports to the fetched airports from the backend.
+        setAirports(options);
       } catch (error) {
         console.error("Error fetching airports from backend's MongoDB. Check backend server connection:", error);
       } finally {
-        setIsLoading(false);    // Once fetch is completed the setLoading is set to false.
+        setIsLoading(false);
       }
-
       console.log("Done fetching data");
     }
     fetchData();
@@ -65,7 +63,6 @@ const Input = () => {
   };
 
   const fetchSuggestions = async (value) => {
-    // TODO: This only includes filters that look into the airport collection. Need it to include flight numbers and gates as well.
     console.log(`Fetching suggestions for: ${value}`);
     const filtered = airports.filter(airport => 
       airport.name.toLowerCase().includes(value.toLowerCase()) ||
@@ -73,41 +70,23 @@ const Input = () => {
     );
     console.log('filtered_airports_length', filtered.length)
     setFilteredAirports(filtered);
-    // This checks if the filtered is empty, if it is then it will send the query to the backend
     if (filtered.length === 0) {
       console.log('No filtered airports and hence sending query to backend')
-
       try {
-        // Not sure how or why the `airport` bit in the route is a variable and I cannot change it anything else.
-        // Wanted it to be 
         const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
-        
         const { data } = res;
         console.log("API data", data);
       } catch (error) {
         console.error("Error fetching airport data:", error);
       }
     };
-
   }
-
-
 
   const handleSubmit = e => {
     e.preventDefault();
     
-    // Determine if filteredAirports is empty or not
-    const noResults = filteredAirports.length === 0;
-    console.log('NORRRR', noResults)
-    // selectedValue is the mongodb document with value, label, name, code and id
-    console.log('filtered_airports_length', filteredAirports.length)
-    if (selectedValue) {
-      console.log('selectedValue',selectedValue)
-      navigate("/details", { state: { searchValue: selectedValue} });
-      // Could've added the noResults to pass in but the filtered airport's length becomes none when  selected an airport from filtered airports.
-      // This is causing it to be True all the time.
-      // navigate("/details", { state: { searchValue: selectedValue, noResults } });
-    } 
+    const searchValue = selectedValue || { value: inputValue, label: inputValue };
+    navigate("/details", { state: { searchValue } });
   };
 
   const handleFocus = () => {
@@ -120,21 +99,17 @@ const Input = () => {
     const utcElement = document.querySelector(".utc__container");
     if (utcElement) {
       utcElement.classList.add("hidden");
-      // console.log("UTC time element hidden");
     } else {
       console.log("UTC time element not found");
     }
   };
 
   const handleBlur = (event) => {
-    // Check if the related target is within the Autocomplete component
     if (!event.currentTarget.contains(event.relatedTarget)) {
       setTimeout(() => {
         setIsExpanded(false);
         document.querySelector(".navbar").classList.remove("hidden");
         document.querySelector(".searchbar-container").classList.remove("expanded");
-
-        // Show additional elements again
         document.querySelector(".home__title").classList.remove("hidden");
         document.querySelector(".google-button").classList.remove("hidden");
 

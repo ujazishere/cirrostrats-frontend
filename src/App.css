@@ -482,6 +482,12 @@ form {
   font-weight: bold;
   font-size: 1.5rem;
 }
+
+.flight_card {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
 .details {
   display: flex;
   flex-direction: column;
