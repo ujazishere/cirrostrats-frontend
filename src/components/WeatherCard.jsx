@@ -43,9 +43,6 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails: weatherDet
     const { METAR, TAF, D_ATIS, name } = weatherDetails || {};
     return (
       <>
-        <h3 className="weather__title">
-          <span>Weather for </span> {name}
-        </h3>
 
         <div className="card">
           <div>

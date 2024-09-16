@@ -60,6 +60,11 @@ const Details = () => {
 
       {/* The following thing looks for searchValue's ID that is the airport weather logic. if its returned airport then it will return WeatherCard */}
       {/* Otherwise it will return the FlightCard */}
+
+      <h3 className="weather__title">
+          <span>Weather for </span> {name}
+        </h3>
+        
       {searchValue.id? (
         <WeatherCard arrow={false} weatherDetails={airportWx} />
       ) : flightData ? (
