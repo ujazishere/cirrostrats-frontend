@@ -13,6 +13,7 @@ const FlightCard = ({ flightDetails }) => {
   console.log('flightDetails in FlightCard.jsx', flightDetails)
   return (
     <div className="details">
+
       <div className="details__card">
         <h3 className="details__card__title">UA492 N37502</h3>
 
@@ -64,15 +65,20 @@ const FlightCard = ({ flightDetails }) => {
       </div>
 
       <table className="route">
-        <tbody>
-          <tr>
-            <th>ROUTE Show on - SkyVector Map </th>
-          </tr>
-          <tr>
-            <td>FL340 AGDOX Q816 HOCKE MONEE BAE HELLO SAUGI PORDR AALLE3</td>
-          </tr>
-        </tbody>
-      </table>
+  <tbody>
+    <tr>
+      <th>ROUTE Show on - SkyVector Map</th>
+    </tr>
+    <tr>
+      <td>
+        <a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">
+          Click here
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 
       <div className="table-container">
         <table className="flight_card">
