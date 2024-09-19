@@ -30,7 +30,18 @@ const Details = () => {
         } else {
           console.log("Couldn't find airport in the suggestion. sending to /rawQuery.")
           // Fetching data using raw query
+          // TODO: use rawQueryTest to send request to get just the ua_dep_des and it works. 
+                  // Take this data and send it back to backend to fetch more data
+                  // Use multiple routes to get data
           res = await axios.get(`${apiUrl}/rawQuery/${searchValue}`);
+
+          // TODO: Get this back right away as parsed query. handle parsing query in the backend and then once you figure out what kind of query it is you can send rerquest back to backend using appropriate route.
+          // airlineCode, flightNumberQuery, gateQuery, airportCodeQuery = res.flightNumber,res.airlineCode,res.gateQuery,res.airportCodeQuery 
+          // UaDepDes = await axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`);
+          // dep,des,UaSchedDepTime= UaDepDes.dep, UaDepDes.des, UaDepDes.UaSchedDepTime, UaDepDes.SchedArrTime
+          // flightStatsTZ = await axios.get(`${apiUrl}/DepartureDestionationTZ/${flightNumber}`);
+          // flightAwareReturns = await axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`);
+
           setFlightData(res.data);
         }
 

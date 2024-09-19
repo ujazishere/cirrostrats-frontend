@@ -11,7 +11,12 @@ console.log(`apiUrl${apiUrl}`);
 
 const Input = () => {
   const [airports, setAirports] = useState([]);
+  const [flightNumbers, setFlightNumbers] = useState([]);
+  const [gates, setGates] = useState([]);
   const [filteredAirports, setFilteredAirports] = useState([]);
+  const [filteredFlightNumbers, setFilteredFlightNumbers] = useState([]);
+  const [filteredGates, setFilteredGate] = useState([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
@@ -25,21 +30,42 @@ const Input = () => {
       console.log("Fetching data from backend");
       setIsLoading(true);
       try {
-        const res = await axios.get(`${apiUrl}/airports`);
-        const { data } = res;
-        const options = data.map(d => ({
-          value: `${d.name} (${d.code})`,
-          label: `${d.name} (${d.code})`,
-          name: d.name,
-          code: d.code,
-          id: d.id,
+        const [resAirports, resFlightNumbers, resGates] = await Promise.all([
+          axios.get(`${apiUrl}/airports`),
+          axios.get(`${apiUrl}/flightNumbers`),
+          axios.get(`${apiUrl}/gates`)
+        ]);
+        
+        const airportOptions = resAirports.data.map(airport => ({
+          value: `${airport.name} (${airport.code})`,
+          label: `${airport.name} (${airport.code})`,
+          name: airport.name,
+          code: airport.code,
+          id: airport.id,
         }));
-        setAirports(options);
+        
+        const flightNumberOptions = resFlightNumbers.data.map(f => ({
+          flightNumber: f.flightNumber,
+          // label: `${f.flightNumber} (${f.departure} - ${f.arrival})`,
+          // departure: f.departure,
+          // arrival: f.arrival,
+        }));
+
+        const gateOptions = resGates.data.map(c => ({
+            gate: `${c.Gate}`,
+        }));
+
+        setAirports(airportOptions);
+        // setFilteredAirports(airportOptions);
+        setFlightNumbers(flightNumberOptions);
+        setGates(gateOptions);
+
       } catch (error) {
         console.error("Error fetching airports from backend's MongoDB. Check backend server connection:", error);
       } finally {
         setIsLoading(false);
       }
+        // console.error("Error fetching airports from backend's MongoDB:", error);
       console.log("Done fetching data");
     }
     fetchData();
@@ -58,29 +84,54 @@ const Input = () => {
       }, 300);
       setTypingTimer(newTimer);
     } else {
-      setFilteredAirports([]);
+      setFilteredSuggestions([]);
     }
   };
 
+
+
   const fetchSuggestions = async (value) => {
     console.log(`Fetching suggestions for: ${value}`);
-    const filtered = airports.filter(airport => 
+    const lowercaseValue = value.toLowerCase();
+
+    const filteredAirports = airports.filter(airport => 
       airport.name.toLowerCase().includes(value.toLowerCase()) ||
       airport.code.toLowerCase().includes(value.toLowerCase())
     );
-    console.log('filtered_airports_length', filtered.length)
-    setFilteredAirports(filtered);
-    if (filtered.length === 0) {
-      console.log('No filtered airports and hence sending query to backend')
+
+    const filteredFlightNumbers = flightNumbers.filter(flight => 
+      flight.flightNumber.toLowerCase().includes(lowercaseValue)
+    );
+
+    console.log(gates)
+    const filteredGates = gates.filter(gate => 
+      gate.gate.toLowerCase().includes(lowercaseValue)
+    );
+
+    // Combine all filtered results
+    const filteredSuggestions = [
+      ...filteredAirports,
+      ...filteredFlightNumbers,
+      ...filteredGates,
+    ];
+
+    console.log('filteredAirports length', filteredAirports.length)
+    console.log(filteredSuggestions)
+    setFilteredSuggestions(filteredSuggestions);
+    if (filteredAirports.length === 0) {
+      console.log('No local matches found. Quering backend')
       try {
         const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
         const { data } = res;
-        console.log("API data", data);
+        console.log("API data since no local matches found: ", data);
       } catch (error) {
-        console.error("Error fetching airport data:", error);
+        console.error("Error fetching api data from backend: ", error);
       }
     };
   }
+
+
+
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -129,7 +180,7 @@ const Input = () => {
       <form onSubmit={handleSubmit}>
         <Autocomplete
           open={isExpanded}
-          options={filteredAirports}
+          options={filteredSuggestions}
           value={selectedValue}
           onChange={(event, newValue) => {
             setSelectedValue(newValue);
@@ -140,6 +191,7 @@ const Input = () => {
             handleInputChange(event, newInputValue);
           }}
           className="home__input"
+          
           renderInput={(params) => (
             <TextField
               {...params}
