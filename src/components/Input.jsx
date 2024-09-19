@@ -7,15 +7,12 @@ import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-console.log(`apiUrl${apiUrl}`);
+console.log(`apiUrl: ${apiUrl}`);
 
 const Input = () => {
   const [airports, setAirports] = useState([]);
   const [flightNumbers, setFlightNumbers] = useState([]);
   const [gates, setGates] = useState([]);
-  const [filteredAirports, setFilteredAirports] = useState([]);
-  const [filteredFlightNumbers, setFilteredFlightNumbers] = useState([]);
-  const [filteredGates, setFilteredGate] = useState([]);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -42,31 +39,32 @@ const Input = () => {
           name: airport.name,
           code: airport.code,
           id: airport.id,
+          type: 'airport'
         }));
         
         const flightNumberOptions = resFlightNumbers.data.map(f => ({
+          value: f.flightNumber,
+          label: f.flightNumber,
           flightNumber: f.flightNumber,
-          // label: `${f.flightNumber} (${f.departure} - ${f.arrival})`,
-          // departure: f.departure,
-          // arrival: f.arrival,
+          type: 'flightNumber'
         }));
 
         const gateOptions = resGates.data.map(c => ({
-            gate: `${c.Gate}`,
+          value: c.Gate,
+          label: c.Gate,
+          gate: c.Gate,
+          type: 'gate'
         }));
 
         setAirports(airportOptions);
-        // setFilteredAirports(airportOptions);
         setFlightNumbers(flightNumberOptions);
         setGates(gateOptions);
 
       } catch (error) {
-        console.error("Error fetching airports from backend's MongoDB. Check backend server connection:", error);
+        console.error("Error fetching data from backend:", error);
       } finally {
         setIsLoading(false);
       }
-        // console.error("Error fetching airports from backend's MongoDB:", error);
-      console.log("Done fetching data");
     }
     fetchData();
   }, []);
@@ -88,22 +86,19 @@ const Input = () => {
     }
   };
 
-
-
-  const fetchSuggestions = async (value) => {
+  const fetchSuggestions = (value) => {
     console.log(`Fetching suggestions for: ${value}`);
     const lowercaseValue = value.toLowerCase();
 
     const filteredAirports = airports.filter(airport => 
-      airport.name.toLowerCase().includes(value.toLowerCase()) ||
-      airport.code.toLowerCase().includes(value.toLowerCase())
+      airport.name.toLowerCase().includes(lowercaseValue) ||
+      airport.code.toLowerCase().includes(lowercaseValue)
     );
 
     const filteredFlightNumbers = flightNumbers.filter(flight => 
       flight.flightNumber.toLowerCase().includes(lowercaseValue)
     );
 
-    console.log(gates)
     const filteredGates = gates.filter(gate => 
       gate.gate.toLowerCase().includes(lowercaseValue)
     );
@@ -115,23 +110,9 @@ const Input = () => {
       ...filteredGates,
     ];
 
-    console.log('filteredAirports length', filteredAirports.length)
-    console.log(filteredSuggestions)
+    console.log('Filtered suggestions:', filteredSuggestions);
     setFilteredSuggestions(filteredSuggestions);
-    if (filteredAirports.length === 0) {
-      console.log('No local matches found. Quering backend')
-      try {
-        const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
-        const { data } = res;
-        console.log("API data since no local matches found: ", data);
-      } catch (error) {
-        console.error("Error fetching api data from backend: ", error);
-      }
-    };
   }
-
-
-
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -191,7 +172,7 @@ const Input = () => {
             handleInputChange(event, newInputValue);
           }}
           className="home__input"
-          
+          getOptionLabel={(option) => option.label || ""}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -205,8 +186,8 @@ const Input = () => {
             />
           )}
           renderOption={(props, option, { inputValue }) => {
-            const matches = match(option.name, inputValue, { insideWords: true });
-            const parts = parse(option.name, matches);
+            const matches = match(option.label, inputValue, { insideWords: true });
+            const parts = parse(option.label, matches);
             return (
               <li {...props}>
                 <div>
