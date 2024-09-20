@@ -79,6 +79,23 @@ const FlightCard = ({ flightDetails }) => {
   </tbody>
 </table>
 
+    <div class="table-wrapper">
+        <table class="another-table">
+            <thead>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="2"> dummy data </td>
+                </tr>
+                    dummy data
+                    <tr>
+                        <td>dummy data</td>
+                        <td>dummy data</td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+
 
       <div className="table-container">
         <table className="flight_card">
