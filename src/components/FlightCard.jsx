@@ -79,13 +79,13 @@ const FlightCard = ({ flightDetails }) => {
   </tbody>
 </table>
 
-    <div class="table-wrapper">
-        <table class="another-table">
+    <div className="table-wrapper">
+        <table className="another-table">
             <thead>
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="2"> dummy data </td>
+                    <td colSpan="2"> dummy data </td>
                 </tr>
                     dummy data
                     <tr>

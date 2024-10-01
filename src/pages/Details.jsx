@@ -11,6 +11,12 @@ console.log(`apiUrl${apiUrl}`);
 const Details = () => {
   const [airportWx, setAirportWx] = useState([]);
   const [flightData, setFlightData] = useState([]);
+  const [UaDepDes, setUaDepDes] = useState([]);
+  const [FlightStatsTZ, setFlightStatsTZ] = useState([]);
+  const [FlightAwareReturns, setFlightAwareReturns] = useState([]);
+  const [NASResponse, setNASResponse] = useState([]);
+  const [WeatherResponse, setWeatherResponse] = useState([]);
+
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
   // const noResults = location?.state?.noResults;
@@ -29,20 +35,39 @@ const Details = () => {
           setAirportWx(res.data);
         } else {
           console.log("Couldn't find airport in the suggestion. sending to /rawQuery.")
+          const flightNumberQuery = searchValue;  // Assuming the searchValue contains the flight number query.
+          const [resRawQuery, UaDepDes, flightStatsTZ, flightAwareReturns] = await Promise.all([
+            axios.get(`${apiUrl}/rawQuery/${flightNumberQuery}`),           // Raw query request
+            axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`), // Departure/Destination request
+            axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`), // Timezone request 1
+            axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`)        // FlightAware request
+          ]);
+          // flightAwareReturns = await axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`);
+
+          // console.log("rawQuery", resRawQuery.data);
+          console.log("DepDes", UaDepDes.data.destination_ID);
+          console.log("flightStatsTZ", flightStatsTZ.data);
+          // console.log("flightAwareReturns", flightAwareReturns.data);
+          // Now send multiple requests based on depDesData fields
+          // TODO: Here need to add if the ddeparture and destination id is available from flightaware if not then use the UaDepDes
+          const [NASResponse, WeatherResponse] = await Promise.all([
+            axios.get(`${apiUrl}/NAS/${UaDepDes.data.departure_ID}/${UaDepDes.data.destination_ID}`),
+            axios.get(`${apiUrl}/Weather/${UaDepDes.data.departure_ID}/${UaDepDes.data.destination_ID}`),
+          ]);
+          setUaDepDes(UaDepDes.data);
+          setFlightStatsTZ(flightStatsTZ.data);
+          setFlightAwareReturns(flightAwareReturns.data);
+          setNASResponse(NASResponse.data);
+          setWeatherResponse(WeatherResponse.data);
           // Fetching data using raw query
           // TODO: use rawQueryTest to send request to get just the ua_dep_des and it works. 
                   // Take this data and send it back to backend to fetch more data
-                  // Use multiple routes to get data
-          res = await axios.get(`${apiUrl}/rawQuery/${searchValue}`);
-
+                  // Use multiple routes to get datac
           // TODO: Get this back right away as parsed query. handle parsing query in the backend and then once you figure out what kind of query it is you can send rerquest back to backend using appropriate route.
           // airlineCode, flightNumberQuery, gateQuery, airportCodeQuery = res.flightNumber,res.airlineCode,res.gateQuery,res.airportCodeQuery 
-          // UaDepDes = await axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`);
           // dep,des,UaSchedDepTime= UaDepDes.dep, UaDepDes.des, UaDepDes.UaSchedDepTime, UaDepDes.SchedArrTime
-          // flightStatsTZ = await axios.get(`${apiUrl}/DepartureDestionationTZ/${flightNumber}`);
-          // flightAwareReturns = await axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`);
 
-          setFlightData(res.data);
+          setFlightData(resRawQuery.data);
         }
 
         console.log('res.data from Details.jsx', res.data, airportWx);
@@ -79,7 +104,14 @@ const Details = () => {
       {searchValue.id? (
         <WeatherCard arrow={false} weatherDetails={airportWx} />
       ) : flightData ? (
-        <FlightCard flightDetails={flightData} />
+        <FlightCard
+        flightDetails={flightData}
+        uaDepDes={UaDepDes}
+        flightStatsTZ={FlightStatsTZ}
+        flightAwareReturns={FlightAwareReturns}
+        nasResponse={NASResponse}
+        weatherResponse={WeatherResponse}
+        />
       ) : null}
     </div>
   );

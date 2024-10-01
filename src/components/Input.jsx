@@ -38,10 +38,10 @@ const Input = () => {
           label: `${airport.name} (${airport.code})`,
           name: airport.name,
           code: airport.code,
-          id: airport.id,
+          id: airport._id,
           type: 'airport'
         }));
-        
+
         const flightNumberOptions = resFlightNumbers.data.map(f => ({
           value: f.flightNumber,
           label: f.flightNumber,
@@ -86,7 +86,7 @@ const Input = () => {
     }
   };
 
-  const fetchSuggestions = (value) => {
+  const fetchSuggestions = async (value) => {
     console.log(`Fetching suggestions for: ${value}`);
     const lowercaseValue = value.toLowerCase();
 
@@ -110,14 +110,24 @@ const Input = () => {
       ...filteredGates,
     ];
 
-    console.log('Filtered suggestions:', filteredSuggestions);
     setFilteredSuggestions(filteredSuggestions);
+    if (filteredSuggestions.length === 0) {
+      console.log('No local matches found. Quering backend')
+      try {
+        const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
+        const { data } = res;
+        console.log("API data since no local matches found: ", data);
+      } catch (error) {
+        console.error("Error fetching api data from backend: ", error);
+      }
+    };
   }
 
   const handleSubmit = e => {
     e.preventDefault();
     
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
+    console.log('search submit', searchValue)
     navigate("/details", { state: { searchValue } });
   };
 
