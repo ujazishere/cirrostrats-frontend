@@ -41,7 +41,6 @@ const Input = () => {
           id: airport._id,
           type: 'airport'
         }));
-        console.log('airportId,', airportOptions.id)
         
         const flightNumberOptions = resFlightNumbers.data.map(f => ({
           value: f.flightNumber,
