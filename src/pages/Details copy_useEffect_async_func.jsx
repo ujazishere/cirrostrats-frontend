@@ -55,9 +55,9 @@ const Details = () => {
       {/* The following code for Card component states that if airportData is truthy it will render the Card component */}
       {/* {aiportData && <WeatherCard arrow={false} flightDetails={aiportData} />} */}
       {airportData ? (
-        <WeatherCard arrow={false} weatherDetails={airportData} />
+        <Combined arrow={false} weatherDetails={airportData} />
       ) : flightData ? (
-        <FlightCard flightDetails={flightData} />
+        <Combined flightDetails={flightData} />
       ) : null}
     </div>
   );

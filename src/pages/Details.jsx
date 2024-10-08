@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import WeatherCard from "../components/WeatherCard";
-import FlightCard from "../components/FlightCard";
 import UTCTime from "../components/UTCTime"; // Import the UTC time component
+import { FlightCard, WeatherCard } from "../components/Combined";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 console.log(`apiUrl${apiUrl}`);
@@ -102,7 +101,7 @@ const Details = () => {
         </h3>
         
       {searchValue.id? (
-        <WeatherCard arrow={false} weatherDetails={airportWx} />
+        <Combined arrow={false} weatherDetails={airportWx} />
       ) : flightData ? (
         <FlightCard
         flightDetails={flightData}
