@@ -1,116 +1,19 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, memo } from "react";
 import { NavLink } from "react-router-dom";
 import HighlightText from "./utility/HighlighText";
 import { weatherData } from "./test";
 
-const FlightCard = ({ flightDetails }) => {
-  console.log('flightDetails in FlightCard.jsx', flightDetails)
-  return (
-    <div className="details">
-      <div className="details__card">
-        <h3 className="details__card__title">UA492 N37502</h3>
-
-        <div className="detail__body">
-          <div className="detail__depature">
-            <h3 className="detail__depature__title">{flightDetails.departure_ID}</h3>
-
-            <div className="detail__gate">
-              <p className="detail__gate__title">Gate</p>
-              <h3>{flightDetails.departure_gate}</h3>
-            </div>
-            <div className="detail__depature__time">
-              <p className="detail__depature__local">Scheduled Local</p>
-              <h3>05:40 EST</h3>
-            </div>
-            <div className="detail__depature__utc__time">
-              <p className="detail__depature__utc">UTC</p>
-              <h3>{flightDetails.scheduled_departure_time}</h3>
-            </div>
-          </div>
-
-          <div className="detail__arrival">
-            <h3 className="detail__arrival__title ">{flightDetails.destination_ID}</h3>
-
-            <div className="detail__gate">
-              <p className="detail__gate__title">Gate</p>
-              <h3>{flightDetails.arrival_gate}</h3>
-            </div>
-            <div className="detail__arrival__time">
-              <p className="detail__arrival__local"> Scheduled Local</p>
-              <h3>08:49 CST</h3>
-            </div>
-            <div className="detail__arrival__utc__time">
-              <p className="detail__arrival__utc">UTC</p>
-              <h3>{flightDetails.scheduled_arrival_time}</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="table-container">
-        <table className="flight_card">
-          <tbody>
-            {flightDetails.dep_weather ? (
-              <WeatherCard arrow={false} weatherDetails={flightDetails.dep_weather} />
-            ) : null}
-          </tbody>
-        </table>
-      </div>
-
-      <table className="route">
-        <tbody>
-          <tr>
-            <th>ROUTE Show on - SkyVector Map</th>
-          </tr>
-          <tr>
-            <td>
-              <a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">
-                Click here
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div className="table-wrapper">
-        <table className="another-table">
-          <thead>
-          </thead>
-          <tbody>
-            <tr>
-              <td colSpan="2"> dummy data </td>
-            </tr>
-            dummy data
-            <tr>
-              <td>dummy data</td>
-              <td>dummy data</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div className="table-container">
-        <table className="flight_card">
-          <tbody>
-            {flightDetails.dep_weather ? (
-              <WeatherCard arrow={false} weatherDetails={flightDetails.dest_weather} />
-            ) : null}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
+console.log('this is working');
 
 const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
-  console.log('INSIDE WEATHERCARD', weatherDetails)
+  console.log('INSIDE WEATHERCARD', weatherDetails);
 
   const weatherDataAtis = weatherData["d-atis"];
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;
   const datis = weatherDetails?.datis;
-  
+
   const coloredText = HighlightText({
     text: weatherDataAtis.dataString,
     highlightedPhrases: weatherDataAtis.highlight,
@@ -120,7 +23,7 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
     setToggleCard(prev => !prev);
   };
 
-  if (routeCard)
+  if (routeCard) {
     return (
       <div className="card">
         <h3 className="card__title">
@@ -139,6 +42,7 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
         </div>
       </div>
     );
+  }
 
   if (weatherDetails) {
     return (
@@ -198,6 +102,109 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
         <div className="card__depature__details">
           <p></p>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const FlightCard = ({ flightDetails, dep_weather, dest_weather }) => {
+  console.log('flightDetails in FlightCard.jsx', flightDetails);
+  return (
+    <div className="details">
+      <div className="details__card">
+        <h3 className="details__card__title">UA492 N37502</h3>
+
+        <div className="detail__body">
+          <div className="detail__depature">
+            <h3 className="detail__depature__title">{flightDetails.departure_ID}</h3>
+
+            <div className="detail__gate">
+              <p className="detail__gate__title">Gate</p>
+              <h3>{flightDetails.departure_gate}</h3>
+            </div>
+            <div className="detail__depature__time">
+              <p className="detail__depature__local">Scheduled Local</p>
+              <h3>05:40 EST</h3>
+            </div>
+            <div className="detail__depature__utc__time">
+              <p className="detail__depature__utc">UTC</p>
+              <h3>{flightDetails.scheduled_departure_time}</h3>
+            </div>
+          </div>
+
+          <div className="detail__arrival">
+            <h3 className="detail__arrival__title ">{flightDetails.destination_ID}</h3>
+
+            <div className="detail__gate">
+              <p className="detail__gate__title">Gate</p>
+              <h3>{flightDetails.arrival_gate}</h3>
+            </div>
+            <div className="detail__arrival__time">
+              <p className="detail__arrival__local"> Scheduled Local</p>
+              <h3>08:49 CST</h3>
+            </div>
+            <div className="detail__arrival__utc__time">
+              <p className="detail__arrival__utc">UTC</p>
+              <h3>{flightDetails.scheduled_arrival_time}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Departure Weather */}
+      <div className="table-container">
+        <table className="flight_card">
+          <tbody>
+            {dep_weather ? (
+              <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} />
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Route Link */}
+      <table className="route">
+        <tbody>
+          <tr>
+            <th>ROUTE Show on - SkyVector Map</th>
+          </tr>
+          <tr>
+            <td>
+              <a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">
+                Click here
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Additional Table */}
+      <div className="table-wrapper">
+        <table className="another-table">
+          <thead>
+            {/* Add table headers if necessary */}
+          </thead>
+          <tbody>
+            <tr>
+              <td colSpan="2"> dummy data </td>
+            </tr>
+            <tr>
+              <td>dummy data</td>
+              <td>dummy data</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Destination Weather */}
+      <div className="table-container">
+        <table className="flight_card">
+          <tbody>
+            {dest_weather ? (
+              <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} />
+            ) : null}
+          </tbody>
+        </table>
       </div>
     </div>
   );
