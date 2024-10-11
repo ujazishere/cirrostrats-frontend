@@ -9,15 +9,15 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
   console.log('INSIDE WEATHERCARD', weatherDetails);
 
-  const weatherDataAtis = weatherData["d-atis"];
+  // const weatherDataAtis = weatherData["d-atis"];       // This is probs not needed not used.
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;
   const datis = weatherDetails?.datis;
 
-  const coloredText = HighlightText({
-    text: weatherDataAtis.dataString,
-    highlightedPhrases: weatherDataAtis.highlight,
-  });
+  // const coloredText = HighlightText({
+  //   text: weatherDataAtis.dataString,
+  //   highlightedPhrases: weatherDataAtis.highlight,
+  // });
 
   const handleToggleCard = () => {
     setToggleCard(prev => !prev);
@@ -112,7 +112,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather }) => {
   return (
     <div className="details">
       <div className="details__card">
-        <h3 className="details__card__title">UA492 N37502</h3>
+        <h3 className="details__card__title">{flightDetails.flight_number} N37502</h3>
 
         <div className="detail__body">
           <div className="detail__depature">
@@ -162,7 +162,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather }) => {
         </table>
       </div>
 
-      {/* Route Link */}
+      {/* Route and its Link */}
       <table className="route">
         <tbody>
           <tr>
