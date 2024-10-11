@@ -30,37 +30,35 @@ const Input = () => {
         const [resAirports, resFlightNumbers, resGates] = await Promise.all([
           axios.get(`${apiUrl}/airports`),
           axios.get(`${apiUrl}/flightNumbers`),
-          axios.get(`${apiUrl}/gates`)
+          axios.get(`${apiUrl}/gates`),
         ]);
-        
-        const airportOptions = resAirports.data.map(airport => ({
+
+        const airportOptions = resAirports.data.map((airport) => ({
           value: `${airport.name} (${airport.code})`,
           label: `${airport.name} (${airport.code})`,
           name: airport.name,
           code: airport.code,
           id: airport._id,
-          type: 'airport'
+          type: "airport",
         }));
-        console.log('airportId,', airportOptions.id)
-        
-        const flightNumberOptions = resFlightNumbers.data.map(f => ({
+
+        const flightNumberOptions = resFlightNumbers.data.map((f) => ({
           value: f.flightNumber,
           label: f.flightNumber,
           flightNumber: f.flightNumber,
-          type: 'flightNumber'
+          type: "flightNumber",
         }));
 
-        const gateOptions = resGates.data.map(c => ({
+        const gateOptions = resGates.data.map((c) => ({
           value: c.Gate,
           label: c.Gate,
           gate: c.Gate,
-          type: 'gate'
+          type: "gate",
         }));
 
         setAirports(airportOptions);
         setFlightNumbers(flightNumberOptions);
         setGates(gateOptions);
-
       } catch (error) {
         console.error("Error fetching data from backend:", error);
       } finally {
@@ -72,7 +70,7 @@ const Input = () => {
 
   const handleInputChange = (event, newInputValue) => {
     setInputValue(newInputValue);
-    
+
     if (typingTimer) {
       clearTimeout(typingTimer);
     }
@@ -91,20 +89,20 @@ const Input = () => {
     console.log(`Fetching suggestions for: ${value}`);
     const lowercaseValue = value.toLowerCase();
 
-    const filteredAirports = airports.filter(airport => 
-      airport.name.toLowerCase().includes(lowercaseValue) ||
-      airport.code.toLowerCase().includes(lowercaseValue)
+    const filteredAirports = airports.filter(
+      (airport) =>
+        airport.name.toLowerCase().includes(lowercaseValue) ||
+        airport.code.toLowerCase().includes(lowercaseValue)
     );
 
-    const filteredFlightNumbers = flightNumbers.filter(flight => 
+    const filteredFlightNumbers = flightNumbers.filter((flight) =>
       flight.flightNumber.toLowerCase().includes(lowercaseValue)
     );
 
-    const filteredGates = gates.filter(gate => 
+    const filteredGates = gates.filter((gate) =>
       gate.gate.toLowerCase().includes(lowercaseValue)
     );
 
-    // Combine all filtered results
     const filteredSuggestions = [
       ...filteredAirports,
       ...filteredFlightNumbers,
@@ -113,7 +111,7 @@ const Input = () => {
 
     setFilteredSuggestions(filteredSuggestions);
     if (filteredSuggestions.length === 0) {
-      console.log('No local matches found. Quering backend')
+      console.log("No local matches found. Quering backend");
       try {
         const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
         const { data } = res;
@@ -121,14 +119,14 @@ const Input = () => {
       } catch (error) {
         console.error("Error fetching api data from backend: ", error);
       }
-    };
-  }
+    }
+  };
 
-  const handleSubmit = e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
-    console.log('search submit', searchValue)
+    console.log("search submit", searchValue);
     navigate("/details", { state: { searchValue } });
   };
 
@@ -176,6 +174,7 @@ const Input = () => {
           value={selectedValue}
           onChange={(event, newValue) => {
             setSelectedValue(newValue);
+            setIsExpanded(false); // Collapse the dropdown when an option is selected
           }}
           inputValue={inputValue}
           onInputChange={(event, newInputValue) => {
