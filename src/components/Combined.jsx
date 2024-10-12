@@ -164,19 +164,18 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather }) => {
 
       {/* Route and its Link */}
       <table className="route">
-        <tbody>
-          <tr>
-            <th>ROUTE Show on - SkyVector Map</th>
-          </tr>
-          <tr>
-            <td>
-              <a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">
-                Click here
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <tbody>
+    <tr>
+      <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a> </th>
+    </tr>
+    <tr>
+      <td>
+        dummy data link
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 
       {/* Additional Table */}
       <div className="table-wrapper">

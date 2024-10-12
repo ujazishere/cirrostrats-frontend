@@ -174,7 +174,7 @@ const Input = () => {
           value={selectedValue}
           onChange={(event, newValue) => {
             setSelectedValue(newValue);
-            setIsExpanded(false); // Collapse the dropdown when an option is selected
+            setIsExpanded(false); 
           }}
           inputValue={inputValue}
           onInputChange={(event, newInputValue) => {
