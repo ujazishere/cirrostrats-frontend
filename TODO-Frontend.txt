@@ -4,7 +4,7 @@ Practice readibility and simplicity. Aviod code duplication. Include description
 **IS:   use command shift f to find targetted tasks - "TODO: is"
 
         
-        Investigate why components are being rendered multiple times.
+        Investigate and find a fix for components being rendered multiple times
         Use this regex pattern in react to highlight - box pattern for altimeter pattern
             f.ALTIMETER_PATTERN = r"((?<= )A)(\d{4})"
         mark ETD time as red when STD is past ETD
@@ -12,7 +12,10 @@ Practice readibility and simplicity. Aviod code duplication. Include description
         WIP - summery box shadow and expand/collapse (fast)animation.  
         work on script to extract data - aviation_stack_data_pull.py
         Localstorage- explore.
-        Media queries for mobile vs desktop view. use css media queries. Check bootstrap navbar. Target screens(IPAD, smaller, etc)
+        When searched UA4186 followup with `flight status`, `EDCT`, or `weather` or `datis` for auto completion and dropdown suggestions trail.
+            Use 3 flight status, maybe show delay info, grouped by airport and dep/arr times.
+
+        DONE! Media queries for mobile vs desktop view. use css media queries. Check bootstrap navbar. Target screens(IPAD, smaller, etc)
             make side bar
         DONE! VVI: Details.jsx need if statement to check if searchvalue is an object then request data through airport route, otherwise request other route for rawQuery rocessing
         DONE! account for nas alongside weather- in airport lookup query
