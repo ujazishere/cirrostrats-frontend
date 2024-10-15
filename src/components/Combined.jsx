@@ -177,23 +177,35 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather }) => {
 </table>
 
 
-      {/* Additional Table */}
-      <div className="table-wrapper">
-        <table className="another-table">
-          <thead>
-            {/* Add table headers if necessary */}
-          </thead>
-          <tbody>
-            <tr>
-              <td colSpan="2"> dummy data </td>
-            </tr>
-            <tr>
-              <td>dummy data</td>
-              <td>dummy data</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<div className="table-wrapper">
+  <table className="another-table">
+    <thead>
+      <tr>
+        <th colSpan="2">Airport Closure</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Departure</strong></td>
+        <td>DUMMY DATA</td>
+      </tr>
+      <tr>
+        <td><strong>Reason</strong></td>
+        <td>DUMMY DATA</td>
+      </tr>
+      <tr>
+        <td><strong>Start</strong></td>
+        <td>DUMMY DATA</td>
+      </tr>
+      <tr>
+        <td><strong>Reopen</strong></td>
+        <td>DUMMY DATA</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
 
       {/* Destination Weather */}
       <div className="table-container">
