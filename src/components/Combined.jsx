@@ -107,7 +107,7 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
   );
 };
 
-const FlightCard = ({ flightDetails, dep_weather, dest_weather }) => {
+const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasResponse }) => {
   console.log('flightDetails in FlightCard.jsx', flightDetails);
   return (
     <div className="details">
@@ -164,47 +164,37 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather }) => {
 
       {/* Route and its Link */}
       <table className="route">
-  <tbody>
-    <tr>
-      <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a> </th>
-    </tr>
-    <tr>
-      <td>
-        dummy data link
-      </td>
-    </tr>
-  </tbody>
-</table>
+        <tbody>
+          <tr>
+            <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a> </th>
+          </tr>
+          <tr>
+            <td>{flightDetails.route}</td>
+          </tr>
+        </tbody>
+      </table>
 
 
-<div className="table-wrapper">
-  <table className="another-table">
-    <thead>
-      <tr>
-        <th colSpan="2">Airport Closure</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Departure</strong></td>
-        <td>DUMMY DATA</td>
-      </tr>
-      <tr>
-        <td><strong>Reason</strong></td>
-        <td>DUMMY DATA</td>
-      </tr>
-      <tr>
-        <td><strong>Start</strong></td>
-        <td>DUMMY DATA</td>
-      </tr>
-      <tr>
-        <td><strong>Reopen</strong></td>
-        <td>DUMMY DATA</td>
-      </tr>
-    </tbody>
-  </table>
+
+  <div className="table-wrapper">
+  {nasResponse ? (
+    <table className="another-table">
+      <thead>
+        <tr>
+          <th colSpan="2">Airport Closure</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Departure</strong></td>
+          <td>{nasResponse.nas_destination_affected || "No data available"}</td>
+        </tr>
+      </tbody>
+    </table>
+  ) : (
+    <p>No NAS data available.</p>
+  )}
 </div>
-
 
 
       {/* Destination Weather */}

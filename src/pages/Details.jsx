@@ -125,6 +125,7 @@ const Details = () => {
           flightDetails={flightData}
           dep_weather={WeatherResponse?.dep_weather}
           dest_weather={WeatherResponse?.dest_weather}
+          nasResponse={NASResponse}
         />
       )}
     </div>
