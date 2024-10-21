@@ -38,7 +38,7 @@ const Details = () => {
           setAirportWx(res.data);
         } else {
           
-          if (testData) {       // This triggers the TEST DATA returns
+          if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {   // This triggers the TEST DATA returns
             console.log("RETURNING TEST DATA");
             const res = await axios.get(`${apiUrl}/testDataReturns`);           // Raw query request
             setFlightData(res.data);
