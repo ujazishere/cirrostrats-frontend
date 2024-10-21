@@ -8,7 +8,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 console.log(`apiUrl: ${apiUrl}`);
 
 
-const testData = true;      // Use this as true to instantantly return test data to test the design building process. make false to return real data
+const testData = false;      // Use this as true to instantantly return test data to test the design building process. make false to return real data
 
 
 const Details = () => {

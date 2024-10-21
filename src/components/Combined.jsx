@@ -2,6 +2,7 @@ import React, { useState, memo } from "react";
 import { NavLink } from "react-router-dom";
 import HighlightText from "./utility/HighlighText";
 import { weatherData } from "./test";
+import NASDetails from "./NASDetails"; // Only importing NASDetails now
 
 console.log('this is working');
 
@@ -109,6 +110,7 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
 const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   console.log('flightDetails in FlightCard.jsx', flightDetails);
   console.log('nas dep and dest in FlightCard.jsx', nasDepartureResponse, nasDestinationResponse);
+
   return (
 
 
@@ -181,33 +183,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       </table>
 
 
-
-      {/* NAS Departure*/}
-      <div className="table-wrapper">
-        {nasDepartureResponse && Object.keys(nasDepartureResponse).length > 0 ? (
-          <table className="another-table">
-            <thead>
-              <tr>
-                <th colSpan="2">Airport Closure - Departure</th>
-              </tr>
-              <tr>
-                <th>Key</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(nasDepartureResponse).map(([key, value], index) => (
-                <tr key={index}>
-                  <td><strong>{key}</strong></td>
-                  <td>{typeof value === 'object' ? JSON.stringify(value) : value}</td> {/* Handles nested objects */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No NAS data available.</p>
-        )}
-      </div>
+      <NASDetails nasResponse={nasDepartureResponse}/>
 
       {/* Destination Weather */}
       <div className="table-container">
@@ -219,7 +195,12 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
           </tbody>
         </table>
       </div>
+
+      <NASDetails nasResponse={nasDestinationResponse}/>
+
     </div>
+
+    
   );
 };
 
