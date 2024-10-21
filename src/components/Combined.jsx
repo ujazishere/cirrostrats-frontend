@@ -7,7 +7,6 @@ console.log('this is working');
 
 const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
-  console.log('INSIDE WEATHERCARD', weatherDetails);
 
   // const weatherDataAtis = weatherData["d-atis"];       // This is probs not needed not used.
   const metar = weatherDetails?.metar;
@@ -107,9 +106,13 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
   );
 };
 
-const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasResponse }) => {
+const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   console.log('flightDetails in FlightCard.jsx', flightDetails);
+  console.log('nas dep and dest in FlightCard.jsx', nasDepartureResponse, nasDestinationResponse);
   return (
+
+
+    // Summary box with flight details
     <div className="details">
       <div className="details__card">
         <h3 className="details__card__title">{flightDetails.flight_number} N37502</h3>
@@ -162,6 +165,9 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasResponse }) =
         </table>
       </div>
 
+
+
+
       {/* Route and its Link */}
       <table className="route">
         <tbody>
@@ -176,26 +182,32 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasResponse }) =
 
 
 
-  <div className="table-wrapper">
-  {nasResponse ? (
-    <table className="another-table">
-      <thead>
-        <tr>
-          <th colSpan="2">Airport Closure</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Departure</strong></td>
-          <td>{nasResponse.nas_destination_affected || "No data available"}</td>
-        </tr>
-      </tbody>
-    </table>
-  ) : (
-    <p>No NAS data available.</p>
-  )}
-</div>
-
+      {/* NAS Departure*/}
+      <div className="table-wrapper">
+        {nasDepartureResponse && Object.keys(nasDepartureResponse).length > 0 ? (
+          <table className="another-table">
+            <thead>
+              <tr>
+                <th colSpan="2">Airport Closure - Departure</th>
+              </tr>
+              <tr>
+                <th>Key</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(nasDepartureResponse).map(([key, value], index) => (
+                <tr key={index}>
+                  <td><strong>{key}</strong></td>
+                  <td>{typeof value === 'object' ? JSON.stringify(value) : value}</td> {/* Handles nested objects */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No NAS data available.</p>
+        )}
+      </div>
 
       {/* Destination Weather */}
       <div className="table-container">

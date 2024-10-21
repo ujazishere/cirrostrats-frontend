@@ -43,6 +43,7 @@ const Details = () => {
             const res = await axios.get(`${apiUrl}/testDataReturns`);           // Raw query request
             setFlightData(res.data);
             setWeatherResponse(res.data);
+            setNASResponse(res.data);
             console.log("res.data", res.data);
             return;
           } else {              // This triggers the REAL DATA returns
@@ -125,7 +126,8 @@ const Details = () => {
           flightDetails={flightData}
           dep_weather={WeatherResponse?.dep_weather}
           dest_weather={WeatherResponse?.dest_weather}
-          nasResponse={NASResponse}
+          nasDepartureResponse={NASResponse?.nas_departure_affected}
+          nasDestinationResponse={NASResponse?.nas_destination_affected}
         />
       )}
     </div>
