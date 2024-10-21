@@ -39,11 +39,11 @@ const Details = () => {
         } else {
           
           if (testData) {       // This triggers the TEST DATA returns
-            console.log("TEST DATA RETURNED");
+            console.log("RETURNING TEST DATA");
             const res = await axios.get(`${apiUrl}/testDataReturns`);           // Raw query request
             setFlightData(res.data);
             setWeatherResponse(res.data);
-            console.log("TEST WEAATHERDATA RETURNED", WeatherResponse);
+            console.log("res.data", res.data);
             return;
           } else {              // This triggers the REAL DATA returns
             const flightNumberQuery = searchValue?.flightNumber ? searchValue.flightNumber : searchValue;

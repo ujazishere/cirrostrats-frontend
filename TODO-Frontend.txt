@@ -3,24 +3,17 @@ Practice readibility and simplicity. Aviod code duplication. Include description
 
 **IS:   use command shift f to find targetted tasks - "TODO: is"
 
-        
         Investigate and find a fix for components being rendered multiple times
         Use this regex pattern in react to highlight - box pattern for altimeter pattern
             f.ALTIMETER_PATTERN = r"((?<= )A)(\d{4})"
         mark ETD time as red when STD is past ETD
+        zulu time dymanic with the weather published times using js instead of the static python way.
         Hide datis table when N/A instead of showing N/A
         WIP - summery box shadow and expand/collapse (fast)animation.  
         work on script to extract data - aviation_stack_data_pull.py
         Localstorage- explore.
         When searched UA4186 followup with `flight status`, `EDCT`, or `weather` or `datis` for auto completion and dropdown suggestions trail.
             Use 3 flight status, maybe show delay info, grouped by airport and dep/arr times.
-
-        DONE! Media queries for mobile vs desktop view. use css media queries. Check bootstrap navbar. Target screens(IPAD, smaller, etc)
-            make side bar
-        DONE! VVI: Details.jsx need if statement to check if searchvalue is an object then request data through airport route, otherwise request other route for rawQuery rocessing
-        DONE! account for nas alongside weather- in airport lookup query
-        DONE! integrate user auth for login through google/facebook/email etc.
-        DONE! Fix searchbar keystrokes disappearing.
 
 **UV:   
         Use debounce to reduce time consuming tasks do not fire often causing performance bottlenecks.
@@ -40,7 +33,7 @@ Practice readibility and simplicity. Aviod code duplication. Include description
         Integrate weather page with  the flight deet page--> reduce duplication ---> Make a react componenent and reuse it.
         Priority: Each individual scrape should be separate function in views. also separate scrape from api fetch.
         ***Separate logic and implement simple machine learning technique to detect certain words.
-        date implementatiton. Current web is error prone for flight lookups during evenings since the lookup inquires zulu time search.
+        date implementatiton.
         weather sources should show aviationweather link on each metar/taf/datis: https://aviationweather.gov/data/metar/?id=KEWR&hours=0
         Have software engineers proofread the code and logic.
         Ask pilot's what would they search to get gate information. store these searches and use that for parsing.
@@ -140,6 +133,7 @@ Deploy the ability to chat. Store all queries with time stamp for later analyses
 add ability to see raw metar or simplified one with only pertinant information.
 
 Big bug when extracting info from other sources. the data can be messy and unreiable. Create redundency
+    Need redundency for dep and destination pull. current one is unstable giving errors during async.
 
 airport name, gate and flight # can be partial/absolute.
     Essentially a functionality to predict in dropdown in search similar to google - indexing.
@@ -155,50 +149,11 @@ weather_range = ['met ', ' met', ' met ', 'met', 'taf ', ' taf', ' taf ', 'taf',
 "{flight number} destination" = return destination or destination
 "{flight number} not, notam, notams" = return notams for departure and destination. include ability to return just pertinant information.
 
-        DONE! fix and cleanup description in examples on homepage.
-        DONE! TAF can be out of index. remove TAF if unavailable. Redirect to no found page if no weather found.
-                for example `w kcdw` returns error since index is out range probably because TAF is not available for it.
-        Done! Major time issue fixes for pulling lengthy web scrape . 
-        DONE! Fix date and time on `i` switch output
-        Done! Fix exponentially destructive while loop in the Gate_Scrape_Thread within root_gate_checker.py
-        DONE! Add all past queries in the web itself in a menu section so it is easily accessible.
-        DONE! seperate TAF by "   " and replace it with new line to make it viewable.
-        
-        DONE! move reliable structured data operation into the scraper rather than dealing with in Gate_checker()
-    	Done! Treat unreliable flights at source before it is dumped as master.pkl to keep master pikle clean.
-                Account for reliable and unreliable outlaws at source rather than scheduled flights
-        DONE! Move all template looking functions to root_class. 
-            exec(), reliable flight_num, 
-        DONE! set up linux AWS EC2
-        DONE! main query is len 4 or 3 for flight number. Fix it
-        DONE!! weather table should be the same as weather table on flight_deet.
-            Searching `w kewr` to see just metar and taf vs search 414 to see how that table differs.
-        DONE! Remove port 8000.
-        DONE! SSL cert for https port.
-        DONE! Make a `report` on homepage allowing for qick reporting of anomaly. probably the ability to send a screenshot. some sort of chat mechanism.
-        DONE! FIXED AND MADE IT TO CENTER Move Departure times to the left most side and gate deets to the right most side of the title.
-        DONE! come up with a better cleaner font across the web. Especially web title.
-        DONE! Fix expand/collapse squaring on the flight_deet page and make it co:nsistent with box size.
-        DONE!! Include departure and arrival times in zulu as well as the local timem in the flight deet page.
-        DONE! Delay/GS from the faa.gov on the ground stop.
-        DONE! google type flight_deet box
-        DONE! Add skyvector map
-        DONE! Move `Show on SkyVector Map` to the right end and grey it out a tiny bit and decrease font.
-        DONE! THIS IS ALREADY FIXED THOUGH CLOUDFLARE Workout 401 forbidden error; CSFR token issues on main web.
-        DONE!!! Make weather page similar to the flight deet page.
-        **** move searchbar on all pages to header of the site - I tried this and it looked really weird and not usable at all hence for now kept the searchbar as it is
-        **** i removed the borders and it looked really weird and not orgnized hence got the borders back and made them as thin as possible 
-        flight deet page / comparison table make the title grey and remove the borders from inside of the table
-        DONE! Fixed the coloring for published time 
-        DONE! fix coloring and table borders on weather and flight deet.
-        DONE! integrate time passed since weather published time.(2 mins ago) and highlight it red when over 52 mins old.
-        IS DONE!!! PRIORITY!!! loading/spinner symbol for search bar;
-            Implement loading symbol when searching.
-    
-        DONE! infrequent Homepage hints:
-             `Want to know if your gate is occupied in newark? lookup the gate. try: 71x
-             `hit the live map to see the HD weather radar`
-             `want to know the weather at a particular airport? look it up.` 
-        DONE! learn about multiprocessing vs multithreading and implement on flight_deet- asyncio,aiohttp,threading.thread, threadpool exec
-        DONE! Implement asynchronous pull through asyncio and aiohttp.
-            weather:datis,metar and taf
+
+Done Ismail:
+    DONE! Media queries for mobile vs desktop view. use css media queries. Check bootstrap navbar. Target screens(IPAD, smaller, etc)
+        make side bar
+    DONE! VVI: Details.jsx need if statement to check if searchvalue is an object then request data through airport route, otherwise request other route for rawQuery rocessing
+    DONE! account for nas alongside weather- in airport lookup query
+    DONE! integrate user auth for login through google/facebook/email etc.
+    DONE! Fix searchbar keystrokes disappearing.
