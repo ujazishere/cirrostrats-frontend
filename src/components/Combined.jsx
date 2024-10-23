@@ -1,104 +1,54 @@
-import React, { useState, memo } from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-import HighlightText from "./utility/HighlighText";
-import { weatherData } from "./test";
-import NASDetails from "./NASDetails"; // Only importing NASDetails now
+import NASDetails from "./NASDetails";
 
-const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
-  const [toggleCard, setToggleCard] = useState(false);
+const highlightWeatherText = (text) => {
 
-  // const weatherDataAtis = weatherData["d-atis"];       // This is probs not needed not used.
+  if (!text) return ""; 
+  const pinkPattern = /((M)?\d\/(\d)?\dSM)/g;  
+  const redPattern = /(BKN|OVC)(00[0-4])/g;   
+  const yellowPattern = /(BKN|OVC)(00[5-9])/g; 
+  const altimeterPattern = /(A\d{4})/g;     
+  return text
+    .replace(pinkPattern, '<span class="pink_text_color">$1</span>')
+    .replace(redPattern, '<span class="red_text_color">$1$2</span>')
+    .replace(yellowPattern, '<span class="yellow_highlight">$1$2</span>')
+    .replace(altimeterPattern, '<span class="box_around_text">$1</span>');
+};
+
+const WeatherCard = ({ arrow, title, weatherDetails }) => {
+  const datis = weatherDetails?.datis;
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;
-  const datis = weatherDetails?.datis;
-
-  // const coloredText = HighlightText({
-  //   text: weatherDataAtis.dataString,
-  //   highlightedPhrases: weatherDataAtis.highlight,
-  // });
-
-  const handleToggleCard = () => {
-    setToggleCard(prev => !prev);
-  };
-
-  if (routeCard) {
-    return (
-      <div className="card">
-        <h3 className="card__title">
-          {arrow ? "▼" : null} {title}
-          <NavLink
-            to="https://skyvector.com/?fpl=%20KEWR%20LANNA%20J48%20CSN%20FANPO%20Q40%20AEX%20DOOBI2%20KIAH"
-            className="card__route__link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Show on SkyVector Map
-          </NavLink>
-        </h3>
-        <div className="card__route">
-          <div className="card__route__text">{text}</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (weatherDetails) {
-    return (
-      <div className="card">
-        <div>
-          <div className="card__depature__subtitle card__header--dark">
-            <h3 className="card__depature__subtitle__title">D-ATIS </h3>
-            <span className="card__depature__time">34 mins ago</span>
-          </div>
-          <div className="card__depature__details">
-            <p>{datis}</p>
-          </div>
-          <div className="card__depature__subtitle  card__header--dark">
-            <h3 className="card__depature__subtitle__title">METAR</h3>
-            <span className="card__depature__time">34 mins ago</span>
-          </div>
-          <div className="card__depature__details">
-            <p>{metar}</p>
-          </div>
-          <div className="card__depature__subtitle  card__header--dark">
-            <h3 className="card__depature__subtitle__title">TAF</h3>
-            <span className="card__depature__time">166 mins ago</span>
-          </div>
-          <div className="card__depature__details">
-            <p>{taf}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="card">
-      <h3 className="card__title" onClick={handleToggleCard}>
-        {arrow ? "▼" : null} {title}
-      </h3>
-
-      <div className={toggleCard ? null : "card__body"}>
-        <div className="card__depature__subtitle">
-          <h3 className="card__depature__subtitle__title">D-ATIS </h3>
+      <div>
+        {/* D-ATIS */}
+        <div className="card__depature__subtitle card__header--dark">
+          <h3 className="card__depature__subtitle__title">D-ATIS</h3>
           <span className="card__depature__time">34 mins ago</span>
         </div>
         <div className="card__depature__details">
-          <p></p>
+          <p dangerouslySetInnerHTML={{ __html: highlightWeatherText(datis) }}></p>
         </div>
-        <div className="card__depature__subtitle">
+
+        {/* METAR */}
+        <div className="card__depature__subtitle card__header--dark">
           <h3 className="card__depature__subtitle__title">METAR</h3>
           <span className="card__depature__time">34 mins ago</span>
         </div>
         <div className="card__depature__details">
-          <p></p>
+          <p dangerouslySetInnerHTML={{ __html: highlightWeatherText(metar) }}></p>
         </div>
-        <div className="card__depature__subtitle">
+
+        {/* TAF */}
+        <div className="card__depature__subtitle card__header--dark">
           <h3 className="card__depature__subtitle__title">TAF</h3>
           <span className="card__depature__time">166 mins ago</span>
         </div>
         <div className="card__depature__details">
-          <p></p>
+          <p dangerouslySetInnerHTML={{ __html: highlightWeatherText(taf) }}></p>
         </div>
       </div>
     </div>
@@ -106,20 +56,13 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
 };
 
 const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
-  console.log('flightDetails in Combined.jsx', flightDetails);
-  // console.log('depweather in Combined.jsx', dep_weather);
-  // console.log('deather in Combined.jsx', dep_weather);
-  // console.log('nas dep and dest in FlightCard.jsx', nasDepartureResponse, nasDestinationResponse);
-
   return (
-
-
-    // Summary box with flight details
     <div className="details">
       <div className="details__card">
         <h3 className="details__card__title">{flightDetails.flight_number} N37502</h3>
 
         <div className="detail__body">
+          {/* Departure Information */}
           <div className="detail__depature">
             <h3 className="detail__depature__title">{flightDetails.departure_ID}</h3>
 
@@ -137,6 +80,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
             </div>
           </div>
 
+          {/* Arrival Information */}
           <div className="detail__arrival">
             <h3 className="detail__arrival__title ">{flightDetails.destination_ID}</h3>
 
@@ -167,14 +111,11 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </table>
       </div>
 
-
-
-
       {/* Route and its Link */}
       <table className="route">
         <tbody>
           <tr>
-            <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a> </th>
+            <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a></th>
           </tr>
           <tr>
             <td>{flightDetails.route}</td>
@@ -182,8 +123,8 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </tbody>
       </table>
 
-
-      <NASDetails nasResponse={nasDepartureResponse}/>
+      {/* NAS Details for Departure */}
+      <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
 
       {/* Destination Weather */}
       <div className="table-container">
@@ -196,11 +137,9 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </table>
       </div>
 
-      <NASDetails nasResponse={nasDestinationResponse}/>
-
+      {/* NAS Details for Destination */}
+      <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
     </div>
-
-    
   );
 };
 
