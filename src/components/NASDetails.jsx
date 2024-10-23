@@ -2,7 +2,7 @@ import React from 'react';
 
 const NASDetails = ({ nasResponse }) => {
   return (
-    <div className="table-wrapper">
+    <div className="flex flex-col gap-4">
       {nasResponse && Object.keys(nasResponse).length > 0 ? (
         Object.entries(nasResponse).map(([key, value], index) => (
           <table key={index} className="another-table">

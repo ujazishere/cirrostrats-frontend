@@ -965,12 +965,13 @@ table.comparison-table td:first-child {
 
 table.another-table {
   margin: 20px auto;
-  width: 80%;
+  width: 100%;
   max-width: 800px;
   background-color: #000000;
   text-align: center;
   border-radius: 10px;
   overflow: hidden;
+
 }
 
 table.another-table th,
