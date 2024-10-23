@@ -21,9 +21,13 @@ const Input = () => {
   const inputRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [typingTimer, setTypingTimer] = useState(null);
+  const [isFetched, setIsFetched] = useState(false);  // To track if data has been fetched
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
+      if (isFetched) return;  // Skip if already fetched
+      if (isLoading === true) return;  // Skip if already fetched
+
       console.log("Fetching data from backend");
       setIsLoading(true);
       try {
@@ -59,6 +63,7 @@ const Input = () => {
         setAirports(airportOptions);
         setFlightNumbers(flightNumberOptions);
         setGates(gateOptions);
+        setIsFetched(true);  // Mark data as fetched after the request completes
       } catch (error) {
         console.error("Error fetching data from backend:", error);
       } finally {

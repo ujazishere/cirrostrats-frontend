@@ -4,8 +4,6 @@ import HighlightText from "./utility/HighlighText";
 import { weatherData } from "./test";
 import NASDetails from "./NASDetails"; // Only importing NASDetails now
 
-console.log('this is working');
-
 const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
   const [toggleCard, setToggleCard] = useState(false);
 
@@ -108,8 +106,10 @@ const WeatherCard = ({ arrow, title, routeCard, text, weatherDetails }) => {
 };
 
 const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
-  console.log('flightDetails in FlightCard.jsx', flightDetails);
-  console.log('nas dep and dest in FlightCard.jsx', nasDepartureResponse, nasDestinationResponse);
+  console.log('flightDetails in Combined.jsx', flightDetails);
+  // console.log('depweather in Combined.jsx', dep_weather);
+  // console.log('deather in Combined.jsx', dep_weather);
+  // console.log('nas dep and dest in FlightCard.jsx', nasDepartureResponse, nasDestinationResponse);
 
   return (
 

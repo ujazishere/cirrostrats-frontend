@@ -7,9 +7,7 @@ import { FlightCard, WeatherCard } from "../components/Combined";
 const apiUrl = import.meta.env.VITE_API_URL;
 console.log(`apiUrl: ${apiUrl}`);
 
-
-const testData = false;      // Use this as true to instantantly return test data to test the design building process. make false to return real data
-
+// To return test data change test data variable in the .env file to true
 
 const Details = () => {
   const [airportWx, setAirportWx] = useState(null);
@@ -24,10 +22,10 @@ const Details = () => {
   const searchValue = location?.state?.searchValue;
   // const noResults = location?.state?.noResults;
 
-  console.log('searchValue in Details.jsx', searchValue);
   
   useEffect(() => {
     async function fetchData() {
+      console.log('searchValue in Details.jsx', searchValue);
       try {
         let res;
         if (searchValue?.id) {
@@ -46,35 +44,44 @@ const Details = () => {
             setNASResponse(res.data);
             console.log("res.data", res.data);
             return;
+
           } else {              // This triggers the REAL DATA returns
             const flightNumberQuery = searchValue?.flightNumber ? searchValue.flightNumber : searchValue;
-            console.log("Couldn't find airport in the suggestion. Sending to /rawQuery.", flightNumberQuery);
+            console.log("Couldn't find airport in the suggestion. Need to send to /rawQuery.", flightNumberQuery);
 
-            // Fetching data using raw query
-            const [resRawQuery, depDesRes, flightStatsTZRes, flightAwareReturnsRes] = await Promise.all([
-              axios.get(`${apiUrl}/rawQuery/${flightNumberQuery}`),           // Raw query request
+            // Fetching data using appropriate route requests
+            const [depDesRes, flightStatsTZRes, flightAwareReturnsRes] = await Promise.all([
+              // axios.get(`${apiUrl}/rawQuery/${flightNumberQuery}`),           // Raw query request
               axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`), // Departure/Destination request
               axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`), // Timezone request 1
               axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`)        // FlightAware request
             ]);
 
-            console.log("DepDes", depDesRes.data.destination_ID);
-            console.log("flightStatsTZ", flightStatsTZRes.data);
-            
-            // Now send multiple requests based on depDesRes data fields
-            const [nasRes, weatherRes] = await Promise.all([
-              axios.get(`${apiUrl}/NAS/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),
-              axios.get(`${apiUrl}/Weather/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),
-            ]);
             setUaDepDes(depDesRes.data);
             setFlightStatsTZ(flightStatsTZRes.data);
             setFlightAwareReturns(flightAwareReturnsRes.data);
-            setNASResponse(nasRes.data);
-            setWeatherResponse(weatherRes.data);
 
-            console.log("weatherRes", weatherRes.data); 
+            // console.log("DepDes", depDesRes.data.destination_ID);
+            // console.log("flightStatsTZ", flightStatsTZRes.data);
+            
+            // Now send multiple requests based on depDesRes data fields
+            const [nasRes, depWeather, destWeather] = await Promise.all([
+              axios.get(`${apiUrl}/NAS/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),
+              // axios.get(`${apiUrl}/Weather/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),    // deprecated request since it needed both departure_ID and destination_ID
+              axios.get(`${apiUrl}/Weather/${depDesRes.data.departure_ID}`),
+              axios.get(`${apiUrl}/Weather/${depDesRes.data.destination_ID}`),
+            ]);
+
+            const weatherRes = {
+              'dep_weather': depWeather.data,
+              'dest_weather': destWeather.data
+            };
+
+            setNASResponse(nasRes.data);
+            setWeatherResponse(weatherRes);
+
             const combinedFlightData = {
-              ...resRawQuery.data,    // Use this to only get the test flight data. Comment all others out to speed up the design building process.
+              // ...resRawQuery.data,    // Use this to only get the test flight data. Comment all others out to speed up the design building process.
               ...depDesRes.data,
               ...flightStatsTZRes.data,
               ...flightAwareReturnsRes.data,
