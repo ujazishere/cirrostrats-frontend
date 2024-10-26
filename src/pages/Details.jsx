@@ -1,13 +1,113 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import UTCTime from "../components/UTCTime"; // Import the UTC time component
+import UTCTime from "../components/UTCTime"; 
 import { FlightCard, WeatherCard } from "../components/Combined";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 console.log(`apiUrl: ${apiUrl}`);
 
-// To return test data change test data variable in the .env file to true
+const LoadingWeatherCard = () => (
+  <div className="card">
+    {['D-ATIS', 'METAR', 'TAF'].map((section) => (
+      <div key={section}>
+        <div className="card__depature__subtitle card__header--dark">
+          <h3 className="card__depature__subtitle__title">{section}</h3>
+          <span className="card__depature__time">Loading...</span>
+        </div>
+        <div className="card__depature__details">
+          <p>Loading weather data...</p>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const LoadingFlightCard = () => (
+  <div className="details">
+    <div className="details__card">
+      <h3 className="details__card__title">Loading flight details...</h3>
+
+      <div className="detail__body">
+        {/* Departure Loading State */}
+        <div className="detail__depature">
+          <h3 className="detail__depature__title">Loading...</h3>
+          <div className="detail__gate">
+            <p className="detail__gate__title">Gate</p>
+            <h3>Loading...</h3>
+          </div>
+          <div className="detail__depature__time">
+            <p className="detail__depature__local">Scheduled Local</p>
+            <h3>Loading...</h3>
+          </div>
+          <div className="detail__depature__utc__time">
+            <p className="detail__depature__utc">UTC</p>
+            <h3>Loading...</h3>
+          </div>
+        </div>
+
+        {/* Arrival Loading State */}
+        <div className="detail__arrival">
+          <h3 className="detail__arrival__title">Loading...</h3>
+          <div className="detail__gate">
+            <p className="detail__gate__title">Gate</p>
+            <h3>Loading...</h3>
+          </div>
+          <div className="detail__arrival__time">
+            <p className="detail__arrival__local">Scheduled Local</p>
+            <h3>Loading...</h3>
+          </div>
+          <div className="detail__arrival__utc__time">
+            <p className="detail__arrival__utc">UTC</p>
+            <h3>Loading...</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Departure Weather Loading State */}
+    <div className="table-container">
+  <table className="flight_card" style={{ width: '100%' }}>
+    <tbody>
+      <LoadingWeatherCard />
+    </tbody>
+  </table>
+</div>
+
+    {/* Route Loading State */}
+    <table className="route">
+      <tbody>
+        <tr>
+          <th>ROUTE</th>
+        </tr>
+        <tr>
+          <td>Loading route information...</td>
+        </tr>
+      </tbody>
+    </table>
+
+    {/* NAS Details Loading State */}
+    <div className="nas-details">
+      <h3>Airport Closure - Departure</h3>
+      <p>Loading closure information...</p>
+    </div>
+
+    {/* Destination Weather Loading State */}
+    <div className="table-container">
+  <table className="flight_card" style={{ width: '100%' }}>
+    <tbody>
+      <LoadingWeatherCard />
+    </tbody>
+  </table>
+</div>
+
+    {/* NAS Details Destination Loading State */}
+    <div className="nas-details">
+      <h3>Airport Closure - Destination</h3>
+      <p>Loading closure information...</p>
+    </div>
+  </div>
+);
 
 const Details = () => {
   const [airportWx, setAirportWx] = useState(null);
@@ -17,57 +117,46 @@ const Details = () => {
   const [FlightAwareReturns, setFlightAwareReturns] = useState(null);
   const [NASResponse, setNASResponse] = useState(null);
   const [WeatherResponse, setWeatherResponse] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
-  // const noResults = location?.state?.noResults;
 
-  
   useEffect(() => {
     async function fetchData() {
+      setIsLoading(true);
       console.log('searchValue in Details.jsx', searchValue);
       try {
         let res;
         if (searchValue?.id) {
-          // Fetching weather data using the airport ID
           const airportId = searchValue.id;
           res = await axios.get(`${apiUrl}/airport/${airportId}`);
           console.log("Returning airportData");
           setAirportWx(res.data);
         } else {
-          
-          if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {   // This triggers the TEST DATA returns
+          if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {
             console.log("RETURNING TEST DATA");
-            const res = await axios.get(`${apiUrl}/testDataReturns`);           // Raw query request
+            const res = await axios.get(`${apiUrl}/testDataReturns`);
             setFlightData(res.data);
             setWeatherResponse(res.data);
             setNASResponse(res.data);
             console.log("res.data", res.data);
-            return;
-
-          } else {              // This triggers the REAL DATA returns
+          } else {
             const flightNumberQuery = searchValue?.flightNumber ? searchValue.flightNumber : searchValue;
             console.log("Couldn't find airport in the suggestion. Need to send to /rawQuery.", flightNumberQuery);
 
-            // Fetching data using appropriate route requests
             const [depDesRes, flightStatsTZRes, flightAwareReturnsRes] = await Promise.all([
-              // axios.get(`${apiUrl}/rawQuery/${flightNumberQuery}`),           // Raw query request
-              axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`), // Departure/Destination request
-              axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`), // Timezone request 1
-              axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`)        // FlightAware request
+              axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),
+              axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`),
+              axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`)
             ]);
 
             setUaDepDes(depDesRes.data);
             setFlightStatsTZ(flightStatsTZRes.data);
             setFlightAwareReturns(flightAwareReturnsRes.data);
 
-            // console.log("DepDes", depDesRes.data.destination_ID);
-            // console.log("flightStatsTZ", flightStatsTZRes.data);
-            
-            // Now send multiple requests based on depDesRes data fields
             const [nasRes, depWeather, destWeather] = await Promise.all([
               axios.get(`${apiUrl}/NAS/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),
-              // axios.get(`${apiUrl}/Weather/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),    // deprecated request since it needed both departure_ID and destination_ID
               axios.get(`${apiUrl}/Weather/${depDesRes.data.departure_ID}`),
               axios.get(`${apiUrl}/Weather/${depDesRes.data.destination_ID}`),
             ]);
@@ -81,28 +170,22 @@ const Details = () => {
             setWeatherResponse(weatherRes);
 
             const combinedFlightData = {
-              // ...resRawQuery.data,    // Use this to only get the test flight data. Comment all others out to speed up the design building process.
               ...depDesRes.data,
               ...flightStatsTZRes.data,
               ...flightAwareReturnsRes.data,
               ...nasRes.data,
-              // ...weatherRes.data
-            };         
-            // setFlightData(resRawQuery.data);        }
+            };
             setFlightData(combinedFlightData);
           }
         }
 
-        console.log('res.data from Details.jsx', res?.data, airportWx);
-
         if (res && res.status !== 200) {
           throw new Error("Network error occurred");
         }
-
-        // If there is flight data, it has already been set above.
       } catch (error) {
         console.error("Error fetching data:", error);
-        // Handle the error here, e.g., set an error state or show a notification
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -111,31 +194,39 @@ const Details = () => {
 
   return (
     <div className="details">
-      <UTCTime /> {/* Add the UTC time component */}
+      <UTCTime />
       
-      {/* Render WeatherCard if searching for an airport */}
-      {searchValue?.id && airportWx && (
+      {searchValue?.id ? (
         <>
           <h3 className="weather__title">
-            <span>Weather for </span> {airportWx.name}
+            <span>Weather for </span> {airportWx?.name || searchValue.name}
           </h3>
-          <WeatherCard
-            arrow={false}
-            title="Airport Weather"
-            weatherDetails={airportWx} // Ensure airportWx contains metar, taf, datis
-          />
+          {isLoading ? (
+            <LoadingWeatherCard />
+          ) : (
+            airportWx && (
+              <WeatherCard
+                arrow={false}
+                title="Airport Weather"
+                weatherDetails={airportWx}
+              />
+            )
+          )}
         </>
-      )}
-
-      {/* Render FlightCard if searching for a flight number */}
-      {!searchValue?.id && flightData && (
-        <FlightCard
-          flightDetails={flightData}
-          dep_weather={WeatherResponse?.dep_weather}
-          dest_weather={WeatherResponse?.dest_weather}
-          nasDepartureResponse={NASResponse?.nas_departure_affected}
-          nasDestinationResponse={NASResponse?.nas_destination_affected}
-        />
+      ) : (
+        isLoading ? (
+          <LoadingFlightCard />
+        ) : (
+          flightData && (
+            <FlightCard
+              flightDetails={flightData}
+              dep_weather={WeatherResponse?.dep_weather}
+              dest_weather={WeatherResponse?.dest_weather}
+              nasDepartureResponse={NASResponse?.nas_departure_affected}
+              nasDestinationResponse={NASResponse?.nas_destination_affected}
+            />
+          )
+        )
       )}
     </div>
   );
