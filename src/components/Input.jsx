@@ -57,6 +57,7 @@ const Input = () => {
           value: c.Gate,
           label: c.Gate,
           gate: c.Gate,
+          flightStatus: c.flightStatus,
           type: "gate",
         }));
 
@@ -130,7 +131,7 @@ const Input = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const searchValue = selectedValue || { value: inputValue, label: inputValue };
+    const searchValue = selectedValue || { value: inputValue, label: inputValue };    // Set searchValue to selectedValue if it exists, otherwise set it to inputValue
     console.log("search submit", searchValue);
     navigate("/details", { state: { searchValue } });
   };

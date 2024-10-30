@@ -122,16 +122,29 @@ const Details = () => {
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
 
+  // const handleSearch = async (searchValue) => {
+  //   if (searchValue?.id) {
+  //     await fetchAirportData(searchValue.id);
+  //   } else if (searchValue?.flightNumber) {
+  //     await fetchFlightData(searchValue.flightNumber);
+  //   } else if (searchValue?.gate) {
+  //     await fetchGateData(searchValue.gate);
+  //   } else {
+  //     console.error("Invalid search value");
+  //   }
+  // };
+  
   useEffect(() => {
+
     async function fetchData() {
       setIsLoading(true);
       console.log('searchValue in Details.jsx', searchValue);
       try {
         let res;
         if (searchValue?.id) {
-          const airportId = searchValue.id;
-          res = await axios.get(`${apiUrl}/airport/${airportId}`);
-          console.log("Returning airportData");
+          const airportSerial = searchValue.id;
+          res = await axios.get(`${apiUrl}/airport/${airportSerial}`);    // This airport ID is the Object ID from mongoDB and is not a 3 or 4 letter ICAO identifier.
+          console.log("Returning airportData, airportSerial:", airportSerial);
           setAirportWx(res.data);
         } else {
           if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {
