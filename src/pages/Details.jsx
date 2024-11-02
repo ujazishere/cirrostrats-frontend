@@ -7,16 +7,31 @@ import { FlightCard, WeatherCard } from "../components/Combined";
 const apiUrl = import.meta.env.VITE_API_URL;
 console.log(`apiUrl: ${apiUrl}`);
 
+const SkeletonLoader = ({ height, width }) => (
+  <div
+    style={{
+      backgroundColor: "#e0e0e0",
+      height: height || "1em",
+      width: width || "100%",
+      borderRadius: "4px",
+      margin: "4px 0"
+    }}
+    className="skeleton-loader"
+  ></div>
+);
+
 const LoadingWeatherCard = () => (
   <div className="card">
     {['D-ATIS', 'METAR', 'TAF'].map((section) => (
       <div key={section}>
         <div className="card__depature__subtitle card__header--dark">
           <h3 className="card__depature__subtitle__title">{section}</h3>
-          <span className="card__depature__time">Loading...</span>
+          <SkeletonLoader width="30%" />
         </div>
         <div className="card__depature__details">
-          <p>Loading weather data...</p>
+          <SkeletonLoader width="80%" />
+          <SkeletonLoader width="60%" />
+          <SkeletonLoader width="90%" />
         </div>
       </div>
     ))}
@@ -26,85 +41,66 @@ const LoadingWeatherCard = () => (
 const LoadingFlightCard = () => (
   <div className="details">
     <div className="details__card">
-      <h3 className="details__card__title">Loading flight details...</h3>
+      <SkeletonLoader height="2em" width="100%" />
 
       <div className="detail__body">
-        {/* Departure Loading State */}
         <div className="detail__depature">
-          <h3 className="detail__depature__title">Loading...</h3>
+          <SkeletonLoader height="1.5em" width="70%" />
           <div className="detail__gate">
             <p className="detail__gate__title">Gate</p>
-            <h3>Loading...</h3>
+            <SkeletonLoader width="40%" />
           </div>
-          <div className="detail__depature__time">
-            <p className="detail__depature__local">Scheduled Local</p>
-            <h3>Loading...</h3>
-          </div>
-          <div className="detail__depature__utc__time">
-            <p className="detail__depature__utc">UTC</p>
-            <h3>Loading...</h3>
-          </div>
+          <SkeletonLoader width="60%" />
+          <SkeletonLoader width="60%" />
         </div>
 
-        {/* Arrival Loading State */}
         <div className="detail__arrival">
-          <h3 className="detail__arrival__title">Loading...</h3>
+          <SkeletonLoader height="1.5em" width="70%" />
           <div className="detail__gate">
             <p className="detail__gate__title">Gate</p>
-            <h3>Loading...</h3>
+            <SkeletonLoader width="40%" />
           </div>
-          <div className="detail__arrival__time">
-            <p className="detail__arrival__local">Scheduled Local</p>
-            <h3>Loading...</h3>
-          </div>
-          <div className="detail__arrival__utc__time">
-            <p className="detail__arrival__utc">UTC</p>
-            <h3>Loading...</h3>
-          </div>
+          <SkeletonLoader width="60%" />
+          <SkeletonLoader width="60%" />
         </div>
       </div>
     </div>
 
-    {/* Departure Weather Loading State */}
     <div className="table-container">
-  <table className="flight_card" style={{ width: '100%' }}>
-    <tbody>
-      <LoadingWeatherCard />
-    </tbody>
-  </table>
-</div>
+      <table className="flight_card" style={{ width: '100%' }}>
+        <tbody>
+          <LoadingWeatherCard />
+        </tbody>
+      </table>
+    </div>
 
-    {/* Route Loading State */}
     <table className="route">
       <tbody>
         <tr>
           <th>ROUTE</th>
         </tr>
         <tr>
-          <td>Loading route information...</td>
+          <td><SkeletonLoader width="90%" /></td>
         </tr>
       </tbody>
     </table>
 
-    {/* NAS Details Loading State */}
     <div className="nas-details">
       <h3>Airport Closure - Departure</h3>
-      <p>Loading closure information...</p>
+      <SkeletonLoader width="100%" height="1.5em" />
     </div>
 
-    {/* Destination Weather Loading State */}
     <div className="table-container">
-  <table className="flight_card" style={{ width: '100%' }}>
-    <tbody>
-      <LoadingWeatherCard />
-    </tbody>
-  </table>
-</div>
+      <table className="flight_card" style={{ width: '100%' }}>
+        <tbody>
+          <LoadingWeatherCard />
+        </tbody>
+      </table>
+    </div>
 
-    {/* NAS Details Destination Loading State */}
     <div className="nas-details">
       <h3>Airport Closure - Destination</h3>
-      <p>Loading closure information...</p>
+      <SkeletonLoader width="100%" height="1.5em" />
     </div>
   </div>
 );
@@ -122,20 +118,7 @@ const Details = () => {
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
 
-  // const handleSearch = async (searchValue) => {
-  //   if (searchValue?.id) {
-  //     await fetchAirportData(searchValue.id);
-  //   } else if (searchValue?.flightNumber) {
-  //     await fetchFlightData(searchValue.flightNumber);
-  //   } else if (searchValue?.gate) {
-  //     await fetchGateData(searchValue.gate);
-  //   } else {
-  //     console.error("Invalid search value");
-  //   }
-  // };
-  
   useEffect(() => {
-
     async function fetchData() {
       setIsLoading(true);
       console.log('searchValue in Details.jsx', searchValue);
@@ -143,7 +126,7 @@ const Details = () => {
         let res;
         if (searchValue?.id) {
           const airportSerial = searchValue.id;
-          res = await axios.get(`${apiUrl}/airport/${airportSerial}`);    // This airport ID is the Object ID from mongoDB and is not a 3 or 4 letter ICAO identifier.
+          res = await axios.get(`${apiUrl}/airport/${airportSerial}`);
           console.log("Returning airportData, airportSerial:", airportSerial);
           setAirportWx(res.data);
         } else {
