@@ -3,7 +3,6 @@ import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
 
 const highlightWeatherText = (text) => {
-
   if (!text) return ""; 
   const pinkPattern = /((M)?\d\/(\d)?\dSM)/g;  
   const redPattern = /(BKN|OVC)(00[0-4])/g;   
@@ -24,7 +23,6 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
   return (
     <div className="card">
       <div>
-        {/* D-ATIS */}
         <div className="card__depature__subtitle card__header--dark">
           <h3 className="card__depature__subtitle__title">D-ATIS</h3>
           <span className="card__depature__time">34 mins ago</span>
@@ -32,8 +30,6 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
         <div className="card__depature__details">
           <p dangerouslySetInnerHTML={{ __html: highlightWeatherText(datis) }}></p>
         </div>
-
-        {/* METAR */}
         <div className="card__depature__subtitle card__header--dark">
           <h3 className="card__depature__subtitle__title">METAR</h3>
           <span className="card__depature__time">34 mins ago</span>
@@ -41,8 +37,6 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
         <div className="card__depature__details">
           <p dangerouslySetInnerHTML={{ __html: highlightWeatherText(metar) }}></p>
         </div>
-
-        {/* TAF */}
         <div className="card__depature__subtitle card__header--dark">
           <h3 className="card__depature__subtitle__title">TAF</h3>
           <span className="card__depature__time">166 mins ago</span>
@@ -102,6 +96,11 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
 
       {/* Departure Weather */}
       <div className="table-container">
+        <div className="sticky-header">
+          <div className="card__depature__subtitle card__header--dark">
+            <h3 className="card__depature__subtitle__title">Departure</h3>
+          </div>
+        </div>
         <table className="flight_card">
           <tbody>
             {dep_weather ? (
@@ -118,18 +117,23 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
             <tr>
               <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a></th>
             </tr>
-              <tr>
-                <td>{flightDetails.route}</td>
-              </tr>
+            <tr>
+              <td>{flightDetails.route}</td>
+            </tr>
           </tbody>
         </table>
-)}
+      )}
 
       {/* NAS Details for Departure */}
       <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
 
       {/* Destination Weather */}
       <div className="table-container">
+        <div className="sticky-header">
+          <div className="card__destination__subtitle card__header--dark">
+            <h3 className="card__destination__subtitle__title">Destination</h3>
+          </div>
+        </div>
         <table className="flight_card">
           <tbody>
             {dest_weather ? (

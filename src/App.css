@@ -36,6 +36,31 @@
 }
 
 
+.table-container {
+  position: relative;
+  top: 10px;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: #f1f1f1;
+  z-index: 1;
+  border-bottom: 1px solid #ddd;
+  margin: 0px;
+}
+
+.sticky-header .card__depature__subtitle,
+.sticky-header .card__destination__subtitle {
+  margin: 0px;
+  padding: 10px;
+}
+
+.sticky-header .card__depature__subtitle__title,
+.sticky-header .card__destination__subtitle__title {
+  margin: 0;
+}
+
 .box_around_text {
   border-radius: 4px;
   border: 1px solid #2D333B; 
