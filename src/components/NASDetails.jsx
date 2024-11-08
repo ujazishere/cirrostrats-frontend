@@ -22,7 +22,7 @@ const NASDetails = ({ nasResponse }) => {
           </table>
         ))
       ) : (
-        <p>No NAS data available.</p>
+        <p></p>
       )}
     </div>
   );

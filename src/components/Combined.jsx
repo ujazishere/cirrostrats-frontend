@@ -112,16 +112,18 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       </div>
 
       {/* Route and its Link */}
-      <table className="route">
-        <tbody>
-          <tr>
-            <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a></th>
-          </tr>
-          <tr>
-            <td>{flightDetails.route}</td>
-          </tr>
-        </tbody>
-      </table>
+      {flightDetails.route && flightDetails.sv && (
+        <table className="route">
+          <tbody>
+            <tr>
+              <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a></th>
+            </tr>
+              <tr>
+                <td>{flightDetails.route}</td>
+              </tr>
+          </tbody>
+        </table>
+)}
 
       {/* NAS Details for Departure */}
       <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
