@@ -117,6 +117,50 @@ const Details = () => {
 
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
+  
+  const fetchAirportWxData = async (airportSerial) => {
+    // This function is used to trigger fetch for airport data from the API
+    const res = await axios.get(`${apiUrl}/airport/${airportSerial}`);
+    console.log("Returning airportWcData, airportSerial:", airportSerial);
+    setAirportWx(res.data);
+  }
+
+  const fetchFlightData = async (flightNumberQuery) => {
+    const [depDesRes, flightStatsTZRes, flightAwareReturnsRes] = await Promise.all([
+      axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),
+      axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`),
+      axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`)
+    ]);
+
+    setUaDepDes(depDesRes.data);
+    setFlightStatsTZ(flightStatsTZRes.data);
+    setFlightAwareReturns(flightAwareReturnsRes.data);
+
+    const [nasRes, depWeather, destWeather] = await Promise.all([
+      axios.get(`${apiUrl}/NAS/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),
+      axios.get(`${apiUrl}/Weather/${depDesRes.data.departure_ID}`),
+      axios.get(`${apiUrl}/Weather/${depDesRes.data.destination_ID}`),
+    ]);
+
+    const weatherRes = {
+      'dep_weather': depWeather.data,
+      'dest_weather': destWeather.data
+    };
+
+    setNASResponse(nasRes.data);
+    setWeatherResponse(weatherRes);
+
+    const combinedFlightData = {
+      ...depDesRes.data,
+      ...flightStatsTZRes.data,
+      ...flightAwareReturnsRes.data,
+      ...nasRes.data,
+    };
+    setFlightData(combinedFlightData);
+    }
+
+  const fetchGateData = async (gate) => {
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -124,22 +168,24 @@ const Details = () => {
       console.log('searchValue in Details.jsx', searchValue);
       try {
         let res;
-        if (searchValue?.id) {
-          const airportSerial = searchValue.id;
-          res = await axios.get(`${apiUrl}/airport/${airportSerial}`);
-          console.log("Returning airportData, airportSerial:", airportSerial);
-          setAirportWx(res.data);
+        // TODO: This needs to be changed. Currently checks if the searchValue has id then returns the fetchAirportWxData function
+        // This function is used to trigger fetch for airport Wx data. The logic should be such that the id should check for the airport serial number
+        if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {
+          console.log("RETURNING TEST DATA");
+          const res = await axios.get(`${apiUrl}/testDataReturns`);
+          setFlightData(res.data);
+          setWeatherResponse(res.data);
+          setNASResponse(res.data);
+          console.log("res.data", res.data);
+        } else if (searchValue?.id && searchValue?.type === "airport") {
+          fetchAirportWxData(searchValue.id);
+        } else if (searchValue?.id && searchValue?.type === "gate") {
+          fetchGateData(searchValue.id);
+        } else if (searchValue?.id && searchValue?.type === "flightNumber") {
+          fetchFlightData(searchValue.id);
         } else {
-          if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {
-            console.log("RETURNING TEST DATA");
-            const res = await axios.get(`${apiUrl}/testDataReturns`);
-            setFlightData(res.data);
-            setWeatherResponse(res.data);
-            setNASResponse(res.data);
-            console.log("res.data", res.data);
-          } else {
             const flightNumberQuery = searchValue?.flightNumber ? searchValue.flightNumber : searchValue;
-            console.log("Couldn't find airport in the suggestion. Need to send to /rawQuery.", flightNumberQuery);
+            console.log("Couldn't find airport\flightNumber\gate in the suggestion. Need to send to /rawQuery.", flightNumberQuery);
 
             const [depDesRes, flightStatsTZRes, flightAwareReturnsRes] = await Promise.all([
               axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),
@@ -173,7 +219,6 @@ const Details = () => {
             };
             setFlightData(combinedFlightData);
           }
-        }
 
         if (res && res.status !== 200) {
           throw new Error("Network error occurred");
