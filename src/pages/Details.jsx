@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import UTCTime from "../components/UTCTime"; 
-import { FlightCard, WeatherCard } from "../components/Combined";
+import { FlightCard, WeatherCard, GateCard } from "../components/Combined";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 console.log(`apiUrl: ${apiUrl}`);
@@ -135,6 +135,7 @@ const LoadingFlightCard = () => (
 const Details = () => {
   const [airportWx, setAirportWx] = useState(null);
   const [flightData, setFlightData] = useState(null);
+  const [gateData, setGateData] = useState(null);
   const [UaDepDes, setUaDepDes] = useState(null);
   const [FlightStatsTZ, setFlightStatsTZ] = useState(null);
   const [FlightAwareReturns, setFlightAwareReturns] = useState(null);
@@ -143,7 +144,7 @@ const Details = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const location = useLocation();
-  const searchValue = location?.state?.searchValue;
+  let searchValue = location?.state?.searchValue;
   
   const fetchAirportWxData = async (airportSerial) => {
     const res = await axios.get(`${apiUrl}/airport/${airportSerial}`);
@@ -152,6 +153,7 @@ const Details = () => {
   }
 
   const fetchFlightData = async (flightNumberQuery) => {
+    console.log("flightNumberQuery", flightNumberQuery);
     const [depDesRes, flightStatsTZRes, flightAwareReturnsRes] = await Promise.all([
       axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),
       axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`),
@@ -186,6 +188,9 @@ const Details = () => {
   }
 
   const fetchGateData = async (gate) => {
+    const res = await axios.get(`${apiUrl}/gates`);
+    console.log("Returning gateData, gate:", gate);
+    setGateData(res.data);
   }
 
   useEffect(() => {
@@ -201,16 +206,16 @@ const Details = () => {
           setWeatherResponse(res.data);
           setNASResponse(res.data);
           console.log("res.data", res.data);
-        } else if (searchValue?.id && searchValue?.type === "airport") {
+        } else if (searchValue?.type === "airport") {
           fetchAirportWxData(searchValue.id);
-        } else if (searchValue?.id && searchValue?.type === "gate") {
+        } else if (searchValue?.type === "gate") {
           fetchGateData(searchValue.id);
-        } else if (searchValue?.id && searchValue?.type === "flightNumber") {
-          fetchFlightData(searchValue.id);
+        } else if (searchValue?.type === "flightNumber") {
+          fetchFlightData(searchValue.flightNumber);
         } else {
           const flightNumberQuery = searchValue?.flightNumber ? searchValue.flightNumber : searchValue;
           console.log("Couldn't find airport\\flightNumber\\gate in the suggestion. Need to send to /rawQuery.", flightNumberQuery);
-
+          searchValue = {flightNumber: flightNumberQuery, type: 'flightNumber'};
           const [depDesRes, flightStatsTZRes, flightAwareReturnsRes] = await Promise.all([
             axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),
             axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`),
@@ -261,7 +266,8 @@ const Details = () => {
     <div className="details">
       <UTCTime />
       
-      {searchValue?.id ? (
+      {searchValue?.type === "airport" ? (
+        // This is the weather component that shows only DATIS, METAR, and TAF for the airport. Has a loading component
         <>
           <h3 className="weather__title">
             <span>Weather for </span> {airportWx?.name || searchValue.name}
@@ -278,7 +284,11 @@ const Details = () => {
             )
           )}
         </>
-      ) : (
+      ) : searchValue?.type === "gate" ?  (
+        // This renders the gate component still work in progress
+        <GateCard gateDetails={searchValue} />
+      ) : searchValue?.type === "flightNumber" || searchValue ? (
+        // This renders the flight card if its loading it returns the flight loader component and when data is available it will load the flight card
         isLoading ? (
           <LoadingFlightCard />
         ) : (
@@ -292,7 +302,25 @@ const Details = () => {
             />
           )
         )
-      )}
+      ) : (
+        // Fallback for any other type or default case
+          <div className="card">
+            {['No Results', 'No Results', 'No Results'].map((section) => (
+              <div key={section}>
+                <div className="card__depature__subtitle card__header--dark">
+                  <h3 className="card__depature__subtitle__title">{section}</h3>
+                  <SkeletonLoader width="30%" />
+                </div>
+                <div className="card__depature__details">
+                  <SkeletonLoader width="80%" />
+                  <SkeletonLoader width="60%" />
+                  <SkeletonLoader width="90%" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      } 
     </div>
   );
 };

@@ -48,6 +48,19 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
     </div>
   );
 };
+const GateCard = ({gateData}) => {
+
+  return (
+    <div className="card">
+      <div>
+        <div className="card__depature__subtitle card__header--dark">
+          <h3 className="card__depature__subtitle__title">Gate{gateData}</h3>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   return (
@@ -149,4 +162,4 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
   );
 };
 
-export { FlightCard, WeatherCard };
+export { FlightCard, WeatherCard, GateCard };
