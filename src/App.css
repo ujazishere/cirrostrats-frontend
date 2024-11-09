@@ -36,6 +36,34 @@
 }
 
 
+/* Add this to your CSS file */
+.skeleton-loader {
+  background-color: #e0e0e0;
+  overflow: hidden;
+  position: relative;
+}
+
+.skeleton-loader::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+
 .table-container {
   position: relative;
   top: 10px;
