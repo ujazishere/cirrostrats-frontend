@@ -36,38 +36,73 @@
 }
 
 
-/* Add this to your CSS file */
-.skeleton-loader {
-  background-color: #e0e0e0;
-  overflow: hidden;
-  position: relative;
-}
 
-.skeleton-loader::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: shimmer 1.5s infinite;
-}
+/* Add this to your CSS file */
+
 
 @keyframes shimmer {
   0% {
-    transform: translateX(-100%);
+    background-position: -1000px 0;
   }
   100% {
-    transform: translateX(100%);
+    background-position: 1000px 0;
   }
 }
 
+.skeleton-loader {
+  background: #f0f0f0;
+  border-radius: 4px;
+  margin: 4px 0;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #f8f8f8 20%,
+    #f0f0f0 40%,
+    #f0f0f0 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2.5s ease-in-out infinite;
+}
 
 .table-container {
   position: relative;
   top: 10px;
+  overflow: hidden;
+  background: #ffffff;
 }
+
+.table-container,
+.flight_card,
+table {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Override any inherited animations for table cells */
+.table-container .skeleton-loader,
+.flight_card .skeleton-loader,
+table .skeleton-loader {
+  animation: shimmer 2.5s ease-in-out infinite;
+  background-size: 1000px 100%;
+}
+
+/* Ensure shimmer stays within bounds */
+.card,
+.details__card,
+.nas-details,
+.detail__body,
+.detail__depature,
+.detail__arrival {
+  overflow: hidden;
+}
+
+
+
+
+
+
 
 .sticky-header {
   position: sticky;
@@ -83,6 +118,8 @@
   margin: 0px;
   padding: 10px;
 }
+
+
 
 .sticky-header .card__depature__subtitle__title,
 .sticky-header .card__destination__subtitle__title {
