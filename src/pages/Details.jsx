@@ -29,10 +29,10 @@ const SkeletonLoader = ({ height, width }) => (
 // Loading Weather Card Component
 const LoadingWeatherCard = () => (
   <div className="card">
-    {['D-ATIS', 'METAR', 'TAF'].map((section) => (
+    {[1, 2, 3].map((section) => (
       <div key={section}>
         <div className="card__depature__subtitle card__header--dark">
-          <h3 className="card__depature__subtitle__title">{section}</h3>
+          <h3 className="card__depature__subtitle__title"></h3>
           <SkeletonLoader width="100%" />
         </div>
         <div className="card__depature__details">
@@ -81,7 +81,7 @@ const LoadingFlightCard = () => (
     <div className="table-container">
       <div className="sticky-header">
         <div className="card__depature__subtitle card__header--dark">
-          <h3 className="card__depature__subtitle__title">Departure</h3>
+          <h3 className="card__depature__subtitle__title"></h3>
         </div>
       </div>
       <table className="flight_card">
@@ -95,7 +95,7 @@ const LoadingFlightCard = () => (
     <table className="route">
       <tbody>
         <tr>
-          <th>ROUTE</th>
+          <th></th>
         </tr>
         <tr>
           <td><SkeletonLoader width="90%" /></td>
@@ -105,7 +105,7 @@ const LoadingFlightCard = () => (
 
     {/* NAS Departure Section */}
     <div className="nas-details">
-      <h3>Airport Closure - Departure</h3>
+      <h3></h3>
       <SkeletonLoader width="100%" height="1.5em" />
     </div>
 
@@ -113,7 +113,7 @@ const LoadingFlightCard = () => (
     <div className="table-container">
       <div className="sticky-header">
         <div className="card__destination__subtitle card__header--dark">
-          <h3 className="card__destination__subtitle__title">Destination</h3>
+          <h3 className="card__destination__subtitle__title"></h3>
         </div>
       </div>
       <table className="flight_card">
@@ -125,7 +125,7 @@ const LoadingFlightCard = () => (
 
     {/* NAS Destination Section */}
     <div className="nas-details">
-      <h3>Airport Closure - Destination</h3>
+      <h3></h3>
       <SkeletonLoader width="100%" height="1.5em" />
     </div>
   </div>
