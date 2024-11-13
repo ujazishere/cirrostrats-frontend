@@ -17,14 +17,11 @@ const SkeletonLoader = ({ height, width }) => (
       background: "linear-gradient(90deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%)",
       backgroundSize: "1000px 100%",
       animation: "shimmer 3s infinite linear",
-      overflow:"hidden"
+      overflow: "hidden",
     }}
     className="skeleton-loader"
   />
 );
-
-
-
 
 // Loading Weather Card Component
 const LoadingWeatherCard = () => (
@@ -135,53 +132,41 @@ const Details = () => {
   const [airportWx, setAirportWx] = useState(null);
   const [flightData, setFlightData] = useState(null);
   const [gateData, setGateData] = useState(null);
-  const [WeatherResponse, setWeatherResponse] = useState(null);
-  const [NASResponse, setNASResponse] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [dataComplete, setDataComplete] = useState(false);
+  const [weatherResponse, setWeatherResponse] = useState(null);
+  const [nasResponse, setNasResponse] = useState(null);
+  const [loadingFlightData, setLoadingFlightData] = useState(true);
+  const [loadingWeather, setLoadingWeather] = useState(true);
+  const [loadingNAS, setLoadingNAS] = useState(true);
 
   const location = useLocation();
   let searchValue = location?.state?.searchValue;
 
-  const checkDataCompleteness = (type, data) => {
-    if (type === 'airport') {
-      return !!data?.airportWx;
-    } else if (type === 'gate') {
-      return !!data?.gateData;
-    } else if (type === 'flightNumber') {
-      return !!(data?.flightData && data?.WeatherResponse && data?.NASResponse);
-    }
-    return false;
-  };
-
   useEffect(() => {
     async function fetchData() {
-      setIsLoading(true);
-      setDataComplete(false);
-      
       try {
-        if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {
-          const res = await axios.get(`${apiUrl}/testDataReturns`);
-          setFlightData(res.data);
-          setWeatherResponse(res.data);
-          setNASResponse(res.data);
-          setDataComplete(true);
-        } else if (searchValue?.type === "airport") {
+        if (searchValue?.type === "airport") {
           const res = await axios.get(`${apiUrl}/airport/${searchValue.id}`);
           setAirportWx(res.data);
-          setDataComplete(true);
+          setLoadingWeather(false);
         } else if (searchValue?.type === "gate") {
           const res = await axios.get(`${apiUrl}/gates`);
           setGateData(res.data);
-          setDataComplete(true);
+          setLoadingWeather(false);
         } else if (searchValue?.type === "flightNumber" || searchValue) {
           const flightNumberQuery = searchValue?.flightNumber || searchValue;
-          
+
           const [depDesRes, flightStatsTZRes, flightAwareRes] = await Promise.all([
             axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),
             axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`),
             axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`)
           ]);
+
+          setFlightData({
+            ...depDesRes.data,
+            ...flightStatsTZRes.data,
+            ...flightAwareRes.data
+          });
+          setLoadingFlightData(false);
 
           const [nasRes, depWeather, destWeather] = await Promise.all([
             axios.get(`${apiUrl}/NAS/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),
@@ -189,28 +174,16 @@ const Details = () => {
             axios.get(`${apiUrl}/Weather/${depDesRes.data.destination_ID}`)
           ]);
 
-          const weatherRes = {
+          setWeatherResponse({
             dep_weather: depWeather.data,
             dest_weather: destWeather.data
-          };
-
-          const combinedFlightData = {
-            ...depDesRes.data,
-            ...flightStatsTZRes.data,
-            ...flightAwareRes.data,
-            ...nasRes.data
-          };
-
-          setFlightData(combinedFlightData);
-          setWeatherResponse(weatherRes);
-          setNASResponse(nasRes.data);
-          setDataComplete(true);
+          });
+          setNasResponse(nasRes.data);
+          setLoadingWeather(false);
+          setLoadingNAS(false);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        setDataComplete(false);
-      } finally {
-        setIsLoading(false);
       }
     }
 
@@ -218,45 +191,24 @@ const Details = () => {
   }, [searchValue]);
 
   const renderContent = () => {
-    if (isLoading || !dataComplete) {
-      return searchValue?.type === "airport" ? (
-        <LoadingWeatherCard />
-      ) : searchValue?.type === "gate" ? (
-        <LoadingWeatherCard />
-      ) : (
-        <LoadingFlightCard />
-      );
-    }
-
-    if (searchValue?.type === "airport") {
-      return (
-        <>
-          <h3 className="weather__title">
-            <span>Weather for </span> {airportWx?.name || searchValue.name}
-          </h3>
-          <WeatherCard
-            arrow={false}
-            title="Airport Weather"
-            weatherDetails={airportWx}
-          />
-        </>
-      );
-    }
-
-    if (searchValue?.type === "gate") {
-      return <GateCard gateDetails={searchValue} />;
+    if (loadingFlightData && searchValue?.type === "flightNumber") {
+      return <LoadingFlightCard />;
     }
 
     return (
-      flightData && (
-        <FlightCard
-          flightDetails={flightData}
-          dep_weather={WeatherResponse?.dep_weather}
-          dest_weather={WeatherResponse?.dest_weather}
-          nasDepartureResponse={NASResponse?.nas_departure_affected}
-          nasDestinationResponse={NASResponse?.nas_destination_affected}
-        />
-      )
+      <>
+        {airportWx && <WeatherCard title="Airport Weather" weatherDetails={airportWx} />}
+        {gateData && <GateCard gateDetails={searchValue} />}
+        {flightData && (
+          <FlightCard
+            flightDetails={flightData}
+            dep_weather={weatherResponse?.dep_weather}
+            dest_weather={weatherResponse?.dest_weather}
+            nasDepartureResponse={nasResponse?.nas_departure_affected}
+            nasDestinationResponse={nasResponse?.nas_destination_affected}
+          />
+        )}
+      </>
     );
   };
 
