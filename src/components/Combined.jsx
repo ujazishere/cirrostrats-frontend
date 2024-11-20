@@ -1,6 +1,114 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
+
+// Styles object
+const styles = {
+  flightDetailsCard: {
+    backgroundColor: "#1c1c1e",
+    borderRadius: "12px",
+    padding: "24px",
+    color: "#ffffff",
+    marginBottom: "20px"
+  },
+  flightNumber: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "24px"
+  },
+  flightNumberText: {
+    fontSize: "24px",
+    fontWeight: "500",
+    color: "#ffffff",
+    margin: 0
+  },
+  aircraftNumber: {
+    color: "#8e8e93",
+    fontSize: "16px"
+  },
+  flightInfoContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: "24px",
+    position: "relative"
+  },
+  airportSection: {
+    flex: 1,
+    maxWidth: "320px"
+  },
+  airportCode: {
+    fontSize: "32px",
+    fontWeight: "700",
+    color: "#ffffff",
+    marginBottom: "8px"
+  },
+  airportName: {
+    color: "#8e8e93",
+    fontSize: "16px",
+    marginBottom: "24px"
+  },
+  infoGrid: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px"
+  },
+  infoItem: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px"
+  },
+  infoLabel: {
+    color: "#8e8e93",
+    fontSize: "14px"
+  },
+  infoValue: {
+    color: "#ffffff",
+    fontSize: "20px"
+  },
+  timeValue: {
+    color: "#34c759",
+    fontSize: "20px"
+  },
+  flightPath: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "0 32px",
+    position: "relative",
+    marginTop: "48px"
+  },
+  duration: {
+    color: "#8e8e93",
+    fontSize: "14px",
+    marginBottom: "12px",
+    position: "absolute",
+    top: "-24px",
+    whiteSpace: "nowrap"
+  },
+  pathLine: {
+    width: "200px",
+    height: "2px",
+    backgroundColor: "#3a3a3c",
+    margin: "12px 0"
+  },
+  airplaneIcon: {
+    color: "#34c759",
+    fontSize: "24px",
+    transform: "rotate(90deg)",
+    marginTop: "8px"
+  },
+  statusBanner: {
+    display: "inline-block",
+    backgroundColor: "rgba(52, 199, 89, 0.2)",
+    color: "#34c759",
+    padding: "8px 16px",
+    borderRadius: "6px",
+    fontSize: "14px",
+    fontWeight: "500"
+  }
+};
 
 const highlightWeatherText = (text) => {
   if (!text) return ""; 
@@ -48,8 +156,8 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
     </div>
   );
 };
-const GateCard = ({gateData}) => {
 
+const GateCard = ({gateData}) => {
   return (
     <div className="card">
       <div>
@@ -61,53 +169,77 @@ const GateCard = ({gateData}) => {
   );
 };
 
-
 const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   return (
     <div className="details">
-      <div className="details__card">
-        <h3 className="details__card__title">{flightDetails.flight_number} N37502</h3>
+      <div style={styles.flightDetailsCard}>
+        {/* Flight Number Row */}
+        <div style={styles.flightNumber}>
+          <h2 style={styles.flightNumberText}>{flightDetails.flight_number}</h2>
+          <span style={styles.aircraftNumber}>N37502</span>
+        </div>
 
-        <div className="detail__body">
-          {/* Departure Information */}
-          <div className="detail__depature">
-            <h3 className="detail__depature__title">{flightDetails.departure_ID}</h3>
-
-            <div className="detail__gate">
-              <p className="detail__gate__title">Gate</p>
-              <h3>{flightDetails.departure_gate}</h3>
-            </div>
-            <div className="detail__depature__time">
-              <p className="detail__depature__local">Scheduled Local</p>
-              <h3>05:40 EST</h3>
-            </div>
-            <div className="detail__depature__utc__time">
-              <p className="detail__depature__utc">UTC</p>
-              <h3>{flightDetails.scheduled_departure_time}</h3>
+        {/* Main Flight Info Container */}
+        <div style={styles.flightInfoContainer}>
+          {/* Departure Section */}
+          <div style={styles.airportSection}>
+            <div style={styles.airportCode}>{flightDetails.departure_ID}</div>
+            
+            <div style={styles.infoGrid}>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Terminal</div>
+                <div style={styles.infoValue}>-</div>
+              </div>
+              
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Gate</div>
+                <div style={styles.infoValue}>-</div>
+              </div>
+              
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Scheduled Local</div>
+                <div style={styles.timeValue}>12:30 PM</div>
+              </div>
             </div>
           </div>
 
-          {/* Arrival Information */}
-          <div className="detail__arrival">
-            <h3 className="detail__arrival__title ">{flightDetails.destination_ID}</h3>
+          {/* Flight Path Indicator */}
+          <div style={styles.flightPath}>
+            <div style={styles.duration}>1h 14m</div>
+            <div style={styles.pathLine}></div>
+            <div style={styles.airplaneIcon}>✈</div>
+          </div>
 
-            <div className="detail__gate">
-              <p className="detail__gate__title">Gate</p>
-              <h3>{flightDetails.arrival_gate}</h3>
-            </div>
-            <div className="detail__arrival__time">
-              <p className="detail__arrival__local"> Scheduled Local</p>
-              <h3>08:49 CST</h3>
-            </div>
-            <div className="detail__arrival__utc__time">
-              <p className="detail__arrival__utc">UTC</p>
-              <h3>{flightDetails.scheduled_arrival_time}</h3>
+          {/* Arrival Section */}
+          <div style={styles.airportSection}>
+            <div style={styles.airportCode}>{flightDetails.destination_ID}</div>
+            
+            <div style={styles.infoGrid}>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Terminal</div>
+                <div style={styles.infoValue}>C</div>
+              </div>
+              
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Gate</div>
+                <div style={styles.infoValue}>105</div>
+              </div>
+              
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Scheduled Local</div>
+                <div style={styles.timeValue}>1:44 PM</div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Status Banner */}
+        <div style={styles.statusBanner}>
+          DEPARTING ON TIME
+        </div>
       </div>
 
-      {/* Departure Weather */}
+      {/* Original Weather and NAS Details */}
       <div className="table-container">
         <div className="sticky-header">
           <div className="card__depature__subtitle card__header--dark">
@@ -123,7 +255,6 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </table>
       </div>
 
-      {/* Route and its Link */}
       {flightDetails.route && flightDetails.sv && (
         <table className="route">
           <tbody>
@@ -137,10 +268,8 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </table>
       )}
 
-      {/* NAS Details for Departure */}
       <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
 
-      {/* Destination Weather */}
       <div className="table-container">
         <div className="sticky-header">
           <div className="card__destination__subtitle card__header--dark">
@@ -156,7 +285,6 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </table>
       </div>
 
-      {/* NAS Details for Destination */}
       <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
     </div>
   );
