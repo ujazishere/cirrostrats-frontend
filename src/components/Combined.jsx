@@ -2,13 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
 
-// Styles with enhanced responsiveness
 const styles = {
-  container: {
-    width: "100%",
-    maxWidth: "100%",
-    overflowX: "auto"
-  },
   flightDetailsCard: {
     backgroundColor: "#1c1c1e",
     borderRadius: "12px",
@@ -16,38 +10,26 @@ const styles = {
     color: "#ffffff",
     marginBottom: "20px",
     width: "100%",
-    overflowX: "auto",
-    '@media (max-width: 600px)': {
-      padding: "16px",
-      marginBottom: "12px"
-    }
+    overflow: "auto" 
   },
   flightNumber: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
     gap: "12px",
     marginBottom: "24px",
-    '@media (max-width: 600px)': {
-      marginBottom: "16px",
-      gap: "8px"
-    }
+    justifyContent: "center"
   },
   flightNumberText: {
     fontSize: "24px",
     fontWeight: "500",
     color: "#ffffff",
     margin: 0,
-    '@media (max-width: 600px)': {
-      fontSize: "18px"
-    }
+    whiteSpace: "nowrap"
   },
   aircraftNumber: {
     color: "#8e8e93",
     fontSize: "16px",
-    '@media (max-width: 600px)': {
-      fontSize: "14px"
-    }
+    whiteSpace: "nowrap"
   },
   flightInfoContainer: {
     display: "flex",
@@ -55,119 +37,82 @@ const styles = {
     alignItems: "flex-start",
     marginBottom: "24px",
     position: "relative",
-    width: "100%",
-    overflowX: "auto",
-    '@media (max-width: 600px)': {
-      flexDirection: "column",
-      marginBottom: "16px"
-    }
+    minWidth: "min-content",
+    gap: "8px"
   },
   airportSection: {
-    flex: 1,
-    minWidth: "250px",
-    maxWidth: "320px",
-    '@media (max-width: 600px)': {
-      maxWidth: "100%",
-      width: "100%",
-      minWidth: "100%"
-    }
+    flex: "0 0 auto", 
+    width: "150px", 
+    minWidth: "150px" 
   },
   airportCode: {
-    fontSize: "32px",
+    fontSize: "28px", 
     fontWeight: "700",
     color: "#ffffff",
     marginBottom: "8px",
-    '@media (max-width: 600px)': {
-      fontSize: "24px",
-      marginBottom: "4px"
-    }
+    whiteSpace: "nowrap"
+  },
+  airportName: {
+    color: "#8e8e93",
+    fontSize: "14px", 
+    marginBottom: "24px",
+    whiteSpace: "nowrap"
   },
   infoGrid: {
     display: "flex",
     flexDirection: "column",
-    gap: "16px",
-    width: "100%",
-    '@media (max-width: 600px)': {
-      gap: "12px"
-    }
+    gap: "12px"
   },
   infoItem: {
     display: "flex",
     flexDirection: "column",
-    gap: "4px",
-    width: "100%",
-    '@media (max-width: 600px)': {
-      gap: "2px"
-    }
+    gap: "4px"
   },
   infoLabel: {
     color: "#8e8e93",
-    fontSize: "14px",
-    '@media (max-width: 600px)': {
-      fontSize: "12px"
-    }
+    fontSize: "12px", 
+    whiteSpace: "nowrap"
   },
   infoValue: {
-    color: "#ffffff", 
-    fontSize: "20px",
-    maxWidth: "100%",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    '@media (max-width: 600px)': {
-      fontSize: "16px"
-    }
+    color: "#ffffff",
+    fontSize: "16px", 
+    whiteSpace: "nowrap"
   },
   timeValue: {
     color: "#34c759",
-    fontSize: "20px",
-    '@media (max-width: 600px)': {
-      fontSize: "16px"
-    }
+    fontSize: "16px", 
+    whiteSpace: "nowrap"
   },
   flightPath: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: "0 32px",
+    padding: "0 8px",
     position: "relative",
     marginTop: "48px",
-    '@media (max-width: 600px)': {
-      padding: "0 16px",
-      marginTop: "32px"
-    }
+    flex: "0 0 auto",
+    width: "80px", 
+    minWidth: "80px"
   },
   duration: {
     color: "#8e8e93",
-    fontSize: "14px",
+    fontSize: "12px",
     marginBottom: "12px",
     position: "absolute",
     top: "-24px",
-    whiteSpace: "nowrap",
-    '@media (max-width: 600px)': {
-      fontSize: "12px",
-      top: "-16px"
-    }
+    whiteSpace: "nowrap"
   },
   pathLine: {
-    width: "200px",
+    width: "100%",
     height: "2px",
     backgroundColor: "#3a3a3c",
-    margin: "12px 0",
-    '@media (max-width: 600px)': {
-      width: "150px",
-      margin: "8px 0"
-    }
+    margin: "12px 0"
   },
   airplaneIcon: {
     color: "#34c759",
-    fontSize: "24px",
+    fontSize: "20px",
     transform: "rotate(90deg)",
-    marginTop: "8px",
-    '@media (max-width: 600px)': {
-      fontSize: "20px",
-      marginTop: "4px"
-    }
+    marginTop: "8px"
   },
   statusBanner: {
     display: "inline-block",
@@ -177,25 +122,10 @@ const styles = {
     borderRadius: "6px",
     fontSize: "14px",
     fontWeight: "500",
-    '@media (max-width: 600px)': {
-      padding: "6px 12px",
-      fontSize: "12px"
-    }
-  },
-  routeTable: {
-    width: "100%",
-    tableLayout: "fixed",
-    overflowX: "auto"
-  },
-  routeCell: {
-    wordWrap: "break-word",
-    maxWidth: "100%",
-    overflow: "hidden",
-    textOverflow: "ellipsis"
+    whiteSpace: "nowrap"
   }
 };
 
-// Weather highlighting function (existing implementation)
 const highlightWeatherText = (text) => {
   if (!text) return ""; 
   const pinkPattern = /((M)?\d\/(\d)?\dSM)/g;  
@@ -209,7 +139,6 @@ const highlightWeatherText = (text) => {
     .replace(altimeterPattern, '<span class="box_around_text">$1</span>');
 };
 
-// WeatherCard Component
 const WeatherCard = ({ arrow, title, weatherDetails }) => {
   const datis = weatherDetails?.datis;
   const metar = weatherDetails?.metar;
@@ -244,7 +173,6 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
   );
 };
 
-// GateCard Component
 const GateCard = ({gateData}) => {
   return (
     <div className="card">
@@ -257,16 +185,9 @@ const GateCard = ({gateData}) => {
   );
 };
 
-// Main FlightCard Component
-const FlightCard = ({ 
-  flightDetails, 
-  dep_weather, 
-  dest_weather, 
-  nasDepartureResponse, 
-  nasDestinationResponse 
-}) => {
+const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   return (
-    <div className="details" style={styles.container}>
+    <div className="details">
       <div style={styles.flightDetailsCard}>
         {/* Flight Number Row */}
         <div style={styles.flightNumber}>
@@ -334,7 +255,7 @@ const FlightCard = ({
         </div>
       </div>
 
-      {/* Departure Weather Section */}
+      {/* Rest of the component remains unchanged */}
       <div className="table-container">
         <div className="sticky-header">
           <div className="card__depature__subtitle card__header--dark">
@@ -350,38 +271,21 @@ const FlightCard = ({
         </table>
       </div>
 
-      {/* Route Section */}
       {flightDetails.route && flightDetails.sv && (
-        <div style={{width: "100%", overflowX: "auto"}}>
-          <table style={styles.routeTable}>
-            <tbody>
-              <tr>
-                <th>
-                  ROUTE
-                  <a 
-                    href={flightDetails.sv} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    style={{marginLeft: "10px"}}
-                  >
-                    Show on - SkyVector Map
-                  </a>
-                </th>
-              </tr>
-              <tr>
-                <td style={styles.routeCell}>
-                  {flightDetails.route}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table className="route">
+          <tbody>
+            <tr>
+              <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a></th>
+            </tr>
+            <tr>
+              <td>{flightDetails.route}</td>
+            </tr>
+          </tbody>
+        </table>
       )}
 
-      {/* NAS Departure Details */}
       <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
 
-      {/* Destination Weather Section */}
       <div className="table-container">
         <div className="sticky-header">
           <div className="card__destination__subtitle card__header--dark">
@@ -397,7 +301,6 @@ const FlightCard = ({
         </table>
       </div>
 
-      {/* NAS Destination Details */}
       <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
     </div>
   );
