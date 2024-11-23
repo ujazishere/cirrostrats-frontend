@@ -6,21 +6,21 @@ const styles = {
   flightDetailsCard: {
     backgroundColor: "#1c1c1e",
     borderRadius: "12px",
-    padding: "24px",
+    padding: "16px",
     color: "#ffffff",
     marginBottom: "20px",
     width: "100%",
-    overflow: "auto" 
+    overflow: "auto"
   },
   flightNumber: {
     display: "flex",
     alignItems: "center",
-    gap: "12px",
-    marginBottom: "24px",
+    gap: "8px",
+    marginBottom: "16px",
     justifyContent: "center"
   },
   flightNumberText: {
-    fontSize: "24px",
+    fontSize: "20px",
     fontWeight: "500",
     color: "#ffffff",
     margin: 0,
@@ -28,76 +28,75 @@ const styles = {
   },
   aircraftNumber: {
     color: "#8e8e93",
-    fontSize: "16px",
+    fontSize: "14px",
     whiteSpace: "nowrap"
   },
   flightInfoContainer: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: "24px",
+    marginBottom: "16px",
     position: "relative",
-    minWidth: "min-content",
-    gap: "8px"
+    gap: "4px"
   },
   airportSection: {
-    flex: "0 0 auto", 
-    width: "150px", 
-    minWidth: "150px" 
+    flex: "1",
+    minWidth: "100px",
+    maxWidth: "120px"
   },
   airportCode: {
-    fontSize: "28px", 
+    fontSize: "24px",
     fontWeight: "700",
     color: "#ffffff",
-    marginBottom: "8px",
+    marginBottom: "4px",
     whiteSpace: "nowrap"
   },
   airportName: {
     color: "#8e8e93",
-    fontSize: "14px", 
-    marginBottom: "24px",
+    fontSize: "12px",
+    marginBottom: "16px",
     whiteSpace: "nowrap"
   },
   infoGrid: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px"
+    gap: "8px"
   },
   infoItem: {
     display: "flex",
     flexDirection: "column",
-    gap: "4px"
+    gap: "2px"
   },
   infoLabel: {
     color: "#8e8e93",
-    fontSize: "12px", 
+    fontSize: "11px",
     whiteSpace: "nowrap"
   },
   infoValue: {
     color: "#ffffff",
-    fontSize: "16px", 
+    fontSize: "14px",
     whiteSpace: "nowrap"
   },
   timeValue: {
     color: "#34c759",
-    fontSize: "16px", 
+    fontSize: "14px",
     whiteSpace: "nowrap"
   },
   flightPath: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: "0 8px",
+    padding: "0 4px",
     position: "relative",
     marginTop: "48px",
     flex: "0 0 auto",
-    width: "80px", 
-    minWidth: "80px"
+    width: "60px",
+    minWidth: "60px"
   },
   duration: {
     color: "#8e8e93",
-    fontSize: "12px",
-    marginBottom: "12px",
+    fontSize: "11px",
+    marginBottom: "8px",
     position: "absolute",
     top: "-24px",
     whiteSpace: "nowrap"
@@ -106,21 +105,21 @@ const styles = {
     width: "100%",
     height: "2px",
     backgroundColor: "#3a3a3c",
-    margin: "12px 0"
+    margin: "8px 0"
   },
   airplaneIcon: {
     color: "#34c759",
-    fontSize: "20px",
+    fontSize: "16px",
     transform: "rotate(90deg)",
-    marginTop: "8px"
+    marginTop: "6px"
   },
   statusBanner: {
     display: "inline-block",
     backgroundColor: "rgba(52, 199, 89, 0.2)",
     color: "#34c759",
-    padding: "8px 16px",
+    padding: "6px 12px",
     borderRadius: "6px",
-    fontSize: "14px",
+    fontSize: "12px",
     fontWeight: "500",
     whiteSpace: "nowrap"
   }
