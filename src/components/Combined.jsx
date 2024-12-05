@@ -4,13 +4,14 @@ import NASDetails from "./NASDetails";
 
 const styles = {
   flightDetailsCard: {
-    backgroundColor: "#1c1c1e",
+    backgroundColor: "#ffffff",
     borderRadius: "12px",
     padding: "16px",
-    color: "#ffffff",
+    color: "#2d333b",
     marginBottom: "20px",
     width: "100%",
-    overflow: "auto"
+    overflow: "auto",
+    border: "1px solid #000000"
   },
   flightNumber: {
     display: "flex",
@@ -22,7 +23,7 @@ const styles = {
   flightNumberText: {
     fontSize: "20px",
     fontWeight: "500",
-    color: "#ffffff",
+    color: "#2d333b",
     margin: 0,
     whiteSpace: "nowrap"
   },
@@ -47,7 +48,7 @@ const styles = {
   airportCode: {
     fontSize: "24px",
     fontWeight: "700",
-    color: "#ffffff",
+    color: "##2d333b",
     marginBottom: "4px",
     whiteSpace: "nowrap"
   },
@@ -68,12 +69,12 @@ const styles = {
     gap: "2px"
   },
   infoLabel: {
-    color: "#8e8e93",
+    color: "##2d333b",
     fontSize: "11px",
     whiteSpace: "nowrap"
   },
   infoValue: {
-    color: "#ffffff",
+    color: "#2d333b",
     fontSize: "14px",
     whiteSpace: "nowrap"
   },
@@ -220,9 +221,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
 
           {/* Flight Path Indicator */}
           <div style={styles.flightPath}>
-            <div style={styles.duration}>1h 14m</div>
-            <div style={styles.pathLine}></div>
-            <div style={styles.airplaneIcon}>✈</div>
+            <div style={styles.airplaneIcon}></div>
           </div>
 
           {/* Arrival Section */}
@@ -248,10 +247,6 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
           </div>
         </div>
 
-        {/* Status Banner */}
-        <div style={styles.statusBanner}>
-          DEPARTING ON TIME
-        </div>
       </div>
 
       {/* Rest of the component remains unchanged */}
