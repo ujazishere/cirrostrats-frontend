@@ -186,62 +186,59 @@ const GateCard = ({gateData}) => {
 };
 
 const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
+  console.log('FlightDetails received:', flightDetails);  // Debug log
+  
   return (
     <div className="details">
       <div style={styles.flightDetailsCard}>
-        {/* Flight Number Row */}
         <div style={styles.flightNumber}>
-          <h2 style={styles.flightNumberText}>{flightDetails.flight_number}</h2>
+          <h2 style={styles.flightNumberText}>{flightDetails?.flight_number}</h2>
           <span style={styles.aircraftNumber}>N37502</span>
         </div>
 
-        {/* Main Flight Info Container */}
         <div style={styles.flightInfoContainer}>
-          {/* Departure Section */}
           <div style={styles.airportSection}>
-            <div style={styles.airportCode}>{flightDetails.departure_ID}</div>
+            <div style={styles.airportCode}>{flightDetails?.departure_ID}</div>
             
             <div style={styles.infoGrid}>
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>Terminal</div>
-                <div style={styles.infoValue}>-</div>
+                <div style={styles.infoValue}></div>
               </div>
               
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>Gate</div>
-                <div style={styles.infoValue}>-</div>
+                <div style={styles.infoValue}>{flightDetails?.departure_gate}</div>
               </div>
               
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>Scheduled Local</div>
-                <div style={styles.timeValue}>12:30 PM</div>
+                <div style={styles.timeValue}>{flightDetails?.scheduled_departure_time}</div>
               </div>
             </div>
           </div>
 
-          {/* Flight Path Indicator */}
           <div style={styles.flightPath}>
             <div style={styles.airplaneIcon}></div>
           </div>
 
-          {/* Arrival Section */}
           <div style={styles.airportSection}>
-            <div style={styles.airportCode}>{flightDetails.destination_ID}</div>
+            <div style={styles.airportCode}>{flightDetails?.destination_ID}</div>
             
             <div style={styles.infoGrid}>
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>Terminal</div>
-                <div style={styles.infoValue}>C</div>
+                <div style={styles.infoValue}></div>
               </div>
               
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>Gate</div>
-                <div style={styles.infoValue}>105</div>
+                <div style={styles.infoValue}>{flightDetails?.arrival_gate}</div>
               </div>
               
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>Scheduled Local</div>
-                <div style={styles.timeValue}>1:44 PM</div>
+                <div style={styles.timeValue}>{flightDetails?.scheduled_arrival_time}</div>
               </div>
             </div>
           </div>
@@ -249,7 +246,6 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
 
       </div>
 
-      {/* Rest of the component remains unchanged */}
       <div className="table-container">
         <div className="sticky-header">
           <div className="card__depature__subtitle card__header--dark">
@@ -265,7 +261,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </table>
       </div>
 
-      {flightDetails.route && flightDetails.sv && (
+      {flightDetails?.route && flightDetails?.sv && (
         <table className="route">
           <tbody>
             <tr>
