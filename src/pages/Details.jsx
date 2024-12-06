@@ -135,6 +135,7 @@ const Details = () => {
   const [weatherResponse, setWeatherResponse] = useState(null);
   const [nasResponse, setNasResponse] = useState(null);
   const [loadingFlightData, setLoadingFlightData] = useState(true);
+  const [NASResponse, setNASResponse] = useState(null);
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [loadingNAS, setLoadingNAS] = useState(true);
 
@@ -144,7 +145,15 @@ const Details = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        if (searchValue?.type === "airport") {
+        if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {   // This triggers the TEST DATA returns
+            console.log("RETURNING TEST DATA");
+            const res = await axios.get(`${apiUrl}/testDataReturns`);           // Raw query request
+            setFlightData(res.data);
+            setWeatherResponse(res.data);
+            setNASResponse(res.data);
+            console.log("res.data", res.data);
+            return;
+        } else if (searchValue?.type === "airport") {
           const res = await axios.get(`${apiUrl}/airport/${searchValue.id}`);
           setAirportWx(res.data);
           setLoadingWeather(false);
@@ -198,7 +207,7 @@ const Details = () => {
     return (
       <>
         {airportWx && <WeatherCard title="Airport Weather" weatherDetails={airportWx} />}
-        {gateData && <GateCard gateDetails={searchValue} />}
+        {gateData && <GateCard gateData={searchValue} />}
         {flightData && (
           <FlightCard
             flightDetails={flightData}

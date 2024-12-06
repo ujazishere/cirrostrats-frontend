@@ -53,11 +53,31 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
 const GateCard = ({ gateData }) => {
   return (
     <div className="card">
-      <div>
-        <div className="card__depature__subtitle card__header--dark">
-          <h3 className="card__depature__subtitle__title">Gate{gateData}</h3>
-        </div>
-      </div>
+    <h3 className="card__depature__subtitle card__header--dark">{gateData.gate} Departures</h3>
+    <div className="card__depature__subtitle card__header--dark">
+      {gateData && gateData.flightStatus ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Flight Number</th>
+              <th>Scheduled</th>
+              <th>Actual </th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(gateData.flightStatus).map(([flightNumber, details]) => (
+              <tr key={flightNumber}>
+                <td>{flightNumber}</td>
+                <td>{details.scheduledDeparture || 'None'}</td>
+                <td>{details.actualDeparture || 'None'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No flight status data available</p>
+      )}
+    </div>
     </div>
   );
 };

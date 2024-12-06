@@ -17,6 +17,8 @@ const Input = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
+  const [typedValue, setTypedValue] = useState(null);
+  const [autoCompleteInput, setAutoCompleteInput] = useState(null);
   const navigate = useNavigate();
   const inputRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -91,7 +93,21 @@ const Input = () => {
     }
   };
 
+  const fetchBackendData = async (searchValue) => {
+    try {
+      const backendPassingValue = "somevalue";
+      const res = await axios.get(`${apiUrl}/query/${backendPassingValue}?search=${searchValue}`);
+      const { data } = res;
+      console.log("Backend data:", data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching API data from backend:", error);
+      return null; // Return null or appropriate fallback value in case of an error
+    }
+  };
+
   const fetchSuggestions = async (value) => {
+    // fetchBackendData(value);
     console.log(`Fetching suggestions for: ${value}`);
     const lowercaseValue = value.toLowerCase();
 
@@ -117,21 +133,21 @@ const Input = () => {
 
     setFilteredSuggestions(filteredSuggestions);
     if (filteredSuggestions.length === 0) {
-      console.log("No local matches found. Quering backend");
-      try {
-        const res = await axios.get(`${apiUrl}/query/airport?search=${value}`);
-        const { data } = res;
-        console.log("API data since no local matches found: ", data);
-      } catch (error) {
-        console.error("Error fetching api data from backend: ", error);
-      }
+      console.log("No local matches found. Querying backend");
+      fetchBackendData(value);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("typedValue, selectedV", typedValue, selectedValue);
 
-    const searchValue = selectedValue || { value: inputValue, label: inputValue };    // Set searchValue to selectedValue if it exists, otherwise set it to inputValue
+    // if selectedValue is an object and it is not null then selectedValue should be searchValue
+    const searchValue =
+      typeof selectedValue === 'object' && selectedValue !== null
+      ? selectedValue
+      : typedValue || { value: inputValue, label: inputValue };
+
     console.log("search submit", searchValue);
     navigate("/details", { state: { searchValue } });
   };
