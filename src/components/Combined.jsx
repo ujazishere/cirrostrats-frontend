@@ -114,8 +114,8 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
               <br />
               <div className="info-grid">
               <div className="info-item">
-                <div className="info-label">UTC</div>
-                <div className="info-value"></div>
+                <div className="info-label">Scheduled In</div>
+                <div className="info-value">{flightDetails?.scheduled_in}</div>
               </div>
 
             </div>
@@ -146,8 +146,8 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
 
               <div className="info-grid">
               <div className="info-item">
-                <div className="info-label">UTC</div>
-                <div className="info-value"></div>
+                <div className="info-label">Scheduled Out</div>
+                <div className="info-value">{flightDetails?.scheduled_out}</div>
               </div>
 
             </div>
