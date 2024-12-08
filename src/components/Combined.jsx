@@ -96,22 +96,28 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         <div className="flight-info-container">
           <div className="airport-section">
             <div className="airport-code">{flightDetails?.departure_ID}</div>
-            
-            <div className="info-grid">
-              <div className="info-item">
-                <div className="info-label">Terminal</div>
-                <div className="info-value"></div>
-              </div>
+
+            <br />
               
               <div className="info-item">
                 <div className="info-label">Gate</div>
                 <div className="info-value">{flightDetails?.departure_gate}</div>
               </div>
+
+             <br />
               
               <div className="info-item">
                 <div className="info-label">Scheduled Local</div>
                 <div className="time-value">{flightDetails?.scheduled_departure_time}</div>
               </div>
+
+              <br />
+              <div className="info-grid">
+              <div className="info-item">
+                <div className="info-label">UTC</div>
+                <div className="info-value"></div>
+              </div>
+
             </div>
           </div>
 
@@ -121,22 +127,29 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
 
           <div className="airport-section">
             <div className="airport-code">{flightDetails?.destination_ID}</div>
-            
-            <div className="info-grid">
-              <div className="info-item">
-                <div className="info-label">Terminal</div>
-                <div className="info-value"></div>
-              </div>
+
+            <br />
               
               <div className="info-item">
                 <div className="info-label">Gate</div>
                 <div className="info-value">{flightDetails?.arrival_gate}</div>
               </div>
-              
+
+              <br />
+
               <div className="info-item">
                 <div className="info-label">Scheduled Local</div>
                 <div className="time-value">{flightDetails?.scheduled_arrival_time}</div>
               </div>
+
+              <br />
+
+              <div className="info-grid">
+              <div className="info-item">
+                <div className="info-label">UTC</div>
+                <div className="info-value"></div>
+              </div>
+
             </div>
           </div>
         </div>

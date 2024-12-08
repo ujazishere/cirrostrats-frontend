@@ -45,6 +45,8 @@
   width: 100%;
   overflow: auto;
   border: 1px solid #000000;
+  font-family: menlo;
+  font-weight: 1000;
 }
 
 .flight-number {
