@@ -77,7 +77,6 @@ const Input = () => {
   }, []);
 
   const handleInputChange = (event, newInputValue) => {
-    setInputValue(newInputValue);
 
     if (typingTimer) {
       clearTimeout(typingTimer);
@@ -91,6 +90,26 @@ const Input = () => {
     } else {
       setFilteredSuggestions([]);
     }
+    // TODO IS: Implement logic to handle input changes and suuggestion selection in the input field.
+    if (filteredSuggestions.length > 0) {
+      const firstSuggestion = filteredSuggestions[0].value;
+      console.log("firstSuggestion", firstSuggestion);
+      if (
+        typeof firstSuggestion === 'string' &&
+        firstSuggestion.toLowerCase().startsWith(inputValue.toLowerCase())
+      ) {
+        setInputValue(firstSuggestion);
+        console.log("firstSuggestion", firstSuggestion);
+        console.log("inputValue ", inputValue);
+      } else {
+        setInputValue(newInputValue);
+      }
+    } else {
+      setInputValue(newInputValue);
+    }
+    // console.log("newInputValue and first sug", newInputValue, filteredSuggestions[0]);
+
+
   };
 
   const fetchBackendData = async (searchValue) => {
@@ -191,16 +210,16 @@ const Input = () => {
     <div className="searchbar-container">
       <form onSubmit={handleSubmit}>
         <Autocomplete
-          open={isExpanded}
-          options={filteredSuggestions}
-          value={selectedValue}
-          onChange={(event, newValue) => {
-            setSelectedValue(newValue);
+          open={isExpanded}   // Controls the visibility of the dropdown
+          options={filteredSuggestions}   // The options to display in the dropdown
+          value={selectedValue}    // The current selected value
+          inputValue={inputValue}
+          onChange={(event, suggestionSelection) => {    // Invoked when user selects an option
+            setSelectedValue(suggestionSelection);
+            console.log("WE HERERER")
             setIsExpanded(false); 
           }}
-          inputValue={inputValue}
-          onInputChange={(event, newInputValue) => {
-            setInputValue(newInputValue);
+          onInputChange={(event, newInputValue) => {    // Invoked when user inputs text in the input field
             handleInputChange(event, newInputValue);
           }}
           className="home__input"
