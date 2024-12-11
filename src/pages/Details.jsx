@@ -29,7 +29,6 @@ const LoadingWeatherCard = () => (
     {[1, 2, 3].map((section) => (
       <div key={section}>
         <div className="card__depature__subtitle card__header--dark">
-          <h3 className="card__depature__subtitle__title"></h3>
           <SkeletonLoader width="100%" />
         </div>
         <div className="card__depature__details">
