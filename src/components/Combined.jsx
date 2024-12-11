@@ -85,6 +85,9 @@ const GateCard = ({ gateData }) => {
 const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   useEffect(() => {
     const handleScroll = () => {
+      // Only run on mobile devices
+      if (window.innerWidth > 768) return;
+
       const departureHeader = document.getElementById('departure-header');
       const destinationHeader = document.getElementById('destination-header');
       
@@ -109,8 +112,23 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       }
     };
 
+    // Add resize listener to handle orientation changes
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        const departureHeader = document.getElementById('departure-header');
+        const destinationHeader = document.getElementById('destination-header');
+        if (departureHeader) departureHeader.classList.remove('sticky');
+        if (destinationHeader) destinationHeader.classList.remove('sticky');
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return (
