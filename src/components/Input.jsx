@@ -18,7 +18,8 @@ const Input = () => {
   const [inputValue, setInputValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
   const [typedValue, setTypedValue] = useState(null);
-  const [autoCompleteInput, setAutoCompleteInput] = useState(null);
+  const [firstSuggestion, setFirstSuggestion] = useState('');
+  const [suggestionPart, setSuggestionPart] = useState('');
   const navigate = useNavigate();
   const inputRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -98,19 +99,23 @@ const Input = () => {
         typeof firstSuggestion === 'string' &&
         firstSuggestion.toLowerCase().startsWith(inputValue.toLowerCase())
       ) {
-        setInputValue(firstSuggestion);
+        const suggestionPart = (firstSuggestion.substring(inputValue.length));
+        setInputValue(newInputValue + suggestionPart);
         console.log("firstSuggestion", firstSuggestion);
-        console.log("inputValue ", inputValue);
+        console.log("suggestionPart ", suggestionPart);
       } else {
         setInputValue(newInputValue);
       }
     } else {
       setInputValue(newInputValue);
+      const suggestionPart = '';
     }
     // console.log("newInputValue and first sug", newInputValue, filteredSuggestions[0]);
+  }; 
 
-
-  };
+  useEffect(() => {
+    
+  }, [firstSuggestion])
 
   const fetchBackendData = async (searchValue) => {
     try {
@@ -125,23 +130,23 @@ const Input = () => {
     }
   };
 
-  const fetchSuggestions = async (value) => {
+  const fetchSuggestions = async (inputValue) => {
     // fetchBackendData(value);
-    console.log(`Fetching suggestions for: ${value}`);
-    const lowercaseValue = value.toLowerCase();
+    console.log(`Fetching suggestions for: ${inputValue}`);
+    const lowercaseInputValue = inputValue.toLowerCase();
 
     const filteredAirports = airports.filter(
       (airport) =>
-        airport.name.toLowerCase().includes(lowercaseValue) ||
-        airport.code.toLowerCase().includes(lowercaseValue)
+        airport.name.toLowerCase().includes(lowercaseInputValue) ||
+        airport.code.toLowerCase().includes(lowercaseInputValue)
     );
 
     const filteredFlightNumbers = flightNumbers.filter((flight) =>
-      flight.flightNumber.toLowerCase().includes(lowercaseValue)
+      flight.flightNumber.toLowerCase().includes(lowercaseInputValue)
     );
 
     const filteredGates = gates.filter((gate) =>
-      gate.gate.toLowerCase().includes(lowercaseValue)
+      gate.gate.toLowerCase().includes(lowercaseInputValue)
     );
 
     const filteredSuggestions = [
@@ -153,7 +158,7 @@ const Input = () => {
     setFilteredSuggestions(filteredSuggestions);
     if (filteredSuggestions.length === 0) {
       console.log("No local matches found. Querying backend");
-      fetchBackendData(value);
+      fetchBackendData(inputValue);
     }
   };
 
@@ -212,11 +217,10 @@ const Input = () => {
         <Autocomplete
           open={isExpanded}   // Controls the visibility of the dropdown
           options={filteredSuggestions}   // The options to display in the dropdown
-          value={selectedValue}    // The current selected value
+          value={selectedValue+firstSuggestion}    // The current selected value
           inputValue={inputValue}
           onChange={(event, suggestionSelection) => {    // Invoked when user selects an option
             setSelectedValue(suggestionSelection);
-            console.log("WE HERERER")
             setIsExpanded(false); 
           }}
           onInputChange={(event, newInputValue) => {    // Invoked when user inputs text in the input field
