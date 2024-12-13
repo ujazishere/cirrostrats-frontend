@@ -7,7 +7,6 @@ import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-console.log(`apiUrl: ${apiUrl}`);
 
 const Input = () => {
   const [airports, setAirports] = useState([]);
@@ -17,21 +16,36 @@ const Input = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
-  const [typedValue, setTypedValue] = useState(null);
-  const [firstSuggestion, setFirstSuggestion] = useState('');
-  const [suggestionPart, setSuggestionPart] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isFetched, setIsFetched] = useState(false);
+  
   const navigate = useNavigate();
   const inputRef = useRef(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [typingTimer, setTypingTimer] = useState(null);
-  const [isFetched, setIsFetched] = useState(false);  // To track if data has been fetched
 
+  // Debounce function
+  const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }, [value, delay]);
+
+    return debouncedValue;
+  };
+
+  const debouncedInputValue = useDebounce(inputValue, 300);
+
+  // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
-      if (isFetched) return;  // Skip if already fetched
-      if (isLoading === true) return;  // Skip if already fetched
+      if (isFetched || isLoading) return;
 
-      console.log("Fetching data from backend");
       setIsLoading(true);
       try {
         const [resAirports, resFlightNumbers, resGates] = await Promise.all([
@@ -67,146 +81,113 @@ const Input = () => {
         setAirports(airportOptions);
         setFlightNumbers(flightNumberOptions);
         setGates(gateOptions);
-        setIsFetched(true);  // Mark data as fetched after the request completes
+        setIsFetched(true);
       } catch (error) {
         console.error("Error fetching data from backend:", error);
       } finally {
         setIsLoading(false);
       }
-    }
+    };
     fetchData();
   }, []);
 
-  const handleInputChange = (event, newInputValue) => {
-
-    if (typingTimer) {
-      clearTimeout(typingTimer);
-    }
-
-    if (newInputValue.length > 0) {
-      const newTimer = setTimeout(() => {
-        fetchSuggestions(newInputValue);
-      }, 300);
-      setTypingTimer(newTimer);
-    } else {
-      setFilteredSuggestions([]);
-    }
-    // TODO IS: Implement logic to handle input changes and suuggestion selection in the input field.
-    if (filteredSuggestions.length > 0) {
-      const firstSuggestion = filteredSuggestions[0].value;
-      console.log("firstSuggestion", firstSuggestion);
-      if (
-        typeof firstSuggestion === 'string' &&
-        firstSuggestion.toLowerCase().startsWith(inputValue.toLowerCase())
-      ) {
-        const suggestionPart = (firstSuggestion.substring(inputValue.length));
-        setInputValue(newInputValue + suggestionPart);
-        console.log("firstSuggestion", firstSuggestion);
-        console.log("suggestionPart ", suggestionPart);
-      } else {
-        setInputValue(newInputValue);
-      }
-    } else {
-      setInputValue(newInputValue);
-      const suggestionPart = '';
-    }
-    // console.log("newInputValue and first sug", newInputValue, filteredSuggestions[0]);
-  }; 
-
+  // Handle input changes and fetch suggestions
   useEffect(() => {
-    
-  }, [firstSuggestion])
+    const fetchSuggestions = async () => {
+      if (!debouncedInputValue) {
+        setFilteredSuggestions([]);
+        return;
+      }
 
-  const fetchBackendData = async (searchValue) => {
-    try {
-      const backendPassingValue = "somevalue";
-      const res = await axios.get(`${apiUrl}/query/${backendPassingValue}?search=${searchValue}`);
-      const { data } = res;
-      console.log("Backend data:", data);
-      return data;
-    } catch (error) {
-      console.error("Error fetching API data from backend:", error);
-      return null; // Return null or appropriate fallback value in case of an error
-    }
-  };
+      const lowercaseInputValue = debouncedInputValue.toLowerCase();
 
-  const fetchSuggestions = async (inputValue) => {
-    // fetchBackendData(value);
-    console.log(`Fetching suggestions for: ${inputValue}`);
-    const lowercaseInputValue = inputValue.toLowerCase();
+      const filteredAirports = airports.filter(
+        (airport) =>
+          airport.name.toLowerCase().includes(lowercaseInputValue) ||
+          airport.code.toLowerCase().includes(lowercaseInputValue)
+      );
 
-    const filteredAirports = airports.filter(
-      (airport) =>
-        airport.name.toLowerCase().includes(lowercaseInputValue) ||
-        airport.code.toLowerCase().includes(lowercaseInputValue)
-    );
+      const filteredFlightNumbers = flightNumbers.filter((flight) =>
+        flight.flightNumber.toLowerCase().includes(lowercaseInputValue)
+      );
 
-    const filteredFlightNumbers = flightNumbers.filter((flight) =>
-      flight.flightNumber.toLowerCase().includes(lowercaseInputValue)
-    );
+      const filteredGates = gates.filter((gate) =>
+        gate.gate.toLowerCase().includes(lowercaseInputValue)
+      );
 
-    const filteredGates = gates.filter((gate) =>
-      gate.gate.toLowerCase().includes(lowercaseInputValue)
-    );
+      const newFilteredSuggestions = [
+        ...filteredAirports,
+        ...filteredFlightNumbers,
+        ...filteredGates,
+      ];
 
-    const filteredSuggestions = [
-      ...filteredAirports,
-      ...filteredFlightNumbers,
-      ...filteredGates,
-    ];
+      setFilteredSuggestions(newFilteredSuggestions);
 
-    setFilteredSuggestions(filteredSuggestions);
-    if (filteredSuggestions.length === 0) {
-      console.log("No local matches found. Querying backend");
-      fetchBackendData(inputValue);
-    }
-  };
+      if (newFilteredSuggestions.length === 0) {
+        try {
+          const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
+          if (data.data && data.data.length > 0) {
+            setFilteredSuggestions(data.data);
+          }
+        } catch (error) {
+          console.error("Error fetching API data from backend:", error);
+        }
+      }
+    };
+
+    fetchSuggestions();
+  }, [debouncedInputValue, airports, flightNumbers, gates]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("typedValue, selectedV", typedValue, selectedValue);
-
-    // if selectedValue is an object and it is not null then selectedValue should be searchValue
-    const searchValue =
-      typeof selectedValue === 'object' && selectedValue !== null
-      ? selectedValue
-      : typedValue || { value: inputValue, label: inputValue };
-
-    console.log("search submit", searchValue);
+    const searchValue = selectedValue || { value: inputValue, label: inputValue };
     navigate("/details", { state: { searchValue } });
   };
 
   const handleFocus = () => {
     setIsExpanded(true);
-    document.querySelector(".navbar").classList.add("hidden");
-    document.querySelector(".searchbar-container").classList.add("expanded");
-    document.querySelector(".home__title").classList.add("hidden");
-    document.querySelector(".google-button").classList.add("hidden");
+    const elements = {
+      navbar: ".navbar",
+      searchbar: ".searchbar-container",
+      title: ".home__title",
+      googleButton: ".google-button",
+      utcContainer: ".utc__container"
+    };
 
-    const utcElement = document.querySelector(".utc__container");
-    if (utcElement) {
-      utcElement.classList.add("hidden");
-    } else {
-      console.log("UTC time element not found");
-    }
+    Object.entries(elements).forEach(([key, selector]) => {
+      const element = document.querySelector(selector);
+      if (element) {
+        if (key === "searchbar") {
+          element.classList.add("expanded");
+        } else {
+          element.classList.add("hidden");
+        }
+      }
+    });
   };
 
   const handleBlur = (event) => {
     if (!event.currentTarget.contains(event.relatedTarget)) {
       setTimeout(() => {
         setIsExpanded(false);
-        document.querySelector(".navbar").classList.remove("hidden");
-        document.querySelector(".searchbar-container").classList.remove("expanded");
-        document.querySelector(".home__title").classList.remove("hidden");
-        document.querySelector(".google-button").classList.remove("hidden");
+        const elements = {
+          navbar: ".navbar",
+          searchbar: ".searchbar-container",
+          title: ".home__title",
+          googleButton: ".google-button",
+          utcContainer: ".utc__container"
+        };
 
-        const utcElement = document.querySelector(".utc__container");
-        if (utcElement) {
-          utcElement.classList.remove("hidden");
-          console.log("UTC time element shown");
-        } else {
-          console.log("UTC time element not found");
-        }
+        Object.entries(elements).forEach(([key, selector]) => {
+          const element = document.querySelector(selector);
+          if (element) {
+            if (key === "searchbar") {
+              element.classList.remove("expanded");
+            } else {
+              element.classList.remove("hidden");
+            }
+          }
+        });
       }, 300);
     }
   };
@@ -215,16 +196,16 @@ const Input = () => {
     <div className="searchbar-container">
       <form onSubmit={handleSubmit}>
         <Autocomplete
-          open={isExpanded}   // Controls the visibility of the dropdown
-          options={filteredSuggestions}   // The options to display in the dropdown
-          value={selectedValue+firstSuggestion}    // The current selected value
+          open={isExpanded}
+          options={filteredSuggestions}
+          value={selectedValue}
           inputValue={inputValue}
-          onChange={(event, suggestionSelection) => {    // Invoked when user selects an option
-            setSelectedValue(suggestionSelection);
-            setIsExpanded(false); 
+          onChange={(event, newValue) => {
+            setSelectedValue(newValue);
+            setIsExpanded(false);
           }}
-          onInputChange={(event, newInputValue) => {    // Invoked when user inputs text in the input field
-            handleInputChange(event, newInputValue);
+          onInputChange={(event, newInputValue) => {
+            setInputValue(newInputValue);
           }}
           className="home__input"
           getOptionLabel={(option) => option.label || ""}
