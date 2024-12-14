@@ -18,12 +18,11 @@ const Input = () => {
   const [selectedValue, setSelectedValue] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
-  const minCharsForAutofill = 3; // Minimum characters needed for auto-fill
+  const minCharsForAutofill = 3;
   
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
-  // Debounce function
   const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -42,7 +41,6 @@ const Input = () => {
 
   const debouncedInputValue = useDebounce(inputValue, 300);
 
-  // Check if input uniquely identifies a suggestion
   const isUniqueMatch = (input, suggestions) => {
     const matchingSuggestions = suggestions.filter(suggestion => 
       suggestion.label.toLowerCase().startsWith(input.toLowerCase())
@@ -50,7 +48,6 @@ const Input = () => {
     return matchingSuggestions.length === 1;
   };
 
-  // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       if (isFetched || isLoading) return;
@@ -100,7 +97,6 @@ const Input = () => {
     fetchData();
   }, []);
 
-  // Enhanced suggestions logic with precise auto-fill
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
@@ -132,9 +128,7 @@ const Input = () => {
 
       setFilteredSuggestions(newFilteredSuggestions);
 
-      // Auto-fill logic with unique match check
       if (debouncedInputValue.length >= minCharsForAutofill && newFilteredSuggestions.length > 0) {
-        // Only auto-fill if we have a unique match
         if (isUniqueMatch(debouncedInputValue, newFilteredSuggestions)) {
           const exactMatch = newFilteredSuggestions.find(suggestion => 
             suggestion.label.toLowerCase().startsWith(lowercaseInputValue)
@@ -145,12 +139,10 @@ const Input = () => {
             setIsExpanded(true);
           }
         } else {
-          // If there's no unique match, clear the selection
           setSelectedValue(null);
         }
       }
 
-      // Fetch from API if no local matches
       if (newFilteredSuggestions.length === 0) {
         try {
           const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
@@ -167,7 +159,7 @@ const Input = () => {
   }, [debouncedInputValue, airports, flightNumbers, gates]);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
     navigate("/details", { state: { searchValue } });
   };
@@ -232,6 +224,8 @@ const Input = () => {
             setSelectedValue(newValue);
             if (newValue) {
               setInputValue(newValue.label);
+              // Automatically navigate when selecting from dropdown
+              navigate("/details", { state: { searchValue: newValue } });
             }
             setIsExpanded(false);
           }}
