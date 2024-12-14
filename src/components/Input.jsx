@@ -18,6 +18,7 @@ const Input = () => {
   const [selectedValue, setSelectedValue] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
+  const minCharsForAutofill = 3; // Minimum characters needed for auto-fill
   
   const navigate = useNavigate();
   const inputRef = useRef(null);
@@ -40,6 +41,14 @@ const Input = () => {
   };
 
   const debouncedInputValue = useDebounce(inputValue, 300);
+
+  // Check if input uniquely identifies a suggestion
+  const isUniqueMatch = (input, suggestions) => {
+    const matchingSuggestions = suggestions.filter(suggestion => 
+      suggestion.label.toLowerCase().startsWith(input.toLowerCase())
+    );
+    return matchingSuggestions.length === 1;
+  };
 
   // Fetch initial data
   useEffect(() => {
@@ -91,7 +100,7 @@ const Input = () => {
     fetchData();
   }, []);
 
-  // Handle input changes and fetch suggestions
+  // Enhanced suggestions logic with precise auto-fill
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
@@ -123,6 +132,25 @@ const Input = () => {
 
       setFilteredSuggestions(newFilteredSuggestions);
 
+      // Auto-fill logic with unique match check
+      if (debouncedInputValue.length >= minCharsForAutofill && newFilteredSuggestions.length > 0) {
+        // Only auto-fill if we have a unique match
+        if (isUniqueMatch(debouncedInputValue, newFilteredSuggestions)) {
+          const exactMatch = newFilteredSuggestions.find(suggestion => 
+            suggestion.label.toLowerCase().startsWith(lowercaseInputValue)
+          );
+          
+          if (exactMatch) {
+            setSelectedValue(exactMatch);
+            setIsExpanded(true);
+          }
+        } else {
+          // If there's no unique match, clear the selection
+          setSelectedValue(null);
+        }
+      }
+
+      // Fetch from API if no local matches
       if (newFilteredSuggestions.length === 0) {
         try {
           const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
@@ -202,10 +230,17 @@ const Input = () => {
           inputValue={inputValue}
           onChange={(event, newValue) => {
             setSelectedValue(newValue);
+            if (newValue) {
+              setInputValue(newValue.label);
+            }
             setIsExpanded(false);
           }}
           onInputChange={(event, newInputValue) => {
             setInputValue(newInputValue);
+            if (!newInputValue) {
+              setSelectedValue(null);
+            }
+            setIsExpanded(true);
           }}
           className="home__input"
           getOptionLabel={(option) => option.label || ""}
