@@ -191,7 +191,9 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       <div id="departure-section" className="table-container">
         <div id="departure-header" className="section-header">
           <div className="card__depature__subtitle card__header--dark">
-            <h3 className="card__depature__subtitle__title">Departure</h3>
+          <h3 className="card__depature__subtitle__title">
+            Departure - {flightDetails?.departure_ID}
+          </h3>
           </div>
         </div>
         <table className="flight_card">
@@ -221,7 +223,9 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       <div id="destination-section" className="table-container">
         <div id="destination-header" className="section-header">
           <div className="card__destination__subtitle card__header--dark">
-            <h3 className="card__destination__subtitle__title">Destination</h3>
+          <h3 className="card__destination__subtitle__title">
+            Destination - {flightDetails?.destination_ID}
+          </h3>
           </div>
         </div>
         <table className="flight_card">
