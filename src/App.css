@@ -15,7 +15,6 @@
   }
 }
 
-/* Bounce-out animation */
 @keyframes bounceOut {
   0% {
     transform: translateY(0);
@@ -33,11 +32,6 @@
     transform: translateY(-100%);
     opacity: 0;
   }
-}
-
-.card__depature__subtitle__title_head
-.card__destination__subtitle__title_head {
-
 }
 
 .rounded-header-container {
@@ -79,6 +73,8 @@
   text-align: center;
   width: 100%;
 }
+
+
 
 .table-container {
   position: relative;
@@ -280,11 +276,16 @@
 /* Card Styles */
 .card {
   margin-bottom: 20px;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .card__header--dark {
-  background-color: #2d333b;
-  padding: 8px 16px;
+  background: #2d333b;
+  color: white;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 .card__depature__subtitle,
@@ -1057,12 +1058,10 @@ form {
   display: flex;
   justify-content: space-between;
   padding: 0.7em 0.5em;
-  border-bottom: 1px solid #333537;
   font-weight: bold;
   
 }
 .card__depature__subtitle {
-  border-bottom: 1px solid #333537;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1081,7 +1080,6 @@ form {
 
 
 .card__depature__details {
-  border-bottom: 1px solid #333537;
   padding: 0.8em 1em;
   font-weight: bold;
   font-family: Menlo;
