@@ -302,6 +302,7 @@
   margin: 0;
   text-align: center;
   width: 100%;
+  border: 2px;
 }
 
 .card__destination__subtitle__title_head {
@@ -1034,7 +1035,13 @@ form {
 /* card*/
 .card {
   margin: 0.8em 0;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0; /* Remove any padding */
+  background-color: #ffffff;
 }
+
 .card__body {
   display: none;
 }
