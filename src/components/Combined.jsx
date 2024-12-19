@@ -189,21 +189,23 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       </div>
 
       <div id="departure-section" className="table-container">
-        <div id="departure-header" className="section-header">
-          <div className="card__depature__subtitle card__header--dark">
-          <h3 className="card__depature__subtitle__title">
-            Departure - {flightDetails?.departure_ID}
-          </h3>
-          </div>
-        </div>
-        <table className="flight_card">
-          <tbody>
-            {dep_weather ? (
-              <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} />
-            ) : null}
-          </tbody>
-        </table>
+  <div id="departure-header" className="section-header">
+    <div className="card__depature__subtitle card__header--dark">
+      <div className="rounded-header-container">
+        <h3 className="card__depature__subtitle__title_head">
+          Departure - {flightDetails?.departure_ID}
+        </h3>
       </div>
+    </div>
+  </div>
+  <table className="flight_card">
+    <tbody>
+      {dep_weather ? (
+        <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} />
+      ) : null}
+    </tbody>
+  </table>
+</div>
 
       {flightDetails?.route && flightDetails?.sv && (
         <table className="route">
@@ -223,7 +225,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       <div id="destination-section" className="table-container">
         <div id="destination-header" className="section-header">
           <div className="card__destination__subtitle card__header--dark">
-          <h3 className="card__destination__subtitle__title">
+          <h3 className="card__destination__subtitle__title_head">
             Destination - {flightDetails?.destination_ID}
           </h3>
           </div>

@@ -35,10 +35,50 @@
   }
 }
 
-/* Add these styles to your CSS file */
+.card__depature__subtitle__title_head
+.card__destination__subtitle__title_head {
 
+}
 
-/* Add these styles to your CSS file */
+.rounded-header-container {
+  border-radius: 8px;
+  background-color: inherit;
+  border: 2px;
+}
+
+.card__depature__subtitle {
+  border-radius: 8px;
+  background-color: #2d333b;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.card__depature__subtitle__title_head {
+  color: white;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.card__destination__subtitle {
+  border-radius: 8px;
+  background-color: #2d333b;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.card__destination__subtitle__title_head {
+  color: white;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+}
 
 .table-container {
   position: relative;
@@ -261,6 +301,15 @@
   margin: 0;
   text-align: center;
   width: 100%;
+}
+
+.card__destination__subtitle__title_head {
+  color: white;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+  border: 2px;
+  border-radius: 1px;
 }
 
 .card__depature__time {
