@@ -34,6 +34,26 @@
   }
 }
 
+.card__depature__subtitle.card__header--dark {
+  margin: -1px !important;  /* Negative margin to overlap with card border */
+  padding: 8px 16px !important;
+  background: #2d333b !important;
+  border-top-left-radius: 10px !important;
+  border-top-right-radius: 10px !important;
+  border-bottom-left-radius: 10px !important;
+  border-bottom-right-radius: 10px !important;
+}
+
+.card__destination__subtitle.card__header--dark {
+  margin: -1px !important;  /* Negative margin to overlap with card border */
+  padding: 8px 16px !important;
+  background: #2d333b !important;
+  border-top-left-radius: 10px !important;
+  border-top-right-radius: 10px !important;
+  border-bottom-left-radius: 10px !important;
+  border-bottom-right-radius: 10px !important;
+}
+
 .rounded-header-container {
   border-radius: 8px;
   background-color: inherit;
@@ -41,7 +61,7 @@
 }
 
 .card__depature__subtitle {
-  border-radius: 8px;
+  border-radius: 10px;
   background-color: #2d333b;
   padding: 8px 16px;
   display: flex;
