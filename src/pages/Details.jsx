@@ -4,9 +4,10 @@ import axios from "axios";
 import UTCTime from "../components/UTCTime";
 import { FlightCard, WeatherCard, GateCard } from "../components/Combined";
 
+// API base URL from environment variables
 const apiUrl = import.meta.env.VITE_API_URL;
 
-// Skeleton Loader Component
+// Skeleton Loader Component: Displays a shimmering effect to indicate loading
 const SkeletonLoader = ({ height, width }) => (
   <div
     style={{
@@ -23,7 +24,7 @@ const SkeletonLoader = ({ height, width }) => (
   />
 );
 
-// Loading Weather Card Component
+// LoadingWeatherCard: Displays a skeleton loader for weather-related information
 const LoadingWeatherCard = () => (
   <div className="card">
     {[1, 2, 3].map((section) => (
@@ -41,15 +42,12 @@ const LoadingWeatherCard = () => (
   </div>
 );
 
-// Loading Flight Details Component
+// LoadingFlightCard: Displays a skeleton loader for flight-related details
 const LoadingFlightCard = () => (
   <div className="details">
-    {/* Flight Info Section */}
     <div className="details__card">
       <SkeletonLoader height="2em" width="100%" />
-      
       <div className="detail__body">
-        {/* Departure Section */}
         <div className="detail__depature">
           <SkeletonLoader height="1.5em" width="70%" />
           <div className="detail__gate">
@@ -59,8 +57,6 @@ const LoadingFlightCard = () => (
           <SkeletonLoader width="60%" />
           <SkeletonLoader width="60%" />
         </div>
-
-        {/* Arrival Section */}
         <div className="detail__arrival">
           <SkeletonLoader height="1.5em" width="70%" />
           <div className="detail__gate">
@@ -72,8 +68,6 @@ const LoadingFlightCard = () => (
         </div>
       </div>
     </div>
-
-    {/* Departure Weather Section */}
     <div className="table-container">
       <div className="sticky-header">
         <div className="card__depature__subtitle card__header--dark">
@@ -86,72 +80,33 @@ const LoadingFlightCard = () => (
         </tbody>
       </table>
     </div>
-
-    {/* Route Section */}
-    <table className="route">
-      <tbody>
-        <tr>
-          <th></th>
-        </tr>
-        <tr>
-          <td><SkeletonLoader width="90%" /></td>
-        </tr>
-      </tbody>
-    </table>
-
-    {/* NAS Departure Section */}
-    <div className="nas-details">
-      <h3></h3>
-      <SkeletonLoader width="100%" height="1.5em" />
-    </div>
-
-    {/* Destination Weather Section */}
-    <div className="table-container">
-      <div className="sticky-header">
-        <div className="card__destination__subtitle card__header--dark">
-          <h3 className="card__destination__subtitle__title"></h3>
-        </div>
-      </div>
-      <table className="flight_card">
-        <tbody>
-          <LoadingWeatherCard />
-        </tbody>
-      </table>
-    </div>
-
-    {/* NAS Destination Section */}
-    <div className="nas-details">
-      <h3></h3>
-      <SkeletonLoader width="100%" height="1.5em" />
-    </div>
   </div>
 );
 
 const Details = () => {
+  // State variables for managing data and loading statuses
   const [airportWx, setAirportWx] = useState(null);
   const [flightData, setFlightData] = useState(null);
   const [gateData, setGateData] = useState(null);
   const [weatherResponse, setWeatherResponse] = useState(null);
   const [nasResponse, setNasResponse] = useState(null);
   const [loadingFlightData, setLoadingFlightData] = useState(true);
-  const [NASResponse, setNASResponse] = useState(null);
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [loadingNAS, setLoadingNAS] = useState(true);
 
   const location = useLocation();
-  let searchValue = location?.state?.searchValue;
+  const searchValue = location?.state?.searchValue; // Extract search value from the location state
 
+  // Effect to fetch data based on search type
   useEffect(() => {
     async function fetchData() {
       try {
-        if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === 'true') {   // This triggers the TEST DATA returns
-            console.log("RETURNING TEST DATA");
-            const res = await axios.get(`${apiUrl}/testDataReturns`);           // Raw query request
-            setFlightData(res.data);
-            setWeatherResponse(res.data);
-            setNASResponse(res.data);
-            console.log("res.data", res.data);
-            return;
+        if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
+          // Fetch test data if the environment variable is set
+          const res = await axios.get(`${apiUrl}/testDataReturns`);
+          setFlightData(res.data);
+          setWeatherResponse(res.data);
+          setNasResponse(res.data);
         } else if (searchValue?.type === "airport") {
           const res = await axios.get(`${apiUrl}/airport/${searchValue.id}`);
           setAirportWx(res.data);
@@ -161,30 +116,29 @@ const Details = () => {
           setGateData(res.data);
           setLoadingWeather(false);
         } else if (searchValue?.type === "flightNumber" || searchValue) {
+          // Fetch flight data using flight number
           const flightNumberQuery = searchValue?.flightNumber || searchValue;
-
           const [depDesRes, flightStatsTZRes, flightAwareRes] = await Promise.all([
             axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),
             axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`),
-            axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`)
+            axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`),
           ]);
-
           setFlightData({
             ...depDesRes.data,
             ...flightStatsTZRes.data,
-            ...flightAwareRes.data
+            ...flightAwareRes.data,
           });
           setLoadingFlightData(false);
 
           const [nasRes, depWeather, destWeather] = await Promise.all([
             axios.get(`${apiUrl}/NAS/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),
             axios.get(`${apiUrl}/Weather/${depDesRes.data.departure_ID}`),
-            axios.get(`${apiUrl}/Weather/${depDesRes.data.destination_ID}`)
+            axios.get(`${apiUrl}/Weather/${depDesRes.data.destination_ID}`),
           ]);
 
           setWeatherResponse({
             dep_weather: depWeather.data,
-            dest_weather: destWeather.data
+            dest_weather: destWeather.data,
           });
           setNasResponse(nasRes.data);
           setLoadingWeather(false);
@@ -194,15 +148,14 @@ const Details = () => {
         console.error("Error fetching data:", error);
       }
     }
-
     if (searchValue) fetchData();
   }, [searchValue]);
 
+  // Renders content based on the current state
   const renderContent = () => {
     if (loadingFlightData && searchValue?.type === "flightNumber") {
       return <LoadingFlightCard />;
     }
-
     return (
       <>
         {airportWx && <WeatherCard title="Airport Weather" weatherDetails={airportWx} />}
