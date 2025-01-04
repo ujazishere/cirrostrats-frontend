@@ -83,34 +83,49 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
  * @param {Object} props
  * @param {Object} props.gateData - Gate and flight status information
  */
+
 const GateCard = ({ gateData }) => {
+  // Handle case when gateData is an object with flightStatus property
+  const getFlightData = () => {
+    if (!gateData) return [];
+    
+    if (gateData.flightStatus) {
+      // Convert object to array format
+      return Object.entries(gateData.flightStatus).map(([flightNumber, details]) => ({
+        flightNumber,
+        scheduled: details.scheduledDeparture || 'None',
+        actual: details.actualDeparture || 'None'
+      }));
+    }
+    
+    // If gateData is already an array, return it
+    if (Array.isArray(gateData)) {
+      return gateData;
+    }
+    
+    return [];
+  };
+
   return (
-    <div className="card">
-      <h3 className="card__depature__subtitle card__header--dark">{gateData.gate} Departures</h3>
-      <div className="card__depature__subtitle card__header--dark">
-        {gateData && gateData.flightStatus ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Flight Number</th>
-                <th>Scheduled</th>
-                <th>Actual </th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(gateData.flightStatus).map(([flightNumber, details]) => (
-                <tr key={flightNumber}>
-                  <td>{flightNumber}</td>
-                  <td>{details.scheduledDeparture || 'None'}</td>
-                  <td>{details.actualDeparture || 'None'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No flight status data available</p>
-        )}
-      </div>
+    <div className="gate-card">
+      <table className="departure-table">
+        <thead>
+          <tr>
+            <th>Flight</th>
+            <th>Scheduled</th>
+            <th>Actual</th>
+          </tr>
+        </thead>
+        <tbody>
+          {getFlightData().map((flight, index) => (
+            <tr key={index} className={index % 2 === 0 ? 'dark-row' : 'light-row'}>
+              <td>{flight.flightNumber}</td>
+              <td>{flight.scheduled}</td>
+              <td>{flight.actual}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
