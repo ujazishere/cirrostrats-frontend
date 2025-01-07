@@ -1,159 +1,30 @@
-Practice readibility and simplicity. Aviod code duplication. Include description and documentation every step of the way. Keep upgrading and evolving.
+Practice readibility and simplicity, aviod code duplication.
+Include description and documentation every step of the way please.
 
+**FRONTEND:   use command shift f to find targetted tasks - "TODO: is"
+    
 
-**IS:   use command shift f to find targetted tasks - "TODO: is"
-
+    *Luis - Saving searchbar queries - users,timestamp to database/collection. Give ability to login using facebook/email etc as well.
+        Basically the feature will be like this user can login and then we can save their searched queries in the database so we can load the most searched query faster (preloaded) or something like that
+    
+    
+    *Unassigned:
         Investigate and find a fix for components being rendered multiple times
-        Use this regex pattern in react to highlight - box pattern for altimeter pattern
-            f.ALTIMETER_PATTERN = r"((?<= )A)(\d{4})"
-        mark ETD time as red when STD is past ETD
-        zulu time dymanic with the weather published times using js instead of the static python way.
-        Hide datis table when N/A instead of showing N/A
-        WIP - summery box shadow and expand/collapse (fast)animation.  
-        work on script to extract data - aviation_stack_data_pull.py
-        Localstorage- explore.
-        When searched UA4186 followup with `flight status`, `EDCT`, or `weather` or `datis` for auto completion and dropdown suggestions trail.
-            Use 3 flight status, maybe show delay info, grouped by airport and dep/arr times.
-
-**UV:   
-        Use debounce to reduce time consuming tasks do not fire often causing performance bottlenecks.
-        Add flightnumbers, gates and airports in the database as document. See if it is even possible.
-            Backend Optimization:
-            a. Use a fast database:
-            Consider using a database optimized for quick searches like Elasticsearch or MongoDB with proper indexing.
-            b. Implement caching:
-            Use Redis or a similar in-memory data store to cache frequent searches and results.
-            c. Use efficient search algorithms:
-            Implement trie data structures or inverted indexes for fast prefix matching.
-            d. Asynchronous processing:
-            Use async operations to handle multiple requests simultaneously.
-        establish backup for mongoDB in case if mongoDB stops working you can revert to basic database and indexing.
-        Localstorage- explore for caching.
-        Put in 'TAF(Ammended)', 'METAR(SPECI)' and D-ATIS(SPECIAL) in their title for special weather published times.
-        Integrate weather page with  the flight deet page--> reduce duplication ---> Make a react componenent and reuse it.
-        Priority: Each individual scrape should be separate function in views. also separate scrape from api fetch.
-        ***Separate logic and implement simple machine learning technique to detect certain words.
-        date implementatiton.
-        weather sources should show aviationweather link on each metar/taf/datis: https://aviationweather.gov/data/metar/?id=KEWR&hours=0
-        Have software engineers proofread the code and logic.
-        Ask pilot's what would they search to get gate information. store these searches and use that for parsing.
-        box up the associated taf section with respect to ETA. Give pilots freedown:
-            make airport id and departure time and arrival time consistent(stuck on top) like utc throughout the page for ETA on TAF comparison
-        make -ve temps turquoise
-        prepare search query logic for disecting typical searches.
-        Fix bug that takes in 2 flight routes for singular flight number.
-            Add option to scroll left and right for dates.
-            Load data incrementally so as to avoid waiting for all data to be fetched.
-        consolidate menu pages within the Menu_page class in views.py
-
-        fix freeze bug on the EC2. After running lengthy scrape for a few days cmd seems to get stuck.
-            Discard while loop instead use:use a task scheduling library like Celery with a task queue such as RabbitMQ or Redis to handle the scheduled tasks asynchronously.
-            Utilize webhooks or event-driven architectures: Instead of pulling data in a loop, you can set up webhooks or use event-driven architectures to receive notifications or updates from the sources you want to scrape. This way, you can fetch data only when it becomes available or when an event is triggere.
-        seperate out sv from flight_aware.
-        App:
-            swift language
-            with search capability such that most frequest searches are stored for quick access.
-            search bar:
-            Implement search bar suggestions as user initiates typing.
         
-        add Notams for departure and destinations.
-        
-        Scrape `scheduled` times less frequently as it is mostly static and expensive.
-            Scraper scrapes overnight when its not necessary. Avoid those.
-        Only scrape `actual` times more frequently and from different web source to decrease intensive pull.
-        
-        group search queries.
 
-        Make search availabe such that the initial switches are disregarded.
-            analyse flight numbers, and gates such that '3' or '4' gives direct search instead of `i` switch
-                if flt# clashes with gates, seperate them in a function if those are queried.
-
-        Have the ability to save queries made on the web such that they are unique.
-        Currently its such  that too many similar quires are getting cluttered in the /admin page.
-
-        Gotta be able to get the route from the web.
-
-
-        flight deet packet:
-            Make a seperate expand/collapse section for NAS packet.
-            Examine metar and TAF for parsing and color coding IFR and LIFR ceilings, Visibility, freezing conditions and runway condition codes.
-            Highlight weather minimums in red for alternate requirements;(1-2-3 rule per ETA)
-                1/2SM as pink and 1/4SM as black
-            Highlight Icing conditions in blue; LIFR in pink 
-            include gate in this packet of information
-            include IFR routing through flight aware if able
-            associate flight numbers in gates table to their dedicated information for departure, destination and weather
-        
-        build analytics for how a user navigates and where they spend most times, what they search.
-
-        make use of http://xml.flightview.com/xmlbdom/ for pulling flight data instead of requests and bs4 libraries
-        
-        Use models and sql for database management.
-        DONE! add activator() scrape to include data from few hours later since its currently only showing 6am, 12pm and 6pm.
-
-        DONE! Include ground stop information.
-
-
-IS Done!!:
-        DONE! implement show and hide feature for departure and destination boxes on flight_deet page
-        DONE! Make all pages in Menu bar symmetric.
-        DONE! Make dark mode switch symmetric
-        DONE! Make the flight deet page more like the google flight packet. search `i 492` to view the flight deet
-        DONE! Use Dark mode across the web.
-        DONE! Make seperate css for templates/dj_app/base.html instead of having it within the base.html. Its not a good practive to have styling within html. 
-
-Note consistent irregularity in the outlaws - check for patterns.
-    fix outlaws such that those patterns are overwritten and only unique patterns get updated in it. 
-
-Use Flightaware API to extract clearance and route.
-
-When User first accesses the web the date and time of the latest master should be displayed 
-
-Add menu section:
-    List all gates, 
-    Analyses, statistics and misery map using delay graph.
-        e.g: Kudos to gate C101 for most ontime departures. 
-            Worst gate for delays(show sorted values)   
-
-need to be able to receive alerts if the weather deteriorates:
-    Account for any ground stop or delays there might be at any particular airport in the National Airspace System
-
-add delay information and color code it
-
-setup latest changes page. Include updates with dates and description. 
-Fix Gate_Scrape Scrape uppercase. It is unusual.
-
-Deploy the ability to chat. Store all queries with time stamp for later analyses.
-    Compare and assess similar frequent queries, account for typo. 
-    Take query and if return cannot be formulated let the client know:
-        "Unable to process your search at this time.
-        It has been added to our resolutions list for further attention with absolute dedication."
-        **option** Add Feedback to go with it
-
-add ability to see raw metar or simplified one with only pertinant information.
-
-Big bug when extracting info from other sources. the data can be messy and unreiable. Create redundency
-    Need redundency for dep and destination pull. current one is unstable giving errors during async.
-
-airport name, gate and flight # can be partial/absolute.
-    Essentially a functionality to predict in dropdown in search similar to google - indexing.
-    search should initiate right away for flight num, airport or gate
-
-Add these query words and functionality to chat :
-weather_range = ['met ', ' met', ' met ', 'met', 'taf ', ' taf', ' taf ', 'taf', 'weather', 'metar', 'metar ']
-
-"{gate} for {partial/complete airport ID/name}" = "{gate} {airport}"
-"{gate} for {partial/complete airport name}" = "{gate} {airport}"   
-"weather for {partial/complete airport} = "{metar} {airport}"
-"{flight number} weather" = "{metar} {departure airport} {destination airport}"
-"{flight number} destination" = return destination or destination
-"{flight number} not, notam, notams" = return notams for departure and destination. include ability to return just pertinant information.
-
-
-Done Ismail:
+    
+    
     DONE! Media queries for mobile vs desktop view. use css media queries. Check bootstrap navbar. Target screens(IPAD, smaller, etc)
         make side bar
     DONE! VVI: Details.jsx need if statement to check if searchvalue is an object then request data through airport route, otherwise request other route for rawQuery rocessing
     DONE! account for nas alongside weather- in airport lookup query
     DONE! integrate user auth for login through google/facebook/email etc.
     DONE! Fix searchbar keystrokes disappearing.
+    DONE! implement show and hide feature for departure and destination boxes on flight_deet page
+    DONE! Make all pages in Menu bar symmetric.
+    DONE! Make dark mode switch symmetric
+    DONE! Make the flight deet page more like the google flight packet. search `i 492` to view the flight deet
+    DONE! Use Dark mode across the web.
+    DONE! Make seperate css for templates/dj_app/base.html instead of having it within the base.html. Its not a good practive to have styling within html. 
+    DONE! add activator() scrape to include data from few hours later since its currently only showing 6am, 12pm and 6pm.
+    DONE! Include ground stop information.

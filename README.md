@@ -20,7 +20,7 @@
    https://github.com/ujazishere/cirrostrats-backend/
 
 
-4. **Run docker compose command to build and run the container:**
+4. **Run docker compose command to build and run the container in the base directory:**
 
    ```docker-compose up --build```
 
