@@ -1,38 +1,36 @@
-# Project README
-## Pre-requisites:
+# One of two ways to do this:
+**A: Docker container(spools up frontend, backend and nginx using docker:) - Most efficient and Full-Featured:**
 
-**Create an env file inside of the cirrostrats-frontend folder :**
+**OR**
 
-   Create new file and name it '.env'
-   paste the following inside of this `.env` file.
-    # .env (for local environment)
-    REACT_APP_API_URL=http://127.0.0.1:8000
-## Running the Project
+**B: Without docker(Spool up just the frontend) - React JS**
 
 
-### Can be spooled up by using one of two ways:
+## A: Docker container(spools up frontend, backend and nginx using docker:) - Most efficient and Full-Featured:
 
-## With Docker - Docker container(spools up frontend, backend and nginx):
-1. **Clone the base repo:f** https://github.com/Cirrostrats/base
+1. **Clone the base repo:** [https://github.com/Cirrostrats/base](https://github.com/Cirrostrats/base)
 
-2. **Clone backend and the frontend(this project) repos within the base repo**
-   **The backend for this project is at the following repo :**
-   https://github.com/ujazishere/cirrostrats-backend/
+2. **Follow instructions in `base/README.md`**
 
+## B: Without docker(Spool up just the frontend) - React JS**
 
-4. **Run docker compose command to build and run the container in the base directory:**
+**Create an `.env` file inside of the `cirrostrats-frontend` folder :**
+**Paste the following inside of frontend's `.env` file.**
 
-   ```docker-compose up --build```
-
-5. **Access the Frontend:** The frontend runs on [http://localhost:5173/](http://localhost:5173/).
-
-
-## Without Docker(Just frontend):
+   ```bash
+      # .env (for local environment)
+      VITE_API_URL=http://127.0.0.1:8000
+      
+      # .env (for production/AWS environment) Use this for production. Comment it out on local machine
+      # VITE_API_URL=/api
+      
+      # Set it to true for returning test data on search - Good for efficient frontend dev. Set to false if requesting actual data.
+      VITE_APP_TEST_FLIGHT_DATA=false
+   ```
 
 1. **Running the Frontend:**
 
-   install the dependinces
-   a. \*\*run npm install
+   a. **Install the dependinces - run `npm install`**
 
    b. **Run Development Server:**
 
@@ -46,8 +44,9 @@
    https://github.com/ujazishere/cirrostrats-backend/
 
 
-
-dev notes:
+**dev notes:**
 Ensure following code is within package.json to allow other networks/containers to listen to the project when running the project on an isolated container.
+```bash
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+```
