@@ -85,10 +85,24 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
  */
 
 const GateCard = ({ gateData }) => {
+  // Utility function to format date
+  const formatDateTime = (dateString) => {
+    if (!dateString || dateString === 'None') return 'None';
+    try {
+      const date = new Date(dateString);
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${month}/${day} ${hours}:${minutes}`;
+    } catch (error) {
+      return 'Invalid Date';
+    }
+  };
+
   // Handle case when gateData is an object with flightStatus property
   const getFlightData = () => {
     if (!gateData) return [];
-    
     if (gateData.flightStatus) {
       // Convert object to array format
       return Object.entries(gateData.flightStatus).map(([flightNumber, details]) => ({
@@ -97,12 +111,10 @@ const GateCard = ({ gateData }) => {
         actual: details.actualDeparture || 'None'
       }));
     }
-    
     // If gateData is already an array, return it
     if (Array.isArray(gateData)) {
       return gateData;
     }
-    
     return [];
   };
 
@@ -120,8 +132,8 @@ const GateCard = ({ gateData }) => {
           {getFlightData().map((flight, index) => (
             <tr key={index} className={index % 2 === 0 ? 'dark-row' : 'light-row'}>
               <td>{flight.flightNumber}</td>
-              <td>{flight.scheduled}</td>
-              <td>{flight.actual}</td>
+              <td>{formatDateTime(flight.scheduled)}</td>
+              <td>{formatDateTime(flight.actual)}</td>
             </tr>
           ))}
         </tbody>
@@ -129,6 +141,7 @@ const GateCard = ({ gateData }) => {
     </div>
   );
 };
+
 
 /**
  * Main component for displaying comprehensive flight information
