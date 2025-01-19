@@ -84,6 +84,7 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
  * @param {Object} props.gateData - Gate and flight status information
  */
 
+
 const GateCard = ({ gateData }) => {
   // Utility function to format date
   const formatDateTime = (dateString) => {
@@ -100,22 +101,54 @@ const GateCard = ({ gateData }) => {
     }
   };
 
+  // Function to compare two dates taking year into account
+  const compareDates = (dateA, dateB) => {
+    if (!dateA || dateA === 'None') return 1;
+    if (!dateB || dateB === 'None') return -1;
+
+    const dateObjA = new Date(dateA);
+    const dateObjB = new Date(dateB);
+
+    // Extract month and day for comparison
+    const monthA = dateObjA.getMonth();
+    const monthB = dateObjB.getMonth();
+    
+    // If the months are more than 6 months apart, adjust the comparison
+    if (Math.abs(monthA - monthB) > 6) {
+      // If monthA is in the latter half of the year and monthB is in the first half
+      if (monthA > 6 && monthB < 6) {
+        return 1; // A is actually earlier
+      }
+      // If monthB is in the latter half of the year and monthA is in the first half
+      if (monthB > 6 && monthA < 6) {
+        return -1; // B is actually earlier
+      }
+    }
+
+    // Otherwise, use normal date comparison
+    return dateObjB - dateObjA;
+  };
+
   // Handle case when gateData is an object with flightStatus property
   const getFlightData = () => {
     if (!gateData) return [];
+    
+    let flightArray;
     if (gateData.flightStatus) {
       // Convert object to array format
-      return Object.entries(gateData.flightStatus).map(([flightNumber, details]) => ({
+      flightArray = Object.entries(gateData.flightStatus).map(([flightNumber, details]) => ({
         flightNumber,
         scheduled: details.scheduledDeparture || 'None',
         actual: details.actualDeparture || 'None'
       }));
+    } else if (Array.isArray(gateData)) {
+      flightArray = gateData;
+    } else {
+      return [];
     }
-    // If gateData is already an array, return it
-    if (Array.isArray(gateData)) {
-      return gateData;
-    }
-    return [];
+
+    // Sort flights by scheduled date
+    return flightArray.sort((a, b) => compareDates(a.scheduled, b.scheduled));
   };
 
   return (
