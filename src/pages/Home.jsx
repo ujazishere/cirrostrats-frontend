@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import Input from "../components/Input";
 import { useGoogleLogin } from "@react-oauth/google";
@@ -9,6 +9,14 @@ import UTCTime from "../components/UTCTime"; // Import the UTC time component
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    const storedUserInfo = localStorage.getItem("userInfo");
+    if (storedUserInfo) {
+      setUserInfo(JSON.parse(storedUserInfo));
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   // Styles for dynamic and static elements
   const styles = {
@@ -33,6 +41,11 @@ const Home = () => {
     },
   };
 
+  // Determine redirect URI based on environment
+  const redirectUri = window.location.hostname === "localhost"
+    ? "http://localhost:5173/"
+    : "https://beta.cirrostrats.us/";
+
   // Google Login Configuration
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -43,17 +56,19 @@ const Home = () => {
         );
         setUserInfo(userInfoResponse.data);
         setIsLoggedIn(true);
+        localStorage.setItem("userInfo", JSON.stringify(userInfoResponse.data));
       } catch (error) {
         console.error("Error fetching user info:", error);
       }
     },
     onError: (errorResponse) => console.error("Google Login Error:", errorResponse),
-    redirectUri: "http://localhost:5173/",
+    redirectUri,
   });
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserInfo(null);
+    localStorage.removeItem("userInfo");
   };
 
   return (
