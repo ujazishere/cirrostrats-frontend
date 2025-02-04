@@ -1,22 +1,62 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import Input from "../components/Input";
 import { useGoogleLogin } from "@react-oauth/google";
 import GoogleButton from "react-google-button";
 import axios from "axios";
-import UTCTime from "../components/UTCTime"; // Import the UTC time component
+import Input from "../components/Input";
+import UTCTime from "../components/UTCTime";
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
-    if (storedUserInfo) {
+    const storedUserEmail = localStorage.getItem("userEmail");
+
+    if (storedUserInfo && storedUserEmail) {
       setUserInfo(JSON.parse(storedUserInfo));
+      setUserEmail(storedUserEmail);
       setIsLoggedIn(true);
     }
   }, []);
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const userInfoResponse = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
+        );
+
+        const userData = userInfoResponse.data;
+        const email = userData.email;
+
+        setUserInfo(userData);
+        setUserEmail(email);
+        setIsLoggedIn(true);
+
+        // Save user info in localStorage
+        localStorage.setItem("userInfo", JSON.stringify(userData));
+        localStorage.setItem("userEmail", email);
+
+        // Send user email to the backend
+        await axios.post("http://localhost:8000/save-user", { email });
+
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    },
+    onError: (errorResponse) => console.error("Google Login Error:", errorResponse),
+  });
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserInfo(null);
+    setUserEmail(null);
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("userEmail");
+  };
 
   // Styles for dynamic and static elements
   const styles = {
@@ -41,36 +81,6 @@ const Home = () => {
     },
   };
 
-  // Determine redirect URI based on environment
-  const redirectUri = window.location.hostname === "localhost"
-    ? "http://localhost:5173/"
-    : "https://beta.cirrostrats.us/";
-
-  // Google Login Configuration
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const userInfoResponse = await axios.get(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
-        );
-        setUserInfo(userInfoResponse.data);
-        setIsLoggedIn(true);
-        localStorage.setItem("userInfo", JSON.stringify(userInfoResponse.data));
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      }
-    },
-    onError: (errorResponse) => console.error("Google Login Error:", errorResponse),
-    redirectUri,
-  });
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserInfo(null);
-    localStorage.removeItem("userInfo");
-  };
-
   return (
     <div className="home">
       <h2 className="home__title">Check Weather, Gate, and Flight Information.</h2>
@@ -81,7 +91,6 @@ const Home = () => {
       {/* Input Component */}
       <Input />
 
-      {/* Google Login or Logout Section */}
       {isLoggedIn ? (
         <div>
           <p>Logged in as: {userInfo?.name}</p>
@@ -100,7 +109,6 @@ const Home = () => {
         </div>
       )}
 
-      {/* Additional Content Placeholder */}
       <div className="home__content"></div>
     </div>
   );
