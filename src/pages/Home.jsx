@@ -18,20 +18,29 @@ const Home = () => {
       setUserInfo(JSON.parse(storedUserInfo));
       setUserEmail(storedUserEmail);
       setIsLoggedIn(true);
+      console.log("User is already logged in:", storedUserEmail);
     }
   }, []);
 
   const googleLogin = useGoogleLogin({
+    scope: "openid profile email", // Ensure correct scope
     onSuccess: async (tokenResponse) => {
+      console.log("Google Login Successful, Token Received:", tokenResponse);
+
       try {
+        const { access_token } = tokenResponse;
+        console.log("Access Token:", access_token);
+
+        // Fetch user info from Google
         const userInfoResponse = await axios.get(
           "https://www.googleapis.com/oauth2/v3/userinfo",
-          { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
+          { headers: { Authorization: `Bearer ${access_token}` } }
         );
 
         const userData = userInfoResponse.data;
-        const email = userData.email;
+        console.log("User Info from Google:", userData);
 
+        const email = userData.email;
         setUserInfo(userData);
         setUserEmail(email);
         setIsLoggedIn(true);
@@ -43,8 +52,11 @@ const Home = () => {
         // Send user email to the backend
         await axios.post("http://localhost:8000/save-user", { email });
 
+        // Log email in console
+        console.log("Logged in user's email:", email);
+
       } catch (error) {
-        console.error("Error fetching user info:", error);
+        console.error("Error fetching user info:", error.response?.data || error.message);
       }
     },
     onError: (errorResponse) => console.error("Google Login Error:", errorResponse),
@@ -56,9 +68,9 @@ const Home = () => {
     setUserEmail(null);
     localStorage.removeItem("userInfo");
     localStorage.removeItem("userEmail");
+    console.log("User logged out.");
   };
 
-  // Styles for dynamic and static elements
   const styles = {
     logoutButton: {
       backgroundColor: "#4285F4",
@@ -74,10 +86,10 @@ const Home = () => {
     },
     googleButton: {
       position: "fixed",
-      bottom: "150px", // Adjust distance from the bottom
+      bottom: "150px",
       left: "50%",
       transform: "translateX(-50%)",
-      zIndex: 99, // Ensure it appears above other elements
+      zIndex: 99,
     },
   };
 
@@ -93,7 +105,7 @@ const Home = () => {
 
       {isLoggedIn ? (
         <div>
-          <p>Logged in as: {userInfo?.name}</p>
+          <p>Logged in as: {userInfo?.name} ({userEmail})</p>
           <button
             onClick={handleLogout}
             style={styles.logoutButton}
