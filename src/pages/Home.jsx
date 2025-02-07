@@ -105,7 +105,7 @@ const Home = () => {
 
       {isLoggedIn ? (
         <div>
-          <p>Logged in as: {userInfo?.name} ({userEmail})</p>
+          <p>Logged in as: {userInfo?.name}</p>
           <button
             onClick={handleLogout}
             style={styles.logoutButton}
