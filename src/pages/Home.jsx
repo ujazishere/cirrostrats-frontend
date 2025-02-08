@@ -13,7 +13,6 @@ const Home = () => {
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
     const storedUserEmail = localStorage.getItem("userEmail");
-
     if (storedUserInfo && storedUserEmail) {
       setUserInfo(JSON.parse(storedUserInfo));
       setUserEmail(storedUserEmail);
@@ -23,38 +22,29 @@ const Home = () => {
   }, []);
 
   const googleLogin = useGoogleLogin({
-    scope: "openid profile email", // Ensure correct scope
+    scope: "openid profile email",
     onSuccess: async (tokenResponse) => {
       console.log("Google Login Successful, Token Received:", tokenResponse);
-
       try {
         const { access_token } = tokenResponse;
         console.log("Access Token:", access_token);
 
-        // Fetch user info from Google
         const userInfoResponse = await axios.get(
           "https://www.googleapis.com/oauth2/v3/userinfo",
           { headers: { Authorization: `Bearer ${access_token}` } }
         );
-
         const userData = userInfoResponse.data;
         console.log("User Info from Google:", userData);
-
         const email = userData.email;
         setUserInfo(userData);
         setUserEmail(email);
         setIsLoggedIn(true);
 
-        // Save user info in localStorage
         localStorage.setItem("userInfo", JSON.stringify(userData));
         localStorage.setItem("userEmail", email);
 
-        // Send user email to the backend
         await axios.post("http://localhost:8000/save-user", { email });
-
-        // Log email in console
         console.log("Logged in user's email:", email);
-
       } catch (error) {
         console.error("Error fetching user info:", error.response?.data || error.message);
       }
@@ -96,13 +86,8 @@ const Home = () => {
   return (
     <div className="home">
       <h2 className="home__title">Check Weather, Gate, and Flight Information.</h2>
-
-      {/* Display UTC Time */}
       <UTCTime />
-
-      {/* Input Component */}
-      <Input />
-
+      <Input userEmail={userEmail} isLoggedIn={isLoggedIn} />
       {isLoggedIn ? (
         <div>
           <p>Logged in as: {userInfo?.name}</p>
@@ -120,7 +105,6 @@ const Home = () => {
           <GoogleButton onClick={googleLogin} />
         </div>
       )}
-
       <div className="home__content"></div>
     </div>
   );
