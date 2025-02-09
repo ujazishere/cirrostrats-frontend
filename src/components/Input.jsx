@@ -6,9 +6,11 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
+// Get API URL from environment variables in .env file
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Input = ({ userEmail, isLoggedIn }) => {
+  // State management for search functionality
   const [airports, setAirports] = useState([]);
   const [flightNumbers, setFlightNumbers] = useState([]);
   const [gates, setGates] = useState([]);
@@ -41,6 +43,10 @@ const Input = ({ userEmail, isLoggedIn }) => {
     }
   };
 
+  /**
+   * Custom hook for debouncing input value changes
+   * Prevents excessive API calls while user is typing
+   */
   const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -57,6 +63,10 @@ const Input = ({ userEmail, isLoggedIn }) => {
     return debouncedValue;
   };
 
+  // Debounced input value. used to limit the rate of function calls.
+  // For example, when typing in a search box, you might not want to trigger an API request on every keystroke,
+  // as this could lead to unnecessary calls. Instead, 
+  // you can use a debounce hook to wait until the user has stopped typing for a specific delay (e.g., 300ms), and then perform the action
   const debouncedInputValue = useDebounce(inputValue, 300);
 
   const isUniqueMatch = (input, suggestions) => {
@@ -66,12 +76,18 @@ const Input = ({ userEmail, isLoggedIn }) => {
     return matchingSuggestions.length === 1;
   };
 
-  useEffect(() => {
+  /**
+   * Initial data fetch effect
+   * Retrieves airports, flight numbers, and gates from the API
+   */
+  useEffect(() => {       // fetching data from backend - airports, flight numbers, gates for search dropdown selection
     const fetchData = async () => {
       if (isFetched || isLoading) return;
 
       setIsLoading(true);
       try {
+        // TODO: This needs to be changed such that the data fetched is incremental instead of lumpsum
+        // Fetch all data in parallel
         const [resAirports, resFlightNumbers, resGates] = await Promise.all([
           axios.get(`${apiUrl}/airports`),
           axios.get(`${apiUrl}/flightNumbers`),
@@ -115,7 +131,11 @@ const Input = ({ userEmail, isLoggedIn }) => {
     fetchData();
   }, []);
 
-  useEffect(() => {
+  /**
+   * Effect for handling search suggestions
+   * Filters local data for matches and shows in dropdown and talks to API if no matches found.
+   */
+  useEffect(() => {       // this useEffect is running every 300ms
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
         setFilteredSuggestions([]);
@@ -124,9 +144,11 @@ const Input = ({ userEmail, isLoggedIn }) => {
 
       // Track search for each keystroke
       trackSearch(debouncedInputValue);
+      console.log('debouncedInputValue', debouncedInputValue);
 
       const lowercaseInputValue = debouncedInputValue.toLowerCase();
 
+      // Filter local data
       const filteredAirports = airports.filter(
         (airport) =>
           airport.name.toLowerCase().includes(lowercaseInputValue) ||
@@ -141,6 +163,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
         gate.gate.toLowerCase().includes(lowercaseInputValue)
       );
 
+      // Merging all filtered results together to show in dropdown
       const newFilteredSuggestions = [
         ...filteredAirports,
         ...filteredFlightNumbers,
@@ -164,6 +187,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
         }
       }
 
+      // Fetch from API if no matches found in the dropdown
       if (newFilteredSuggestions.length === 0) {
         try {
           const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
@@ -182,6 +206,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
+    console.log('searchValue in handleSubmit', searchValue); // Log searchValue
     navigate("/details", { state: { searchValue } });
   };
 
@@ -237,11 +262,11 @@ const Input = ({ userEmail, isLoggedIn }) => {
     <div className="searchbar-container">
       <form onSubmit={handleSubmit}>
         <Autocomplete
-          open={isExpanded}
-          options={filteredSuggestions}
-          value={selectedValue}
-          inputValue={inputValue}
-          onChange={(event, newValue) => {
+          open={isExpanded} // Controls whether the dropdown is open
+          options={filteredSuggestions} // List of suggestions shown in the dropdown
+          value={selectedValue} // The selected item from the dropdown
+          inputValue={inputValue} // The current text in the input field
+          onChange={(event, newValue) => { // Handles selection from the dropdown
             setSelectedValue(newValue);
             if (newValue) {
               setInputValue(newValue.label);
