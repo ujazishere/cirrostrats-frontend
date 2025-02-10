@@ -222,7 +222,7 @@
 /* Flight Details Card Styles */
 .flight-details-card {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 5px;
   padding: 16px;
   color: #2d333b;
   margin-bottom: 20px;
@@ -231,7 +231,7 @@
   border: 1px solid #000000;
   font-family: sans-serif;
   font-weight: 1000;
-  border-width: 1.5px;
+  border-width: 1px;
 }
 
 .flight-number {
