@@ -33,13 +33,14 @@ const Input = ({ userEmail, isLoggedIn }) => {
     console.log(`Search tracked - User: ${userEmail}, Term: ${searchTerm}, Time: ${timestamp}`);
 
     try {
-      await axios.post("http://localhost:8000/track-search", {
+      await axios.post(`${apiUrl}/track-search`, {
         email: userEmail,
         searchTerm,
         timestamp,
       });
+      console.log("Search track sent to backend.");
     } catch (error) {
-      console.error("Error tracking search:", error);
+      console.error("Error sending search track to backend:", error);
     }
   };
 
@@ -191,6 +192,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
       if (newFilteredSuggestions.length === 0) {
         try {
           const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
+          trackSearch(debouncedInputValue);
           if (data.data && data.data.length > 0) {
             setFilteredSuggestions(data.data);
           }

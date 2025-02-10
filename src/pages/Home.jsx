@@ -24,7 +24,7 @@ const Home = () => {
   const googleLogin = useGoogleLogin({
     scope: "openid profile email",
     onSuccess: async (tokenResponse) => {
-      console.log("Google Login Successful, Token Received:", tokenResponse);
+      // console.log("Google Login Successful, Token Received:", tokenResponse);
       try {
         const { access_token } = tokenResponse;
         console.log("Access Token:", access_token);
@@ -44,7 +44,7 @@ const Home = () => {
         localStorage.setItem("userEmail", email);
 
         await axios.post("http://localhost:8000/save-user", { email });
-        console.log("Logged in user's email:", email);
+        // console.log("Logged in user's email:", email);
       } catch (error) {
         console.error("Error fetching user info:", error.response?.data || error.message);
       }
