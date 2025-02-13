@@ -20,14 +20,14 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const [selectedValue, setSelectedValue] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
-  
+  const [inlinePrediction, setInlinePrediction] = useState(""); // New state for inline prediction
+
   const minCharsForAutofill = 3;
   const navigate = useNavigate();
   const inputRef = useRef(null);
-  
+
   // Track search keystroke
   const trackSearch = async (searchTerm) => {
-
     // if dev mode is enabled, don't track search
     if (import.meta.env.VITE_ENV === "dev") return;
     // Generate a timestamp
@@ -44,7 +44,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
         searchTerm,
         timestamp,
       });
-  } catch (error) {
+    } catch (error) {
       console.error("Error sending search track to backend:", error);
     }
   };
@@ -70,9 +70,6 @@ const Input = ({ userEmail, isLoggedIn }) => {
   };
 
   // Debounced input value. used to limit the rate of function calls.
-  // For example, when typing in a search box, you might not want to trigger an API request on every keystroke,
-  // as this could lead to unnecessary calls. Instead, 
-  // you can use a debounce hook to wait until the user has stopped typing for a specific delay (e.g., 300ms), and then perform the action
   const debouncedInputValue = useDebounce(inputValue, 300);
 
   const isUniqueMatch = (input, suggestions) => {
@@ -82,18 +79,31 @@ const Input = ({ userEmail, isLoggedIn }) => {
     return matchingSuggestions.length === 1;
   };
 
+  // Find and return inline prediction text
+  const findInlinePrediction = (input, suggestions) => {
+    if (!input) return "";
+    
+    const lowercaseInput = input.toLowerCase();
+    const matchingSuggestion = suggestions.find(suggestion => 
+      suggestion.label.toLowerCase().startsWith(lowercaseInput)
+    );
+    
+    if (matchingSuggestion) {
+      return matchingSuggestion.label.slice(input.length);
+    }
+    return "";
+  };
+
   /**
    * Initial data fetch effect
    * Retrieves airports, flight numbers, and gates from the API
    */
-  useEffect(() => {       // fetching data from backend - airports, flight numbers, gates for search dropdown selection
+  useEffect(() => {
     const fetchData = async () => {
       if (isFetched || isLoading) return;
 
       setIsLoading(true);
       try {
-        // TODO: This needs to be changed such that the data fetched is incremental instead of lumpsum
-        // Fetch all data in parallel
         const [resAirports, resFlightNumbers, resGates] = await Promise.all([
           axios.get(`${apiUrl}/airports`),
           axios.get(`${apiUrl}/flightNumbers`),
@@ -141,10 +151,11 @@ const Input = ({ userEmail, isLoggedIn }) => {
    * Effect for handling search suggestions
    * Filters local data for matches and shows in dropdown and talks to API if no matches found.
    */
-  useEffect(() => {       // this useEffect is running every 300ms
+  useEffect(() => {
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
         setFilteredSuggestions([]);
+        setInlinePrediction(""); // Clear inline prediction
         return;
       }
 
@@ -177,6 +188,10 @@ const Input = ({ userEmail, isLoggedIn }) => {
 
       setFilteredSuggestions(newFilteredSuggestions);
 
+      // Update inline prediction
+      const prediction = findInlinePrediction(debouncedInputValue, newFilteredSuggestions);
+      setInlinePrediction(prediction);
+
       if (debouncedInputValue.length >= minCharsForAutofill && newFilteredSuggestions.length > 0) {
         if (isUniqueMatch(debouncedInputValue, newFilteredSuggestions)) {
           const exactMatch = newFilteredSuggestions.find(suggestion => 
@@ -199,6 +214,8 @@ const Input = ({ userEmail, isLoggedIn }) => {
           trackSearch(debouncedInputValue);
           if (data.data && data.data.length > 0) {
             setFilteredSuggestions(data.data);
+            const apiPrediction = findInlinePrediction(debouncedInputValue, data.data);
+            setInlinePrediction(apiPrediction);
           }
         } catch (error) {
           console.error("Error fetching API data from backend:", error);
@@ -264,6 +281,24 @@ const Input = ({ userEmail, isLoggedIn }) => {
     }
   };
 
+  // Handle Tab key for autocompleting the input with the predicted text
+  const handleKeyDown = (event) => {
+    if (event.key === 'Tab' && inlinePrediction) {
+      event.preventDefault();
+      const newValue = inputValue + inlinePrediction;
+      setInputValue(newValue);
+      
+      // Find and set matching suggestion
+      const matchingSuggestion = filteredSuggestions.find(
+        suggestion => suggestion.label.toLowerCase() === newValue.toLowerCase()
+      );
+      
+      if (matchingSuggestion) {
+        setSelectedValue(matchingSuggestion);
+      }
+    }
+  };
+
   return (
     <div className="searchbar-container">
       <form onSubmit={handleSubmit}>
@@ -290,16 +325,36 @@ const Input = ({ userEmail, isLoggedIn }) => {
           className="home__input"
           getOptionLabel={(option) => option.label || ""}
           renderInput={(params) => (
-            <TextField
-              {...params}
-              inputRef={inputRef}
-              label="Try searching a gate in newark. Eg. 71x"
-              margin="normal"
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: null,
-              }}
-            />
+            <div style={{ position: 'relative' }}>
+              <TextField
+                {...params}
+                inputRef={inputRef}
+                label="Try searching a gate in newark. Eg. 71x"
+                margin="normal"
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: null,
+                  onKeyDown: handleKeyDown, // Handle Tab key for autocomplete
+                }}
+              />
+              {/* Inline prediction overlay */}
+              {inlinePrediction && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: params.InputProps.startAdornment ? 'auto' : '14px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#999',
+                    pointerEvents: 'none',
+                    whiteSpace: 'pre',
+                  }}
+                >
+                  <span style={{ visibility: 'hidden' }}>{inputValue}</span>
+                  <span>{inlinePrediction}</span>
+                </div>
+              )}
+            </div>
           )}
           renderOption={(props, option, { inputValue }) => {
             const matches = match(option.label, inputValue, { insideWords: true });
