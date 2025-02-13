@@ -24,22 +24,27 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const minCharsForAutofill = 3;
   const navigate = useNavigate();
   const inputRef = useRef(null);
-
+  
   // Track search keystroke
   const trackSearch = async (searchTerm) => {
-    if (!isLoggedIn || !userEmail) return;
 
+    // if dev mode is enabled, don't track search
+    if (import.meta.env.VITE_ENV === "dev") return;
+    // Generate a timestamp
     const timestamp = new Date().toISOString();
-    console.log(`Search tracked - User: ${userEmail}, Term: ${searchTerm}, Time: ${timestamp}`);
+
+    // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
+    const emailToTrack = isLoggedIn && userEmail ? userEmail : "Anonymous";
+    // console.log(`Search tracked - User: ${emailToTrack}, Term: ${searchTerm}, Time: ${timestamp}`);
 
     try {
+      // Send the search track to the backend
       await axios.post(`${apiUrl}/track-search`, {
-        email: userEmail,
+        email: emailToTrack,
         searchTerm,
         timestamp,
       });
-      console.log("Search track sent to backend.");
-    } catch (error) {
+  } catch (error) {
       console.error("Error sending search track to backend:", error);
     }
   };
@@ -143,9 +148,8 @@ const Input = ({ userEmail, isLoggedIn }) => {
         return;
       }
 
-      // Track search for each keystroke
+      // Track search for each keystroke - runs every 300ms or as assigned
       trackSearch(debouncedInputValue);
-      console.log('debouncedInputValue', debouncedInputValue);
 
       const lowercaseInputValue = debouncedInputValue.toLowerCase();
 

@@ -102,21 +102,26 @@ const Details = () => {
     async function fetchData() {
       try {
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
-          // Fetch test data if the environment variable is set
+          // Fetch test data(for frontend development efficiency) if the environment variable for test data is set to true
           const res = await axios.get(`${apiUrl}/testDataReturns`);
           setFlightData(res.data);
           setWeatherResponse(res.data);
           setNasResponse(res.data);
+
         } else if (searchValue?.type === "airport") {
+          // search query is an airport and returns airport weather component
           const res = await axios.get(`${apiUrl}/airport/${searchValue.id}`);
           setAirportWx(res.data);
           setLoadingWeather(false);
+
         } else if (searchValue?.type === "gate") {
+          // search query is a gate type and returns airport weather component
           const res = await axios.get(`${apiUrl}/gates`);
           setGateData(res.data);
           setLoadingWeather(false);
+
         } else if (searchValue?.type === "flightNumber" || searchValue) {
-          // Fetch flight data using flight number
+          // search query is a flight number - fetches flight data using flight number and serves FlightCard component
           const flightNumberQuery = searchValue?.flightNumber || searchValue;
           const [depDesRes, flightStatsTZRes, flightAwareRes] = await Promise.all([
             axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),

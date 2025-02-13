@@ -20,7 +20,7 @@
    ```bash
       # .env (for local environment)
       VITE_API_URL=http://127.0.0.1:8000
-      
+      VITE_ENV=dev
       # .env (for production/AWS environment) Use this for production. Comment it out on local machine
       # VITE_API_URL=/api
       

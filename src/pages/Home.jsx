@@ -43,7 +43,7 @@ const Home = () => {
         localStorage.setItem("userInfo", JSON.stringify(userData));
         localStorage.setItem("userEmail", email);
 
-        await axios.post("http://localhost:8000/save-user", { email });
+        await axios.post(`${apiUrl}track-search`, { email });
         // console.log("Logged in user's email:", email);
       } catch (error) {
         console.error("Error fetching user info:", error.response?.data || error.message);
