@@ -20,14 +20,14 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const [selectedValue, setSelectedValue] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
-  const [inlinePrediction, setInlinePrediction] = useState(""); // New state for inline prediction
+  const [inlinePrediction, setInlinePrediction] = useState("");
 
   const minCharsForAutofill = 3;
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
   // Track search keystroke
-  const trackSearch = async (searchTerm) => {
+  const trackSearch = async (searchTerm, submitTerm = null) => {
     // if dev mode is enabled, don't track search
     if (import.meta.env.VITE_ENV === "dev") return;
     // Generate a timestamp
@@ -35,13 +35,13 @@ const Input = ({ userEmail, isLoggedIn }) => {
 
     // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
     const emailToTrack = isLoggedIn && userEmail ? userEmail : "Anonymous";
-    // console.log(`Search tracked - User: ${emailToTrack}, Term: ${searchTerm}, Time: ${timestamp}`);
 
     try {
       // Send the search track to the backend
       await axios.post(`${apiUrl}/track-search`, {
         email: emailToTrack,
         searchTerm,
+        submitTerm: submitTerm || null,
         timestamp,
       });
     } catch (error) {
@@ -155,7 +155,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
         setFilteredSuggestions([]);
-        setInlinePrediction(""); // Clear inline prediction
+        setInlinePrediction("");
         return;
       }
 
@@ -229,7 +229,9 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
-    console.log('searchValue in handleSubmit', searchValue); // Log searchValue
+    // Track the final submitted search term
+    trackSearch(inputValue, searchValue.label);
+    console.log('searchValue in handleSubmit', searchValue);
     navigate("/details", { state: { searchValue } });
   };
 
@@ -303,14 +305,16 @@ const Input = ({ userEmail, isLoggedIn }) => {
     <div className="searchbar-container">
       <form onSubmit={handleSubmit}>
         <Autocomplete
-          open={isExpanded} // Controls whether the dropdown is open
-          options={filteredSuggestions} // List of suggestions shown in the dropdown
-          value={selectedValue} // The selected item from the dropdown
-          inputValue={inputValue} // The current text in the input field
-          onChange={(event, newValue) => { // Handles selection from the dropdown
+          open={false}
+          options={filteredSuggestions}
+          value={selectedValue}
+          inputValue={inputValue}
+          onChange={(event, newValue) => {
             setSelectedValue(newValue);
             if (newValue) {
               setInputValue(newValue.label);
+              // Track the selection as both search and submit term
+              trackSearch(inputValue, newValue.label);
               navigate("/details", { state: { searchValue: newValue } });
             }
             setIsExpanded(false);
@@ -334,10 +338,9 @@ const Input = ({ userEmail, isLoggedIn }) => {
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: null,
-                  onKeyDown: handleKeyDown, // Handle Tab key for autocomplete
+                  onKeyDown: handleKeyDown,
                 }}
               />
-              {/* Inline prediction overlay */}
               {inlinePrediction && (
                 <div
                   style={{
