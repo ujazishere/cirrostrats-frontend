@@ -6,6 +6,56 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
+// Separate component for search history suggestions
+const SearchHistorySuggestions = ({ userEmail, isVisible, onSuggestionClick }) => {
+  const [topSearches, setTopSearches] = useState([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    const fetchTopSearches = async () => {
+      if (!userEmail || !isVisible) return;
+
+      try {
+        const response = await axios.get(`${apiUrl}/user-top-searches`, {
+          params: { email: userEmail, limit: 5 }
+        });
+        setTopSearches(response.data);
+      } catch (error) {
+        console.error('Error fetching top searches:', error);
+      }
+    };
+
+    fetchTopSearches();
+  }, [userEmail, isVisible]);
+
+  if (!isVisible || !userEmail || topSearches.length === 0) return null;
+
+  return (
+    <div className="absolute w-full bg-white shadow-lg rounded-md mt-1 border border-gray-200 z-50">
+      <div className="p-2 text-sm text-gray-500">Recent Searches</div>
+      <ul className="divide-y divide-gray-100">
+        {topSearches.map((search, index) => (
+          <li 
+            key={index}
+            className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center"
+            onClick={() => onSuggestionClick(search.searchTerm)}
+          >
+            <span className="text-gray-400 mr-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+            <span className="text-gray-700">{search.searchTerm}</span>
+            <span className="text-gray-400 text-sm ml-auto">
+              {search.count} searches
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 // Get API URL from environment variables in .env file
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -49,10 +99,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
     }
   };
 
-  /**
-   * Custom hook for debouncing input value changes
-   * Prevents excessive API calls while user is typing
-   */
+  // Custom hook for debouncing input value changes
   const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -69,7 +116,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
     return debouncedValue;
   };
 
-  // Debounced input value. used to limit the rate of function calls.
+  // Debounced input value
   const debouncedInputValue = useDebounce(inputValue, 300);
 
   const isUniqueMatch = (input, suggestions) => {
@@ -94,10 +141,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
     return "";
   };
 
-  /**
-   * Initial data fetch effect
-   * Retrieves airports, flight numbers, and gates from the API
-   */
+  // Initial data fetch effect
   useEffect(() => {
     const fetchData = async () => {
       if (isFetched || isLoading) return;
@@ -147,10 +191,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
     fetchData();
   }, []);
 
-  /**
-   * Effect for handling search suggestions
-   * Filters local data for matches and shows in dropdown and talks to API if no matches found.
-   */
+  // Effect for handling search suggestions
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
@@ -159,7 +200,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
         return;
       }
 
-      // Track search for each keystroke - runs every 300ms or as assigned
+      // Track search for each keystroke
       trackSearch(debouncedInputValue);
 
       const lowercaseInputValue = debouncedInputValue.toLowerCase();
@@ -179,7 +220,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
         gate.gate.toLowerCase().includes(lowercaseInputValue)
       );
 
-      // Merging all filtered results together to show in dropdown
+      // Merge all filtered results
       const newFilteredSuggestions = [
         ...filteredAirports,
         ...filteredFlightNumbers,
@@ -207,7 +248,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
         }
       }
 
-      // Fetch from API if no matches found in the dropdown
+      // Fetch from API if no matches found
       if (newFilteredSuggestions.length === 0) {
         try {
           const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
@@ -229,10 +270,19 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
-    // Track the final submitted search term
     trackSearch(inputValue, searchValue.label);
-    console.log('searchValue in handleSubmit', searchValue);
     navigate("/details", { state: { searchValue } });
+  };
+
+  const handleSuggestionClick = (searchTerm) => {
+    setInputValue(searchTerm);
+    const matchingSuggestion = filteredSuggestions.find(
+      suggestion => suggestion.label.toLowerCase() === searchTerm.toLowerCase()
+    );
+    if (matchingSuggestion) {
+      setSelectedValue(matchingSuggestion);
+      navigate("/details", { state: { searchValue: matchingSuggestion } });
+    }
   };
 
   const handleFocus = () => {
@@ -283,14 +333,12 @@ const Input = ({ userEmail, isLoggedIn }) => {
     }
   };
 
-  // Handle Tab key for autocompleting the input with the predicted text
   const handleKeyDown = (event) => {
     if (event.key === 'Tab' && inlinePrediction) {
       event.preventDefault();
       const newValue = inputValue + inlinePrediction;
       setInputValue(newValue);
       
-      // Find and set matching suggestion
       const matchingSuggestion = filteredSuggestions.find(
         suggestion => suggestion.label.toLowerCase() === newValue.toLowerCase()
       );
@@ -302,7 +350,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
   };
 
   return (
-    <div className="searchbar-container">
+    <div className="searchbar-container relative">
       <form onSubmit={handleSubmit}>
         <Autocomplete
           open={false}
@@ -313,7 +361,6 @@ const Input = ({ userEmail, isLoggedIn }) => {
             setSelectedValue(newValue);
             if (newValue) {
               setInputValue(newValue.label);
-              // Track the selection as both search and submit term
               trackSearch(inputValue, newValue.label);
               navigate("/details", { state: { searchValue: newValue } });
             }
@@ -391,6 +438,16 @@ const Input = ({ userEmail, isLoggedIn }) => {
           onBlur={handleBlur}
           disablePortal
         />
+        
+        {/* Search History Suggestions */}
+        {isLoggedIn && (
+          <SearchHistorySuggestions
+            userEmail={userEmail}
+            isVisible={isExpanded}
+            onSuggestionClick={handleSuggestionClick}
+          />
+        )}
+        
         <button className="home__search" type="submit">
           Search
         </button>
