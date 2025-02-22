@@ -16,7 +16,7 @@ const SearchHistorySuggestions = ({ userEmail, isVisible, onSuggestionClick }) =
       if (!userEmail || !isVisible) return;
 
       try {
-        const response = await axios.get(`${apiUrl}/user-top-searches`, {
+        const response = await axios.get(`${apiUrl}/searches/${userEmail}`, {
           params: { email: userEmail, limit: 5 }
         });
         setTopSearches(response.data);
@@ -85,10 +85,10 @@ const Input = ({ userEmail, isLoggedIn }) => {
 
     // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
     const emailToTrack = isLoggedIn && userEmail ? userEmail : "Anonymous";
-
+    
     try {
       // Send the search track to the backend
-      await axios.post(`${apiUrl}/track-search`, {
+      await axios.post(`${apiUrl}/searches/track`, {
         email: emailToTrack,
         searchTerm,
         submitTerm: submitTerm || null,
@@ -448,7 +448,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
           onBlur={handleBlur}
           disablePortal
         />
-        
+
         {/* Search History Suggestions */}
         {isLoggedIn && (
           <SearchHistorySuggestions
@@ -457,7 +457,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
             onSuggestionClick={handleSuggestionClick}
           />
         )}
-        
+
         <button className="home__search" type="submit">
           Search
         </button>
