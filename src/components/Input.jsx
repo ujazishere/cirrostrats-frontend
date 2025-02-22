@@ -141,13 +141,19 @@ const Input = ({ userEmail, isLoggedIn }) => {
     return "";
   };
 
-  // Initial data fetch effect
+  /**
+   * Initial data fetch effect
+   * Retrieves airports, flight numbers, and gates from the API when homepage is requested initially.
+   * Data is used for search dropdown selection
+   */
   useEffect(() => {
     const fetchData = async () => {
       if (isFetched || isLoading) return;
 
       setIsLoading(true);
       try {
+        // TODO: This needs to be changed such that the data fetched is incremental instead of lumpsum
+        // Fetch all data in parallel
         const [resAirports, resFlightNumbers, resGates] = await Promise.all([
           axios.get(`${apiUrl}/airports`),
           axios.get(`${apiUrl}/flightNumbers`),
@@ -191,8 +197,12 @@ const Input = ({ userEmail, isLoggedIn }) => {
     fetchData();
   }, []);
 
-  // Effect for handling search suggestions
-  useEffect(() => {
+  /**
+   * Effect for handling search suggestions(Drop down suggestions)
+   * Filters local data for matches and shows in dropdown and talks to API if no matches found.
+   */
+  useEffect(() => {     // this useEffect is running every 300ms
+    // TODO: Since I dont have this function called in the autocomplete section in the returns, how is this function called?
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
         setFilteredSuggestions([]);
