@@ -76,29 +76,6 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
-  // Track search keystroke
-  const trackSearch = async (searchTerm, submitTerm = null) => {
-    // if dev mode is enabled, don't track search
-    if (import.meta.env.VITE_ENV === "dev") return;
-    // Generate a timestamp
-    const timestamp = new Date().toISOString();
-
-    // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
-    const emailToTrack = isLoggedIn && userEmail ? userEmail : "Anonymous";
-    
-    try {
-      // Send the search track to the backend
-      await axios.post(`${apiUrl}/searches/track`, {
-        email: emailToTrack,
-        searchTerm,
-        submitTerm: submitTerm || null,
-        timestamp,
-      });
-    } catch (error) {
-      console.error("Error sending search track to backend:", error);
-    }
-  };
-
   // Custom hook for debouncing input value changes
   const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -118,28 +95,6 @@ const Input = ({ userEmail, isLoggedIn }) => {
 
   // Debounced input value
   const debouncedInputValue = useDebounce(inputValue, 300);
-
-  const isUniqueMatch = (input, suggestions) => {
-    const matchingSuggestions = suggestions.filter(suggestion => 
-      suggestion.label.toLowerCase().startsWith(input.toLowerCase())
-    );
-    return matchingSuggestions.length === 1;
-  };
-
-  // Find and return inline prediction text
-  const findInlinePrediction = (input, suggestions) => {
-    if (!input) return "";
-    
-    const lowercaseInput = input.toLowerCase();
-    const matchingSuggestion = suggestions.find(suggestion => 
-      suggestion.label.toLowerCase().startsWith(lowercaseInput)
-    );
-    
-    if (matchingSuggestion) {
-      return matchingSuggestion.label.slice(input.length);
-    }
-    return "";
-  };
 
   /**
    * Initial data fetch effect
@@ -277,6 +232,53 @@ const Input = ({ userEmail, isLoggedIn }) => {
     fetchSuggestions();
   }, [debouncedInputValue, airports, flightNumbers, gates, userEmail, isLoggedIn]);
 
+  // Track search keystroke
+  const trackSearch = async (searchTerm, submitTerm = null) => {
+    // if dev mode is enabled, don't track search
+    if (import.meta.env.VITE_ENV === "dev") return;
+    // Generate a timestamp
+    const timestamp = new Date().toISOString();
+
+    // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
+    const emailToTrack = isLoggedIn && userEmail ? userEmail : "Anonymous";
+    
+    try {
+      // Send the search track to the backend
+      await axios.post(`${apiUrl}/searches/track`, {
+        email: emailToTrack,
+        searchTerm,
+        submitTerm: submitTerm || null,
+        timestamp,
+      });
+    } catch (error) {
+      console.error("Error sending search track to backend:", error);
+    }
+  };
+
+  const isUniqueMatch = (input, suggestions) => {
+    const matchingSuggestions = suggestions.filter(suggestion => 
+      suggestion.label.toLowerCase().startsWith(input.toLowerCase())
+    );
+    return matchingSuggestions.length === 1;
+  };
+
+  // Find and return inline prediction text
+  const findInlinePrediction = (input, suggestions) => {
+    if (!input) return "";
+    
+    const lowercaseInput = input.toLowerCase();
+    const matchingSuggestion = suggestions.find(suggestion => 
+      suggestion.label.toLowerCase().startsWith(lowercaseInput)
+    );
+    
+    if (matchingSuggestion) {
+      return matchingSuggestion.label.slice(input.length);
+    }
+    return "";
+  };
+
+
+
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
@@ -400,7 +402,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
                   onKeyDown: handleKeyDown,
                 }}
               />
-              {inlinePrediction && (
+              {/* {inlinePrediction && (
                 <div
                   style={{
                     position: 'absolute',
@@ -415,7 +417,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
                   <span style={{ visibility: 'hidden' }}>{inputValue}</span>
                   <span>{inlinePrediction}</span>
                 </div>
-              )}
+              )} */}
             </div>
           )}
           renderOption={(props, option, { inputValue }) => {
