@@ -153,7 +153,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
       setIsLoading(true);
       try {
         // TODO: This needs to be changed such that the data fetched is incremental instead of lumpsum
-        // Fetch all data in parallel
+        // This section fetches all data in parallel.
         const [resAirports, resFlightNumbers, resGates] = await Promise.all([
           axios.get(`${apiUrl}/airports`),
           axios.get(`${apiUrl}/flightNumbers`),
@@ -201,8 +201,8 @@ const Input = ({ userEmail, isLoggedIn }) => {
    * Effect for handling search suggestions(Drop down suggestions)
    * Filters local data for matches and shows in dropdown and talks to API if no matches found.
    */
-  useEffect(() => {     // this useEffect is running every 300ms
-    // TODO: Since I dont have this function called in the autocomplete section in the returns, how is this function called?
+  useEffect(() => {
+    // Function to fetch suggestions. Runs depending on debounced input value,
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
         setFilteredSuggestions([]);
@@ -363,11 +363,12 @@ const Input = ({ userEmail, isLoggedIn }) => {
     <div className="searchbar-container relative">
       <form onSubmit={handleSubmit}>
         <Autocomplete
-          open={false}
-          options={filteredSuggestions}
+          open={true}     // Controls whether the Autocomplete dropdown is open or closed
+          options={filteredSuggestions} // list of filtered dropdown items
           value={selectedValue}
-          inputValue={inputValue}
+          inputValue={inputValue}       // The current text input value in the Autocomplete
           onChange={(event, newValue) => {
+            // This function is called when the user selects a value from the dropdown
             setSelectedValue(newValue);
             if (newValue) {
               setInputValue(newValue.label);
@@ -377,6 +378,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
             setIsExpanded(false);
           }}
           onInputChange={(event, newInputValue) => {
+            // This function is called whenever the input text changes
             setInputValue(newInputValue);
             if (!newInputValue) {
               setSelectedValue(null);
