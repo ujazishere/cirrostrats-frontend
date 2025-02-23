@@ -13,7 +13,7 @@ import Dummy from "./components/Dummy";
 import WeatherInfo from './components/Cards/WeatherInfo';
 import "./WeatherInfo.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import Input from './components/Input'; // Adjusted import path
+// import Input from './components/Input'; // Adjusted import path
 
 function App() {
   return (

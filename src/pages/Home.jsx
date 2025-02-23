@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import GoogleButton from "react-google-button";
 import axios from "axios";
-import Input from "../components/Input";
+// import Input from "../components/Input";
+import Input from "../components/Input/Index";
 import UTCTime from "../components/UTCTime";
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
-  const [userEmail, setUserEmail] = useState(null);
-
+  const [userEmail, setUserEmail] = useState("Anonymous");
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
     const storedUserEmail = localStorage.getItem("userEmail");
