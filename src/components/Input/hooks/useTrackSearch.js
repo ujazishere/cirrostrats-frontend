@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 
 // hooks/useTrackSearch.js
-const useTrackSearch = () => {
+const useTrackSearch = (searchTerm,userEmail, isLoggedIn,submitTerm) => {
   // Track search keystroke
   const trackSearch = async (searchTerm, submitTerm = null) => {
     // if dev mode is enabled, don't track search

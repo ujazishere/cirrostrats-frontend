@@ -1,65 +1,75 @@
 import React, { useState, useEffect } from "react";
+import useTrackSearch from "./useTrackSearch";
 // Custom hook for debouncing input value changes
-const useFetchSuggestions = (debouncedInputValue, airports, flightNumbers, gates, userEmail, isLoggedIn) => {
+const useFetchSuggestions = (debouncedInputValue, searchSuggestions, userEmail, isLoggedIn) => {
+  const [filteredSuggestions, setFilteredSuggestions] = useState(Object.keys(searchSuggestions));
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetched, setIsFetched] = useState(false);
+  
   useEffect(() => {
     // Function to fetch suggestions. Runs depending on debounced input value,
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
-        setFilteredSuggestions([]);
-        setInlinePrediction("");
+        // setFilteredSuggestions(Object.keys(searchSuggestions));
+        // setInlinePrediction("");
         return;
       }
-
+      
+      // TODO: Search
       // Track search for each keystroke
-      trackSearch(debouncedInputValue);
-
+      // useTrackSearch(debouncedInputValue);
+      
       const lowercaseInputValue = debouncedInputValue.toLowerCase();
+      
+      const filtered = Object.keys(searchSuggestions).filter(
+        (airportName) => airportName.toLowerCase().includes(lowercaseInputValue)
+      );
 
+      setFilteredSuggestions(filtered);
+      console.log("Filtered Suggestions:", filtered.length);
       // Filter local data
-      const filteredAirports = airports.filter(
-        (airport) =>
-          airport.name.toLowerCase().includes(lowercaseInputValue) ||
-          airport.code.toLowerCase().includes(lowercaseInputValue)
-      );
+      // const filteredAirports = searchSuggestions.filter(
+      //   (searchItem) =>
+      //     searchItem.name.toLowerCase().includes(lowercaseInputValue) ||
+      //     searchItem.code.toLowerCase().includes(lowercaseInputValue)
+      // );
 
-      const filteredFlightNumbers = flightNumbers.filter((flight) =>
-        flight.flightNumber.toLowerCase().includes(lowercaseInputValue)
-      );
+      // const filteredFlightNumbers = flightNumbers.filter((flight) =>
+      //   flight.flightNumber.toLowerCase().includes(lowercaseInputValue)
+      // );
 
-      const filteredGates = gates.filter((gate) =>
-        gate.gate.toLowerCase().includes(lowercaseInputValue)
-      );
+      // const filteredGates = gates.filter((gate) =>
+      //   gate.gate.toLowerCase().includes(lowercaseInputValue)
+      // );
 
-      // Merge all filtered results
-      const newFilteredSuggestions = [
-        ...filteredAirports,
-        ...filteredFlightNumbers,
-        ...filteredGates,
-      ];
-
-      setFilteredSuggestions(newFilteredSuggestions);
+      // // Merge all filtered results
+      // const newFilteredSuggestions = [
+      //   ...filteredAirports,
+      //   ...filteredFlightNumbers,
+      //   ...filteredGates,
+      // ];
 
       // Update inline prediction
-      const prediction = findInlinePrediction(debouncedInputValue, newFilteredSuggestions);
-      setInlinePrediction(prediction);
+      // const prediction = findInlinePrediction(debouncedInputValue, newFilteredSuggestions);
+      // setInlinePrediction(prediction);
 
-      if (debouncedInputValue.length >= minCharsForAutofill && newFilteredSuggestions.length > 0) {
-        if (isUniqueMatch(debouncedInputValue, newFilteredSuggestions)) {
-          const exactMatch = newFilteredSuggestions.find(suggestion => 
-            suggestion.label.toLowerCase().startsWith(lowercaseInputValue)
-          );
+      // if (debouncedInputValue.length >= minCharsForAutofill && newFilteredSuggestions.length > 0) {
+      //   if (isUniqueMatch(debouncedInputValue, newFilteredSuggestions)) {
+      //     const exactMatch = newFilteredSuggestions.find(suggestion => 
+      //       suggestion.label.toLowerCase().startsWith(lowercaseInputValue)
+      //     );
           
-          if (exactMatch) {
-            setSelectedValue(exactMatch);
-            setIsExpanded(true);
-          }
-        } else {
-          setSelectedValue(null);
-        }
-      }
+      //     if (exactMatch) {
+      //       setSelectedValue(exactMatch);
+      //       setIsExpanded(true);
+      //     }
+      //   } else {
+      //     setSelectedValue(null);
+      //   }
+      // }
 
       // Fetch from API if no matches found
-      if (newFilteredSuggestions.length === 0) {
+      if (filtered.length === 0) {
         try {
           const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
           trackSearch(debouncedInputValue);
@@ -75,9 +85,9 @@ const useFetchSuggestions = (debouncedInputValue, airports, flightNumbers, gates
     };
 
     fetchSuggestions();
-  }, [debouncedInputValue, airports, flightNumbers, gates, userEmail, isLoggedIn]);
+  }, [debouncedInputValue, userEmail, isLoggedIn]);
 
-  return { filteredSuggestions, inlinePrediction, selectedValue, isExpanded };
+  return {filteredSuggestions};
 };
 
 export default useFetchSuggestions;

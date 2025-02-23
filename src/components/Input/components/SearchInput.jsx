@@ -7,6 +7,7 @@ import match from "autosuggest-highlight/match";
 import useTrackSearch from "../hooks/useTrackSearch";
 import useDebounce from "../hooks/useDebounce";
 import useFetchData from "../hooks/useFetchData";
+import useFetchSuggestions from "../hooks/useFetchSuggestions";
 
 // components/SearchInput.jsx
 const SearchInput = ({
@@ -25,36 +26,23 @@ const SearchInput = ({
   const [inputValue, setInputValue] = useState("");
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
   const [isSuggestionsListVisible, setIsSuggestionsListVisible] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   
-  const debouncedSearchValue = useDebounce(searchValue, 300);
+  const debouncedInputValue = useDebounce(searchValue, 300);
   const { searchSuggestions, isFetched, isLoading } = useFetchData(userEmail);
-console.log("searchValue", searchValue, searchSuggestions);
+  const { filteredSuggestions} = useFetchSuggestions(debouncedInputValue, searchSuggestions, userEmail, isLoggedIn);
+  // console.log("Filtered Suggestions:", filteredSuggestions);
+  const mappedSuggestions = filteredSuggestions.map((item) => ({ label: item }));
+  console.log("Mapped Suggestions:", mappedSuggestions);
 
-  useEffect(() => {
-    console.log("filteredSuggestions", searchSuggestions.length);
-    if (searchValue && searchSuggestions && searchSuggestions.length > 0) {
-      const filtered = searchSuggestions.filter((suggestion) =>
-        suggestion.toLowerCase().includes(searchValue.toLowerCase())
-      );
-      setFilteredSuggestions(filtered);
-    } else if (!searchValue) {
-      setFilteredSuggestions([]);
-    } else if (searchSuggestions && searchSuggestions.length === 0) {
-      setFilteredSuggestions([]);
-    }
-  }, [searchValue, searchSuggestions]);
-  
   
   return (
         <Autocomplete
           open={true}     // Controls whether the Autocomplete dropdown is open or closed
-          options={filteredSuggestions} // list of filtered dropdown items
+          options={mappedSuggestions} // list of filtered dropdown items
           value={selectedSuggestion}
           inputValue={searchValue}       // The current text input value in the Autocomplete
           onInputChange={(event, newSearchValue) => {
             // This function is called whenever the input text changes
-            console.log("newSearchValue", newSearchValue);
             setSearchValue(newSearchValue);
             if (!newSearchValue) {
               setSelectedSuggestion(null);
