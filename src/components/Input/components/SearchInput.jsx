@@ -31,14 +31,12 @@ const SearchInput = ({
   const { searchSuggestions, isFetched, isLoading } = useFetchData(userEmail);
   const { filteredSuggestions} = useFetchSuggestions(debouncedInputValue, searchSuggestions, userEmail, isLoggedIn);
   // console.log("Filtered Suggestions:", filteredSuggestions);
-  const mappedSuggestions = filteredSuggestions.map((item) => ({ label: item }));
-  console.log("Mapped Suggestions:", mappedSuggestions);
 
   
   return (
         <Autocomplete
           open={true}     // Controls whether the Autocomplete dropdown is open or closed
-          options={mappedSuggestions} // list of filtered dropdown items
+          options={filteredSuggestions} // list of filtered dropdown items
           value={selectedSuggestion}
           inputValue={searchValue}       // The current text input value in the Autocomplete
           onInputChange={(event, newSearchValue) => {
@@ -52,6 +50,7 @@ const SearchInput = ({
 
           onChange={(event, newSuggestion) => {
             // This function is called when the user selects a value from the dropdown
+            console.log("New Suggestion:", newSuggestion)
             setSelectedSuggestion(newSuggestion);
             if (newSuggestion) {
               setSearchValue(newSuggestion.label);
@@ -80,7 +79,6 @@ const SearchInput = ({
           )}
 
       renderOption={(props, option, { inputValue }) => {
-        console.log("option", option.label);
         const matches = match(option.label, inputValue, { insideWords: true });
         const parts = parse(option.label, matches);
         return (

@@ -10,7 +10,6 @@ const useFetchSuggestions = (debouncedInputValue, searchSuggestions, userEmail, 
     // Function to fetch suggestions. Runs depending on debounced input value,
     const fetchSuggestions = async () => {
       if (!debouncedInputValue) {
-        // setFilteredSuggestions(Object.keys(searchSuggestions));
         // setInlinePrediction("");
         return;
       }
@@ -24,9 +23,9 @@ const useFetchSuggestions = (debouncedInputValue, searchSuggestions, userEmail, 
       const filtered = Object.keys(searchSuggestions).filter(
         (airportName) => airportName.toLowerCase().includes(lowercaseInputValue)
       );
-
-      setFilteredSuggestions(filtered);
-      console.log("Filtered Suggestions:", filtered.length);
+      const mappedSuggestions = filtered.map((item) => ({ label: item }));
+      
+      setFilteredSuggestions(mappedSuggestions);
       // Filter local data
       // const filteredAirports = searchSuggestions.filter(
       //   (searchItem) =>
