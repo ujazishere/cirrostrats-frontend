@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import GoogleButton from "react-google-button";
 import axios from "axios";
+import searchService from "../components/Input/api/searchservice";
 // import Input from "../components/Input";
 import Input from "../components/Input/Index";
 import UTCTime from "../components/UTCTime";
@@ -10,9 +11,11 @@ const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [userEmail, setUserEmail] = useState("Anonymous");
+  const [searchSuggestions, setSuggestions] = useState([]);
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
     const storedUserEmail = localStorage.getItem("userEmail");
+
     if (storedUserInfo && storedUserEmail) {
       setUserInfo(JSON.parse(storedUserInfo));
       setUserEmail(storedUserEmail);
@@ -20,6 +23,16 @@ const Home = () => {
       console.log("User is already logged in:", storedUserEmail);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      // console.log("Fetching suggestions for:", debouncedSearchTerm);
+        const {searchSuggestions} = await searchService.fetchMostSearched(userEmail);
+        setSuggestions(searchSuggestions);
+    };
+    
+    fetchAllData();
+  }, [userEmail]);
 
   const googleLogin = useGoogleLogin({
     scope: "openid profile email",
@@ -37,6 +50,7 @@ const Home = () => {
         console.log("User Info from Google:", userData);
         const email = userData.email;
         setUserInfo(userData);
+  // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
         setUserEmail(email);
         setIsLoggedIn(true);
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+// import {searchServices} from "../api/searchservice";
 
 // Custom hook for debouncing input value changes
 const useFetchData = (userEmail) => {
@@ -10,7 +11,6 @@ const useFetchData = (userEmail) => {
   const [isFetched, setIsFetched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  const apiUrl = import.meta.env.VITE_API_URL;
   // print('apiUrl', apiUrl);
 
   /**

@@ -1,60 +1,36 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import useDebounce from "./hooks/useDebounce";
-import useInputHandlers from "./hooks/useInputHandlers";
+// Input/index.jsx
+import React, { useRef } from "react";
 import SearchInput from "./components/SearchInput";
-
-// Input/index.jsx (main component)
-const Input = ({ userEmail, isLoggedIn }) => {
-  // Only core state and composition of hooks
-//   const { trackSearch } = useTrackSearch();
-
-  // State management for search functionality
-  const [inlinePrediction, setInlinePrediction] = useState("");
-//   const [inputValue, setInputValue] = useState("");
-  
-  const minCharsForAutofill = 3;
+import useSearch from "./hooks/useSearch";
+import useAutocomplete from "./hooks/useAutocomplete";
+import { useNavigate } from "react-router-dom";
+export default function Input({ userEmail, isLoggedIn }) {
   const navigate = useNavigate();
-  const inputRef = useRef(null);
-  const handleSubmit=useInputHandlers.handleSubmit
-  // console.log(userEmail, isLoggedIn);
+  // const inputRef = useRef(null);
+  
+  // Centralized search logic
+  const { searchTerm, setSearchTerm, suggestions, loading } = useSearch(userEmail, isLoggedIn);
+  
+  // Autocomplete UI behavior
+  const autocompleteProps = useAutocomplete(suggestions, searchTerm, setSearchTerm, navigate);
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission
+  };
   
   return (
     <div className="searchbar-container relative">
       <form onSubmit={handleSubmit}>
+        {/* Search input is where the autocomplete UI is rendered and will need associated props */}
         <SearchInput
-            handleSubmit={useInputHandlers.handleSubmit}
-            handleSuggestionClick={useInputHandlers.handleSuggestionClick}
-            handleFocus={useInputHandlers.handleFocus}
-            handleBlur={useInputHandlers.handleBlur}
-            handleKeyDown={useInputHandlers.handleKeyDown}
-
-            isLoggedIn={isLoggedIn}
-            userEmail={userEmail}
-
-            inputRef={inputRef}
-            inlinePrediction={inlinePrediction}
-            setInlinePrediction={setInlinePrediction}
-
-            minCharsForAutofill={minCharsForAutofill}
-            navigate={navigate}
+          // userEmail={userEmail}
+          searchTerm={searchTerm}
+          suggestions={suggestions}
+          loading={loading}
+          autocompleteProps={autocompleteProps}
         />
-
-        {/* Search History Suggestions */}
-        {/* {isLoggedIn && (
-          <SearchHistorySuggestions
-            userEmail={userEmail}
-            isVisible={isExpanded}
-            onSuggestionClick={handleSuggestionClick}
-          />
-        )} */}
-
-        <button className="home__search" type="submit">
-          Search
-        </button>
       </form>
     </div>
   );
-};
-
-export default Input;
+}

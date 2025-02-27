@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import useTrackSearch from "./useTrackSearch";
+// import { trackSearch } from "./useTracksearch";
+// import useTrackSearch from "./useTracksearch";
 // Custom hook for debouncing input value changes
 const useFetchSuggestions = (debouncedInputValue, searchSuggestions, userEmail, isLoggedIn) => {
   const [filteredSuggestions, setFilteredSuggestions] = useState(Object.keys(searchSuggestions));
@@ -13,6 +14,8 @@ const useFetchSuggestions = (debouncedInputValue, searchSuggestions, userEmail, 
         // setInlinePrediction("");
         return;
       }
+      
+      trackSearch(debouncedInputValue, null, null);
       
       // TODO: Search
       // Track search for each keystroke
@@ -71,7 +74,7 @@ const useFetchSuggestions = (debouncedInputValue, searchSuggestions, userEmail, 
       if (filtered.length === 0) {
         try {
           const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
-          trackSearch(debouncedInputValue);
+          trackSearch(debouncedInputValue, null, null);
           if (data.data && data.data.length > 0) {
             setFilteredSuggestions(data.data);
             const apiPrediction = findInlinePrediction(debouncedInputValue, data.data);

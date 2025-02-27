@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 // Custom hook for debouncing input value changes
-const useDebounce = (value, delay) => {
-    const [debouncedValue, setDebouncedValue] = useState(value);
+const useDebounce = (inputValue, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(inputValue);
 
     useEffect(() => {
       const timer = setTimeout(() => {
-        setDebouncedValue(value);
+        setDebouncedValue(inputValue);
       }, delay);
 
       return () => {
         clearTimeout(timer);
       };
-    }, [value, delay]);
+    }, [inputValue, delay]);
 
   return debouncedValue;
 };
