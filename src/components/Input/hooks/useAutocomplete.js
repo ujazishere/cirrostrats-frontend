@@ -23,16 +23,60 @@ export default function useAutocomplete(suggestions, searchTerm, setSearchTerm, 
   };
   
   // const handleInputChange = (event) => useInputHandlers.handleInputChange(event, searchTerm, suggestions, setSearchTerm, navigate);
-  
+
   const handleFocus = () => {
+    // setIsExpanded(true);
     setOpen(searchTerm.length > 0);
+    console.log("handleFocus open", open);
+    const elements = {
+      navbar: ".navbar",
+      searchbar: ".searchbar-container",
+      title: ".home__title",
+      googleButton: ".google-button",
+      utcContainer: ".utc__container"
+    };
+    Object.entries(elements).forEach(([key, selector]) => {
+      const element = document.querySelector(selector);
+      if (element) {
+        if (key === "searchbar") {
+          element.classList.add("expanded");
+        } else {
+          element.classList.add("hidden");
+        }
+      }
+    });
   };
-  
-  const handleBlur = () => {
+
+  const handleBlur = (event) => {
     // Small delay to allow click events on options to fire first
+    console.log("handleBlur open", open);
     setTimeout(() => setOpen(false), 100);
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setTimeout(() => {
+        // setIsExpanded(false);
+        const elements = {
+          navbar: ".navbar",
+          searchbar: ".searchbar-container",
+          title: ".home__title",
+          googleButton: ".google-button",
+          utcContainer: ".utc__container"
+        };
+
+        Object.entries(elements).forEach(([key, selector]) => {
+          const element = document.querySelector(selector);
+          if (element) {
+            if (key === "searchbar") {
+              element.classList.remove("expanded");
+            } else {
+              element.classList.remove("hidden");
+            }
+          }
+        });
+      }, 300);
+    }
   };
-  
+
+
   return {
     open,
     setOpen,

@@ -441,17 +441,50 @@ const Input = ({ userEmail, isLoggedIn }) => {
               </li>
             );
           }}
+          // Custom message when no options match user input
           noOptionsText="Where are you flying to?"
+          
+          // Custom filtering function (identity function disables filtering)
           filterOptions={(x) => x}
+          
+          // Hide clear button
           disableClearable
+          
+          // Hide popup icon (dropdown arrow)
           forcePopupIcon={false}
+          
+          // Allow free text input (not just select from options)
           freeSolo
+          
+          // Automatically select input text when focused
           selectOnFocus
+          
+          // Prevent clearing input on blur
           clearOnBlur={false}
+          
+          // Enable Home/End key navigation
           handleHomeEndKeys
+          
+          // Custom focus event handler
           onFocus={handleFocus}
+          
+          // Custom blur event handler
           onBlur={handleBlur}
+          
+          // Render popup inline (instead of portal)
           disablePortal
+
+          // noOptionsText="Where are you flying to?"
+          // filterOptions={(x) => x}
+          // disableClearable
+          // forcePopupIcon={false}
+          // freeSolo
+          // selectOnFocus
+          // clearOnBlur={false}
+          // handleHomeEndKeys
+          // onFocus={handleFocus}
+          // onBlur={handleBlur}
+          // disablePortal
         />
 
         {/* Search History Suggestions */}

@@ -53,7 +53,7 @@ export default function SearchInput({
   
   return (
     <Autocomplete
-      open={true}     // Controls whether the Autocomplete dropdown is open or closed
+      open={open}     // Controls whether the Autocomplete dropdown is open or closed
       options={suggestions} // list of filtered dropdown items
       value={selectedValue}
       inputValue={inputValue}       // The current text input value in the Autocomplete
