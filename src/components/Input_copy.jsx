@@ -76,6 +76,30 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
+  // Track search keystroke
+  const trackSearch = async (searchTerm, submitTerm = null, searchId = null) => {
+    // if dev mode is enabled, don't track search
+    if (import.meta.env.VITE_ENV === "dev") return;
+    // Generate a timestamp
+    const timestamp = new Date().toISOString();
+
+    // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
+    const emailToTrack = isLoggedIn && userEmail ? userEmail : "Anonymous";
+    
+    try {
+      // Send the search track to the backend
+      await axios.post(`${apiUrl}/searches/track`, {
+        email: emailToTrack,
+        searchTerm,
+        submitTerm: submitTerm || null,
+        searchId: searchId || null,
+        timestamp,
+      });
+    } catch (error) {
+      console.error("Error sending search track to backend:", error);
+    }
+  };
+
   // Custom hook for debouncing input value changes
   const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -166,7 +190,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
       }
 
       // Track search for each keystroke
-      trackSearch(debouncedInputValue);
+      trackSearch(debouncedInputValue, null, null);
 
       const lowercaseInputValue = debouncedInputValue.toLowerCase();
 
@@ -232,29 +256,6 @@ const Input = ({ userEmail, isLoggedIn }) => {
     fetchSuggestions();
   }, [debouncedInputValue, airports, flightNumbers, gates, userEmail, isLoggedIn]);
 
-  // Track search keystroke
-  const trackSearch = async (searchTerm, submitTerm = null) => {
-    // if dev mode is enabled, don't track search
-    if (import.meta.env.VITE_ENV === "dev") return;
-    // Generate a timestamp
-    const timestamp = new Date().toISOString();
-
-    // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
-    const emailToTrack = isLoggedIn && userEmail ? userEmail : "Anonymous";
-    
-    try {
-      // Send the search track to the backend
-      await axios.post(`${apiUrl}/searches/track`, {
-        email: emailToTrack,
-        searchTerm,
-        submitTerm: submitTerm || null,
-        timestamp,
-      });
-    } catch (error) {
-      console.error("Error sending search track to backend:", error);
-    }
-  };
-
   const isUniqueMatch = (input, suggestions) => {
     const matchingSuggestions = suggestions.filter(suggestion => 
       suggestion.label.toLowerCase().startsWith(input.toLowerCase())
@@ -282,7 +283,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
-    trackSearch(inputValue, searchValue.label);
+    trackSearch(inputValue, searchValue.label, searchValue.id ? searchValue.id : null);
     navigate("/details", { state: { searchValue } });
   };
 
@@ -369,16 +370,6 @@ const Input = ({ userEmail, isLoggedIn }) => {
           options={filteredSuggestions} // list of filtered dropdown items
           value={selectedValue}
           inputValue={inputValue}       // The current text input value in the Autocomplete
-          onChange={(event, newValue) => {
-            // This function is called when the user selects a value from the dropdown
-            setSelectedValue(newValue);
-            if (newValue) {
-              setInputValue(newValue.label);
-              trackSearch(inputValue, newValue.label);
-              navigate("/details", { state: { searchValue: newValue } });
-            }
-            setIsExpanded(false);
-          }}
           onInputChange={(event, newInputValue) => {
             // This function is called whenever the input text changes
             setInputValue(newInputValue);
@@ -386,6 +377,16 @@ const Input = ({ userEmail, isLoggedIn }) => {
               setSelectedValue(null);
             }
             setIsExpanded(true);
+          }}
+          onChange={(event, newValue) => {
+            // This function is called when the user selects a value from the dropdown
+            setSelectedValue(newValue);
+            if (newValue) {
+              setInputValue(newValue.label);
+              trackSearch(newValue.label, newValue.label, newValue.id ? newValue.id : null);
+              navigate("/details", { state: { searchValue: newValue } });
+            }
+            setIsExpanded(false);
           }}
           className="home__input"
           getOptionLabel={(option) => option.label || ""}

@@ -220,147 +220,105 @@
 
 
 /* Flight Details Card Styles */
+/* Flight Details Card Styles */
 .flight-details-card {
-  background-color: #ffffff;
-  border-radius: 5px;
-  padding: 16px;
-  color: #2d333b;
-  margin-bottom: 20px;
-  width: 100%;
-  overflow: auto;
-  border: 1px solid #000000;
-  font-family: sans-serif;
-  font-weight: 1000;
-  border-width: 1px;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
 .flight-number {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  justify-content: center;
+  margin-bottom: 1rem;
 }
 
 .flight-number-text {
-  font-size: 20px;
-  font-weight: 500;
-  color: #2d333b;
+  font-size: 1.25rem;
+  font-weight: 700;
   margin: 0;
-  white-space: nowrap;
 }
 
 .aircraft-number {
-  color: #8e8e93;
-  font-size: 14px;
-  white-space: nowrap;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-left: 0.5rem;
 }
 
 .flight-info-container {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
   position: relative;
-  gap: 4px;
+  padding: 0.5rem 0;
 }
+
 
 .airport-section {
   flex: 1;
-  min-width: 100px;
-  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .airport-code {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #2d333b;
-  margin-bottom: 4px;
-  white-space: nowrap;
-}
-
-.airport-name {
-  color: #8e8e93;
-  font-size: 12px;
-  margin-bottom: 16px;
-  white-space: nowrap;
-}
-
-.info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  text-align: center;
+  margin-bottom: 0.25rem;
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  margin-bottom: 0.25rem;
+  width: 100%;
 }
 
 .info-label {
-  color: #2d333b;
-  font-size: 11px;
-  white-space: nowrap;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
 }
 
-.info-value {
-  color: #2d333b;
-  font-size: 14px;
-  white-space: nowrap;
+.info-value, .time-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
 }
 
 .time-value {
-  color: #34c759;
-  font-size: 14px;
-  white-space: nowrap;
+  font-weight: 600;
 }
 
-.flight-path {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 4px;
-  position: relative;
-  margin-top: 48px;
-  flex: 0 0 auto;
-  width: 60px;
-  min-width: 60px;
+.info-grid {
 }
 
-.duration {
-  color: #8e8e93;
-  font-size: 11px;
-  margin-bottom: 8px;
-  position: absolute;
-  top: -24px;
-  white-space: nowrap;
+/* For screens larger than mobile */
+@media (min-width: 640px) {
+  .flight-info-container::before {
+    left: 30%;
+    right: 30%;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.path-line {
-  width: 100%;
-  height: 2px;
-  background-color: #3a3a3c;
-  margin: 8px 0;
-}
 
-.airplane-icon {
-  color: #34c759;
-  font-size: 16px;
-  transform: rotate(90deg);
-  margin-top: 6px;
-}
 
-.status-banner {
-  display: inline-block;
-  background-color: rgba(52, 199, 89, 0.2);
-  color: #34c759;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-}
+
+
+
+
+
+
+
+
+
 
 /* Weather Text Highlights */
 .pink_text_color {
@@ -502,7 +460,7 @@
   position: relative;
   top: 10px;
   overflow: hidden;
-  background: #ffffff;
+  background: #F3F4F6;
 }
 
 .table-container,
@@ -606,7 +564,7 @@ table .skeleton-loader {
   position: fixed;
   width: 100%;
   z-index: 999;
-  background-color: white; /* Ensure the background is the same as your app's background */
+  background-color: #F3F4F6; /* Ensure the background is the same as your app's background */
   transition: top 0.3s, opacity 0.3s;
 }
 
@@ -704,6 +662,7 @@ table .skeleton-loader {
 body,
 html {
   font-family: "Roboto", sans-serif;
+  background-color: #F3F4F6;
 }
 .App {
   position: relative;
@@ -1266,6 +1225,7 @@ form {
   margin: 0 auto;
   width: 100%;
   margin-top: 2em;
+  
 }
 .table__title {
   font-size: 2rem;
@@ -1282,6 +1242,7 @@ form {
   box-shadow: 0 0 0 2px #474350;
   color: #ffffff;
   background: #2d333b;
+  
 }
 
 .table__header {
