@@ -17,6 +17,7 @@ export default function SearchInput({
   loading,
   autocompleteProps
 }) {
+
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
@@ -25,30 +26,15 @@ export default function SearchInput({
   // const { filteredSuggestions} = useFetchSuggestions(debouncedInputValue, searchSuggestions, userEmail, isLoggedIn);
   const { 
     open, 
-    setOpen,
-    selectedOption, 
-    handleOptionSelect, 
-    // handleInputChange,
+    handleSubmit,
+    handleInputChange,
+    handleSuggestionClick,
     handleFocus,
-    handleBlur
+    handleBlur,
+    handleKeyDown,
+    handleOptionSelect, 
   } = autocompleteProps;
 
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Tab' && inlinePrediction) {
-      event.preventDefault();
-      const newValue = inputValue + inlinePrediction;
-      setInputValue(newValue);
-      
-      const matchingSuggestion = filteredSuggestions.find(
-        suggestion => suggestion.label.toLowerCase() === newValue.toLowerCase()
-      );
-      
-      if (matchingSuggestion) {
-        setSelectedValue(matchingSuggestion);
-      }
-    }
-  };
 
   
   return (
@@ -57,6 +43,16 @@ export default function SearchInput({
       options={suggestions} // list of filtered dropdown items
       value={selectedValue}
       inputValue={inputValue}       // The current text input value in the Autocomplete
+      
+      // This function is called whenever the input text changes
+      onInputChange={(event, newInputValue) => {
+        console.log("new input value:", newInputValue);
+        setInputValue(newInputValue);
+        if (!newInputValue) {
+          setSelectedValue(null);
+        }
+        // setIsExpanded(true);
+      }}
       onChange={(event, newValue) => {
         // This function is called when the user selects a value from the dropdown
         setSelectedValue(newValue);
@@ -66,14 +62,6 @@ export default function SearchInput({
           navigate("/details", { state: { searchValue: newValue } });
         }
         // setIsExpanded(false);
-      }}
-      onInputChange={(event, newInputValue) => {
-        // This function is called whenever the input text changes
-        setInputValue(newInputValue);
-        if (!newInputValue) {
-          setSelectedValue(null);
-        }
-        // setIsExpanded(true);
       }}
 
       // open={open}

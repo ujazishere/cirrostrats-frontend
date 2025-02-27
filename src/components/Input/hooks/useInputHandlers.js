@@ -6,6 +6,8 @@ const useInputHandlers = (searchTerm) => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState(searchTerm);
   const [selectedValue, setSelectedValue] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
   
   const handleInputChange = (event) => {
     setSelectedValue(newValue);
@@ -38,7 +40,10 @@ const useInputHandlers = (searchTerm) => {
   };
 
   const handleFocus = () => {
-    setIsExpanded(true);
+    // setIsExpanded(true);
+    setOpen(searchTerm.length > 0);
+    setOpen(true);
+    console.log("handleFocus open", open);
     const elements = {
       navbar: ".navbar",
       searchbar: ".searchbar-container",
@@ -46,7 +51,6 @@ const useInputHandlers = (searchTerm) => {
       googleButton: ".google-button",
       utcContainer: ".utc__container"
     };
-
     Object.entries(elements).forEach(([key, selector]) => {
       const element = document.querySelector(selector);
       if (element) {
@@ -60,9 +64,12 @@ const useInputHandlers = (searchTerm) => {
   };
 
   const handleBlur = (event) => {
+    // Small delay to allow click events on options to fire first
+    console.log("handleBlur open", open);
+    setTimeout(() => setOpen(false), 100);
     if (!event.currentTarget.contains(event.relatedTarget)) {
       setTimeout(() => {
-        setIsExpanded(false);
+        // setIsExpanded(false);
         const elements = {
           navbar: ".navbar",
           searchbar: ".searchbar-container",
@@ -101,12 +108,33 @@ const useInputHandlers = (searchTerm) => {
     }
   };
 
-  return {handleSubmit,
+
+  const handleOptionSelect = (option) => {
+    setSelectedOption(option);
+    setSearchTerm(option?.label || "");
+    setOpen(false);
+    
+    // Handle navigation based on selection type
+    if (option) {
+      if (option.type === 'Airport') {
+        navigate(`/airport/${option.id}`);
+      } else if (option.type === 'Flight') {
+        navigate(`/flight/${option.id}`);
+      } else if (option.type === 'Gate') {
+        navigate(`/gate/${option.id}`);
+      }
+    }
+  };
+
+  return {
+          open,
+          handleSubmit,
           handleInputChange,
           handleSuggestionClick,
           handleFocus,
           handleBlur,
           handleKeyDown,
+          handleOptionSelect
   };
 };
 
