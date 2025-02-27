@@ -3,21 +3,20 @@ import React, { useRef } from "react";
 import SearchInput from "./components/SearchInput";
 import useSearch from "./hooks/useSearch";
 import useAutocomplete from "./hooks/useAutocomplete";
+import useInputHandlers from "./hooks/useInputHandlers";
 import { useNavigate } from "react-router-dom";
-export default function Input({ userEmail, isLoggedIn }) {
+export default function Input({ userEmail, isLoggedIn,}) {
   const navigate = useNavigate();
   // const inputRef = useRef(null);
   
   // Centralized search logic
-  const { searchTerm, setSearchTerm, suggestions, loading } = useSearch(userEmail, isLoggedIn);
+  const { searchTerm, suggestions, loading } = useSearch(userEmail, isLoggedIn, );
+  // console.log('search', searchTerm, suggestions, loading);
   
   // Autocomplete UI behavior
-  const autocompleteProps = useAutocomplete(suggestions, searchTerm, setSearchTerm, navigate);
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission
-  };
+  const autocompleteProps = useAutocomplete(suggestions, searchTerm, navigate);
+  const { handleSubmit } = useInputHandlers(searchTerm);
+  // console.log('',handleSubmit);
   
   return (
     <div className="searchbar-container relative">
@@ -30,6 +29,9 @@ export default function Input({ userEmail, isLoggedIn }) {
           loading={loading}
           autocompleteProps={autocompleteProps}
         />
+        <button className="home__search" type="submit">
+          Search
+        </button>
       </form>
     </div>
   );

@@ -1,6 +1,6 @@
 // hooks/useAutocomplete.js
 import { useState } from "react";
-
+import useInputHandlers from "./useInputHandlers";
 export default function useAutocomplete(suggestions, searchTerm, setSearchTerm, navigate) {
   const [open, setOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -22,10 +22,7 @@ export default function useAutocomplete(suggestions, searchTerm, setSearchTerm, 
     }
   };
   
-  const handleInputChange = (event, newValue) => {
-    setSearchTerm(newValue);
-    setOpen(newValue.length > 0);
-  };
+  // const handleInputChange = (event) => useInputHandlers.handleInputChange(event, searchTerm, suggestions, setSearchTerm, navigate);
   
   const handleFocus = () => {
     setOpen(searchTerm.length > 0);
@@ -41,7 +38,7 @@ export default function useAutocomplete(suggestions, searchTerm, setSearchTerm, 
     setOpen,
     selectedOption,
     handleOptionSelect,
-    handleInputChange,
+    // handleInputChange,
     handleFocus,
     handleBlur
   };

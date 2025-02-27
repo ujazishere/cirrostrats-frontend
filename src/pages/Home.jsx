@@ -24,15 +24,6 @@ const Home = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-      // console.log("Fetching suggestions for:", debouncedSearchTerm);
-        const {searchSuggestions} = await searchService.fetchMostSearched(userEmail);
-        setSuggestions(searchSuggestions);
-    };
-    
-    fetchAllData();
-  }, [userEmail]);
 
   const googleLogin = useGoogleLogin({
     scope: "openid profile email",

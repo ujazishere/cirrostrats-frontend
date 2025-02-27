@@ -1,14 +1,28 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // hooks/useInputHandlers.js
-const useInputHandlers = (trackSearch) => {
+const useInputHandlers = (searchTerm) => {
+  const navigate = useNavigate();
+  const [inputValue, setInputValue] = useState(searchTerm);
+  const [selectedValue, setSelectedValue] = useState(null);
   
+  const handleInputChange = (event) => {
+    setSelectedValue(newValue);
+    if (newValue) {
+      setInputValue(newValue.label);
+      trackSearch(inputValue, newValue.label);
+      navigate("/details", { state: { searchValue: newValue } });
+    }
+    setIsExpanded(false);
+    
+  }
   // Other handlers...
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
+    print('searchValue', searchTerm);
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
-    print('searchValue', searchValue);
-    trackSearch(inputValue, searchValue.label);
+    // trackSearch(inputValue, searchValue.label);
     navigate("/details", { state: { searchValue } });
   };
 
@@ -87,11 +101,12 @@ const useInputHandlers = (trackSearch) => {
     }
   };
 
-  return { handleSubmit,
-           handleSuggestionClick,
-           handleFocus,
-           handleBlur,
-           handleKeyDown
+  return {handleSubmit,
+          handleInputChange,
+          handleSuggestionClick,
+          handleFocus,
+          handleBlur,
+          handleKeyDown,
   };
 };
 
