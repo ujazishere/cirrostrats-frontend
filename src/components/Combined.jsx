@@ -37,6 +37,7 @@ const highlightWeatherText = (text) => {
     .replace(altimeterPattern, '<span class="box_around_text">$1</span>');
 };
 
+
 /**
  * Component to display weather information including D-ATIS, METAR, and TAF
  * @param {Object} props
@@ -48,6 +49,23 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
   const datis = weatherDetails?.datis;
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;
+
+
+// section 1 - SUMMARY BOX //
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <div className="card">
@@ -241,8 +259,13 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
   }, []);
 
   return (
+
+
     <div className="details">
       {/* Flight Overview Section */}
+
+      
+
       <div className="flight-details-card">
         <div className="flight-number">
           <h2 className="flight-number-text">{flightDetails?.flight_number}</h2>
@@ -273,11 +296,6 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
             </div>
           </div>
 
-          {/* Flight Path Visualization */}
-          <div className="flight-path">
-            <div className="airplane-icon"></div>
-          </div>
-
           {/* Destination Airport Information */}
           <div className="airport-section">
             <div className="airport-code">{flightDetails?.destination_ID}</div>
@@ -301,6 +319,9 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
           </div>
         </div>
       </div>
+
+
+
 
       {/* Departure Weather Section */}
       <div id="departure-section" className="table-container">
