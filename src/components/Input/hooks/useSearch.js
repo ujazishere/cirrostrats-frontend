@@ -16,10 +16,12 @@ export default function useSearch(userEmail, isLoggedIn) {
       // console.log("Fetching suggestions for:", debouncedSearchTerm);
       const searchSuggestions = await searchService.fetchMostSearched(userEmail);
       // console.log("fetchMostSearched",searchSuggestions);
+      // console.log("fetchMostSearched",searchSuggestions);
       const formattedSuggestions = Object.keys(searchSuggestions).map(key => ({
         id: key,
         label: key,
         type: searchSuggestions[key].id ? 'Airport' : 'Terminal/Gate', // Optional
+        mdb: searchSuggestions[key].id,
         count: searchSuggestions[key].count, // Optional
         fuzzyFind: searchSuggestions[key].fuzzyFind // Optional (if available)
       }));

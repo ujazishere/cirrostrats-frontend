@@ -17,8 +17,10 @@ export default function SearchInput({
   loading,
   autocompleteProps
 }) {
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
+  const inputRef = useRef(null);
   // const { searchSuggestions, isFetched, isLoading } = useFetchData(userEmail);
   // const { filteredSuggestions} = useFetchSuggestions(debouncedInputValue, searchSuggestions, userEmail, isLoggedIn);
   const { 
@@ -30,56 +32,49 @@ export default function SearchInput({
     handleFocus,
     handleBlur
   } = autocompleteProps;
+
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Tab' && inlinePrediction) {
+      event.preventDefault();
+      const newValue = inputValue + inlinePrediction;
+      setInputValue(newValue);
+      
+      const matchingSuggestion = filteredSuggestions.find(
+        suggestion => suggestion.label.toLowerCase() === newValue.toLowerCase()
+      );
+      
+      if (matchingSuggestion) {
+        setSelectedValue(matchingSuggestion);
+      }
+    }
+  };
+
   
   return (
     <Autocomplete
-          open={true}     // Controls whether the Autocomplete dropdown is open or closed
-          options={suggestions} // list of filtered dropdown items
-          value={selectedValue}
-          inputValue={inputValue}       // The current text input value in the Autocomplete
-          onChange={(event, newValue) => {
-            // This function is called when the user selects a value from the dropdown
-            setSelectedValue(newValue);
-            if (newValue) {
-              setInputValue(newValue.label);
-              // trackSearch(inputValue, newValue.label);
-              // navigate("/details", { state: { searchValue: newValue } });
-            }
-            setIsExpanded(false);
-          }}
-          onInputChange={(event, newInputValue) => {
-            // This function is called whenever the input text changes
-            setInputValue(newInputValue);
-            if (!newInputValue) {
-              setSelectedValue(null);
-            }
-            setIsExpanded(true);
-          }}
-      // open={true}     // controls whether the autocomplete dropdown is open or closed
-      // options={filteredsuggestions} // list of filtered dropdown items
-      // value={selectedsuggestion}
-      // inputvalue={searchvalue}       // the current text input value in the autocomplete
-      // onInputChange={(event, newsearchvalue) => {
-      //   // this function is called whenever the input text changes
-      //   setsearchvalue(newsearchvalue);
-      //   if (!newsearchvalue) {
-      //     setselectedsuggestion(null);
-      //   }
-      //   setissuggestionslistvisible(true);
-      // }}
-
-      // onchange={(event, newsuggestion) => {
-      //   // this function is called when the user selects a value from the dropdown
-      //   console.log("new suggestion:", newSuggestion)
-      //   setSelectedSuggestion(newSuggestion);
-      //   if (newSuggestion) {
-      //     setSearchValue(newSuggestion.label);
-      //     navigate("/details", { state: { searchValue: newSuggestion } });
-      //   }
-      //   setIsSuggestionsListVisible(false);
-      // }}
-
-
+      open={true}     // Controls whether the Autocomplete dropdown is open or closed
+      options={suggestions} // list of filtered dropdown items
+      value={selectedValue}
+      inputValue={inputValue}       // The current text input value in the Autocomplete
+      onChange={(event, newValue) => {
+        // This function is called when the user selects a value from the dropdown
+        setSelectedValue(newValue);
+        if (newValue) {
+          setInputValue(newValue.label);
+          // trackSearch(inputValue, newValue.label);
+          navigate("/details", { state: { searchValue: newValue } });
+        }
+        // setIsExpanded(false);
+      }}
+      onInputChange={(event, newInputValue) => {
+        // This function is called whenever the input text changes
+        setInputValue(newInputValue);
+        if (!newInputValue) {
+          setSelectedValue(null);
+        }
+        // setIsExpanded(true);
+      }}
 
       // open={open}
       // // loading={filteredSuggestions}
@@ -100,27 +95,98 @@ export default function SearchInput({
 
 
 
-      groupBy={(option) => option.type}
       className="home__input"
       getOptionLabel={(option) => option.label || ""}
       renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Try searching a gate in newark. Eg. 71x"
-          placeholder="Search airports, flights, or gates..."
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          fullWidth
-        />
+        <div style={{ position: 'relative' }}>
+          <TextField
+            {...params}
+            inputRef={inputRef}
+            label="Try searching a gate in newark. Eg. 71x"
+            margin="normal"
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: null,
+              onKeyDown: handleKeyDown,
+            }}
+          />
+          {/* {inlinePrediction && (
+            <div
+              style={{
+                position: 'absolute',
+                left: params.InputProps.startAdornment ? 'auto' : '14px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#999',
+                pointerEvents: 'none',
+                whiteSpace: 'pre',
+              }}
+            >
+              <span style={{ visibility: 'hidden' }}>{inputValue}</span>
+              <span>{inlinePrediction}</span>
+            </div>
+          )} */}
+        </div>
       )}
-      renderOption={(props, option) => (
-        <li {...props}>
-          <div className="flex items-center justify-between w-full">
-            <span>{option.label}</span>
-            <span className="text-gray-500 text-sm">{option.type}</span>
-          </div>
-        </li>
-      )}
+      renderOption={(props, option, { inputValue }) => {
+        const matches = match(option.label, inputValue, { insideWords: true });
+        const parts = parse(option.label, matches);
+        return (
+          <li {...props}>
+            <div>
+              {parts.map((part, index) => (
+                <span
+                  key={index}
+                  style={{
+                    fontWeight: part.highlight ? 700 : 400,
+                  }}
+                >
+                  {part.text}
+                </span>
+              ))}
+            </div>
+          </li>
+        );
+      }}
+      noOptionsText="Where are you flying to?"
+      filterOptions={(x) => x}
+      disableClearable
+      forcePopupIcon={false}
+      freeSolo
+      selectOnFocus
+      clearOnBlur={false}
+      handleHomeEndKeys
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      disablePortal
     />
+
+
+
+
+
+
+    //   groupBy={(option) => option.type}
+    //   className="home__input"
+    //   getOptionLabel={(option) => option.label || ""}
+    //   renderInput={(params) => (
+    //     <TextField
+    //       {...params}
+    //       label="Try searching a gate in newark. Eg. 71x"
+    //       placeholder="Search airports, flights, or gates..."
+    //       onFocus={handleFocus}
+    //       onBlur={handleBlur}
+    //       fullWidth
+    //     />
+    //   )}
+    //   renderOption={(props, option) => (
+    //     <li {...props}>
+    //       <div className="flex items-center justify-between w-full">
+    //         <span>{option.label}</span>
+    //         <span className="text-gray-500 text-sm">{option.type}</span>
+    //       </div>
+    //     </li>
+    //   )}
+    // />
   );
 }

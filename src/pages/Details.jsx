@@ -108,17 +108,16 @@ const Details = () => {
           setWeatherResponse(res.data);
           setNasResponse(res.data);
 
-        } else if (searchValue?.type === "airport") {
+        } else if (searchValue?.type === "Airport") {
           // search query is an airport and returns airport weather component
-          const res = await axios.get(`${apiUrl}/airport/${searchValue.id}`);
+          const res = await axios.get(`${apiUrl}/airport/${searchValue.mdb}`);
           setAirportWx(res.data);
           setLoadingWeather(false);
 
-        } else if (searchValue?.type === "gate") {
+        } else if (searchValue?.type === "Terminal/Gate") {
           // search query is a gate type and returns airport weather component
           const res = await axios.get(`${apiUrl}/gates`);
           setGateData(res.data);
-          setLoadingWeather(false);
 
         } else if (searchValue?.type === "flightNumber" || searchValue) {
           // search query is a flight number - fetches flight data using flight number and serves FlightCard component
@@ -164,7 +163,7 @@ const Details = () => {
     return (
       <>
         {airportWx && <WeatherCard title="Airport Weather" weatherDetails={airportWx} />}
-        {gateData && <GateCard gateData={searchValue} />}
+        {gateData && <GateCard gateData={searchValue.id} />}
         {flightData && (
           <FlightCard
             flightDetails={flightData}
