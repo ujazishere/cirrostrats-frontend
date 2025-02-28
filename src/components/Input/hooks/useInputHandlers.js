@@ -9,14 +9,16 @@ const useInputHandlers = (searchTerm) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [open, setOpen] = useState(false);
   
-  const handleInputChange = (event) => {
-    setSelectedValue(newValue);
-    if (newValue) {
-      setInputValue(newValue.label);
-      trackSearch(inputValue, newValue.label);
-      navigate("/details", { state: { searchValue: newValue } });
-    }
-    setIsExpanded(false);
+  const handleInputChange = (event,newInputValue) => {
+    console.log('newInputValue', newInputValue);
+    setInputValue(newInputValue);
+    // setSelectedValue(newInputValue);
+    // if (!newInputValue) {
+    //   setInputValue(newInputValue.label);
+    //   // trackSearch(inputValue, newInputValue.label);
+    //   navigate("/details", { state: { searchValue: newInputValue } });
+    // }
+    // setIsExpanded(false);
     
   }
   // Other handlers...
@@ -41,7 +43,7 @@ const useInputHandlers = (searchTerm) => {
 
   const handleFocus = () => {
     // setIsExpanded(true);
-    setOpen(searchTerm.length > 0);
+    // setOpen(searchTerm.length > 0);
     setOpen(true);
     console.log("handleFocus open", open);
     const elements = {
@@ -92,14 +94,15 @@ const useInputHandlers = (searchTerm) => {
     }
   };
 
+  // This will be called when the user presses the Tab key -- works with inlinePrediction
   const handleKeyDown = (event) => {
     if (event.key === 'Tab' && inlinePrediction) {
       event.preventDefault();
-      const newValue = inputValue + inlinePrediction;
-      setInputValue(newValue);
+      const newInputValue = inputValue + inlinePrediction;
+      setInputValue(newInputValue);
       
       const matchingSuggestion = filteredSuggestions.find(
-        suggestion => suggestion.label.toLowerCase() === newValue.toLowerCase()
+        suggestion => suggestion.label.toLowerCase() === newInputValue.toLowerCase()
       );
       
       if (matchingSuggestion) {
@@ -128,6 +131,8 @@ const useInputHandlers = (searchTerm) => {
 
   return {
           open,
+          selectedValue,
+          inputValue,
           handleSubmit,
           handleInputChange,
           handleSuggestionClick,

@@ -15,7 +15,6 @@ export default function useAutocomplete(suggestions, searchTerm, setSearchTerm, 
     handleKeyDown,
     handleOptionSelect
   } = useInputHandlers(searchTerm);
-  console.log('open', open);
 
   
   // const handleInputChange = (event) => useInputHandlers.handleInputChange(event, searchTerm, suggestions, setSearchTerm, navigate);

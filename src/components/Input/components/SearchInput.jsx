@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 // import { trackSearch} from "../hooks/useTracksearch";
+import useInputHandlers from "../hooks/useInputHandlers";
 import useDebounce from "../hooks/useDebounce";
 import useFetchData from "../hooks/useFetchData";
 import useFetchSuggestions from "../hooks/useFetchSuggestions";
@@ -15,28 +16,26 @@ export default function SearchInput({
   searchTerm,
   suggestions,
   loading,
-  autocompleteProps
+  // autocompleteProps
 }) {
 
   const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState("");
-  const [selectedValue, setSelectedValue] = useState(null);
+  // const [inputValue, setInputValue] = useState("");
+  // const [selectedValue, setSelectedValue] = useState(null);
   const inputRef = useRef(null);
   // const { searchSuggestions, isFetched, isLoading } = useFetchData(userEmail);
   // const { filteredSuggestions} = useFetchSuggestions(debouncedInputValue, searchSuggestions, userEmail, isLoggedIn);
-  const { 
-    open, 
-    handleSubmit,
+
+  const {
+    open,
+    selectedValue,
+    inputValue,
     handleInputChange,
-    handleSuggestionClick,
     handleFocus,
     handleBlur,
     handleKeyDown,
-    handleOptionSelect, 
-  } = autocompleteProps;
+  } = useInputHandlers(searchTerm);
 
-
-  
   return (
     <Autocomplete
       open={open}     // Controls whether the Autocomplete dropdown is open or closed
@@ -45,14 +44,7 @@ export default function SearchInput({
       inputValue={inputValue}       // The current text input value in the Autocomplete
       
       // This function is called whenever the input text changes
-      onInputChange={(event, newInputValue) => {
-        console.log("new input value:", newInputValue);
-        setInputValue(newInputValue);
-        if (!newInputValue) {
-          setSelectedValue(null);
-        }
-        // setIsExpanded(true);
-      }}
+      onInputChange={handleInputChange}
       onChange={(event, newValue) => {
         // This function is called when the user selects a value from the dropdown
         setSelectedValue(newValue);

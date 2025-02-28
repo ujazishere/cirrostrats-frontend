@@ -2,7 +2,6 @@
 import React, { useRef } from "react";
 import SearchInput from "./components/SearchInput";
 import useSearch from "./hooks/useSearch";
-import useAutocomplete from "./hooks/useAutocomplete";
 import useInputHandlers from "./hooks/useInputHandlers";
 import { useNavigate } from "react-router-dom";
 export default function Input({ userEmail, isLoggedIn,}) {
@@ -13,8 +12,6 @@ export default function Input({ userEmail, isLoggedIn,}) {
   const { searchTerm, suggestions, loading } = useSearch(userEmail, isLoggedIn, );
   // console.log('search', searchTerm, suggestions, loading);
   
-  // Autocomplete UI behavior
-  const autocompleteProps = useAutocomplete(suggestions, searchTerm, navigate);
   const { handleSubmit } = useInputHandlers(searchTerm);
   // console.log('',handleSubmit);
   
@@ -27,7 +24,7 @@ export default function Input({ userEmail, isLoggedIn,}) {
           searchTerm={searchTerm}
           suggestions={suggestions}
           loading={loading}
-          autocompleteProps={autocompleteProps}
+          // autocompleteProps={autocompleteProps}
         />
         <button className="home__search" type="submit">
           Search
