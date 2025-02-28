@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "./useDebounce";
 import useFetchSuggestions from "./useFetchSuggestions";
 import useSearch from "./useSearch";
 
-
 /*
-These arethe input handlers.
-This file Manages UI interactions (click, submit, keyboard events)
+These are the input handlers.
+This file manages UI interactions (click, submit, keyboard events)
 */
 const useInputHandlers = (searchTerm) => {
   const navigate = useNavigate();
@@ -17,14 +16,12 @@ const useInputHandlers = (searchTerm) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [open, setOpen] = useState(false);
 
-  
-  
   const debouncedInputValue = useDebounce(inputValue, 300);
-  // const {suggestions} = useSearch(debouncedInputValue);
-  
+  // const { suggestions } = useSearch(debouncedInputValue);
+
   // const { filteredSuggestions } = useFetchSuggestions(debouncedInputValue, suggestions);
-  
-  const handleInputChange = (event,newInputValue) => {
+
+  const handleInputChange = (event, newInputValue) => {
     setInputValue(newInputValue);
     // if (debouncedInputValue >= 2) return;
     // setSelectedValue(newInputValue);
@@ -34,12 +31,13 @@ const useInputHandlers = (searchTerm) => {
     //   navigate("/details", { state: { searchValue: newInputValue } });
     // }
     // setIsExpanded(false);
-    
-  }
+  };
+
   // Other handlers...
   const handleSubmit = (e) => {
-    if (e) e.preventDefault();
-    print('handleSubmit searchTerm', searchTerm);
+    if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
+
+    console.log("handleSubmit searchTerm", searchTerm);
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
     // trackSearch(inputValue, searchValue.label);
     navigate("/details", { state: { searchValue } });
@@ -48,7 +46,7 @@ const useInputHandlers = (searchTerm) => {
   const handleSuggestionClick = (searchTerm) => {
     setInputValue(searchTerm);
     const matchingSuggestion = filteredSuggestions.find(
-      suggestion => suggestion.label.toLowerCase() === searchTerm.toLowerCase()
+      (suggestion) => suggestion.label.toLowerCase() === searchTerm.toLowerCase()
     );
     if (matchingSuggestion) {
       setSelectedValue(matchingSuggestion);
@@ -65,7 +63,7 @@ const useInputHandlers = (searchTerm) => {
       searchbar: ".searchbar-container",
       title: ".home__title",
       googleButton: ".google-button",
-      utcContainer: ".utc__container"
+      utcContainer: ".utc__container",
     };
     Object.entries(elements).forEach(([key, selector]) => {
       const element = document.querySelector(selector);
@@ -90,7 +88,7 @@ const useInputHandlers = (searchTerm) => {
           searchbar: ".searchbar-container",
           title: ".home__title",
           googleButton: ".google-button",
-          utcContainer: ".utc__container"
+          utcContainer: ".utc__container",
         };
 
         Object.entries(elements).forEach(([key, selector]) => {
@@ -109,53 +107,52 @@ const useInputHandlers = (searchTerm) => {
 
   // This will be called when the user presses the Tab key -- works with inlinePrediction
   const handleKeyDown = (event) => {
-    if (event.key === 'Tab' && inlinePrediction) {
+    if (event.key === "Tab" && inlinePrediction) {
       event.preventDefault();
       const newInputValue = inputValue + inlinePrediction;
       setInputValue(newInputValue);
-      
+
       const matchingSuggestion = filteredSuggestions.find(
-        suggestion => suggestion.label.toLowerCase() === newInputValue.toLowerCase()
+        (suggestion) => suggestion.label.toLowerCase() === newInputValue.toLowerCase()
       );
-      
+
       if (matchingSuggestion) {
         setSelectedValue(matchingSuggestion);
       }
     }
   };
 
-
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     setSearchTerm(option?.label || "");
     setOpen(false);
-    
+
     // Handle navigation based on selection type
     if (option) {
-      if (option.type === 'Airport') {
+      if (option.type === "Airport") {
         navigate(`/airport/${option.id}`);
-      } else if (option.type === 'Flight') {
+      } else if (option.type === "Flight") {
         navigate(`/flight/${option.id}`);
-      } else if (option.type === 'Gate') {
+      } else if (option.type === "Gate") {
         navigate(`/gate/${option.id}`);
       }
     }
   };
 
   return {
-          open,
-          selectedValue,
-          setSelectedValue,
-          inputValue,
-          setInputValue,
-          // filteredSuggestions,
-          handleSubmit,
-          handleInputChange,
-          handleSuggestionClick,
-          handleFocus,
-          handleBlur,
-          handleKeyDown,
-          handleOptionSelect
+    open,
+    selectedValue,
+    setSelectedValue,
+    inputValue,
+    setInputValue,
+    // filteredSuggestions,
+    handleSubmit,
+    handleInputChange,
+    handleSuggestionClick,
+    handleFocus,
+    handleBlur,
+    handleKeyDown,
+    handleOptionSelect,
   };
 };
 
