@@ -12,7 +12,7 @@ export default function Input({ userEmail, isLoggedIn,}) {
   const { searchTerm, suggestions, loading } = useSearch(userEmail, isLoggedIn, );
   // console.log('search', searchTerm, suggestions, loading);
   
-  const { handleSubmit } = useInputHandlers(searchTerm);
+  const { handleSubmit } = useInputHandlers(searchTerm,suggestions);
   // console.log('',handleSubmit);
   
   return (

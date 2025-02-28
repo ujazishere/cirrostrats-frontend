@@ -12,24 +12,20 @@ import useFetchSuggestions from "../hooks/useFetchSuggestions";
 
 // components/SearchInput.jsx
 export default function SearchInput({ 
-  // userEmail,
   searchTerm,
   suggestions,
   loading,
-  // autocompleteProps
 }) {
 
   const navigate = useNavigate();
-  // const [inputValue, setInputValue] = useState("");
-  // const [selectedValue, setSelectedValue] = useState(null);
   const inputRef = useRef(null);
-  // const { searchSuggestions, isFetched, isLoading } = useFetchData(userEmail);
-  // const { filteredSuggestions} = useFetchSuggestions(debouncedInputValue, searchSuggestions, userEmail, isLoggedIn);
 
   const {
     open,
     selectedValue,
+    setSelectedValue,
     inputValue,
+    setInputValue,
     handleInputChange,
     handleFocus,
     handleBlur,

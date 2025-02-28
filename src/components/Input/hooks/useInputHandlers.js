@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useDebounce from "./useDebounce";
+import useFetchSuggestions from "./useFetchSuggestions";
+import useSearch from "./useSearch";
 
-// hooks/useInputHandlers.js
+
+/*
+These arethe input handlers.
+This file Manages UI interactions (click, submit, keyboard events)
+*/
 const useInputHandlers = (searchTerm) => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState(searchTerm);
+  // const [filteredSuggestions, setFilteredSuggestions] = useState(suggestions);
   const [selectedValue, setSelectedValue] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [open, setOpen] = useState(false);
+
+  
+  
+  const debouncedInputValue = useDebounce(inputValue, 300);
+  // const {suggestions} = useSearch(debouncedInputValue);
+  
+  // const { filteredSuggestions } = useFetchSuggestions(debouncedInputValue, suggestions);
   
   const handleInputChange = (event,newInputValue) => {
-    console.log('newInputValue', newInputValue);
     setInputValue(newInputValue);
+    // if (debouncedInputValue >= 2) return;
     // setSelectedValue(newInputValue);
     // if (!newInputValue) {
     //   setInputValue(newInputValue.label);
@@ -24,7 +39,7 @@ const useInputHandlers = (searchTerm) => {
   // Other handlers...
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
-    print('searchValue', searchTerm);
+    print('handleSubmit searchTerm', searchTerm);
     const searchValue = selectedValue || { value: inputValue, label: inputValue };
     // trackSearch(inputValue, searchValue.label);
     navigate("/details", { state: { searchValue } });
@@ -45,7 +60,6 @@ const useInputHandlers = (searchTerm) => {
     // setIsExpanded(true);
     // setOpen(searchTerm.length > 0);
     setOpen(true);
-    console.log("handleFocus open", open);
     const elements = {
       navbar: ".navbar",
       searchbar: ".searchbar-container",
@@ -67,7 +81,6 @@ const useInputHandlers = (searchTerm) => {
 
   const handleBlur = (event) => {
     // Small delay to allow click events on options to fire first
-    console.log("handleBlur open", open);
     setTimeout(() => setOpen(false), 100);
     if (!event.currentTarget.contains(event.relatedTarget)) {
       setTimeout(() => {
@@ -132,7 +145,10 @@ const useInputHandlers = (searchTerm) => {
   return {
           open,
           selectedValue,
+          setSelectedValue,
           inputValue,
+          setInputValue,
+          // filteredSuggestions,
           handleSubmit,
           handleInputChange,
           handleSuggestionClick,

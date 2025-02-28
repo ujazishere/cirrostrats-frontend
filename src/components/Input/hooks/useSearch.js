@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import useDebounce from "./useDebounce";
 import searchService from "../api/searchservice";
 import useFetchSuggestions from "./useFetchSuggestions";
+// import useTrackSearch from "./useTrackSearch"
 
-export default function useSearch(userEmail, isLoggedIn) {
+export default function useSearch(userEmail, isLoggedIn, debouncedInputValue) {
     const [searchTerm, setSearchTerm] = useState("");
-    const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ export default function useSearch(userEmail, isLoggedIn) {
 //   Fetch most searched
   useEffect(() => {
     const fetchMostSearched = async () => {
-      // console.log("Fetching suggestions for:", debouncedSearchTerm);
+      // console.log("Fetching suggestions for:", debouncedInputValue);
       const searchSuggestions = await searchService.fetchMostSearched(userEmail);
       // console.log("fetchMostSearched",searchSuggestions);
       // console.log("fetchMostSearched",searchSuggestions);
@@ -36,19 +36,19 @@ export default function useSearch(userEmail, isLoggedIn) {
 
   // Fetch all search data in one place
   useEffect(() => {
-    // if debouncedSearchTerm is empty or less than 3 characters, return early to avoid unnecessary API calls.
-    if (!debouncedSearchTerm || debouncedSearchTerm.length < 3) return;
+    // if debouncedInputValue is empty or less than 3 characters, return early to avoid unnecessary API calls.
+    if (!debouncedInputValue || debouncedInputValue.length < 3) return;
     setLoading(true);
-    console.log("Fetching suggestions for:", debouncedSearchTerm);
+    console.log("Fetching suggestions for:", debouncedInputValue);
     // Combine all your data fetching here
     const fetchAllData = async () => {
-      console.log("Fetching suggestions for:", debouncedSearchTerm);
+      console.log("Fetching suggestions for:", debouncedInputValue);
       try {
         // You can split these into separate API calls if needed
         // const {searchSuggestions} = await searchService.fetchMostSearched(
         //   userEmail,
         // );
-        console.log("Fetching suggestions for:", debouncedSearchTerm);
+        console.log("Fetching suggestions for:", debouncedInputValue);
         
         // Format all suggestions consistently
         // const formattedSuggestions = [
@@ -67,7 +67,7 @@ export default function useSearch(userEmail, isLoggedIn) {
     };
 
     fetchAllData();
-  }, [debouncedSearchTerm, userEmail, isLoggedIn]);
+  }, [debouncedInputValue, userEmail, isLoggedIn]);
 //   console.log("Suggestions:", suggestions);
   return {
     searchTerm,

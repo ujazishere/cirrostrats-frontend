@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 // import { trackSearch } from "./useTracksearch";
-// import useTrackSearch from "./useTracksearch";
 // Custom hook for debouncing input value changes
 const useFetchSuggestions = (debouncedInputValue, searchSuggestions, userEmail, isLoggedIn) => {
   const [filteredSuggestions, setFilteredSuggestions] = useState(Object.keys(searchSuggestions));
@@ -15,20 +14,21 @@ const useFetchSuggestions = (debouncedInputValue, searchSuggestions, userEmail, 
         return;
       }
       
-      trackSearch(debouncedInputValue, null, null);
+      // trackSearch(debouncedInputValue, null, null);
       
       // TODO: Search
       // Track search for each keystroke
       // useTrackSearch(debouncedInputValue);
       
-      const lowercaseInputValue = debouncedInputValue.toLowerCase();
+      // const lowercaseInputValue = debouncedInputValue.toLowerCase();
+      // console.log('lowercaseInputValue', lowercaseInputValue);
       
-      const filtered = Object.keys(searchSuggestions).filter(
-        (airportName) => airportName.toLowerCase().includes(lowercaseInputValue)
-      );
-      const mappedSuggestions = filtered.map((item) => ({ label: item }));
+      // const filtered = Object.keys(searchSuggestions).filter(
+      //   (airportName) => airportName.toLowerCase().includes(lowercaseInputValue)
+      // );
+      // const mappedSuggestions = filtered.map((item) => ({ label: item }));
       
-      setFilteredSuggestions(mappedSuggestions);
+      // setFilteredSuggestions(mappedSuggestions);
       // Filter local data
       // const filteredAirports = searchSuggestions.filter(
       //   (searchItem) =>
