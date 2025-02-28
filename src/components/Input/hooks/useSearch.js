@@ -13,10 +13,7 @@ export default function useSearch(userEmail, isLoggedIn, debouncedInputValue) {
 //   Fetch most searched
   useEffect(() => {
     const fetchMostSearched = async () => {
-      // console.log("Fetching suggestions for:", debouncedInputValue);
       const searchSuggestions = await searchService.fetchMostSearched(userEmail);
-      // console.log("fetchMostSearched",searchSuggestions);
-      // console.log("fetchMostSearched",searchSuggestions);
       const formattedSuggestions = Object.keys(searchSuggestions).map(key => ({
         id: key,
         label: key,
@@ -25,9 +22,6 @@ export default function useSearch(userEmail, isLoggedIn, debouncedInputValue) {
         count: searchSuggestions[key].count, // Optional
         fuzzyFind: searchSuggestions[key].fuzzyFind // Optional (if available)
       }));
-      // console.log('formattedSuggestions',formattedSuggestions);
-
-    //   console.log('fetchMostSearched',searchSuggestions);
         setSuggestions(formattedSuggestions);
     };
 

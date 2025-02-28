@@ -34,7 +34,7 @@ const searchService = {
    */
   fetchAirports: async (searchTerm, userEmail, isLoggedIn) => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await axios.get(`${apiUrl}/airports/search/${userEmail}?q=${searchTerm}`);
+    const response = await axios.get(`${apiUrl}/airports`)
     return response.data;
   },
 
@@ -46,7 +46,8 @@ const searchService = {
    */
   fetchFlightNumbers: async (searchTerm, userEmail, isLoggedIn) => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await axios.get(`${apiUrl}/flights/search/${userEmail}?q=${searchTerm}`);
+    const response = await axios.get(`${apiUrl}/flightNumbers`);
+          
     return response.data;
   },
 
@@ -58,7 +59,7 @@ const searchService = {
    */
   fetchConcourses: async (searchTerm, userEmail, isLoggedIn) => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await axios.get(`${apiUrl}/concourses/search/${userEmail}?q=${searchTerm}`);
+    const response = await axios.get(`${apiUrl}/gates`);
     return response.data;
   },
 };
