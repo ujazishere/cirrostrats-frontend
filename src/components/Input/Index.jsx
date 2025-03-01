@@ -20,10 +20,26 @@ export default function Input({ userEmail, isLoggedIn }) {
   // const inputRef = useRef(null);
 
   // Centralized search logic
-  const { searchTerm, suggestions, loading } = useSearch(userEmail, isLoggedIn);
+  // const { 
+          // searchTerm,     // currently unused
+          // setSearchTerm,  // currently unused
+          // loading } = useSearch(userEmail, isLoggedIn);
   // console.log('search', searchTerm, suggestions, loading);
 
-  const { handleSubmit } = useInputHandlers(searchTerm, suggestions);
+  const { open,
+          setOpen,
+          selectedValue,
+          setSelectedValue,
+          // inputValue,
+          // setInputValue,
+          handleSubmit,
+          // handleInputChange,
+          // handleSuggestionClick
+          // handleFocus,
+          // handleBlur,
+          // handleKeyDown,
+          // handleOptionSelect,
+          } = useInputHandlers();
   // console.log('', handleSubmit);
 
   return (
@@ -32,9 +48,19 @@ export default function Input({ userEmail, isLoggedIn }) {
         {/* Search input is where the autocomplete UI is rendered and will need associated props */}
         <SearchInput
           // userEmail={userEmail}
-          searchTerm={searchTerm}
-          suggestions={suggestions}
-          loading={loading}
+          // isLoggedIn={isLoggedIn}
+          // searchTerm={searchTerm}
+          // suggestions={suggestions}
+          userEmail={userEmail}
+          isLoggedIn={isLoggedIn}
+          // loading={loading}
+          open={open}
+          setOpen={setOpen}
+          selectedValue={selectedValue}
+          setSelectedValue={setSelectedValue}
+          // onInputChange={handleInputChange}
+          // inputValue={inputValue}
+          // setInputValue={setInputValue}
           // autocompleteProps={autocompleteProps}
         />
         <button className="home__search" type="submit">

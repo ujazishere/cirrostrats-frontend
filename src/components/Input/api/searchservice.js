@@ -7,7 +7,6 @@ const searchService = {
    */
   fetchMostSearched: async (userEmail) => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    
     const response = await axios.get(`${apiUrl}/searches/suggestions/${userEmail}`)
     return response.data;
   },

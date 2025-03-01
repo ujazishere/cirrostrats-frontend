@@ -15,7 +15,7 @@ import useFetchSuggestions from "./useFetchSuggestions";
  * @returns 
  */
 export default function useSearch(userEmail, isLoggedIn, debouncedInputValue) {
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");   // Currently unused
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
   
@@ -74,7 +74,7 @@ export default function useSearch(userEmail, isLoggedIn, debouncedInputValue) {
 //   console.log("Suggestions:", suggestions);
   return {
     searchTerm,
-    // setSearchTerm,
+    setSearchTerm,
     suggestions,
     loading
   };

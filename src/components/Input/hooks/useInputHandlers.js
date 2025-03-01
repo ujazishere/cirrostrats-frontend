@@ -8,9 +8,9 @@ import useSearch from "./useSearch";
 This file manages UI interactions (click, submit, keyboard events)
 houses all input handlers.
 */
-const useInputHandlers = (searchTerm) => {
+const useInputHandlers = () => {
   const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState(searchTerm);
+  const [inputValue, setInputValue] = useState("");
   // const [filteredSuggestions, setFilteredSuggestions] = useState(suggestions);
   const [selectedValue, setSelectedValue] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -142,6 +142,7 @@ const useInputHandlers = (searchTerm) => {
 
   return {
     open,
+    setOpen,
     selectedValue,
     setSelectedValue,
     inputValue,

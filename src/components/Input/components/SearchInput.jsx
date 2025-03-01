@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 // import { trackSearch} from "../hooks/useTracksearch";
+import useSearch from "../hooks/useSearch";
 import useInputHandlers from "../hooks/useInputHandlers";
 import useDebounce from "../hooks/useDebounce";
 import useFetchData from "../hooks/useFetchData";
@@ -19,26 +20,27 @@ import useFetchSuggestions from "../hooks/useFetchSuggestions";
  *  Passes user interactions (e.g., typing, selecting) back to the parent via callback props.
   */ 
 export default function SearchInput({ 
-  searchTerm,
-  suggestions,
-  loading,
+  userEmail,
+  isLoggedIn,
+  selectedValue,
+  setSelectedValue,
 }) {
 
   const navigate = useNavigate();
   const inputRef = useRef(null);
+  const { suggestions} = useSearch(userEmail, isLoggedIn);
 
   // returns the input handlers that will be passed to the Autocomplete component
   const {
     open,
-    selectedValue,
-    setSelectedValue,
+    // setOpen,\
     inputValue,
     setInputValue,
     handleInputChange,
     handleFocus,
     handleBlur,
     handleKeyDown,
-  } = useInputHandlers(searchTerm);
+  } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed 
 
   return (
     <Autocomplete
@@ -52,6 +54,8 @@ export default function SearchInput({
       onChange={(event, newValue) => {
         // This function is called when the user selects a value from the dropdown
         setSelectedValue(newValue);
+        // Selecting a value from the dropdown will get into details page where other components are
+        // rendered based on props passed.
         if (newValue) {
           setInputValue(newValue.label);
           // trackSearch(inputValue, newValue.label);
