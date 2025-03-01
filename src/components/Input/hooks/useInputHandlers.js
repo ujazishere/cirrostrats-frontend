@@ -5,8 +5,8 @@ import useFetchSuggestions from "./useFetchSuggestions";
 import useSearch from "./useSearch";
 
 /*
-These are the input handlers.
 This file manages UI interactions (click, submit, keyboard events)
+houses all input handlers.
 */
 const useInputHandlers = (searchTerm) => {
   const navigate = useNavigate();
@@ -19,6 +19,7 @@ const useInputHandlers = (searchTerm) => {
   const debouncedInputValue = useDebounce(inputValue, 300);
   // const { suggestions } = useSearch(debouncedInputValue);
 
+  // const { suggestions} = useSearch(userEmail, isLoggedIn);
   // const { filteredSuggestions } = useFetchSuggestions(debouncedInputValue, suggestions);
 
   const handleInputChange = (event, newInputValue) => {

@@ -4,9 +4,18 @@ import searchService from "../api/searchservice";
 import useFetchSuggestions from "./useFetchSuggestions";
 // import useTrackSearch from "./useTrackSearch"
 
+/**
+ * @function useSearch
+ * @description Centralized State Management Hook. Role: Manages all search-related state and logic.
+ *      Responsibilities: Combines smaller hooks (useDebounce, useFetchData, useFetchSuggestions, etc.).
+ *      Exposes state and handlers to the parent component
+ * @param {*} userEmail 
+ * @param {*} isLoggedIn 
+ * @param {*} debouncedInputValue 
+ * @returns 
+ */
 export default function useSearch(userEmail, isLoggedIn, debouncedInputValue) {
     const [searchTerm, setSearchTerm] = useState("");
-
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
   

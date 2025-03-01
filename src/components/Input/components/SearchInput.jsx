@@ -11,6 +11,13 @@ import useFetchData from "../hooks/useFetchData";
 import useFetchSuggestions from "../hooks/useFetchSuggestions";
 
 // components/SearchInput.jsx
+/**
+ * @function SearchInput
+ * @description Renders the search input UI (e.g., Autocomplete).
+ *  Receives props from the parent (Input/index.jsx).
+ *  Renders the Autocomplete component.
+ *  Passes user interactions (e.g., typing, selecting) back to the parent via callback props.
+  */ 
 export default function SearchInput({ 
   searchTerm,
   suggestions,
@@ -20,6 +27,7 @@ export default function SearchInput({
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
+  // returns the input handlers that will be passed to the Autocomplete component
   const {
     open,
     selectedValue,
