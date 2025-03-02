@@ -516,7 +516,7 @@
 /* Card Styles */
 .card {
   margin-bottom: 20px;
-  border: 1.5px solid #000000;
+  border: 0px !important;
   border-radius: 8px;
   overflow: hidden;
 }
