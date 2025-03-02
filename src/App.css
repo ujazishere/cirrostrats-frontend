@@ -35,6 +35,181 @@
 }
 
 
+
+/* Weather Tabs Styling */
+.weather-tabs-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.weather-tabs-navigation {
+  display: flex;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  overflow-x: auto;
+}
+
+.weather-tab-button {
+  flex: 1;
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #fff;
+  color: #555;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  min-width: 120px;
+}
+
+.weather-tab-button.active {
+  background-color: #24292E;
+  color: white;
+  font-weight: 600;
+}
+
+.weather-tab-button:hover:not(.active) {
+  background-color: #f5f5f5;
+}
+
+.weather-tabs-content {
+  padding: 0;
+}
+
+.weather-tab-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.weather-tab-header {
+  background-color: #f8f9fa;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.weather-tab-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.no-weather-data {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Card styling for weather information */
+.card {
+  width: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.card__depature__subtitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: #4a5568;
+  color: white;
+}
+
+.card__header--dark {
+  background-color: #4a5568;
+  color: white;
+}
+
+.card__depature__subtitle__title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.card__depature__time {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.card__depature__details {
+  padding: 12px 16px;
+  background-color: white;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.card__depature__details p {
+  margin: 0 0 12px 0;
+  white-space: pre-line;
+  font-family: monospace;
+}
+
+/* Text highlighting styles */
+.pink_text_color {
+  color: #e83e8c;
+  font-weight: 600;
+}
+
+.red_text_color {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.yellow_highlight {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+.box_around_text {
+  border: 1px solid #6c757d;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .weather-tab-button {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .card__depature__details {
+    padding: 10px;
+    font-size: 12px;
+  }
+  
+  .weather-tab-header {
+    padding: 10px 12px;
+  }
+  
+  .weather-tab-title {
+    font-size: 14px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 .gate-card {
   width: 100%;
   background: #fff;

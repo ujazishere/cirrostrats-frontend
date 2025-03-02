@@ -10,9 +10,10 @@
  * - Real-time flight status display
  * - Integration with NAS (National Airspace System) data
  * - Route visualization support via SkyVector
+ * - Tabbed interface for departure and destination weather
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
 
@@ -52,20 +53,6 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
 
 
 // section 1 - SUMMARY BOX //
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   return (
     <div className="card">
@@ -193,6 +180,71 @@ const GateCard = ({ gateData }) => {
   );
 };
 
+/**
+ * Component for tabbed content display for departure and destination weather
+ * @param {Object} props
+ * @param {Object} props.dep_weather - Departure weather data
+ * @param {Object} props.dest_weather - Destination weather data
+ * @param {Object} props.flightDetails - Flight details object
+ */
+const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
+  const [activeTab, setActiveTab] = useState('departure');
+
+  return (
+    <div className="weather-tabs-container">
+      {/* Tabs navigation */}
+      <div className="weather-tabs-navigation">
+        <button 
+          className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
+          onClick={() => setActiveTab('departure')}
+        >
+          Departure
+        </button>
+        <button 
+          className={`weather-tab-button ${activeTab === 'destination' ? 'active' : ''}`}
+          onClick={() => setActiveTab('destination')}
+        >
+          Destination
+        </button>
+      </div>
+
+      {/* Tab content */}
+      <div className="weather-tabs-content">
+        {/* Departure Weather Tab */}
+        {activeTab === 'departure' && (
+          <div className="weather-tab-panel">
+            <div className="weather-tab-header">
+              <h3 className="weather-tab-title">
+                 {flightDetails?.departure_ID}
+              </h3>
+            </div>
+            {dep_weather ? (
+              <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} />
+            ) : (
+              <div className="no-weather-data">No weather data available</div>
+            )}
+          </div>
+        )}
+
+        {/* Destination Weather Tab */}
+        {activeTab === 'destination' && (
+          <div className="weather-tab-panel">
+            <div className="weather-tab-header">
+              <h3 className="weather-tab-title">
+                {flightDetails?.destination_ID}
+              </h3>
+            </div>
+            {dest_weather ? (
+              <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} />
+            ) : (
+              <div className="no-weather-data">No weather data available</div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 /**
  * Main component for displaying comprehensive flight information
@@ -259,13 +311,8 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
   }, []);
 
   return (
-
-
     <div className="details">
       {/* Flight Overview Section */}
-
-      
-
       <div className="flight-details-card">
         <div className="flight-number">
           <h2 className="flight-number-text">{flightDetails?.flight_number}</h2>
@@ -320,28 +367,12 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </div>
       </div>
 
-
-
-
-      {/* Departure Weather Section */}
-      <div id="departure-section" className="table-container">
-        <div id="departure-header" className="section-header">
-          <div className="card__depature__subtitle card__header--dark">
-            <div className="rounded-header-container">
-              <h3 className="card__depature__subtitle__title_head">
-                Departure - {flightDetails?.departure_ID}
-              </h3>
-            </div>
-          </div>
-        </div>
-        <table className="flight_card">
-          <tbody>
-            {dep_weather ? (
-              <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} />
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+      {/* Weather Tabs Section - New Component */}
+      <WeatherTabs 
+        dep_weather={dep_weather} 
+        dest_weather={dest_weather} 
+        flightDetails={flightDetails} 
+      />
 
       {/* Route Information Section */}
       {flightDetails?.route && flightDetails?.sv && (
@@ -359,28 +390,9 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
 
       {/* NAS Information Sections */}
       <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
-
-      {/* Destination Weather Section */}
-      <div id="destination-section" className="table-container">
-        <div id="destination-header" className="section-header">
-          <div className="card__destination__subtitle card__header--dark">
-            <h3 className="card__destination__subtitle__title_head">
-              Destination - {flightDetails?.destination_ID}
-            </h3>
-          </div>
-        </div>
-        <table className="flight_card">
-          <tbody>
-            {dest_weather ? (
-              <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} />
-            ) : null}
-          </tbody>
-        </table>
-      </div>
-
       <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
     </div>
   );
 };
 
-export { FlightCard, WeatherCard, GateCard };
+export { FlightCard, WeatherCard, GateCard, WeatherTabs };
