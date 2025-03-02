@@ -28,24 +28,30 @@ export default function SearchInput({
 
   const navigate = useNavigate();
   const inputRef = useRef(null);
-  const { suggestions} = useSearch(userEmail, isLoggedIn);
 
   // returns the input handlers that will be passed to the Autocomplete component
   const {
     open,
-    // setOpen,\
     inputValue,
     setInputValue,
+    debouncedInputValue,
     handleInputChange,
     handleFocus,
     handleBlur,
     handleKeyDown,
   } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed 
 
+  // debouncedInputValue comes from input handlers since inputValue is updated there which is used by debouncedInputValue
+  // if (debouncedInputValue) {
+  //   console.log("debouncedInputValue", debouncedInputValue);
+  // }
+
+  const { suggestions, filteredSuggestions} = useSearch(userEmail, isLoggedIn, inputValue, debouncedInputValue);
+
   return (
     <Autocomplete
       open={open}     // Controls whether the Autocomplete dropdown is open or closed
-      options={suggestions} // list of filtered dropdown items
+      options={filteredSuggestions} // list of filtered dropdown items
       value={selectedValue}
       inputValue={inputValue}       // The current text input value in the Autocomplete
       

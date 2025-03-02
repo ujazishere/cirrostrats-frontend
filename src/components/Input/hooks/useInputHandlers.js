@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "./useDebounce";
-import useFetchSuggestions from "./useFetchSuggestions";
-import useSearch from "./useSearch";
+// import useSearch from "./useSearch";
 
 /*
 This file manages UI interactions (click, submit, keyboard events)
@@ -17,6 +16,7 @@ const useInputHandlers = () => {
   const [open, setOpen] = useState(false);
 
   const debouncedInputValue = useDebounce(inputValue, 300);
+  
   // const { suggestions } = useSearch(debouncedInputValue);
 
   // const { suggestions} = useSearch(userEmail, isLoggedIn);
@@ -24,7 +24,10 @@ const useInputHandlers = () => {
 
   const handleInputChange = (event, newInputValue) => {
     setInputValue(newInputValue);
-    // if (debouncedInputValue >= 2) return;
+    // if (debouncedInputValue >= 2) {
+      // console.log("debouncedInputValue", debouncedInputValue);
+    // }
+    // if debouncedInputValue is more than 2, do something
     // setSelectedValue(newInputValue);
     // if (!newInputValue) {
     //   setInputValue(newInputValue.label);
@@ -147,7 +150,7 @@ const useInputHandlers = () => {
     setSelectedValue,
     inputValue,
     setInputValue,
-    // filteredSuggestions,
+    debouncedInputValue,
     handleSubmit,
     handleInputChange,
     handleSuggestionClick,

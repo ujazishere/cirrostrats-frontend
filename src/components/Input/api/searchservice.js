@@ -1,4 +1,5 @@
 import axios from "axios";
+import testJmsflights from './testJmsFlights.json';
 
 const searchService = {
   /**
@@ -12,6 +13,16 @@ const searchService = {
   },
 
 
+  fetchJmsuggestions: () => {                 // fetch for testing in local dev.
+    // fetchJmsuggestions: async () => {      // fetch (async) for production fetching.
+    
+    return testJmsflights;
+    // const apiUrl = import.meta.env.VITE_JMS_URL;
+    // console.log("fetching from", flights);
+    // // actual fetch from jms
+    // const response = await axios.get(`${apiUrl}/flights`);
+    // console.log("response", response.data);
+  },
 
   /**
    * Fetch search suggestions (airports, flight numbers, concourses).

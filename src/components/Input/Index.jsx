@@ -1,6 +1,6 @@
 import React from "react";
 import SearchInput from "./components/SearchInput";
-import useSearch from "./hooks/useSearch";
+// import useSearch from "./hooks/useSearch";
 import useInputHandlers from "./hooks/useInputHandlers";
 import { useNavigate } from "react-router-dom";
 
