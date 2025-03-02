@@ -107,6 +107,68 @@
   font-style: italic;
 }
 
+/* Route Tab Specific Styling */
+.route-tab-content {
+  padding: 16px;
+  background-color: #fff;
+}
+
+.route-display {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.route-info {
+  padding: 16px;
+}
+
+.route-text {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  word-break: break-all;
+  margin-bottom: 12px;
+  background-color: #f1f3f5;
+  padding: 12px;
+  border-radius: 4px;
+  border-left: 4px solid #24292E;
+}
+
+.route-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.sky-vector-link {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #24292E;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.sky-vector-link:hover {
+  background-color: #1a1f24;
+  text-decoration: none;
+}
+
+.no-route-data {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+
+
 /* Card styling for weather information */
 .card {
   width: 100%;
@@ -485,17 +547,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-/* Weather Text Highlights */
 .pink_text_color {
   color: pink;
 }

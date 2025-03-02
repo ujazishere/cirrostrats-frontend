@@ -206,6 +206,12 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
         >
           Destination
         </button>
+        <button 
+          className={`weather-tab-button ${activeTab === 'route' ? 'active' : ''}`}
+          onClick={() => setActiveTab('route')}
+        >
+          Route
+        </button>
       </div>
 
       {/* Tab content */}
@@ -239,6 +245,35 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
             ) : (
               <div className="no-weather-data">No weather data available</div>
             )}
+          </div>
+        )}
+
+        {/* Route Tab */}
+        {activeTab === 'route' && (
+          <div className="weather-tab-panel">
+            <div className="weather-tab-header">
+              <h3 className="weather-tab-title">
+                Flight Route
+              </h3>
+            </div>
+            <div className="route-tab-content">
+              {flightDetails?.route ? (
+                <div className="route-display">
+                  <div className="route-info">
+                    <div className="route-text">{flightDetails.route}</div>
+                    {flightDetails?.sv && (
+                      <div className="route-actions">
+                        <a href={flightDetails.sv} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
+                          View on SkyVector
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="no-route-data">No route information available</div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -373,20 +408,6 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         dest_weather={dest_weather} 
         flightDetails={flightDetails} 
       />
-
-      {/* Route Information Section */}
-      {flightDetails?.route && flightDetails?.sv && (
-        <table className="route">
-          <tbody>
-            <tr>
-              <th>ROUTE<a href={flightDetails.sv} target="_blank" rel="noopener noreferrer">Show on - SkyVector Map</a></th>
-            </tr>
-            <tr>
-              <td>{flightDetails.route}</td>
-            </tr>
-          </tbody>
-        </table>
-      )}
 
       {/* NAS Information Sections */}
       <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
