@@ -7,9 +7,6 @@ import match from "autosuggest-highlight/match";
 // import { trackSearch} from "../hooks/useTracksearch";
 import useSearch from "../hooks/useSearch";
 import useInputHandlers from "../hooks/useInputHandlers";
-import useDebounce from "../hooks/useDebounce";
-import useFetchData from "../hooks/useFetchData";
-import useFetchSuggestions from "../hooks/useFetchSuggestions";
 
 // components/SearchInput.jsx
 /**
@@ -22,31 +19,27 @@ import useFetchSuggestions from "../hooks/useFetchSuggestions";
 export default function SearchInput({ 
   userEmail,
   isLoggedIn,
-  selectedValue,
-  setSelectedValue,
 }) {
 
-  const navigate = useNavigate();
   const inputRef = useRef(null);
 
   // returns the input handlers that will be passed to the Autocomplete component
   const {
     open,
     inputValue,
-    setInputValue,
+    // This debouncedInputValue comes from input handlers since inputValue is updated there which is used by debouncedInputValue
     debouncedInputValue,
+    handleSubmit,
+    selectedValue,
     handleInputChange,
     handleFocus,
     handleBlur,
     handleKeyDown,
-  } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed 
-
-  // debouncedInputValue comes from input handlers since inputValue is updated there which is used by debouncedInputValue
-  // if (debouncedInputValue) {
-  //   console.log("debouncedInputValue", debouncedInputValue);
-  // }
-
-  const { suggestions, filteredSuggestions} = useSearch(userEmail, isLoggedIn, inputValue, debouncedInputValue);
+  } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed to all others.
+  
+  // Initial filteredSuggestions comes from useSearch which is updated as homepage loads initially.
+  const { filteredSuggestions } = useSearch(userEmail, isLoggedIn, inputValue, debouncedInputValue);
+  // console.log("filteredSuggestions", filteredSuggestions);
 
   return (
     <Autocomplete
@@ -55,39 +48,10 @@ export default function SearchInput({
       value={selectedValue}
       inputValue={inputValue}       // The current text input value in the Autocomplete
       
-      // This function is called whenever the input text changes
-      onInputChange={handleInputChange}
-      onChange={(event, newValue) => {
-        // This function is called when the user selects a value from the dropdown
-        setSelectedValue(newValue);
-        // Selecting a value from the dropdown will get into details page where other components are
-        // rendered based on props passed.
-        if (newValue) {
-          setInputValue(newValue.label);
-          // trackSearch(inputValue, newValue.label);
-          navigate("/details", { state: { searchValue: newValue } });
-        }
-        // setIsExpanded(false);
-      }}
-
-      // open={open}
-      // // loading={filteredSuggestions}
-      // options={suggestions}
-      // value={selectedOption}
-      // inputValue={searchTerm}
-      // onInputChange={(event, newsearchvalue) => {
-      //   console.log("new search value:", newsearchvalue);
-      //   // this function is called whenever the input text changes
-      //   // setsearchvalue(newsearchvalue);
-      //   // if (!newsearchvalue) {
-      //   //   setselectedsuggestion(null);
-      //   // }
-      //   // setissuggestionslistvisible(true);
-      // }}
-      // // onInputChange={handleInputChange}
-      // onChange={(event, newValue) => handleOptionSelect(newValue)}
-
-
+      // This function is called whenever the input text changes in the search bar.
+      onInputChange={(event, newInputValue) => {handleInputChange(event, newInputValue, userEmail,filteredSuggestions)}}
+      // This function is called when a dropdown suggestion is selected
+      onChange={(e, submitTerm) => {handleSubmit(e, submitTerm, userEmail)}}
 
       className="home__input"
       getOptionLabel={(option) => option.label || ""}
@@ -154,35 +118,5 @@ export default function SearchInput({
       onBlur={handleBlur}
       disablePortal
     />
-
-    
-
-
-
-
-
-
-    //   groupBy={(option) => option.type}
-    //   className="home__input"
-    //   getOptionLabel={(option) => option.label || ""}
-    //   renderInput={(params) => (
-    //     <TextField
-    //       {...params}
-    //       label="Try searching a gate in newark. Eg. 71x"
-    //       placeholder="Search airports, flights, or gates..."
-    //       onFocus={handleFocus}
-    //       onBlur={handleBlur}
-    //       fullWidth
-    //     />
-    //   )}
-    //   renderOption={(props, option) => (
-    //     <li {...props}>
-    //       <div className="flex items-center justify-between w-full">
-    //         <span>{option.label}</span>
-    //         <span className="text-gray-500 text-sm">{option.type}</span>
-    //       </div>
-    //     </li>
-    //   )}
-    // />
   );
 }

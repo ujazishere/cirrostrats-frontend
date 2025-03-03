@@ -15,10 +15,10 @@ import useFetchSuggestions from "./useFetchSuggestions";
  * @returns 
  */
 export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedInputValue) {
-    const [suggestions, setSuggestions] = useState([]);
-    const [filteredSuggestions, setFilteredSuggestions] = useState([suggestions]);
-    const [loading, setLoading] = useState(false);
-    // const searchSuggestions = await searchService.fetchMostSearched(userEmail);
+  const [suggestions, setSuggestions] = useState([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState([suggestions]);
+  const [loading, setLoading] = useState(false);
+  // const searchSuggestions = await searchService.fetchMostSearched(userEmail);
 
 
 //   Fetches most searched and sets it to suggestions.
@@ -29,12 +29,13 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
       const formattedSuggestions = Object.keys(searchSuggestions).map(key => ({
         id: key,
         label: key,
-        type: searchSuggestions[key].id ? 'Airport' : 'Terminal/Gate', // Optional
+        type: searchSuggestions[key].id ? 'Airport' : '', // if id exists, it's an airport type. - for use in mdb
         mdb: searchSuggestions[key].id,
         count: searchSuggestions[key].count, // Optional
         fuzzyFind: searchSuggestions[key].fuzzyFind // Optional (if available)
       }));
-        setSuggestions(formattedSuggestions);
+      setSuggestions(formattedSuggestions);
+      
     };
 
     fetchMostSearched();
@@ -55,7 +56,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
         // const {searchSuggestions} = await searchService.fetchMostSearched(
         //   userEmail,
         // );
-        console.log("Fetching suggestions for:", debouncedInputValue);
+        console.log("within fetchAllData -- currently unused", debouncedInputValue);
         
         // Format all suggestions consistently
         // const formattedSuggestions = [
@@ -77,27 +78,23 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
   }, [debouncedInputValue, userEmail, isLoggedIn]);
 
 
-  // This function is supposed to be triggered when the suggestions are running out. 
+  // FetchMore -- This function is supposed to be triggered when the suggestions are running out. 
   // The idea is to always have something in the dropdown.
   useEffect(() => {
     const updateSuggestions = () =>{
-      console.log("filteredSuggestions length", filteredSuggestions.length);
+      // console.log("filteredSuggestions length", filteredSuggestions.length);
       // console.log('debouncedInputValue', debouncedInputValue);
       if (filteredSuggestions.length < 3 && debouncedInputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
         const flights = searchService.fetchJmsuggestions();
         const trimmedFlightNumbers = flights.flightNumbers.slice(0, 50);     // A samle array for testing.
         // const parsedFlightNumbersData = JSON.parse(JSON.stringify(flights));
-        console.log("trimmed", (trimmedFlightNumbers));
         // append to suggestions:
-        console.log("sugg",typeof filteredSuggestions);
         const flightNumberSuggestions = trimmedFlightNumbers.map(flightNumber => ({
           id: flightNumber,
           label: flightNumber,
-          type: 'Flight Number'
+          type: 'flightNumber'
         }));
         setFilteredSuggestions(filteredSuggestions => [...filteredSuggestions, ...flightNumberSuggestions]);
-        console.log("filteredSuggestions fetched", filteredSuggestions);
-
       }
     }
 
@@ -110,19 +107,18 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
     const lowercaseInputValue = inputValue.toLowerCase();
 
     // Filter local data
-    const filteredSuggestions = suggestions.filter(
+    const newfilteredSuggestions = suggestions.filter(
       (searches) =>
-        // searches.label.toLowerCase().includes(lowercaseInputValue) ||
+        searches.label.toLowerCase().includes(lowercaseInputValue) ||
         searches.label.toLowerCase().includes(lowercaseInputValue)
     );
 
-    setFilteredSuggestions(filteredSuggestions);
-    console.log("debouncedInputValue in useEffect", debouncedInputValue);
+    setFilteredSuggestions(newfilteredSuggestions);
+
   }, [inputValue, suggestions]);
 
 
   return {
-    suggestions,
     filteredSuggestions,
   };
 }

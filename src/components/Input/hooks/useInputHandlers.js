@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "./useDebounce";
-// import useSearch from "./useSearch";
+import { trackSearch } from "./useTrackSearch";
+import useSearch from "./useSearch";
 
 /*
 This file manages UI interactions (click, submit, keyboard events)
@@ -21,30 +22,93 @@ const useInputHandlers = () => {
 
   // const { suggestions} = useSearch(userEmail, isLoggedIn);
   // const { filteredSuggestions } = useFetchSuggestions(debouncedInputValue, suggestions);
+  const handleValue = (value) => {
+    setSelectedValue(value);
+    console.log("value", value);
+  }
 
-  const handleInputChange = (event, newInputValue) => {
+  const handleInputChange = (event, newInputValue, userEmail,filteredSuggestions) => {
+    // const { filteredSuggestions } = useSearch(null, null, inputValue, debouncedInputValue);
     setInputValue(newInputValue);
-    // if (debouncedInputValue >= 2) {
-      // console.log("debouncedInputValue", debouncedInputValue);
+    trackSearch(userEmail, newInputValue);
+
+    // const lowercaseInputValue = debouncedInputValue.toLowerCase();
+  }
+    // Filter local data
+    // const filteredAirports = airports.filter(
+    //   (airport) =>
+    //     airport.name.toLowerCase().includes(lowercaseInputValue) ||
+    //     airport.code.toLowerCase().includes(lowercaseInputValue)
+    // );
+
+    // const filteredFlightNumbers = flightNumbers.filter((flight) =>
+    //   flight.flightNumber.toLowerCase().includes(lowercaseInputValue)
+    // );
+
+    // const filteredGates = gates.filter((gate) =>
+    //   gate.gate.toLowerCase().includes(lowercaseInputValue)
+    // );
+
+    // // Merge all filtered results
+    // const newFilteredSuggestions = [
+    //   ...filteredAirports,
+    //   ...filteredFlightNumbers,
+    //   ...filteredGates,
+    // ];
+
+    // setFilteredSuggestions(newFilteredSuggestions);
+
+    // // Update inline prediction
+    // const prediction = findInlinePrediction(debouncedInputValue, newFilteredSuggestions);
+    // setInlinePrediction(prediction);
+
+    // if (debouncedInputValue.length >= minCharsForAutofill && newFilteredSuggestions.length > 0) {
+    //   if (isUniqueMatch(debouncedInputValue, newFilteredSuggestions)) {
+    //     const exactMatch = newFilteredSuggestions.find(suggestion => 
+    //       suggestion.label.toLowerCase().startsWith(lowercaseInputValue)
+    //     );
+        
+    //     if (exactMatch) {
+    //       setSelectedValue(exactMatch);
+    //       setIsExpanded(true);
+    //     }
+    //   } else {
+    //     setSelectedValue(null);
+    //   }
     // }
-    // if debouncedInputValue is more than 2, do something
-    // setSelectedValue(newInputValue);
-    // if (!newInputValue) {
-    //   setInputValue(newInputValue.label);
-    //   // trackSearch(inputValue, newInputValue.label);
-    //   navigate("/details", { state: { searchValue: newInputValue } });
+
+    // // Fetch from API if no matches found
+    // if (newFilteredSuggestions.length === 0) {
+    //   try {
+    //     const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
+    //     trackSearch(debouncedInputValue);
+    //     if (data.data && data.data.length > 0) {
+    //       setFilteredSuggestions(data.data);
+    //       const apiPrediction = findInlinePrediction(debouncedInputValue, data.data);
+    //       setInlinePrediction(apiPrediction);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching API data from backend:", error);
+    //   }
     // }
     // setIsExpanded(false);
-  };
+  // };
 
   // Other handlers...
-  const handleSubmit = (e) => {
+  const handleSubmit = (e, submitTerm, userEmail) => {
     if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
 
-    console.log("handleSubmit searchTerm", searchTerm);
-    const searchValue = selectedValue || { value: inputValue, label: inputValue };
-    // trackSearch(inputValue, searchValue.label);
+    let searchValue;
+    trackSearch(userEmail,null, submitTerm.label, submitTerm.mdb);
+
+    if (submitTerm) {
+      setSelectedValue(submitTerm.label);
+      searchValue = submitTerm || { value: inputValue, label: inputValue, type: "unknown" };
+    }
+    console.log("searchValue in handleSubmit processed as is in details.jsx-->", searchValue);
+    // const searchValue = submitTerm.mdb || { value: inputValue, label: inputValue };
     navigate("/details", { state: { searchValue } });
+    // trackSearch(inputValue, searchValue.label);
   };
 
   const handleSuggestionClick = (searchTerm) => {
@@ -152,6 +216,7 @@ const useInputHandlers = () => {
     setInputValue,
     debouncedInputValue,
     handleSubmit,
+    handleValue,
     handleInputChange,
     handleSuggestionClick,
     handleFocus,

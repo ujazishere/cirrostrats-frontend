@@ -95,7 +95,10 @@ const Details = () => {
   const [loadingNAS, setLoadingNAS] = useState(true);
 
   const location = useLocation();
-  const searchValue = location?.state?.searchValue; // Extract search value from the location state
+
+  // Extract search value from the location state. Passed in at navigate("/details", { state: { searchValue }});
+  const searchValue = location?.state?.searchValue; 
+  console.log("searchValue in details", searchValue);
 
   // Effect to fetch data based on search type
   useEffect(() => {
