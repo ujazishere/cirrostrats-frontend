@@ -15,8 +15,9 @@ import useFetchSuggestions from "./useFetchSuggestions";
  * @returns 
  */
 export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedInputValue) {
-  const [suggestions, setSuggestions] = useState([]);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([suggestions]);
+  const [initialSuggestions, setInitialSuggestions] = useState([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [allSuggestions, setAllSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   // const searchSuggestions = await searchService.fetchMostSearched(userEmail);
 
@@ -34,7 +35,8 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
         count: searchSuggestions[key].count, // Optional
         fuzzyFind: searchSuggestions[key].fuzzyFind // Optional (if available)
       }));
-      setSuggestions(formattedSuggestions);
+
+      setInitialSuggestions(formattedSuggestions);
       
     };
 
@@ -42,49 +44,67 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
   }, [userEmail]);
 
 
-  // Fetch other search data. currently unused.
   useEffect(() => {
-    // if debouncedInputValue is empty or less than 3 characters, return early to avoid unnecessary API calls.
-    if (!debouncedInputValue || debouncedInputValue.length < 3) return;
-    setLoading(true);
-    // console.log("Fetching suggestions for:", debouncedInputValue);
-    // Combine all your data fetching here
-    const fetchAllData = async () => {
-      // console.log("Fetching suggestions for:", debouncedInputValue);
-      try {
-        // You can split these into separate API calls if needed
-        // const {searchSuggestions} = await searchService.fetchMostSearched(
-        //   userEmail,
-        // );
-        console.log("within fetchAllData -- currently unused", debouncedInputValue);
-        
-        // Format all suggestions consistently
-        // const formattedSuggestions = [
-        //   ...airports.map(a => ({ id: `airport-${a.id}`, label: a.name, type: 'Airport' })),
-        //   ...flights.map(f => ({ id: `flight-${f.id}`, label: f.number, type: 'Flight' })),
-        //   ...gates.map(g => ({ id: `gate-${g.id}`, label: g.name, type: 'Gate' }))
-        // ];
-        
-        // setSuggestions(formattedSuggestions);
-        // setSuggestions(searchSuggestions);
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setFilteredSuggestions(initialSuggestions);
+    setAllSuggestions(initialSuggestions);
+  }, [initialSuggestions]);
 
-    fetchAllData();
-  }, [debouncedInputValue, userEmail, isLoggedIn]);
+  // // Fetch other search data. currently unused.
+  // useEffect(() => {
+  //   // if debouncedInputValue is empty or less than 3 characters, return early to avoid unnecessary API calls.
+  //   if (!debouncedInputValue || debouncedInputValue.length < 3) return;
+  //   setLoading(true);
+  //   // console.log("Fetching suggestions for:", debouncedInputValue);
+  //   // Combine all your data fetching here
+  //   const fetchAllData = async () => {
+  //     // console.log("Fetching suggestions for:", debouncedInputValue);
+  //     try {
+  //       // You can split these into separate API calls if needed
+  //       // const {searchSuggestions} = await searchService.fetchMostSearched(
+  //       //   userEmail,
+  //       // );
+  //       console.log("within fetchAllData -- currently unused", debouncedInputValue);
+        
+  //       // Format all suggestions consistently
+  //       // const formattedSuggestions = [
+  //       //   ...airports.map(a => ({ id: `airport-${a.id}`, label: a.name, type: 'Airport' })),
+  //       //   ...flights.map(f => ({ id: `flight-${f.id}`, label: f.number, type: 'Flight' })),
+  //       //   ...gates.map(g => ({ id: `gate-${g.id}`, label: g.name, type: 'Gate' }))
+  //       // ];
+        
+  //       // setSuggestions(formattedSuggestions);
+  //       // setSuggestions(searchSuggestions);
+  //     } catch (error) {
+  //       console.error("Error fetching suggestions:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchAllData();
+  // }, [debouncedInputValue, userEmail, isLoggedIn]);
+
+  // This function matches suggestions for the live inputValue in search and updates the filteredSuggestions state based on matches
+  useEffect(() => {
+    const lowercaseInputValue = inputValue.toLowerCase();
+    // Filter local data
+    const newfilteredSuggestions = allSuggestions.filter(
+      (searches) =>
+        searches.label.toLowerCase().includes(lowercaseInputValue) ||
+        searches.label.toLowerCase().includes(lowercaseInputValue)
+    );
+
+    setFilteredSuggestions(newfilteredSuggestions);
+
+  }, [inputValue]);
 
 
   // FetchMore -- This function is supposed to be triggered when the suggestions are running out. 
   // The idea is to always have something in the dropdown.
   useEffect(() => {
     const updateSuggestions = () =>{
-      // console.log("filteredSuggestions length", filteredSuggestions.length);
       // console.log('debouncedInputValue', debouncedInputValue);
-      if (filteredSuggestions.length < 3 && debouncedInputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
+      if (filteredSuggestions.length < 3 && inputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
         const flights = searchService.fetchJmsuggestions();
         const trimmedFlightNumbers = flights.flightNumbers.slice(0, 50);     // A samle array for testing.
         // const parsedFlightNumbersData = JSON.parse(JSON.stringify(flights));
@@ -94,31 +114,17 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
           label: flightNumber,
           type: 'flightNumber'
         }));
-        setFilteredSuggestions(filteredSuggestions => [...filteredSuggestions, ...flightNumberSuggestions]);
+        // console.log("filteredSuggestions length", filteredSuggestions.length, inputValue, flightNumberSuggestions);
+        setAllSuggestions(xx => [...allSuggestions, ...flightNumberSuggestions]);
       }
     }
 
     updateSuggestions();
   }, [filteredSuggestions]);
 
-
-  // This function matches suggestions for the live inputValue in search and updates the filteredSuggestions state based on matches
-  useEffect(() => {
-    const lowercaseInputValue = inputValue.toLowerCase();
-
-    // Filter local data
-    const newfilteredSuggestions = suggestions.filter(
-      (searches) =>
-        searches.label.toLowerCase().includes(lowercaseInputValue) ||
-        searches.label.toLowerCase().includes(lowercaseInputValue)
-    );
-
-    setFilteredSuggestions(newfilteredSuggestions);
-
-  }, [inputValue, suggestions]);
-
+  // console.log("filteredSuggestions outside of ue", filteredSuggestions);
 
   return {
-    filteredSuggestions,
+    filteredSuggestions
   };
 }

@@ -18,17 +18,12 @@ import useInputHandlers from "../hooks/useInputHandlers";
   */ 
 export default function SearchInput({ 
   userEmail,
-  isLoggedIn,
 }) {
-
   const inputRef = useRef(null);
-
   // returns the input handlers that will be passed to the Autocomplete component
   const {
     open,
     inputValue,
-    // This debouncedInputValue comes from input handlers since inputValue is updated there which is used by debouncedInputValue
-    debouncedInputValue,
     handleSubmit,
     selectedValue,
     handleInputChange,
@@ -36,10 +31,8 @@ export default function SearchInput({
     handleBlur,
     handleKeyDown,
   } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed to all others.
-  
-  // Initial filteredSuggestions comes from useSearch which is updated as homepage loads initially.
-  const { filteredSuggestions } = useSearch(userEmail, isLoggedIn, inputValue, debouncedInputValue);
-  // console.log("filteredSuggestions", filteredSuggestions);
+
+  const { filteredSuggestions } = useSearch(userEmail, null, inputValue, null);
 
   return (
     <Autocomplete
@@ -49,7 +42,7 @@ export default function SearchInput({
       inputValue={inputValue}       // The current text input value in the Autocomplete
       
       // This function is called whenever the input text changes in the search bar.
-      onInputChange={(event, newInputValue) => {handleInputChange(event, newInputValue, userEmail,filteredSuggestions)}}
+      onInputChange={(event, newInputValue) => {handleInputChange(event, newInputValue, userEmail, filteredSuggestions)}}
       // This function is called when a dropdown suggestion is selected
       onChange={(e, submitTerm) => {handleSubmit(e, submitTerm, userEmail)}}
 
@@ -86,6 +79,7 @@ export default function SearchInput({
           )} */}
         </div>
       )}
+      // the renderOption function is being used to highlight matching parts of the option's label based on the user's input.
       renderOption={(props, option, { inputValue }) => {
         const matches = match(option.label, inputValue, { insideWords: true });
         const parts = parse(option.label, matches);

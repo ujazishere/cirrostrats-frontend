@@ -27,12 +27,10 @@ const useInputHandlers = () => {
     console.log("value", value);
   }
 
-  const handleInputChange = (event, newInputValue, userEmail,filteredSuggestions) => {
+  const handleInputChange = (event, newInputValue, userEmail, filteredSuggestions) => {
     // const { filteredSuggestions } = useSearch(null, null, inputValue, debouncedInputValue);
     setInputValue(newInputValue);
     trackSearch(userEmail, newInputValue);
-
-    // const lowercaseInputValue = debouncedInputValue.toLowerCase();
   }
     // Filter local data
     // const filteredAirports = airports.filter(
