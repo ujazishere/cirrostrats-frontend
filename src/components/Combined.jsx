@@ -16,6 +16,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
+import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
 
 /**
  * Highlights specific weather-related patterns in text with different colors
@@ -38,7 +39,6 @@ const highlightWeatherText = (text) => {
     .replace(altimeterPattern, '<span class="box_around_text">$1</span>');
 };
 
-
 /**
  * Component to display weather information including D-ATIS, METAR, and TAF
  * @param {Object} props
@@ -50,9 +50,6 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
   const datis = weatherDetails?.datis;
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;
-
-
-// section 1 - SUMMARY BOX //
 
   return (
     <div className="card">
@@ -88,10 +85,7 @@ const WeatherCard = ({ arrow, title, weatherDetails }) => {
  * @param {Object} props
  * @param {Object} props.gateData - Gate and flight status information
  */
-
-
 const GateCard = ({ gateData }) => {
-  // Utility function to format date
   const formatDateTime = (dateString) => {
     if (!dateString || dateString === 'None') return 'None';
     try {
@@ -106,7 +100,6 @@ const GateCard = ({ gateData }) => {
     }
   };
 
-  // Function to compare two dates taking year into account
   const compareDates = (dateA, dateB) => {
     if (!dateA || dateA === 'None') return 1;
     if (!dateB || dateB === 'None') return -1;
@@ -114,33 +107,26 @@ const GateCard = ({ gateData }) => {
     const dateObjA = new Date(dateA);
     const dateObjB = new Date(dateB);
 
-    // Extract month and day for comparison
     const monthA = dateObjA.getMonth();
     const monthB = dateObjB.getMonth();
     
-    // If the months are more than 6 months apart, adjust the comparison
     if (Math.abs(monthA - monthB) > 6) {
-      // If monthA is in the latter half of the year and monthB is in the first half
       if (monthA > 6 && monthB < 6) {
-        return 1; // A is actually earlier
+        return 1;
       }
-      // If monthB is in the latter half of the year and monthA is in the first half
       if (monthB > 6 && monthA < 6) {
-        return -1; // B is actually earlier
+        return -1;
       }
     }
 
-    // Otherwise, use normal date comparison
     return dateObjB - dateObjA;
   };
 
-  // Handle case when gateData is an object with flightStatus property
   const getFlightData = () => {
     if (!gateData) return [];
     
     let flightArray;
     if (gateData.flightStatus) {
-      // Convert object to array format
       flightArray = Object.entries(gateData.flightStatus).map(([flightNumber, details]) => ({
         flightNumber,
         scheduled: details.scheduledDeparture || 'None',
@@ -152,7 +138,6 @@ const GateCard = ({ gateData }) => {
       return [];
     }
 
-    // Sort flights by scheduled date
     return flightArray.sort((a, b) => compareDates(a.scheduled, b.scheduled));
   };
 
@@ -190,8 +175,22 @@ const GateCard = ({ gateData }) => {
 const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
   const [activeTab, setActiveTab] = useState('departure');
 
+  // Swipe handlers
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (activeTab === 'departure') setActiveTab('destination');
+      else if (activeTab === 'destination') setActiveTab('route');
+    },
+    onSwipedRight: () => {
+      if (activeTab === 'route') setActiveTab('destination');
+      else if (activeTab === 'destination') setActiveTab('departure');
+    },
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true
+  });
+
   return (
-    <div className="weather-tabs-container">
+    <div className="weather-tabs-container" {...handlers}>
       {/* Tabs navigation */}
       <div className="weather-tabs-navigation">
         <button 
@@ -294,10 +293,8 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
  * @param {Object} props.nasDestinationResponse - NAS info for destination airport
  */
 const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
-  // Handle mobile scroll behavior for sticky headers
   useEffect(() => {
     const handleScroll = () => {
-      // Only apply sticky behavior on mobile devices
       if (window.innerWidth > 768) return;
 
       const departureHeader = document.getElementById('departure-header');
@@ -311,7 +308,6 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       const departureRect = departureSection.getBoundingClientRect();
       const destinationRect = destinationSection.getBoundingClientRect();
       
-      // Toggle sticky classes based on scroll position
       if (destinationRect.top <= 60) {
         departureHeader.classList.remove('sticky');
         destinationHeader.classList.add('sticky');
@@ -324,7 +320,6 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       }
     };
 
-    // Handle window resize and orientation changes
     const handleResize = () => {
       if (window.innerWidth > 768) {
         const departureHeader = document.getElementById('departure-header');
@@ -334,11 +329,9 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       }
     };
 
-    // Add event listeners
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize);
     
-    // Cleanup event listeners
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
