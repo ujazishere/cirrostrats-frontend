@@ -11,24 +11,30 @@ houses all input handlers.
 const useInputHandlers = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
-  // const [filteredSuggestions, setFilteredSuggestions] = useState(suggestions);
   const [selectedValue, setSelectedValue] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [open, setOpen] = useState(false);
 
   const debouncedInputValue = useDebounce(inputValue, 300);
   
-  // const { suggestions } = useSearch(debouncedInputValue);
-
-  // const { suggestions} = useSearch(userEmail, isLoggedIn);
-  // const { filteredSuggestions } = useFetchSuggestions(debouncedInputValue, suggestions);
   const handleValue = (value) => {
     setSelectedValue(value);
     console.log("value", value);
   }
 
-  const handleInputChange = (event, newInputValue, userEmail, filteredSuggestions) => {
-    // const { filteredSuggestions } = useSearch(null, null, inputValue, debouncedInputValue);
+  const handleInputChange = (newInputValue, userEmail,) => {
+    // TODO: have most popular search terms - flight numbers for gjs, GJS airport of operation, terminals
+        // get gjs from the jms /flight returns
+        // This should be a standard datum with predertimed count values that exceed a certain threshold
+        // This should be about 100.
+        // Once these are nearing exhaustion the inputValue processer should dertermine the the kind of inputValue:-
+            // Wheather it is a flight number, airport, terminal, etc.
+            // once that is determined more fetches should be made to the backend to get only the apporpriate data
+            // *******Account for backspaces and deletions 
+    // Here the user should have most popular search terms displayed in the dropdown.
+    // once the user initiates typing if the inputValue is more than 2 and filteredSuggestions(dropdown items) is less than 7,
+    // then call the updateSuggestions function.
+
+
     setInputValue(newInputValue);
     trackSearch(userEmail, newInputValue);
   }
