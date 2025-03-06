@@ -6,10 +6,18 @@ const searchService = {
    * Fetch most searched items.
    * @param {string} userEmail
    */
-  fetchMostSearched: async (userEmail) => {
+  fetchMostSearched: async (userEmail, inputValue="gj", page=1, pageSize=15) => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await axios.get(`${apiUrl}/searches/suggestions/${userEmail}`)
-    return response.data;
+    try {
+      console.log('inputValue', inputValue);
+      const response = await axios.get(`${apiUrl}/searches/suggestions/${userEmail}?query=${inputValue}&page=${page}&page_size=${pageSize}`)
+      // console.log("fetching from", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      // handle error, e.g., display error message to user
+    }
+    // const response = await axios.get(`${apiUrl}/searches/suggestions/${userEmail}`)
   },
 
 
@@ -70,6 +78,18 @@ const searchService = {
   fetchConcourses: async (searchTerm, userEmail, isLoggedIn) => {
     const apiUrl = import.meta.env.VITE_API_URL;
     const response = await axios.get(`${apiUrl}/gates`);
+    return response.data;
+  },
+
+  /**
+   * Fetch raw query
+   * @param {string} searchTerm
+   * @param {string} userEmail
+   * @param {boolean} isLoggedIn
+   */
+  fetchRawQuery: async (debouncedInputValue ) => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const response = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
     return response.data;
   },
 };

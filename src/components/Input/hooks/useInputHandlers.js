@@ -34,7 +34,6 @@ const useInputHandlers = () => {
     // once the user initiates typing if the inputValue is more than 2 and filteredSuggestions(dropdown items) is less than 7,
     // then call the updateSuggestions function.
 
-
     setInputValue(newInputValue);
     trackSearch(userEmail, newInputValue);
   }
@@ -115,16 +114,16 @@ const useInputHandlers = () => {
     // trackSearch(inputValue, searchValue.label);
   };
 
-  const handleSuggestionClick = (searchTerm) => {
-    setInputValue(searchTerm);
-    const matchingSuggestion = filteredSuggestions.find(
-      (suggestion) => suggestion.label.toLowerCase() === searchTerm.toLowerCase()
-    );
-    if (matchingSuggestion) {
-      setSelectedValue(matchingSuggestion);
-      navigate("/details", { state: { searchValue: matchingSuggestion } });
-    }
-  };
+  // const handleSuggestionClick = (searchTerm) => {
+  //   setInputValue(searchTerm);
+  //   const matchingSuggestion = filteredSuggestions.find(
+  //     (suggestion) => suggestion.label.toLowerCase() === searchTerm.toLowerCase()
+  //   );
+  //   if (matchingSuggestion) {
+  //     setSelectedValue(matchingSuggestion);
+  //     navigate("/details", { state: { searchValue: matchingSuggestion } });
+  //   }
+  // };
 
   const handleFocus = () => {
     // setIsExpanded(true);
@@ -177,7 +176,7 @@ const useInputHandlers = () => {
     }
   };
 
-  // This will be called when the user presses the Tab key -- works with inlinePrediction
+  // // This will be called when the user presses the Tab key -- works with inlinePrediction
   const handleKeyDown = (event) => {
     if (event.key === "Tab" && inlinePrediction) {
       event.preventDefault();
@@ -222,7 +221,7 @@ const useInputHandlers = () => {
     handleSubmit,
     handleValue,
     handleInputChange,
-    handleSuggestionClick,
+    // handleSuggestionClick,
     handleFocus,
     handleBlur,
     handleKeyDown,

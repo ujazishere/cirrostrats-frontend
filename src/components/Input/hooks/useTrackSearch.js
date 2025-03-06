@@ -3,6 +3,7 @@ import axios from "axios";
 export const trackSearch = async (userEmail,searchTerm=null, submitTerm=null, submitId=null) => {
   // if dev mode is enabled, don't track search
   const apiUrl = import.meta.env.VITE_API_URL;
+  // enable search tracking in .env
   if (import.meta.env.VITE_TRACK_SEARCH === "true") {
     // Generate a timestamp
     const timestamp = new Date().toISOString();

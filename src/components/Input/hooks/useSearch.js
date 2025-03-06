@@ -26,18 +26,32 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
 //   Only triggers once on the initial render of the homepage.
   useEffect(() => {
     const fetchMostSearched = async () => {
-      const searchSuggestions = await searchService.fetchMostSearched(userEmail);
-      const formattedSuggestions = Object.keys(searchSuggestions).map(key => ({
-        id: key,
-        label: key,
-        type: searchSuggestions[key].id ? 'Airport' : '', // if id exists, it's an airport type. - for use in mdb
-        mdb: searchSuggestions[key].id,
-        count: searchSuggestions[key].count, // Optional
-        fuzzyFind: searchSuggestions[key].fuzzyFind // Optional (if available)
+      const searchSuggestions = await searchService.fetchMostSearched(userEmail, inputValue);
+      const typeMap = {
+        flightNumber: 'flightNumber',
+        name: 'airport',
+        Gate: 'gate',
+      };
+      //prone to errors what if mdb fields change?
+      const getObjectType = (obj) => {
+        if (obj.name && obj.code) return 'name';  // It's an airport
+        if (obj.flightNumber) return 'flightNumber';  // It's a flight
+        if (obj.Gate) return 'Gate';  // It's a gate
+        return null;
+      };
+      const formattedSuggestions = Object.keys(searchSuggestions).map(eachItem => ({
+        id: searchSuggestions[eachItem]._id,
+        label: searchSuggestions[eachItem].flightNumber
+          ? searchSuggestions[eachItem].flightNumber.startsWith('GJS')
+            ? `UA${searchSuggestions[eachItem].flightNumber.slice(3)} (${searchSuggestions[eachItem].flightNumber})`
+            : searchSuggestions[eachItem].flightNumber
+          : `${searchSuggestions[eachItem].name} (${searchSuggestions[eachItem].code})`,
+        type: typeMap[getObjectType(searchSuggestions[eachItem])],
+        // count: searchSuggestions[eachItem].count, // Optional
+        // fuzzyFind: searchSuggestions[eachItem].fuzzyFind // Optional (if available)
       }));
-
+      console.log("formattedSuggestions", formattedSuggestions);
       setInitialSuggestions(formattedSuggestions);
-      
     };
 
     fetchMostSearched();
@@ -48,41 +62,6 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
     setFilteredSuggestions(initialSuggestions);
     setAllSuggestions(initialSuggestions);
   }, [initialSuggestions]);
-
-  // // Fetch other search data. currently unused.
-  // useEffect(() => {
-  //   // if debouncedInputValue is empty or less than 3 characters, return early to avoid unnecessary API calls.
-  //   if (!debouncedInputValue || debouncedInputValue.length < 3) return;
-  //   setLoading(true);
-  //   // console.log("Fetching suggestions for:", debouncedInputValue);
-  //   // Combine all your data fetching here
-  //   const fetchAllData = async () => {
-  //     // console.log("Fetching suggestions for:", debouncedInputValue);
-  //     try {
-  //       // You can split these into separate API calls if needed
-  //       // const {searchSuggestions} = await searchService.fetchMostSearched(
-  //       //   userEmail,
-  //       // );
-  //       console.log("within fetchAllData -- currently unused", debouncedInputValue);
-        
-  //       // Format all suggestions consistently
-  //       // const formattedSuggestions = [
-  //       //   ...airports.map(a => ({ id: `airport-${a.id}`, label: a.name, type: 'Airport' })),
-  //       //   ...flights.map(f => ({ id: `flight-${f.id}`, label: f.number, type: 'Flight' })),
-  //       //   ...gates.map(g => ({ id: `gate-${g.id}`, label: g.name, type: 'Gate' }))
-  //       // ];
-        
-  //       // setSuggestions(formattedSuggestions);
-  //       // setSuggestions(searchSuggestions);
-  //     } catch (error) {
-  //       console.error("Error fetching suggestions:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchAllData();
-  // }, [debouncedInputValue, userEmail, isLoggedIn]);
 
   // This function matches suggestions for the live inputValue in search and updates the filteredSuggestions state based on matches
   useEffect(() => {
@@ -98,22 +77,31 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
 
   }, [inputValue]);
 
+  // useEffect(() => {
+  //   const fetchRawQuery = async (debouncedInputValue) => {
+  //     const searchSuggestions = await searchService.fetchRawQuery(debouncedInputValue);
+  //   }
+  //   fetchRawQuery(debouncedInputValue);
+  // }, [debouncedInputValue]);
+
 
   // FetchMore -- This function is supposed to be triggered when the suggestions are running out. 
   // The idea is to always have something in the dropdown.
   useEffect(() => {
     const updateSuggestions = () =>{
       // console.log('debouncedInputValue', debouncedInputValue);
-      if (filteredSuggestions.length < 3 && inputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
+      if (filteredSuggestions.length < 10 && debouncedInputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
+        console.log('updating suggestions');
         const flights = searchService.fetchJmsuggestions();
         const trimmedFlightNumbers = flights.flightNumbers.slice(0, 50);     // A samle array for testing.
-        // const parsedFlightNumbersData = JSON.parse(JSON.stringify(flights));
+        // setFilteredSuggestions(xx => [...filteredSuggestions, ...fetchedSuggestions]);
         // append to suggestions:
         const flightNumberSuggestions = trimmedFlightNumbers.map(flightNumber => ({
           id: flightNumber,
           label: flightNumber,
           type: 'flightNumber'
         }));
+        setFilteredSuggestions(xx => [...filteredSuggestions, ...flightNumberSuggestions]);
         // setAllSuggestions(xx => [...allSuggestions, ...flightNumberSuggestions]);
       }
     }

@@ -26,13 +26,15 @@ export default function SearchInput({
     inputValue,
     handleSubmit,
     selectedValue,
+    debouncedInputValue,
     handleInputChange,
     handleFocus,
     handleBlur,
     handleKeyDown,
   } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed to all others.
 
-  const { filteredSuggestions } = useSearch(userEmail, null, inputValue, null);
+  const { filteredSuggestions } = useSearch(userEmail, null, inputValue, debouncedInputValue);
+  // console.log("filteredSuggestions", filteredSuggestions);
 
   return (
     <Autocomplete
@@ -40,9 +42,9 @@ export default function SearchInput({
       options={filteredSuggestions} // list of filtered dropdown items
       value={selectedValue}
       inputValue={inputValue}       // The current text input value in the Autocomplete
-      
+
       // This function is called whenever the input text changes in the search bar.
-      onInputChange={(event, newInputValue) => {handleInputChange(event, newInputValue, userEmail, filteredSuggestions)}}
+      onInputChange={(event, newInputValue) => {handleInputChange(event, newInputValue, userEmail)}}
       // This function is called when a dropdown suggestion is selected
       onChange={(e, submitTerm) => {handleSubmit(e, submitTerm, userEmail)}}
 
