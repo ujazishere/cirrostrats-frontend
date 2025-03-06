@@ -21,7 +21,7 @@ const useInputHandlers = () => {
     console.log("value", value);
   }
 
-  const handleInputChange = (newInputValue, userEmail,) => {
+  const handleInputChange = (event, newInputValue, userEmail,) => {
     // TODO: have most popular search terms - flight numbers for gjs, GJS airport of operation, terminals
         // get gjs from the jms /flight returns
         // This should be a standard datum with predertimed count values that exceed a certain threshold

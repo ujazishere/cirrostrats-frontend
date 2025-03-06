@@ -114,8 +114,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
           label: flightNumber,
           type: 'flightNumber'
         }));
-        // console.log("filteredSuggestions length", filteredSuggestions.length, inputValue, flightNumberSuggestions);
-        setAllSuggestions(xx => [...allSuggestions, ...flightNumberSuggestions]);
+        // setAllSuggestions(xx => [...allSuggestions, ...flightNumberSuggestions]);
       }
     }
 
