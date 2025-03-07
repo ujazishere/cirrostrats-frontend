@@ -22,7 +22,7 @@ export default function SearchInput({
   const inputRef = useRef(null);
   // returns the input handlers that will be passed to the Autocomplete component
   const {
-    open,
+    open: dropOpen,
     inputValue,
     handleSubmit,
     selectedValue,
@@ -33,12 +33,11 @@ export default function SearchInput({
     handleKeyDown,
   } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed to all others.
 
-  const { filteredSuggestions } = useSearch(userEmail, null, inputValue, debouncedInputValue);
-  // console.log("filteredSuggestions", filteredSuggestions);
+  const { filteredSuggestions } = useSearch(userEmail, null, inputValue, debouncedInputValue, dropOpen);
 
   return (
     <Autocomplete
-      open={open}     // Controls whether the Autocomplete dropdown is open or closed
+      open={dropOpen}     // Controls whether the Autocomplete dropdown is open or closed
       options={filteredSuggestions} // list of filtered dropdown items
       value={selectedValue}
       inputValue={inputValue}       // The current text input value in the Autocomplete

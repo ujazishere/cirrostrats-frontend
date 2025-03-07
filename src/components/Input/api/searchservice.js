@@ -6,12 +6,10 @@ const searchService = {
    * Fetch most searched items.
    * @param {string} userEmail
    */
-  fetchMostSearched: async (userEmail, inputValue="gj", page=1, pageSize=15) => {
+  fetchMostSearched: async (userEmail, inputValue="gj", page=1, pageSize=10) => {
     const apiUrl = import.meta.env.VITE_API_URL;
     try {
-      console.log('inputValue', inputValue);
       const response = await axios.get(`${apiUrl}/searches/suggestions/${userEmail}?query=${inputValue}&page=${page}&page_size=${pageSize}`)
-      // console.log("fetching from", response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching suggestions:", error);
