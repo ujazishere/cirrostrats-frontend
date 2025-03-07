@@ -14,3 +14,77 @@ export const formatSuggestions = (searchSuggestions) => {
     // count: searchSuggestions[eachItem].count, // Optional
     // fuzzyFind: searchSuggestions[eachItem].fuzzyFind // Optional (if available)
 }))};
+
+export const matchingSuggestion = (initialSuggestions, inputValue) => {
+  if (!inputValue) return initialSuggestions;
+  const lowercaseInputValue = inputValue.toLowerCase();
+
+  // Filter local data
+  return initialSuggestions.filter(
+    (searches) =>
+      searches.label.toLowerCase().includes(lowercaseInputValue)
+  );
+};
+
+
+export const fetchAndFilterSuggestions = async ({
+  currentSuggestions,
+  inputValue,
+  userEmail,
+  page,
+  searchService,
+  minRequiredResults = 1,
+  maxPagesFetch = 5,
+  delayBetweenFetches = 1000,
+  
+}) => {
+  // First filter the current suggestions
+  let filteredSuggestions = matchingSuggestion(currentSuggestions, inputValue);
+  let currentPage = page;
+  let hasMorePages = true;      // declaring more pages in backend
+
+    //*****_____VVI____***** 
+  // ****Keep fetching more pages until it stacks more than 10 matches in filtered suggestions***
+  while (filteredSuggestions.length < 10 && hasMorePages) {
+    // sleep(delayBetweenFetches);
+    try {
+      // Increment page for next fetch
+      currentPage += 1; // First page has already been fetched during initial fetch.
+      
+      // Fetch the next page of data
+      let rawSuggestions = await searchService.fetchMostSearched(
+          userEmail, 
+          "",           //TODO: if hasMorePages is false(pages exhausted), serve actual input value to fetch outside of the mostPopularSearches.
+          currentPage,  // page number for backend
+          10            // pageSize for backend
+        );
+      rawSuggestions = formatSuggestions(rawSuggestions);
+    //   clg.log('rawSuggestions', rawSuggestions.length);
+        
+      // If empty results(rawSuggestions) returned from backend, no more pages left
+      if (!rawSuggestions || rawSuggestions.length === 0) {
+        console.log('breaking, exhausted backend pages', rawSuggestions, rawSuggestions.length);
+        hasMorePages = false;
+        break;
+      } {
+        console.log('rawSuggestions', rawSuggestions.length);}
+      
+      console.log('inputValue', inputValue,);
+      // Filter the new suggestions and add to existing results
+      const newFilteredSuggestions = matchingSuggestion(rawSuggestions, inputValue);
+      filteredSuggestions = [...filteredSuggestions, ...newFilteredSuggestions];
+      console.log('currentPage', currentPage);
+      console.log('filt', filteredSuggestions.length, filteredSuggestions);
+      
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      hasMorePages = false;
+      break
+    }
+  }
+  return {
+    newSuggestions:filteredSuggestions,
+    currentPage,
+    hasMorePages
+  };
+};

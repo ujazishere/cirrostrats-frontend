@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getObjectType } from "../utils/getObjectType";
 import { typeMap } from "../utils/typeMap";
-import { formatSuggestions } from "../utils/formatSuggestions";
+import { formatSuggestions, matchingSuggestion, fetchAndFilterSuggestions } from "../utils/formatSuggestions";
 import useDebounce from "./useDebounce";
 import searchService from "../api/searchservice";
 import useFetchSuggestions from "./useFetchSuggestions";
@@ -22,10 +22,13 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [allSuggestions, setAllSuggestions] = useState([]);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [filterChange, setFilterChange] = useState(false);
+  const [isloading, setIsLoading] = useState(false);
+  const [freshSuggestions, setFreshSuggestions] = useState([]);
   // const searchSuggestions = await searchService.fetchMostSearched(userEmail);
-//   Fetches most searched and sets it to suggestions.
-//   Only triggers once on the initial render of the homepage.
+
+  // Initial fetch -- Fetches most searched and sets it to initialSuggestions.
+  // Only triggers once on the initial render of the homepage.
   useEffect(() => {
     const fetchMostSearched = async () => {
       // fetches most searched from backend
@@ -38,17 +41,18 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
     fetchMostSearched();
   }, [userEmail]);
 
-  // Sets filteredaSuggestions and allSuggestions
+
+  // Sets filteredaSuggestions and allSuggestions from initialSuggestions.
   useEffect(() => {
     setFilteredSuggestions(initialSuggestions);
     setAllSuggestions(initialSuggestions);
   }, [initialSuggestions]);
 
-
+  // Fetch raw query
   useEffect(() => {
     const fetchRawQuery = async (debouncedInputValue) => {
       if (!debouncedInputValue) return;
-      // console.log('within fetch raw query debouncedInputValue', debouncedInputValue);
+      // console.log('raw query debouncedInputValue', debouncedInputValue);
       // const searchSuggestions = await searchService.fetchRawQuery(debouncedInputValue);
     }
     fetchRawQuery(debouncedInputValue);
@@ -73,54 +77,78 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
     updateSuggestions();
   }, [filteredSuggestions]);
 
-  // This function matches suggestions for the live inputValue in search and updates the filteredSuggestions state based on matches
+  // This function matches suggestions with dropdown for the live inputValue in search and updates the filteredSuggestions state based on matches
   useEffect(() => {
-    const lowercaseInputValue = inputValue.toLowerCase();
-    // Filter local data
-    const newfilteredSuggestions = initialSuggestions.filter(
-      (searches) =>
-        searches.label.toLowerCase().includes(lowercaseInputValue) ||
-        searches.label.toLowerCase().includes(lowercaseInputValue)
-    );
-    // if the number of suggestions is less than 10 and dropdown is open
-    if (newfilteredSuggestions.length < 10 && dropOpen) {      // if suggestions are less than 2 and debouncedInputValue is not empty
-      setPage(page + 1);
-      // console.log('newfilteredSuggestions less than 10', newfilteredSuggestions.length, page);
-      //
-      // setPage(page + 1// console.log('updating suggestions', newfilteredSuggestions.length, page);
-      const updatedSuggestions = searchService.fetchMostSearched(userEmail, inputValue, page); // fetch more suggestions
-      // if updatedSuggestions is less than 50, increment page. 
-      // const formattedSuggestions = formatSuggestions(updatedSuggestions);
-    };
+    console.log('freshSuggestions', freshSuggestions.length);
+    if (freshSuggestions.length <= 0) {
+      const newfilteredSuggestions = matchingSuggestion(initialSuggestions, inputValue);
+      setFilteredSuggestions(newfilteredSuggestions);
+      // if the number of suggestions is less than 10 and dropdown is open
+      if (newfilteredSuggestions.length < 10 && dropOpen && inputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
+        // setPage(page + 1);
+        setFilterChange(true);
+        updateSuggestions();
+        // setFilteredSuggestions(freshSuggestions)
+      };
+    } else {
+      setFilteredSuggestions(freshSuggestions);
+    }
 
-    const updateSuggestions = async () =>{
-      // console.log('debouncedInputValue', debouncedInputValue);
-      // if (filteredSuggestions.length < 10) {      // if suggestions are less than 2 and debouncedInputValue is not empty
-      //   console.log('updating suggestions');
-      //   setPage(page + 1);
-      //   console.log('page', page);
-      //   const updatedSuggestions = await searchService.fetchMostSearched(userEmail, inputValue, page, 50); // fetch more suggestions
-      //   // if updatedSuggestions is less than 50, increment page. 
-      //   const formattedSuggestions = formatSuggestions(updatedSuggestions);
-      // }
-    } 
-    updateSuggestions();
-    setFilteredSuggestions(newfilteredSuggestions);
   
   }, [inputValue, dropOpen]);
+
+  const updateSuggestions = async () =>{
+    // TODO- March 7 25. This update suggestion is triggering before filteredSuggestions is updated.
+      // Better way to handle it is through the useEffect and state change through filterChange
+    // console.log('newfilteredSuggestions less than 10', filteredSuggestions.length);
+    setIsLoading(true);
+    
+    try {
+      const { newSuggestions, currentPage, hasMorePages } = 
+        await fetchAndFilterSuggestions({
+          currentSuggestions: filteredSuggestions,
+          inputValue,
+          userEmail,
+          page,
+          searchService
+        });
+      
+      console.log('new suggestions', newSuggestions);
+      setFreshSuggestions(newSuggestions);
+      setFilteredSuggestions([]);
+      setFilteredSuggestions(newSuggestions);
+      setPage(currentPage);
+
+
+
+      // // Update state with new data
+      // setFilteredSuggestions([...filteredSuggestions, ...newSuggestions]);
+      // setAllSuggestions(prev => [...new Set([...prev, ...newSuggestions])]);
+      // setFilteredSuggestions(newSuggestions);
+      
+    } catch (error) {
+      console.error("Failed to fetch suggestions:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     const updateSuggestions = async () =>{
       // if page is more than or equal to 2 then fetch more suggestions
       if (page >= 2) {
-        console.log('newfilteredSuggestions less than 10', page);
+        console.log('newfilteredSuggestions less than 10', filteredSuggestions.length);
         const updatedSuggestions = await searchService.fetchMostSearched(userEmail, null, page, ); // fetch more suggestions
 
       console.log('page changed', page);
       }
     }
     updateSuggestions();
-  }, [page]);
+  }, [filterChange]);
+
+
+
   return {
     filteredSuggestions
   };
