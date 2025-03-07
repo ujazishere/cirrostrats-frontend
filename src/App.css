@@ -69,9 +69,9 @@
 }
 
 .weather-tab-button.active {
-  background-color: #24292E;
-  color: white;
+  color: #24292E;
   font-weight: 600;
+  border-bottom: 2px solid #24292E;
 }
 
 .weather-tab-button:hover:not(.active) {
@@ -245,15 +245,26 @@
 }
 
 /* Mobile responsiveness */
+/* Mobile responsiveness */
 @media (max-width: 768px) {
   .weather-tab-button {
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: 12px;
+    min-width: 90px; /* Ensure tabs have a minimum width */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for overflow text */
   }
-  
-  .card__depature__details {
-    padding: 10px;
-    font-size: 14px;
+
+  .weather-tabs-navigation {
+    overflow-x: auto; /* Allow horizontal scrolling for tabs */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
+    padding: 0 10px; /* Add padding to prevent tabs from touching the edges */
+  }
+
+  .weather-tabs-content {
+    width: 100%; /* Ensure content takes full width */
+    overflow-x: hidden; /* Prevent horizontal overflow */
   }
   
   .weather-tab-header {
