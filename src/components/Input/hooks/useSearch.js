@@ -27,9 +27,16 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
   const [freshSuggestions, setFreshSuggestions] = useState([]);
   // const searchSuggestions = await searchService.fetchMostSearched(userEmail);
 
-  // Initial fetch -- Fetches most searched and sets it to initialSuggestions.
-  // Only triggers once on the initial render of the homepage.
+  // Initial fetch 
   useEffect(() => {
+    /**
+     * Fetches most searched items from backend, formats suggestions,
+     * and assigns them to initialSuggestions state.
+     * Only triggers once on the initial render of the homepage.
+   * @async
+   * @function
+   * @returns {Promise<void>}
+   */
     const fetchMostSearched = async () => {
       // fetches most searched from backend
       const searchSuggestions = await searchService.fetchMostSearched(userEmail, inputValue);
@@ -48,49 +55,23 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
     setAllSuggestions(initialSuggestions);
   }, [initialSuggestions]);
 
-  // Fetch raw query
-  useEffect(() => {
-    const fetchRawQuery = async (debouncedInputValue) => {
-      if (!debouncedInputValue) return;
-      // console.log('raw query debouncedInputValue', debouncedInputValue);
-      // const searchSuggestions = await searchService.fetchRawQuery(debouncedInputValue);
-    }
-    fetchRawQuery(debouncedInputValue);
-  }, [debouncedInputValue]);
-
-
-  // FetchMore -- This function is supposed to be triggered when the suggestions are running out. 
-  // The idea is to always have something in the dropdown.
-  useEffect(() => {
-    const updateSuggestions = async () =>{
-      // console.log('debouncedInputValue', debouncedInputValue);
-      // if (filteredSuggestions.length < 10) {      // if suggestions are less than 2 and debouncedInputValue is not empty
-      //   console.log('updating suggestions');
-      //   setPage(page + 1);
-      //   console.log('page', page);
-      //   const updatedSuggestions = await searchService.fetchMostSearched(userEmail, inputValue, page, 50); // fetch more suggestions
-      //   // if updatedSuggestions is less than 50, increment page. 
-      //   const formattedSuggestions = formatSuggestions(updatedSuggestions);
-      // }
-    }
-
-    updateSuggestions();
-  }, [filteredSuggestions]);
 
   // This function matches suggestions with dropdown for the live inputValue in search and updates the filteredSuggestions state based on matches
   useEffect(() => {
-    console.log('freshSuggestions', freshSuggestions.length);
     if (freshSuggestions.length <= 0) {
       const newfilteredSuggestions = matchingSuggestion(initialSuggestions, inputValue);
       setFilteredSuggestions(newfilteredSuggestions);
       // if the number of suggestions is less than 10 and dropdown is open
       if (newfilteredSuggestions.length < 10 && dropOpen && inputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
         // setPage(page + 1);
-        setFilterChange(true);
+        // setFilterChange(true);
+        console.log('triggering update sug');
         updateSuggestions();
         // setFilteredSuggestions(freshSuggestions)
       };
     } else {
+      console.log('freshSug length else', freshSuggestions.length <= 0);
+      setFilteredSuggestions([]);
       setFilteredSuggestions(freshSuggestions);
     }
 
@@ -112,12 +93,10 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
           page,
           searchService
         });
-      
-      console.log('new suggestions', newSuggestions);
-      setFreshSuggestions(newSuggestions);
-      setFilteredSuggestions([]);
-      setFilteredSuggestions(newSuggestions);
-      setPage(currentPage);
+        setFreshSuggestions(newSuggestions);
+        setFilteredSuggestions([]);
+        setFilteredSuggestions(newSuggestions);
+        setPage(currentPage);
 
 
 
@@ -149,7 +128,46 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
 
 
 
+  // Fetch raw query
+  useEffect(() => {
+    const fetchRawQuery = async (debouncedInputValue) => {
+      if (!debouncedInputValue) return;
+      // console.log('raw query debouncedInputValue', debouncedInputValue);
+      // const searchSuggestions = await searchService.fetchRawQuery(debouncedInputValue);
+    }
+    fetchRawQuery(debouncedInputValue);
+  }, [debouncedInputValue]);
+
+
+
   return {
     filteredSuggestions
   };
 }
+
+
+
+  // // FetchMore -- This function is supposed to be triggered when the suggestions are running out. 
+  // // The idea is to always have something in the dropdown.
+  // useEffect(() => {
+  //   const updateSuggestions = async () =>{
+  //     // console.log('debouncedInputValue', debouncedInputValue);
+  //     // if (filteredSuggestions.length < 9) {      // if suggestions are less than 2 and debouncedInputValue is not empty
+  //     //   console.log('updating suggestions');
+  //     //   setPage(page + 0);
+  //     //   console.log('page', page);
+  //     //   const updatedSuggestions = await searchService.fetchMostSearched(userEmail, inputValue, page, 49); // fetch more suggestions
+  //     //   // if updatedSuggestions is less than 49, increment page. 
+  //     //   const formattedSuggestions = formatSuggestions(updatedSuggestions);
+  //     // }
+  //   }
+
+  //   updateSuggestions();
+  // }, [filteredSuggestions]);
+
+
+
+
+
+
+

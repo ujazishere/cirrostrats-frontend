@@ -35,7 +35,6 @@ export const fetchAndFilterSuggestions = async ({
   searchService,
   minRequiredResults = 1,
   maxPagesFetch = 5,
-  delayBetweenFetches = 1000,
   
 }) => {
   // First filter the current suggestions
@@ -45,6 +44,7 @@ export const fetchAndFilterSuggestions = async ({
 
     //*****_____VVI____***** 
   // ****Keep fetching more pages until it stacks more than 10 matches in filtered suggestions***
+  // TODO: searching `aid` causes infinite while loop. it breaks after exhausting backend pages but keeps getting triggered.
   while (filteredSuggestions.length < 10 && hasMorePages) {
     // sleep(delayBetweenFetches);
     try {
@@ -63,13 +63,13 @@ export const fetchAndFilterSuggestions = async ({
         
       // If empty results(rawSuggestions) returned from backend, no more pages left
       if (!rawSuggestions || rawSuggestions.length === 0) {
-        console.log('breaking, exhausted backend pages', rawSuggestions, rawSuggestions.length);
+        console.log('breaking, exhausted backend pages',rawSuggestions, rawSuggestions.length);
         hasMorePages = false;
+        currentPage = 0;
         break;
       } {
         console.log('rawSuggestions', rawSuggestions.length);}
       
-      console.log('inputValue', inputValue,);
       // Filter the new suggestions and add to existing results
       const newFilteredSuggestions = matchingSuggestion(rawSuggestions, inputValue);
       filteredSuggestions = [...filteredSuggestions, ...newFilteredSuggestions];
