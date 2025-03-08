@@ -171,8 +171,10 @@ const GateCard = ({ gateData }) => {
  * @param {Object} props.dep_weather - Departure weather data
  * @param {Object} props.dest_weather - Destination weather data
  * @param {Object} props.flightDetails - Flight details object
+ * @param {Object} props.nasDepartureResponse - NAS info for departure airport
+ * @param {Object} props.nasDestinationResponse - NAS info for destination airport
  */
-const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
+const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureResponse, nasDestinationResponse }) => {
   const [activeTab, setActiveTab] = useState('departure');
 
   // Swipe handlers
@@ -180,9 +182,11 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
     onSwipedLeft: () => {
       if (activeTab === 'departure') setActiveTab('destination');
       else if (activeTab === 'destination') setActiveTab('route');
+      else if (activeTab === 'route') setActiveTab('nas');
     },
     onSwipedRight: () => {
-      if (activeTab === 'route') setActiveTab('destination');
+      if (activeTab === 'nas') setActiveTab('route');
+      else if (activeTab === 'route') setActiveTab('destination');
       else if (activeTab === 'destination') setActiveTab('departure');
     },
     preventDefaultTouchmoveEvent: true,
@@ -210,6 +214,12 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
           onClick={() => setActiveTab('route')}
         >
           Route
+        </button>
+        <button 
+          className={`weather-tab-button ${activeTab === 'nas' ? 'active' : ''}`}
+          onClick={() => setActiveTab('nas')}
+        >
+          NAS Table
         </button>
       </div>
 
@@ -272,6 +282,21 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails }) => {
               ) : (
                 <div className="no-route-data">No route information available</div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* NAS Table Tab */}
+        {activeTab === 'nas' && (
+          <div className="weather-tab-panel">
+            <div className="weather-tab-header">
+              <h3 className="weather-tab-title">
+                NAS Information
+              </h3>
+            </div>
+            <div className="nas-tab-content">
+              <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
+              <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
             </div>
           </div>
         )}
@@ -400,11 +425,9 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         dep_weather={dep_weather} 
         dest_weather={dest_weather} 
         flightDetails={flightDetails} 
+        nasDepartureResponse={nasDepartureResponse}
+        nasDestinationResponse={nasDestinationResponse}
       />
-
-      {/* NAS Information Sections */}
-      <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
-      <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
     </div>
   );
 };
