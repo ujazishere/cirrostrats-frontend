@@ -484,6 +484,8 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1rem;
   margin-bottom: 1rem;
+  width: 120%; /* Makes it wider than its parent */
+  margin-left: -10%; /* Shifts it to the left to center it */
 }
 
 .flight-number {
