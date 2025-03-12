@@ -219,7 +219,7 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
           className={`weather-tab-button ${activeTab === 'nas' ? 'active' : ''}`}
           onClick={() => setActiveTab('nas')}
         >
-          NAS Table
+          NAS
         </button>
       </div>
 
