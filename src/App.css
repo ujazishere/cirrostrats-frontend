@@ -36,6 +36,77 @@
 
 
 
+/* Existing tab header styling */
+.weather-tab-header {
+  background-color: #f8f9fa;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Styles for the tab navigation */
+.weather-tabs-navigation {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  width: 100%;
+  z-index: 100;
+}
+
+/* Sticky class for the tab navigation */
+.weather-tabs-navigation.sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Placeholder div to prevent content jump when tabs become sticky */
+.tabs-placeholder {
+  height: 48px; /* Adjust this to match the height of your tab navigation */
+}
+
+/* Weather tabs container */
+.weather-tabs-container {
+  position: relative;
+}
+
+/* Additional styling for tab buttons */
+.weather-tab-button {
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.weather-tab-button.active {
+  border-bottom: 3px solid #007bff;
+  color: #007bff;
+}
+
+/* Responsive styling for mobile devices */
+@media (max-width: 768px) {
+  .weather-tab-button {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Weather Tabs Styling */
 .weather-tabs-container {
@@ -476,16 +547,13 @@
 
 
 
-/* Flight Details Card Styles */
-/* Flight Details Card Styles */
+
 .flight-details-card {
   background-color: white;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1rem;
   margin-bottom: 1rem;
-  width: 120%; /* Makes it wider than its parent */
-  margin-left: -10%; /* Shifts it to the left to center it */
 }
 
 .flight-number {

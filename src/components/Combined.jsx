@@ -176,6 +176,7 @@ const GateCard = ({ gateData }) => {
  */
 const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureResponse, nasDestinationResponse }) => {
   const [activeTab, setActiveTab] = useState('departure');
+  const [isSticky, setIsSticky] = useState(false);
 
   // Swipe handlers
   const handlers = useSwipeable({
@@ -192,11 +193,31 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
     preventDefaultTouchmoveEvent: true,
     trackMouse: true
   });
+  
+  // Effect to handle the sticky behavior for tabs
+  useEffect(() => {
+    const tabsNav = document.querySelector('.weather-tabs-navigation');
+    const tabsNavTop = tabsNav ? tabsNav.offsetTop : 0;
+    
+    const handleScroll = () => {
+      if (window.scrollY > tabsNavTop) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <div className="weather-tabs-container" {...handlers}>
-      {/* Tabs navigation */}
-      <div className="weather-tabs-navigation">
+      {/* Tabs navigation - add sticky class conditionally */}
+      <div className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}>
         <button 
           className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
           onClick={() => setActiveTab('departure')}
@@ -222,6 +243,9 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
           NAS
         </button>
       </div>
+
+      {/* Add padding when tabs are sticky to prevent content jump */}
+      {isSticky && <div className="tabs-placeholder"></div>}
 
       {/* Tab content */}
       <div className="weather-tabs-content">
