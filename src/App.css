@@ -35,6 +35,8 @@
 }
 
 
+
+
 /* General styles */
 .min-h-screen {
   min-height: 100vh;
@@ -254,7 +256,6 @@
 footer {
   background-color: #1e293b;
   color: white;
-  padding: 2rem 0;
 }
 
 .footer-content {
@@ -271,18 +272,17 @@ footer {
 .footer-title {
   font-size: 1.125rem;
   font-weight: bold;
+  padding: 1rem 0; 
+  text-align: center;
 }
 
-.footer-subtitle {
-  font-size: 0.875rem;
-  color: #94a3b8;
-}
 
 .footer-copyright {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   text-align: center;
   font-size: 0.875rem;
   color: #94a3b8;
+  padding-bottom: 1.2rem;
 }
 
 /* Media queries */
@@ -1220,6 +1220,9 @@ table .skeleton-loader {
     animation: bounceOut 0.5s ease-in;
   }
 
+ 
+
+
 
   .home {
     display: flex;
@@ -1230,10 +1233,7 @@ table .skeleton-loader {
     margin-top: 20px; /* Additional margin if needed */
   }
 
-  .navbar.hidden {
-    top: -100px; /* Adjust this value as necessary to hide the navbar */
-    opacity: 100;
-  }
+
 
   .hidden {
     display: none;
@@ -1251,7 +1251,6 @@ table .skeleton-loader {
     top: 50px;
     animation: bounceIn 0.5s ease-out;
   }
-
 }
 
 

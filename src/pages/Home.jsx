@@ -146,11 +146,10 @@ const HomePage = () => {
 
       {/* Footer */}
       <footer>
-        <div className="container">
+        <div className="footer">
           <div className="footer-content">
             <div className="footer-logo">
-              <div className="footer-title">Cirrostrats</div>
-              <div className="footer-subtitle">Aviation Weather & Flight Information</div>
+              <div className="footer-title"></div>
             </div>
           </div>
           <div className="footer-copyright">
