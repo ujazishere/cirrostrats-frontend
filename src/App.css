@@ -1605,6 +1605,7 @@ form {
   border: none;
   cursor: pointer;
   transition: background-color 0.2s;
+  border-radius: 5px;
 }
 
 .home__search:hover {
