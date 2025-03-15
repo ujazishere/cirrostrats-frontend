@@ -36,6 +36,462 @@
 
 
 
+/* General styles */
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.bg-slate-50 {
+  background-color: #f8fafc;
+}
+
+/* Header styles */
+header {
+  background-color: #1e293b;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.beta-badge {
+  margin-left: 0.5rem;
+  background-color: #3b82f6;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.utc-clock {
+  margin-right: 1rem;
+  font-size: 0.875rem;
+  background-color: #334155;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-name {
+  margin-right: 1rem;
+  font-size: 0.875rem;
+}
+
+.login-button, .logout-button {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.login-button:hover, .logout-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Hero section styles */
+.hero-section {
+  color: white;
+  padding: 4rem 0;
+}
+
+.hero-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: black;
+}
+
+.search-container {
+  max-width: 36rem;
+  margin: 0 auto;
+  position: relative;
+}
+
+.search-input-group {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.search-input {
+  flex-grow: 1;
+  padding: 1rem 1.5rem;
+  color: black;
+  outline: none;
+  border: none;
+}
+
+.search-button {
+  background-color: #2563eb;
+  color: white;
+  padding: 1rem 1.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-button:hover {
+  background-color: #1d4ed8;
+}
+
+.search-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+/* Search suggestions */
+.suggestions-container {
+  position: absolute;
+  z-index: 10;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+  width: 100%;
+}
+
+.suggestions-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestion-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f1f5f9;
+}
+
+.suggestion-code {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.suggestion-name {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Features section styles */
+.features-section {
+  padding: 3rem 0;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+  margin-top: -6rem;
+  color: #1e293b;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.feature-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1rem;
+  color: white;
+}
+
+.weather-header {
+  background-color: #2563eb;
+}
+
+.flight-header {
+  background-color: #16a34a;
+}
+
+.notam-header {
+  background-color: #d97706;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-text {
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+.code-sample {
+  background-color: #f1f5f9;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+.flight-route {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.airport-info {
+  text-align: center;
+}
+
+.airport-code {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.gate-info {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.route-line {
+  flex-grow: 1;
+  margin: 0 1rem;
+  border-top: 2px dashed #cbd5e1;
+  position: relative;
+}
+
+.route-marker {
+  position: absolute;
+  top: 0;
+  left: 33%;
+  transform: translateY(-50%);
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: #3b82f6;
+  border-radius: 50%;
+}
+
+.notam-alert {
+  border-left: 4px solid #f59e0b;
+  background-color: #fffbeb;
+  padding: 0.75rem;
+}
+
+.notam-text {
+  font-size: 0.875rem;
+  color: #92400e;
+}
+
+/* Quick access section styles */
+.quick-access-section {
+  background-color: #f1f5f9;
+  padding: 3rem 0;
+}
+
+.airport-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.airport-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+.airport-card:hover {
+  background-color: #eff6ff;
+}
+
+.airport-card-code {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #1e293b;
+}
+
+.airport-card-text {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Mobile login */
+.mobile-login {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+
+.mobile-login-container {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer styles */
+footer {
+  background-color: #1e293b;
+  color: white;
+  padding: 2rem 0;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-logo {
+  margin-bottom: 1rem;
+}
+
+.footer-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.footer-subtitle {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.footer-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer-link {
+  color: #cbd5e1;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: white;
+}
+
+.footer-copyright {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+/* Media queries */
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .airport-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .footer-content {
+    flex-direction: row;
+  }
+  
+  .footer-logo {
+    margin-bottom: 0;
+  }
+  
+  .user-name {
+    display: inline;
+  }
+  
+  .mobile-login {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .user-name {
+    display: none;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Existing tab header styling */
 .weather-tab-header {
   background-color: #f8f9fa;
@@ -876,13 +1332,14 @@ table .skeleton-loader {
 
 
 
-.navbar, .searchbar-container {
+.navbar {
   position: fixed;
   width: 100%;
   z-index: 999;
-  background-color: #F3F4F6; /* Ensure the background is the same as your app's background */
+  background-color: #f7fafc; /* Ensure the background is the same as your app's background */
   transition: top 0.3s, opacity 0.3s;
 }
+
 
 .searchbar-container {
   width: 100%;
@@ -890,6 +1347,10 @@ table .skeleton-loader {
   display: flex;
   justify-content: center;
   z-index: 999;
+  width: 100%;
+  z-index: 999;
+  background-color: #f7fafc; /* Ensure the background is the same as your app's background */
+  transition: top 0.3s, opacity 0.3s;
 }
 
 
@@ -1138,15 +1599,23 @@ form {
 }
 
 .home__search {
-  /* font-size: 1.2rem; */
-  background-color: var(--black);
-  border-radius: 5px;
-  color: var(--white);
-  font-size: 1rem;
+  background-color: #24292f;
+  color: white;
+  padding: 1rem 1.5rem;
   border: none;
-  padding: 0.7em;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
+
+.home__search:hover {
+  background-color: #3f4245;
+}
+
+.search-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
 
 .home__search:disabled {
   background-color: #5b6166;
