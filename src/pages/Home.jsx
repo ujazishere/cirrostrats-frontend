@@ -102,7 +102,7 @@ const HomePage = () => {
                 <h4 className="card-title">Flight Details</h4>
               </div>
               <div className="card-body">
-                <p className="card-text">Track flight status, gate information, and runway assignments.</p>
+                <p className="card-text">Track flight status, gate information, and much more.</p>
                 <div className="flight-route">
                   <div className="airport-info">
                     <div className="airport-code">KEWR</div>
