@@ -35,6 +35,38 @@
 }
 
 
+.weather-tabs-content {
+  position: relative;
+  transition: transform 0.3s ease-in-out;
+}
+
+.weather-tabs-content.animate-left {
+  animation: slideLeft 0.3s ease-in-out;
+}
+
+.weather-tabs-content.animate-right {
+  animation: slideRight 0.3s ease-in-out;
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+
 
 
 /* General styles */

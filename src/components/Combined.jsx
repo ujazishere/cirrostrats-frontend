@@ -177,23 +177,38 @@ const GateCard = ({ gateData }) => {
 const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureResponse, nasDestinationResponse }) => {
   const [activeTab, setActiveTab] = useState('departure');
   const [isSticky, setIsSticky] = useState(false);
+  const [animateDirection, setAnimateDirection] = useState(null);
 
   // Swipe handlers
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      if (activeTab === 'departure') setActiveTab('destination');
-      else if (activeTab === 'destination') setActiveTab('route');
-      else if (activeTab === 'route') setActiveTab('nas');
+      if (activeTab === 'departure') {
+        setActiveTab('destination');
+        setAnimateDirection('left');
+      } else if (activeTab === 'destination') {
+        setActiveTab('route');
+        setAnimateDirection('left');
+      } else if (activeTab === 'route') {
+        setActiveTab('nas');
+        setAnimateDirection('left');
+      }
     },
     onSwipedRight: () => {
-      if (activeTab === 'nas') setActiveTab('route');
-      else if (activeTab === 'route') setActiveTab('destination');
-      else if (activeTab === 'destination') setActiveTab('departure');
+      if (activeTab === 'nas') {
+        setActiveTab('route');
+        setAnimateDirection('right');
+      } else if (activeTab === 'route') {
+        setActiveTab('destination');
+        setAnimateDirection('right');
+      } else if (activeTab === 'destination') {
+        setActiveTab('departure');
+        setAnimateDirection('right');
+      }
     },
     preventDefaultTouchmoveEvent: true,
     trackMouse: true
   });
-  
+
   // Effect to handle the sticky behavior for tabs
   useEffect(() => {
     const tabsNav = document.querySelector('.weather-tabs-navigation');
@@ -213,6 +228,14 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  // Effect to reset animation direction after the animation completes
+  useEffect(() => {
+    if (animateDirection) {
+      const timeout = setTimeout(() => setAnimateDirection(null), 300); // Match the duration of the CSS animation
+      return () => clearTimeout(timeout);
+    }
+  }, [animateDirection]);
 
   return (
     <div className="weather-tabs-container" {...handlers}>
@@ -248,7 +271,7 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
       {isSticky && <div className="tabs-placeholder"></div>}
 
       {/* Tab content */}
-      <div className="weather-tabs-content">
+      <div className={`weather-tabs-content ${animateDirection ? `animate-${animateDirection}` : ''}`}>
         {/* Departure Weather Tab */}
         {activeTab === 'departure' && (
           <div className="weather-tab-panel">
