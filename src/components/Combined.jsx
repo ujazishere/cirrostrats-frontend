@@ -1,19 +1,4 @@
-/**
- * This file contains React components for displaying flight and weather information:
- * - FlightCard: Main component displaying comprehensive flight details including departure/arrival info
- * - WeatherCard: Displays weather information (D-ATIS, METAR, TAF) with text highlighting
- * - GateCard: Shows departure information for a specific gate
- * 
- * Key features:
- * - Responsive design with mobile-specific scroll behavior
- * - Weather text highlighting for specific patterns
- * - Real-time flight status display
- * - Integration with NAS (National Airspace System) data
- * - Route visualization support via SkyVector
- * - Tabbed interface for departure and destination weather
- */
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
 import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
@@ -178,7 +163,8 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
   const [activeTab, setActiveTab] = useState('departure');
   const [isSticky, setIsSticky] = useState(false);
   const [animateDirection, setAnimateDirection] = useState(null);
-
+  const tabsNavRef = useRef(null);
+  
   // Swipe handlers
   const handlers = useSwipeable({
     onSwipedLeft: () => {
@@ -209,13 +195,19 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
     trackMouse: true
   });
 
-  // Effect to handle the sticky behavior for tabs
+  // Effect to handle the sticky behavior for tabs - only becomes sticky when scrolled past its position
   useEffect(() => {
-    const tabsNav = document.querySelector('.weather-tabs-navigation');
-    const tabsNavTop = tabsNav ? tabsNav.offsetTop : 0;
-    
     const handleScroll = () => {
-      if (window.scrollY > tabsNavTop) {
+      if (!tabsNavRef.current) return;
+      
+      // Get the tab's position relative to the viewport
+      const tabsNavRect = tabsNavRef.current.getBoundingClientRect();
+      
+      // Add small offset (e.g., header height) if needed
+      const offset = 0; // Adjust if there's a fixed header
+      
+      // Set sticky when the top of the tab navigation is at or above the top of the viewport (plus offset)
+      if (tabsNavRect.top <= offset) {
         setIsSticky(true);
       } else {
         setIsSticky(false);
@@ -223,6 +215,9 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
     };
     
     window.addEventListener('scroll', handleScroll);
+    
+    // Initial check
+    handleScroll();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -240,7 +235,10 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
   return (
     <div className="weather-tabs-container" {...handlers}>
       {/* Tabs navigation - add sticky class conditionally */}
-      <div className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}>
+      <div 
+        ref={tabsNavRef}
+        className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}
+      >
         <button 
           className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
           onClick={() => setActiveTab('departure')}
