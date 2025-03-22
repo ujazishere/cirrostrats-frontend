@@ -1,3 +1,18 @@
+/**
+ * This file contains React components for displaying flight and weather information:
+ * - FlightCard: Main component displaying comprehensive flight details including departure/arrival info
+ * - WeatherCard: Displays weather information (D-ATIS, METAR, TAF) with text highlighting
+ * - GateCard: Shows departure information for a specific gate
+ * 
+ * Key features:
+ * - Responsive design with mobile-specific scroll behavior
+ * - Weather text highlighting for specific patterns
+ * - Real-time flight status display
+ * - Integration with NAS (National Airspace System) data
+ * - Route visualization support via SkyVector
+ * - Tabbed interface for departure and destination weather
+ */
+
 import React, { useEffect, useState, useRef } from 'react';
 import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
@@ -164,6 +179,8 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
   const [isSticky, setIsSticky] = useState(false);
   const [animateDirection, setAnimateDirection] = useState(null);
   const tabsNavRef = useRef(null);
+  const contentRef = useRef(null);
+  const tabPositionRef = useRef(null);
   
   // Swipe handlers
   const handlers = useSwipeable({
@@ -195,19 +212,21 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
     trackMouse: true
   });
 
-  // Effect to handle the sticky behavior for tabs - only becomes sticky when scrolled past its position
+  // Store the initial position of the tabs when component mounts
+  useEffect(() => {
+    if (tabsNavRef.current) {
+      // Store the original top position of the tabs
+      tabPositionRef.current = tabsNavRef.current.getBoundingClientRect().top + window.scrollY;
+    }
+  }, []);
+
+  // Effect to handle the sticky behavior for tabs - only becomes sticky when scrolled past its original position
   useEffect(() => {
     const handleScroll = () => {
-      if (!tabsNavRef.current) return;
+      if (!tabsNavRef.current || tabPositionRef.current === null) return;
       
-      // Get the tab's position relative to the viewport
-      const tabsNavRect = tabsNavRef.current.getBoundingClientRect();
-      
-      // Add small offset (e.g., header height) if needed
-      const offset = 0; // Adjust if there's a fixed header
-      
-      // Set sticky when the top of the tab navigation is at or above the top of the viewport (plus offset)
-      if (tabsNavRect.top <= offset) {
+      // Check if we've scrolled past the original position of the tabs
+      if (window.scrollY >= tabPositionRef.current) {
         setIsSticky(true);
       } else {
         setIsSticky(false);
@@ -232,44 +251,73 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
     }
   }, [animateDirection]);
 
+  // Effect to ensure minimum content height so scroll behavior is consistent
+  useEffect(() => {
+    if (contentRef.current) {
+      // Calculate viewport height minus the tabs navigation height
+      const tabsHeight = tabsNavRef.current?.offsetHeight || 0;
+      // Set minimum height to 100vh minus tabs height, plus some padding
+      contentRef.current.style.minHeight = `calc(100vh - ${tabsHeight}px)`;
+    }
+  }, [activeTab]);
+
+  // Handle tab change without losing sticky behavior
+  const handleTabChange = (tab) => {
+    // Preserve scroll position when changing tabs
+    const currentScrollY = window.scrollY;
+    setActiveTab(tab);
+    
+    // Use requestAnimationFrame to ensure DOM updates before scrolling
+    requestAnimationFrame(() => {
+      // Maintain scroll position if we're in sticky mode
+      if (isSticky) {
+        window.scrollTo(0, Math.max(tabPositionRef.current, currentScrollY));
+      }
+    });
+  };
+
   return (
     <div className="weather-tabs-container" {...handlers}>
       {/* Tabs navigation - add sticky class conditionally */}
       <div 
         ref={tabsNavRef}
         className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}
+        style={{ position: isSticky ? 'fixed' : 'relative', top: isSticky ? '0' : 'auto', width: '100%', zIndex: 1000 }}
       >
         <button 
           className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
-          onClick={() => setActiveTab('departure')}
+          onClick={() => handleTabChange('departure')}
         >
           Departure
         </button>
         <button 
           className={`weather-tab-button ${activeTab === 'destination' ? 'active' : ''}`}
-          onClick={() => setActiveTab('destination')}
+          onClick={() => handleTabChange('destination')}
         >
           Destination
         </button>
         <button 
           className={`weather-tab-button ${activeTab === 'route' ? 'active' : ''}`}
-          onClick={() => setActiveTab('route')}
+          onClick={() => handleTabChange('route')}
         >
           Route
         </button>
         <button 
           className={`weather-tab-button ${activeTab === 'nas' ? 'active' : ''}`}
-          onClick={() => setActiveTab('nas')}
+          onClick={() => handleTabChange('nas')}
         >
           NAS
         </button>
       </div>
 
       {/* Add padding when tabs are sticky to prevent content jump */}
-      {isSticky && <div className="tabs-placeholder"></div>}
+      {isSticky && <div className="tabs-placeholder" style={{ height: tabsNavRef.current?.offsetHeight || 0 }}></div>}
 
       {/* Tab content */}
-      <div className={`weather-tabs-content ${animateDirection ? `animate-${animateDirection}` : ''}`}>
+      <div 
+        ref={contentRef}
+        className={`weather-tabs-content ${animateDirection ? `animate-${animateDirection}` : ''}`}
+      >
         {/* Departure Weather Tab */}
         {activeTab === 'departure' && (
           <div className="weather-tab-panel">
