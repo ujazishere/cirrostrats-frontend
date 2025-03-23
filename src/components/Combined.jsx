@@ -17,6 +17,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
 import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
+import Input from "../components/Input/Index"; // Ensure this path is correct
 
 /**
  * Highlights specific weather-related patterns in text with different colors
@@ -178,35 +179,58 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
   const [activeTab, setActiveTab] = useState('departure');
   const [isSticky, setIsSticky] = useState(false);
   const [animateDirection, setAnimateDirection] = useState(null);
+  const [swipeDistance, setSwipeDistance] = useState(0);
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
   const tabPositionRef = useRef(null);
-  
+
   // Swipe handlers
   const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (activeTab === 'departure') {
-        setActiveTab('destination');
-        setAnimateDirection('left');
-      } else if (activeTab === 'destination') {
-        setActiveTab('route');
-        setAnimateDirection('left');
-      } else if (activeTab === 'route') {
-        setActiveTab('nas');
-        setAnimateDirection('left');
+    onSwiping: (event) => {
+      const deltaX = event.deltaX;
+      const windowWidth = window.innerWidth;
+      const swipePercentage = (deltaX / windowWidth) * 100;
+
+      // Limit the swipe percentage to 50% in either direction
+      if (swipePercentage > 50) {
+        setSwipeDistance(50);
+      } else if (swipePercentage < -50) {
+        setSwipeDistance(-50);
+      } else {
+        setSwipeDistance(swipePercentage);
       }
     },
-    onSwipedRight: () => {
-      if (activeTab === 'nas') {
-        setActiveTab('route');
-        setAnimateDirection('right');
-      } else if (activeTab === 'route') {
-        setActiveTab('destination');
-        setAnimateDirection('right');
-      } else if (activeTab === 'destination') {
-        setActiveTab('departure');
-        setAnimateDirection('right');
+    onSwiped: (event) => {
+      const deltaX = event.deltaX;
+      const windowWidth = window.innerWidth;
+      const swipePercentage = (deltaX / windowWidth) * 100;
+
+      if (swipePercentage > 25) {
+        if (activeTab === 'departure') {
+          setActiveTab('destination');
+          setAnimateDirection('left');
+        } else if (activeTab === 'destination') {
+          setActiveTab('route');
+          setAnimateDirection('left');
+        } else if (activeTab === 'route') {
+          setActiveTab('nas');
+          setAnimateDirection('left');
+        }
+      } else if (swipePercentage < -25) {
+        if (activeTab === 'nas') {
+          setActiveTab('route');
+          setAnimateDirection('right');
+        } else if (activeTab === 'route') {
+          setActiveTab('destination');
+          setAnimateDirection('right');
+        } else if (activeTab === 'destination') {
+          setActiveTab('departure');
+          setAnimateDirection('right');
+        }
       }
+
+      // Reset swipe distance after swipe is completed
+      setSwipeDistance(0);
     },
     preventDefaultTouchmoveEvent: true,
     trackMouse: true
@@ -317,6 +341,7 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
       <div 
         ref={contentRef}
         className={`weather-tabs-content ${animateDirection ? `animate-${animateDirection}` : ''}`}
+        style={{ transform: `translateX(${swipeDistance}%)` }}
       >
         {/* Departure Weather Tab */}
         {activeTab === 'departure' && (
