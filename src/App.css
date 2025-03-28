@@ -34,6 +34,10 @@
   }
 }
 
+.search-container {
+  background-color: #f3f4f6 !important;
+}
+
 /* Weather tabs container */
 .weather-tabs-container {
   position: relative;
@@ -1392,7 +1396,7 @@ table .skeleton-loader {
 body,
 html {
   font-family: "Roboto", sans-serif;
-  background-color: #F3F4F6;
+  background-color: #f7fafc;
 }
 .App {
   position: relative;
@@ -1758,6 +1762,7 @@ form {
   width: 90%;
   position: relative;
   margin-top: 2em;
+  background-color: #f7fafc;
 }
 .details__title {
   font-size: 2rem;
