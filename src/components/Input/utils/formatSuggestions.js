@@ -2,11 +2,17 @@ import { getObjectType } from "./getObjectType";
 import { typeMap } from "./typeMap";
 
 export const formatSuggestions = (searchSuggestions) => {
+  console.log('searchSuggestions', searchSuggestions);
   return Object.keys(searchSuggestions).map((eachItem) => ({
 // export const formattedSuggestions = Object.keys(searchSuggestions).map(eachItem => ({
     id: searchSuggestions[eachItem]._id,
+    // Check if flightNumber exists, if it does, add the flightNumber property to the object
+    ...(searchSuggestions[eachItem].flightNumber && {
+    flightNumber: searchSuggestions[eachItem].flightNumber}),
+    
     label: searchSuggestions[eachItem].flightNumber
         ? searchSuggestions[eachItem].flightNumber.startsWith('GJS')
+        // This is causing issues with submits.
         ? `UA${searchSuggestions[eachItem].flightNumber.slice(3)} (${searchSuggestions[eachItem].flightNumber})`
         : searchSuggestions[eachItem].flightNumber
         : `${searchSuggestions[eachItem].name} (${searchSuggestions[eachItem].code})`,

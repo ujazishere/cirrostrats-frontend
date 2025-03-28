@@ -103,7 +103,7 @@ const useInputHandlers = () => {
 
     let searchValue;
     trackSearch(userEmail,null, submitTerm.label, submitTerm.mdb);
-
+    console.log("submitTerm in handleSubmit processed as is in details.jsx-->", submitTerm);
     if (submitTerm) {
       setSelectedValue(submitTerm.label);
       searchValue = submitTerm || { value: inputValue, label: inputValue, type: "unknown" };
