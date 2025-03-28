@@ -17,6 +17,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { NavLink } from "react-router-dom";
 import NASDetails from "./NASDetails";
 import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
+import Input from "../components/Input/Index"; // Ensure this path is correct
+
 
 /**
  * Highlights specific weather-related patterns in text with different colors
@@ -458,6 +460,11 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
 
   return (
     <div className="details">
+      {/* Search Input Component at the very top */}
+      <div className="search-container" style={{ marginBottom: '20px' }}>
+        <Input userEmail="user@example.com" isLoggedIn={true} />
+      </div>
+
       {/* Flight Overview Section */}
       <div className="flight-details-card">
         <div className="flight-number">
@@ -513,7 +520,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
         </div>
       </div>
 
-      {/* Weather Tabs Section - New Component */}
+      {/* Weather Tabs Section */}
       <WeatherTabs 
         dep_weather={dep_weather} 
         dest_weather={dest_weather} 
