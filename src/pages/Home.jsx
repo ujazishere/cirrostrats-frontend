@@ -1,57 +1,55 @@
-import React, { useState, useEffect } from "react";
-import { useGoogleLogin } from "@react-oauth/google";
-import GoogleButton from "react-google-button";
-import axios from "axios";
-import searchService from "../components/Input/api/searchservice";
-// import Input from "../components/Input";
-import Input from "../components/Input/Index";
-import UTCTime from "../components/UTCTime";
+import React, { useState, useEffect } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
+import GoogleButton from 'react-google-button';
+import axios from 'axios';
+import Input from "../components/Input/Index"; // Ensure this path is correct
 
-const Home = () => {
+const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [userEmail, setUserEmail] = useState("Anonymous");
-  const [searchSuggestions, setSuggestions] = useState([]);
+  const [currentUTC, setCurrentUTC] = useState("");
+
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
     const storedUserEmail = localStorage.getItem("userEmail");
-
     if (storedUserInfo && storedUserEmail) {
       setUserInfo(JSON.parse(storedUserInfo));
       setUserEmail(storedUserEmail);
       setIsLoggedIn(true);
-      console.log("User is already logged in:", storedUserEmail);
     }
-  }, []);
 
+    // UTC Clock update
+    const updateClock = () => {
+      const now = new Date();
+      const utcString = now.toUTCString().split(' ');
+      setCurrentUTC(`${utcString[4]} UTC`);
+    };
+
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const googleLogin = useGoogleLogin({
     scope: "openid profile email",
     onSuccess: async (tokenResponse) => {
-      // console.log("Google Login Successful, Token Received:", tokenResponse);
       try {
         const { access_token } = tokenResponse;
-        console.log("Access Token:", access_token);
-
         const userInfoResponse = await axios.get(
           "https://www.googleapis.com/oauth2/v3/userinfo",
           { headers: { Authorization: `Bearer ${access_token}` } }
         );
         const userData = userInfoResponse.data;
-        console.log("User Info from Google:", userData);
         const email = userData.email;
         setUserInfo(userData);
-  // Determine which email to use: logged‑in user's email(if logged in) or "Anonymous"(if not logged in)
         setUserEmail(email);
         setIsLoggedIn(true);
-
         localStorage.setItem("userInfo", JSON.stringify(userData));
         localStorage.setItem("userEmail", email);
-
-        await axios.post(`${apiUrl}track-search`, { email });
-        // console.log("Logged in user's email:", email);
       } catch (error) {
-        console.error("Error fetching user info:", error.response?.data || error.message);
+        console.error("Error fetching user info:", error);
       }
     },
     onError: (errorResponse) => console.error("Google Login Error:", errorResponse),
@@ -63,56 +61,104 @@ const Home = () => {
     setUserEmail(null);
     localStorage.removeItem("userInfo");
     localStorage.removeItem("userEmail");
-    console.log("User logged out.");
-  };
-
-  const styles = {
-    logoutButton: {
-      backgroundColor: "#4285F4",
-      color: "white",
-      padding: "10px 20px",
-      border: "none",
-      borderRadius: "4px",
-      fontSize: "16px",
-      fontWeight: "bold",
-      cursor: "pointer",
-      transition: "background-color 0.3s ease",
-      margin: "15px",
-    },
-    googleButton: {
-      position: "fixed",
-      bottom: "150px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      zIndex: 99,
-    },
   };
 
   return (
-    <div className="home">
-      <h2 className="home__title">Check Weather, Gate, and Flight Information.</h2>
-      <UTCTime />
-      <Input userEmail={userEmail} isLoggedIn={isLoggedIn} />
-      {isLoggedIn ? (
-        <div>
-          <p>Logged in as: {userInfo?.name}</p>
-          <button
-            onClick={handleLogout}
-            style={styles.logoutButton}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#3367D6")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#4285F4")}
-          >
-            Logout
-          </button>
+    <div className="min-h-screen bg-slate-50">
+      {/* Hero section */}
+      <div className="hero-section">
+        <div className="container">
+          <h2 className="hero-title">
+            Check Weather, Gate, and Flight Information
+          </h2>
+
+          {/* Search input */}
+          <Input userEmail={userEmail} isLoggedIn={isLoggedIn} />
         </div>
-      ) : (
-        <div style={styles.googleButton} className="google-button">
-          <GoogleButton onClick={googleLogin} />
+      </div>
+
+      {/* Features section */}
+      <div className="features-section">
+        <div className="container">
+          <h3 className="section-title">Aviation Information at Your Fingertips</h3>
+
+          <div className="features-grid">
+            {/* Weather Card */}
+            <div className="feature-card">
+              <div className="card-header weather-header">
+                <h4 className="card-title">Weather Reports</h4>
+              </div>
+              <div className="card-body">
+                <p className="card-text">Access the latest METAR, TAF, and ATIS information.</p>
+                <div className="code-sample">
+                  KEWR 261951Z 27012G23KT 10SM FEW055...
+                </div>
+              </div>
+            </div>
+
+            {/* Flight Card */}
+            <div className="feature-card">
+              <div className="card-header flight-header">
+                <h4 className="card-title">Flight Details</h4>
+              </div>
+              <div className="card-body">
+                <p className="card-text">Track flight status, gate information, and much more.</p>
+                <div className="flight-route">
+                  <div className="airport-info">
+                    <div className="airport-code">KEWR</div>
+                    <div className="gate-info">Gate 32B</div>
+                  </div>
+                  <div className="route-line">
+                    <div className="route-marker"></div>
+                  </div>
+                  <div className="airport-info">
+                    <div className="airport-code">KDCA</div>
+                    <div className="gate-info">Gate 15A</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* NOTAMs Card */}
+            <div className="feature-card">
+              <div className="card-header notam-header">
+                <h4 className="card-title">NOTAMs</h4>
+              </div>
+              <div className="card-body">
+                <p className="card-text">Stay informed about critical notices, restrictions.</p>
+                <div className="notam-alert">
+                  <div className="notam-text">Runway 11/29 Closed for maintenance until 270800Z</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile view login */}
+      {!isLoggedIn && (
+        <div className="mobile-login">
+          <div className="mobile-login-container">
+            <GoogleButton onClick={() => googleLogin()} />
+          </div>
         </div>
       )}
-      <div className="home__content"></div>
+
+      {/* Footer */}
+      <footer>
+        <div className="footer">
+          <div className="footer-content">
+            <div className="footer-logo">
+              <div className="footer-title"></div>
+            </div>
+          </div>
+          <div className="footer-copyright">
+            © 2025 Cirrostrats. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
 
-export default Home;
+export default HomePage;

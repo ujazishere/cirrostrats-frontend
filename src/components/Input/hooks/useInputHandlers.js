@@ -132,10 +132,13 @@ const useInputHandlers = () => {
     const elements = {
       navbar: ".navbar",
       searchbar: ".searchbar-container",
-      title: ".home__title",
+      title: ".hero-title",
       googleButton: ".google-button",
       utcContainer: ".utc__container",
+      featurecard: ".features-grid",
+      footer: ".footer",
     };
+
     Object.entries(elements).forEach(([key, selector]) => {
       const element = document.querySelector(selector);
       if (element) {
@@ -157,9 +160,11 @@ const useInputHandlers = () => {
         const elements = {
           navbar: ".navbar",
           searchbar: ".searchbar-container",
-          title: ".home__title",
+          title: ".hero-title",
           googleButton: ".google-button",
           utcContainer: ".utc__container",
+          featurecard: ".features-grid",
+          footer: ".footer",
         };
 
         Object.entries(elements).forEach(([key, selector]) => {

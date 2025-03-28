@@ -306,6 +306,7 @@ const Input = ({ userEmail, isLoggedIn }) => {
       title: ".home__title",
       googleButton: ".google-button",
       utcContainer: ".utc__container"
+  
     };
 
     Object.entries(elements).forEach(([key, selector]) => {
