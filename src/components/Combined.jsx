@@ -461,7 +461,7 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
   return (
     <div className="details">
       {/* Search Input Component at the very top */}
-      <div className="search-container" style={{ marginBottom: '20px' }}>
+      <div className="search-container">
         <Input userEmail="user@example.com" isLoggedIn={true} />
       </div>
 

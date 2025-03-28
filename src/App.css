@@ -35,7 +35,7 @@
 }
 
 .search-container {
-  background-color: #f3f4f6 !important;
+  background-color: #f7fafc !important;
 }
 
 /* Weather tabs container */
@@ -1191,7 +1191,7 @@ footer {
   position: relative;
   top: 10px;
   overflow: hidden;
-  background: #F3F4F6;
+  background: #f7fafc;
 }
 
 .table-container,
