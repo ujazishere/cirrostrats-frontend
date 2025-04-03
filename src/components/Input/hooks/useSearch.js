@@ -58,19 +58,20 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
 
   // This function matches suggestions with dropdown for the live inputValue in search and updates the filteredSuggestions state based on matches
   useEffect(() => {
-    if (freshSuggestions.length <= 0) {
+    if (freshSuggestions.length >= 0) {
       const newfilteredSuggestions = matchingSuggestion(initialSuggestions, inputValue);
       setFilteredSuggestions(newfilteredSuggestions);
       // if the number of suggestions is less than 10 and dropdown is open
       if (newfilteredSuggestions.length < 10 && dropOpen && inputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
         // setPage(page + 1);
         // setFilterChange(true);
-        console.log('triggering update sug');
+        console.log('triggering update sug', freshSuggestions.length);
         updateSuggestions();
         // setFilteredSuggestions(freshSuggestions)
       };
     } else {
       console.log('freshSug length else', freshSuggestions.length <= 0);
+      console.log('length', freshSuggestions.length);
       setFilteredSuggestions([]);
       setFilteredSuggestions(freshSuggestions);
     }
@@ -93,6 +94,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
           page,
           searchService
         });
+        console.log('updating sugs');
         setFreshSuggestions(newSuggestions);
         setFilteredSuggestions([]);
         setFilteredSuggestions(newSuggestions);

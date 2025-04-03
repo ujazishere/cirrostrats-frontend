@@ -33,6 +33,22 @@ export const matchingSuggestion = (initialSuggestions, inputValue) => {
 };
 
 
+/**
+ * Asynchronously fetches and filters search suggestions based on the input value.
+ * It attempts to gather enough suggestions by fetching additional pages from the backend
+ * until a minimum threshold is met or no more pages are available.
+ *
+ * @param {Array} currentSuggestions - Existing suggestions to filter and base further searches on.
+ * @param {string} inputValue - The input value used to filter the suggestions.
+ * @param {string} userEmail - The user's email used for authentication or authorization in the search service.
+ * @param {number} page - The current page number to start fetching from.
+ * @param {Object} searchService - The service responsible for fetching search suggestions.
+ * @param {number} [minRequiredResults=1] - The minimum number of required results to stop fetching.
+ * @param {number} [maxPagesFetch=5] - The maximum number of pages to fetch before stopping.
+ * @returns {Promise<Object>} - An object containing the filtered suggestions, the current page, and a boolean indicating if more pages are available.
+ * @throws Will log an error message if fetching suggestions fails.
+ */
+
 export const fetchAndFilterSuggestions = async ({
   currentSuggestions,
   inputValue,
