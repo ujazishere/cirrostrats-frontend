@@ -137,6 +137,9 @@ const useInputHandlers = () => {
       utcContainer: ".utc__container",
       featurecard: ".features-grid",
       footer: ".footer",
+      gatecard: ".gate-card",
+      flightdetailscard: ".flight-details-card",
+      WeatherTabs: ".weather-tabs-container",
     };
 
     Object.entries(elements).forEach(([key, selector]) => {
@@ -165,6 +168,10 @@ const useInputHandlers = () => {
           utcContainer: ".utc__container",
           featurecard: ".features-grid",
           footer: ".footer",
+          gatecard: ".gate-card",
+          flightdetailscard: ".flight-details-card",
+          WeatherTabs: ".weather-tabs-container",
+
         };
 
         Object.entries(elements).forEach(([key, selector]) => {
