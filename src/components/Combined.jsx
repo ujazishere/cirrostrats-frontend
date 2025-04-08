@@ -20,6 +20,7 @@ import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
 import Input from "../components/Input/Index"; // Ensure this path is correct
 import { highlightWeatherText } from "../components/utility/highlightWeatherText";
 import RoutePanel from "./RoutePanel"; // Import the new RouteTabPanel component
+import SummaryTable from "./SummaryTable"; // Import the new SummaryTable component
 
 /**
  * Component to display weather information including D-ATIS, METAR, and TAF
@@ -426,52 +427,8 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
           <span className="aircraft-number">N37502</span>
         </div>
 
-        {/* Flight Information Grid */}
-        <div className="flight-info-container">
-          {/* Departure Airport Information */}
-          <div className="airport-section">
-            <div className="airport-code">{flightDetails?.departure_ID}</div>
-            <br />
-            <div className="info-item">
-              <div className="info-label">Gate</div>
-              <div className="info-value">{flightDetails?.departure_gate}</div>
-            </div>
-            <br />
-            <div className="info-item">
-              <div className="info-label">Scheduled Local</div>
-              <div className="time-value">{flightDetails?.scheduled_departure_time}</div>
-            </div>
-            <br />
-            <div className="info-grid">
-              <div className="info-item">
-                <div className="info-label">Scheduled In</div>
-                <div className="info-value">{flightDetails?.scheduled_in}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Destination Airport Information */}
-          <div className="airport-section">
-            <div className="airport-code">{flightDetails?.destination_ID}</div>
-            <br />
-            <div className="info-item">
-              <div className="info-label">Gate</div>
-              <div className="info-value">{flightDetails?.arrival_gate}</div>
-            </div>
-            <br />
-            <div className="info-item">
-              <div className="info-label">Scheduled Local</div>
-              <div className="time-value">{flightDetails?.scheduled_arrival_time}</div>
-            </div>
-            <br />
-            <div className="info-grid">
-              <div className="info-item">
-                <div className="info-label">Scheduled Out</div>
-                <div className="info-value">{flightDetails?.scheduled_out}</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Using the new SummaryTable component */}
+        <SummaryTable flightDetails={flightDetails} />
       </div>
 
       {/* Weather Tabs Section */}
