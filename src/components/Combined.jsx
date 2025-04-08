@@ -19,6 +19,7 @@ import NASDetails from "./NASDetails";
 import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
 import Input from "../components/Input/Index"; // Ensure this path is correct
 import { highlightWeatherText } from "../components/utility/highlightWeatherText";
+import RoutePanel from "./RoutePanel"; // Import the new RouteTabPanel component
 
 /**
  * Component to display weather information including D-ATIS, METAR, and TAF
@@ -331,34 +332,8 @@ const WeatherTabs = ({ dep_weather, dest_weather, flightDetails, nasDepartureRes
           </div>
         )}
 
-        {/* Route Tab */}
-        {activeTab === 'route' && (
-          <div className="weather-tab-panel">
-            <div className="weather-tab-header">
-              <h3 className="weather-tab-title">
-                Flight Route
-              </h3>
-            </div>
-            <div className="route-tab-content">
-              {flightDetails?.route ? (
-                <div className="route-display">
-                  <div className="route-info">
-                    <div className="route-text">{flightDetails.route}</div>
-                    {flightDetails?.sv && (
-                      <div className="route-actions">
-                        <a href={flightDetails.sv} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
-                          View on SkyVector
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="no-route-data">No route information available</div>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Route Tab - Now using the imported component */}
+        {activeTab === 'route' && <RoutePanel flightDetails={flightDetails} />}
 
         {/* NAS Table Tab */}
         {activeTab === 'nas' && (
