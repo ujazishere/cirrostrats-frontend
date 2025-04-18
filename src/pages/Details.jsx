@@ -7,78 +7,80 @@ import { FlightCard, WeatherCard, GateCard } from "../components/Combined";
 // API base URL from environment variables
 const apiUrl = import.meta.env.VITE_API_URL;
 
-// Skeleton Loader Component: Displays a shimmering effect to indicate loading
-const SkeletonLoader = ({ height, width }) => (
-  <div
-    style={{
-      height: height || "1em",
-      width: width || "100%",
-      borderRadius: "4px",
-      margin: "4px 0",
-      background: "linear-gradient(90deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%)",
-      backgroundSize: "1000px 100%",
-      animation: "shimmer 3s infinite linear",
-      overflow: "hidden",
-    }}
-    className="skeleton-loader"
-  />
-);
-
 // LoadingWeatherCard: Displays a skeleton loader for weather-related information
 const LoadingWeatherCard = () => (
-  <div className="card">
-    {[1, 2, 3].map((section) => (
-      <div key={section}>
-        <div className="card__depature__subtitle card__header--dark">
-          <SkeletonLoader width="100%" />
-        </div>
-        <div className="card__depature__details">
-          <SkeletonLoader width="80%" />
-          <SkeletonLoader width="60%" />
-          <SkeletonLoader width="90%" />
-        </div>
-      </div>
-    ))}
+  <div className="skeleton-section">
+    {/* D-ATIS Section Skeleton */}
+    <div className="skeleton-header">
+      <div className="skeleton-title"></div>
+      <div className="skeleton-time"></div>
+    </div>
+    <div className="skeleton-content">
+      <div className="skeleton-text-short"></div>
+    </div>
+    
+    {/* METAR Section Skeleton */}
+    <div className="skeleton-header">
+      <div className="skeleton-title"></div>
+      <div className="skeleton-time"></div>
+    </div>
+    <div className="skeleton-content">
+      <div className="skeleton-text-medium"></div>
+    </div>
+    
+    {/* TAF Section Skeleton */}
+    <div className="skeleton-header">
+      <div className="skeleton-title"></div>
+      <div className="skeleton-time"></div>
+    </div>
+    <div className="skeleton-content skeleton-taf">
+      {[1, 2, 3, 4, 5].map((line) => (
+        <div key={line} className="skeleton-text-line"></div>
+      ))}
+    </div>
   </div>
 );
 
 // LoadingFlightCard: Displays a skeleton loader for flight-related details
 const LoadingFlightCard = () => (
   <div className="details">
-    <div className="details__card">
-      <SkeletonLoader height="2em" width="100%" />
-      <div className="detail__body">
-        <div className="detail__depature">
-          <SkeletonLoader height="1.5em" width="70%" />
-          <div className="detail__gate">
-            <p className="detail__gate__title">Gate</p>
-            <SkeletonLoader width="100%" />
-          </div>
-          <SkeletonLoader width="60%" />
-          <SkeletonLoader width="60%" />
+    {/* Flight Info Card Skeleton */}
+    <div className="skeleton-flight-card">
+      <div className="skeleton-flight-header">
+        <div className="skeleton-flight-id"></div>
+        <div className="skeleton-flight-number"></div>
+      </div>
+      
+      <div className="skeleton-flight-body">
+        {/* Left Gate Skeleton */}
+        <div className="skeleton-gate-container">
+          <div className="skeleton-gate-label"></div>
+          <div className="skeleton-gate-value"></div>
+          <div className="skeleton-gate-schedule"></div>
+          <div className="skeleton-gate-status"></div>
         </div>
-        <div className="detail__arrival">
-          <SkeletonLoader height="1.5em" width="70%" />
-          <div className="detail__gate">
-            <p className="detail__gate__title">Gate</p>
-            <SkeletonLoader width="40%" />
-          </div>
-          <SkeletonLoader width="60%" />
-          <SkeletonLoader width="60%" />
+        
+        {/* Right Gate Skeleton */}
+        <div className="skeleton-gate-container">
+          <div className="skeleton-gate-label"></div>
+          <div className="skeleton-gate-value"></div>
+          <div className="skeleton-gate-schedule"></div>
+          <div className="skeleton-gate-status"></div>
         </div>
       </div>
     </div>
-    <div className="table-container">
-      <div className="sticky-header">
-        <div className="card__depature__subtitle card__header--dark">
-          <h3 className="card__depature__subtitle__title"></h3>
-        </div>
+    
+    {/* Tabs Skeleton */}
+    <div className="skeleton-tabs-container">
+      {/* Tab Headers */}
+      <div className="skeleton-tabs-header">
+        <div className="skeleton-tab skeleton-tab-active"></div>
+        <div className="skeleton-tab"></div>
+        <div className="skeleton-tab"></div>
+        <div className="skeleton-tab"></div>
       </div>
-      <table className="flight_card">
-        <tbody>
-          <LoadingWeatherCard />
-        </tbody>
-      </table>
+      
+      <LoadingWeatherCard />
     </div>
   </div>
 );
@@ -162,7 +164,7 @@ const Details = () => {
 
   // Renders content based on the current state
   const renderContent = () => {
-    if (loadingFlightData && searchValue?.type === "flightNumber") {
+    if (loadingFlightData && (searchValue?.type === "flightNumber" || searchValue)) {
       return <LoadingFlightCard />;
     }
     return (

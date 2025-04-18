@@ -35,6 +35,199 @@
 }
 
 
+/* Add animation keyframes for shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* General skeleton styles */
+.skeleton-section {
+  width: 100% !important;
+}
+
+/* All skeleton elements share these base properties */
+.skeleton-flight-id,
+.skeleton-flight-number,
+.skeleton-gate-label,
+.skeleton-gate-value,
+.skeleton-gate-schedule,
+.skeleton-gate-status,
+.skeleton-title,
+.skeleton-time,
+.skeleton-text-short,
+.skeleton-text-medium,
+.skeleton-text-line,
+.skeleton-tab {
+  background: linear-gradient(90deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%) !important;
+  background-size: 1000px 100% !important;
+  animation: shimmer 3s infinite linear !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+}
+
+/* Flight card skeleton */
+.skeleton-flight-card {
+  background-color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  padding: 16px !important;
+  margin-bottom: 16px !important;
+}
+
+.skeleton-flight-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+}
+
+.skeleton-flight-id {
+  height: 24px !important;
+  width: 120px !important;
+}
+
+.skeleton-flight-number {
+  height: 16px !important;
+  width: 80px !important;
+}
+
+.skeleton-flight-body {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: space-between !important;
+}
+
+.skeleton-gate-container {
+  width: 48% !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  margin-bottom: 16px !important;
+}
+
+@media (max-width: 768px) {
+  .skeleton-gate-container {
+    width: 100% !important;
+  }
+}
+
+.skeleton-gate-label {
+  height: 16px !important;
+  width: 50px !important;
+  margin-bottom: 12px !important;
+}
+
+.skeleton-gate-value {
+  height: 20px !important;
+  width: 60px !important;
+  margin-bottom: 10px !important;
+}
+
+.skeleton-gate-schedule {
+  height: 12px !important;
+  width: 100px !important;
+  margin-bottom: 8px !important;
+}
+
+.skeleton-gate-status {
+  height: 12px !important;
+  width: 80px !important;
+}
+
+/* Tabs skeleton */
+.skeleton-tabs-container {
+  background-color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden !important;
+}
+
+.skeleton-tabs-header {
+  display: flex !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+
+.skeleton-tab {
+  height: 20px !important;
+  flex: 1 !important;
+  margin: 12px 16px !important;
+}
+
+.skeleton-tab-active {
+  position: relative !important;
+}
+
+.skeleton-tab-active:after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -13px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 2px !important;
+  background-color: #333 !important;
+}
+
+/* Header sections */
+.skeleton-header {
+  background-color: #24292e !important;
+  padding: 12px 16px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.skeleton-title {
+  height: 18px !important;
+  width: 80px !important;
+  background: #3a3f44 !important;
+}
+
+.skeleton-time {
+  height: 14px !important;
+  width: 100px !important;
+  background: #3a3f44 !important;
+}
+
+/* Content sections */
+.skeleton-content {
+  padding: 16px !important;
+}
+
+.skeleton-text-short {
+  height: 16px !important;
+  width: 40px !important;
+}
+
+.skeleton-text-medium {
+  height: 16px !important;
+  width: 160px !important;
+}
+
+.skeleton-text-line {
+  height: 16px !important;
+  margin-bottom: 12px !important;
+  width: 90% !important;
+}
+
+.skeleton-text-line:nth-child(even) {
+  width: 75% !important;
+}
+
+.skeleton-text-line:nth-child(3n) {
+  width: 85% !important;
+}
+
+.skeleton-taf {
+  min-height: 160px !important;
+}
+
+
 
 .search-container {
   background-color: #f7fafc !important;

@@ -111,4 +111,4 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
   );
 };
 
-export { FlightCard, WeatherCard, GateCard };
+export { FlightCard, WeatherCard, GateCard, NASDetails, RoutePanel };
