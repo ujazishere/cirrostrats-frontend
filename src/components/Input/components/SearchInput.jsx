@@ -56,7 +56,7 @@ export default function SearchInput({
               <TextField
                 {...params}
                 inputRef={inputRef}
-                placeholder="Search flight, gate or airport code (e.g. 71x)"
+                placeholder="Search flight, gate or airport code"
                 margin="none"
                 variant="outlined"
                 fullWidth
