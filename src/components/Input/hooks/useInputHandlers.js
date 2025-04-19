@@ -140,6 +140,7 @@ const useInputHandlers = () => {
       gatecard: ".gate-card",
       flightdetailscard: ".flight-details-card",
       WeatherTabs: ".weather-tabs-container",
+      FeaturesSection: ".features-section",
     };
 
     Object.entries(elements).forEach(([key, selector]) => {
@@ -171,6 +172,7 @@ const useInputHandlers = () => {
           gatecard: ".gate-card",
           flightdetailscard: ".flight-details-card",
           WeatherTabs: ".weather-tabs-container",
+          FeaturesSection: ".features-section",
 
         };
 

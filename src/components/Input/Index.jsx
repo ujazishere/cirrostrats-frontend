@@ -24,9 +24,6 @@ export default function Input({ userEmail, isLoggedIn }) {
           userEmail={userEmail}
           isLoggedIn={isLoggedIn}
         />
-        <button className="home__search" type="submit">
-          Search
-        </button>
       </form>
     </div>
   );
