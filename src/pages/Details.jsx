@@ -125,21 +125,25 @@ const Details = () => {
           const res = await axios.get(`${apiUrl}/gates`);
           setGateData(res.data);
 
-        } else if (searchValue?.type === "flightNumber" || searchValue) {
+        } else if (searchValue?.type === "flight" || searchValue) {
           // search query is a flight number - fetches flight data using flight number and serves FlightCard component
-          const flightNumberQuery = searchValue?.flightNumber || searchValue;
-          console.log("flightNumberQuery", flightNumberQuery);
-          const [depDesRes, flightStatsTZRes, flightAwareRes] = await Promise.all([
-            axios.get(`${apiUrl}/DepartureDestination/${flightNumberQuery}`),
-            axios.get(`${apiUrl}/DepartureDestinationTZ/${flightNumberQuery}`),
-            axios.get(`${apiUrl}/flightAware/UA/${flightNumberQuery}`),
+          const flightID = searchValue?.flightID || searchValue;
+          console.log("flightID", flightID);
+          const [ajms, depDesRes, flightStatsTZRes, flightAwareRes] = await Promise.all([
+            axios.get(`${apiUrl}/ajms/${flightID}`),
+            axios.get(`${apiUrl}/DepartureDestination/${flightID}`),
+            axios.get(`${apiUrl}/DepartureDestinationTZ/${flightID}`),
+            axios.get(`${apiUrl}/flightAware/UA/${flightID}`),
           ]);
+          console.log("ajms", ajms.data);
           setFlightData({
+            ...ajms.data,
             ...depDesRes.data,
             ...flightStatsTZRes.data,
             ...flightAwareRes.data,
           });
           setLoadingFlightData(false);
+          console.log("flightData", flightData);
 
           const [nasRes, depWeather, destWeather] = await Promise.all([
             axios.get(`${apiUrl}/NAS/${depDesRes.data.departure_ID}/${depDesRes.data.destination_ID}`),

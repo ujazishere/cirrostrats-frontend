@@ -3,20 +3,24 @@ import { typeMap } from "./typeMap";
 
 export const formatSuggestions = (searchSuggestions) => {
   console.log('searchSuggestions', searchSuggestions);
+  
   return Object.keys(searchSuggestions).map((eachItem) => ({
-// export const formattedSuggestions = Object.keys(searchSuggestions).map(eachItem => ({
     id: searchSuggestions[eachItem]._id,
-    // Check if flightNumber exists, if it does, add the flightNumber property to the object
-    ...(searchSuggestions[eachItem].flightNumber && {
-    flightNumber: searchSuggestions[eachItem].flightNumber}),
     
-    label: searchSuggestions[eachItem].flightNumber
-        ? searchSuggestions[eachItem].flightNumber.startsWith('GJS')
+    // Check if flightID exists, if it does, add the flightID property to the object
+    ...(searchSuggestions[eachItem].flightID && {
+    flightID: searchSuggestions[eachItem].flightID}),
+    
+    label: searchSuggestions[eachItem].flightID
+        ? searchSuggestions[eachItem].flightID.startsWith('GJS')
         // This is causing issues with submits.
-        ? `UA${searchSuggestions[eachItem].flightNumber.slice(3)} (${searchSuggestions[eachItem].flightNumber})`
-        : searchSuggestions[eachItem].flightNumber
+        ? `UA${searchSuggestions[eachItem].flightID.slice(3)} (${searchSuggestions[eachItem].flightID})`
+        : searchSuggestions[eachItem].flightID
         : `${searchSuggestions[eachItem].name} (${searchSuggestions[eachItem].code})`,
-    type: typeMap[getObjectType(searchSuggestions[eachItem])],
+    
+    // temp fix 'flight' if its undefined
+    type: typeMap[getObjectType(searchSuggestions[eachItem])] || 'flight',
+    
     // count: searchSuggestions[eachItem].count, // Optional
     // fuzzyFind: searchSuggestions[eachItem].fuzzyFind // Optional (if available)
 }))};
@@ -67,19 +71,20 @@ export const fetchAndFilterSuggestions = async ({
     //*****_____VVI____***** 
   // ****Keep fetching more pages until it stacks more than 10 matches in filtered suggestions***
   // TODO: searching `aid` causes infinite while loop. it breaks after exhausting backend pages but keeps getting triggered.
-  while (filteredSuggestions.length < 10 && hasMorePages) {
+  while (filteredSuggestions.length < 1 && hasMorePages) {
     // sleep(delayBetweenFetches);
     try {
       // Increment page for next fetch
-      currentPage += 1; // First page has already been fetched during initial fetch.
+      // currentPage += 1; // First page has already been fetched during initial fetch.
       
       // Fetch the next page of data
+      console.log('input, filteredSuggestions.length, currentPage', inputValue);
       let rawSuggestions = await searchService.fetchMostSearched(
-          userEmail, 
-          "",           //TODO: if hasMorePages is false(pages exhausted), serve actual input value to fetch outside of the mostPopularSearches.
-          currentPage,  // page number for backend
-          10            // pageSize for backend
-        );
+        userEmail,
+        inputValue, //TODO: if hasMorePages is false(pages exhausted), serve actual input value to fetch outside of the mostPopularSearches.
+        currentPage, // page number for backend
+        10 // pageSize for backend
+      );
       rawSuggestions = formatSuggestions(rawSuggestions);
     //   clg.log('rawSuggestions', rawSuggestions.length);
         

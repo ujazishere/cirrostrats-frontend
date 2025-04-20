@@ -15,6 +15,7 @@ import React from 'react';
  * @param {Object} props.flightDetails - Flight information with departure and destination details
  */
 const SummaryTable = ({ flightDetails }) => {
+  console.log('flightDetails', flightDetails);
   return (
     <div className="flight-info-container">
       {/* Departure Airport Information */}

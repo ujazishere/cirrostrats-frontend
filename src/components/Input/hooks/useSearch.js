@@ -21,7 +21,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
   const [initialSuggestions, setInitialSuggestions] = useState([]);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [allSuggestions, setAllSuggestions] = useState([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [filterChange, setFilterChange] = useState(false);
   const [isloading, setIsLoading] = useState(false);
   const [freshSuggestions, setFreshSuggestions] = useState([]);
