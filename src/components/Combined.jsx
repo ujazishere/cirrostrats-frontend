@@ -81,15 +81,11 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
     };
   }, []);
 
-  // Override the styles directly targeting what we know about the search-container
-  const searchContainerStyle = {
-    padding: '0.1rem 0 !important',
-  };
 
   return (
     <div className="details">
-      {/* Search Input Component at the very top */}
-      <div className="search-container" style={searchContainerStyle}>
+          {/* Search Input Component at the very top */}
+      <div className="combined-search">
         <Input userEmail="user@example.com" isLoggedIn={true} />
       </div>
 

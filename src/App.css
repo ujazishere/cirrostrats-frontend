@@ -35,6 +35,13 @@
 }
 
 
+/* Only affects search containers within FlightCard */
+.combined-search{
+  margin: 0px;
+  padding: 0px;
+}
+
+
 /* SearchInput.css */
 
 /* Container for centering the search bar */
