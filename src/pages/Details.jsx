@@ -119,6 +119,7 @@ const Details = () => {
           const res = await axios.get(`${apiUrl}/airport/${searchValue.id}`);
           setAirportWx(res.data);
           setLoadingWeather(false);
+          setLoadingFlightData(false); // Added this line to fix airport data not loading
 
         } else if (searchValue?.type === "Terminal/Gate") {
           // search query is a gate type and returns airport weather component
