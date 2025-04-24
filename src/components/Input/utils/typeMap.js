@@ -1,5 +1,5 @@
 export const typeMap = {
-  flightNumber: 'flightNumber',
+  flightID: 'flight',
   name: 'airport',
   Gate: 'gate',
 }

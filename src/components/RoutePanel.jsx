@@ -3,9 +3,9 @@ import React from 'react';
 /**
  * Component for displaying flight route information in a tabbed interface
  * @param {Object} props
- * @param {Object} props.flightDetails - Flight details containing route information
+ * @param {Object} props.flightData - Flight details containing route information
  */
-const RoutePanel = ({ flightDetails }) => {
+const RoutePanel = ({ flightData }) => {
   return (
     <div className="weather-tab-panel">
       <div className="weather-tab-header">
@@ -14,13 +14,13 @@ const RoutePanel = ({ flightDetails }) => {
         </h3>
       </div>
       <div className="route-tab-content">
-        {flightDetails?.route ? (
+        {flightData?.route ? (
           <div className="route-display">
             <div className="route-info">
-              <div className="route-text">{flightDetails.route}</div>
-              {flightDetails?.sv && (
+              <div className="route-text">{flightData.route}</div>
+              {flightData?.sv && (
                 <div className="route-actions">
-                  <a href={flightDetails.sv} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
+                  <a href={flightData.sv} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
                     View on SkyVector
                   </a>
                 </div>

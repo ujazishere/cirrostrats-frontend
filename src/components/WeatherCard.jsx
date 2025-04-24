@@ -9,7 +9,6 @@ import { highlightWeatherText } from "../components/utility/highlightWeatherText
  * @param {Object} props.weatherDetails - Weather data object
  */
 const WeatherCard = ({ arrow, title, weatherDetails }) => {
-  console.log('weatherDetails', weatherDetails);
   const datis = weatherDetails?.datis;
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;

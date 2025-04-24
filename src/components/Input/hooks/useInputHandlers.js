@@ -100,15 +100,13 @@ const useInputHandlers = () => {
   // Other handlers...
   const handleSubmit = (e, submitTerm, userEmail) => {
     if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
-
+    console.log("submitTerm", submitTerm);
     let searchValue;
     trackSearch(userEmail,null, submitTerm.label, submitTerm.mdb);
-    console.log("submitTerm in handleSubmit processed as is in details.jsx-->", submitTerm);
     if (submitTerm) {
       setSelectedValue(submitTerm.label);
       searchValue = submitTerm || { value: inputValue, label: inputValue, type: "unknown" };
     }
-    console.log("searchValue in handleSubmit processed as is in details.jsx-->", searchValue);
     // const searchValue = submitTerm.mdb || { value: inputValue, label: inputValue };
     navigate("/details", { state: { searchValue } });
     // trackSearch(inputValue, searchValue.label);

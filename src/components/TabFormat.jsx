@@ -9,11 +9,11 @@ import RoutePanel from "./RoutePanel";
  * @param {Object} props
  * @param {Object} props.dep_weather - Departure weather data
  * @param {Object} props.dest_weather - Destination weather data
- * @param {Object} props.flightDetails - Flight details object
+ * @param {Object} props.flightData - Flight details object
  * @param {Object} props.nasDepartureResponse - NAS info for departure airport
  * @param {Object} props.nasDestinationResponse - NAS info for destination airport
  */
-const TabFormat = ({ dep_weather, dest_weather, flightDetails, nasDepartureResponse, nasDestinationResponse }) => {
+const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   const [activeTab, setActiveTab] = useState('departure');
   const [isSticky, setIsSticky] = useState(false);
   const [animateDirection, setAnimateDirection] = useState(null);
@@ -162,7 +162,7 @@ const TabFormat = ({ dep_weather, dest_weather, flightDetails, nasDepartureRespo
           <div className="weather-tab-panel">
             <div className="weather-tab-header">
               <h3 className="weather-tab-title">
-                 {flightDetails?.departure_ID}
+                 {flightData?.departure}
               </h3>
             </div>
             {dep_weather ? (
@@ -178,7 +178,7 @@ const TabFormat = ({ dep_weather, dest_weather, flightDetails, nasDepartureRespo
           <div className="weather-tab-panel">
             <div className="weather-tab-header">
               <h3 className="weather-tab-title">
-                {flightDetails?.destination_ID}
+                {flightData?.arrival}
               </h3>
             </div>
             {dest_weather ? (
@@ -190,7 +190,7 @@ const TabFormat = ({ dep_weather, dest_weather, flightDetails, nasDepartureRespo
         )}
 
         {/* Route Tab - Now using the imported component */}
-        {activeTab === 'route' && <RoutePanel flightDetails={flightDetails} />}
+        {activeTab === 'route' && <RoutePanel flightData={flightData} />}
 
         {/* NAS Table Tab */}
         {activeTab === 'nas' && (

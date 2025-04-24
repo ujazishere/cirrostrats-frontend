@@ -29,13 +29,14 @@ import WeatherCard from "./WeatherCard"; // Import the WeatherCard component fro
  * Features responsive design with sticky headers on mobile
  * 
  * @param {Object} props
- * @param {Object} props.flightDetails - Flight information
+ * @param {Object} props.flightData - Flight information
  * @param {Object} props.dep_weather - Departure weather data
  * @param {Object} props.dest_weather - Destination weather data
  * @param {Object} props.nasDepartureResponse - NAS info for departure airport
  * @param {Object} props.nasDestinationResponse - NAS info for destination airport
  */
-const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
+const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
+  console.log("flightData", flightData);
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerWidth > 768) return;
@@ -92,19 +93,19 @@ const FlightCard = ({ flightDetails, dep_weather, dest_weather, nasDepartureResp
       {/* Flight Overview Section */}
       <div className="flight-details-card">
         <div className="flight-number">
-          <h2 className="flight-number-text">{flightDetails?.flight_number}</h2>
-          <span className="aircraft-number">N37502</span>
+          <h2 className="flight-number-text">{flightData?.flightID}</h2>
+          <span className="aircraft-number">{flightData?.registration}</span>
         </div>
 
         {/* Using the new SummaryTable component */}
-        <SummaryTable flightDetails={flightDetails} />
+        <SummaryTable flightData={flightData} />
       </div>
 
       {/* Using the new TabFormat component instead of WeatherTabs */}
       <TabFormat 
+        flightData={flightData} 
         dep_weather={dep_weather} 
         dest_weather={dest_weather} 
-        flightDetails={flightDetails} 
         nasDepartureResponse={nasDepartureResponse}
         nasDestinationResponse={nasDestinationResponse}
       />

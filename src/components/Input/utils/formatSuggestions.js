@@ -6,7 +6,7 @@ export const formatSuggestions = (searchSuggestions) => {
   console.log('searchSuggestions', searchSuggestions);
   
   return Object.keys(searchSuggestions).map((eachItem) => ({
-    id: searchSuggestions[eachItem]._id,
+    id: searchSuggestions[eachItem]._id || searchSuggestions[eachItem].id,
 
     // Check if flightID exists, if it does, add the flightID property to the object
     ...(searchSuggestions[eachItem].flightID && {
