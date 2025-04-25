@@ -166,7 +166,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
               </h3>
             </div>
             {dep_weather ? (
-              <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} />
+              <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} showSearchBar={false} />
             ) : (
               <div className="no-weather-data">No weather data available</div>
             )}
@@ -182,7 +182,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
               </h3>
             </div>
             {dest_weather ? (
-              <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} />
+              <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} showSearchBar={false} />
             ) : (
               <div className="no-weather-data">No weather data available</div>
             )}
