@@ -35,27 +35,26 @@
 }
 
 
-/* weatherCard.css */
 
+
+
+/* weatherCard.css */
 /* Main container */
 .weather-container {
-  max-width: 1200px;
+  max-width: 100%; /* Use full width available */
   margin: 0 auto;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
-  padding-bottom: 30px; /* Add some spacing at the bottom */
+  padding: 0 10px 30px; /* Horizontal padding + bottom padding */
+  box-sizing: border-box;
 }
 
 /* Search container */
 .search-container {
   margin: 20px auto;
-  max-width: 650px;
+  max-width: 100%;
   position: relative;
-}
-
-/* Bottom search container specific styles */
-.search-container-bottom {
-  margin-top: 40px;
-  margin-bottom: 20px;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 
 /* Weather cards container */
@@ -64,6 +63,7 @@
   flex-direction: column;
   gap: 24px;
   margin-top: 40px;
+  width: 100%;
 }
 
 /* Individual weather card */
@@ -72,12 +72,8 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.weather-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Card header styling */
@@ -105,21 +101,25 @@
 
 /* Card body styling */
 .card-body {
-  padding: 20px;
+  padding: 15px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Data content styling */
+/* Data content styling - IMPORTANT CHANGES HERE */
 .data-content {
   font-family: 'Roboto Mono', monospace;
   line-height: 1.6;
   background-color: #f9f9f9;
-  padding: 16px;
+  padding: 10px;
   border-radius: 6px;
   border-left: 3px solid #444;
-  white-space: pre-wrap;
-  overflow-x: auto;
   font-size: 14px;
   color: #222;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+  max-width: 100%;
+  display: block;
 }
 
 /* Highlighted text styling */
@@ -129,24 +129,31 @@
   border-radius: 2px;
 }
 
-/* Make sure the paragraphs inside data-content have appropriate spacing */
-.data-content p {
-  margin: 0;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .card-header {
+    padding: 10px 15px;
+  }
+  
+  .header-title {
+    font-size: 14px;
+  }
+  
+  .timestamp {
+    font-size: 12px;
+  }
+  
   .card-body {
-    padding: 15px;
+    padding: 10px;
   }
   
   .data-content {
-    padding: 12px;
-    font-size: 13px;
+    padding: 8px;
+    font-size: 12px;
   }
 }
 
-/* Override any conflicting styles from other CSS files */
+/* Override any conflicting styles */
 .weather-card h2, 
 .weather-card h3, 
 .weather-card p {
@@ -155,11 +162,26 @@
 }
 
 
+
+
+
+
+
 /* Only affects search containers within FlightCard */
 .combined-search{
   margin: 0px;
   padding: 0px;
 }
+
+
+
+
+
+
+
+
+
+
 
 
 /* SearchInput.css */
