@@ -35,6 +35,126 @@
 }
 
 
+/* weatherCard.css */
+
+/* Main container */
+.weather-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+  padding-bottom: 30px; /* Add some spacing at the bottom */
+}
+
+/* Search container */
+.search-container {
+  margin: 20px auto;
+  max-width: 650px;
+  position: relative;
+}
+
+/* Bottom search container specific styles */
+.search-container-bottom {
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+/* Weather cards container */
+.weather-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 40px;
+}
+
+/* Individual weather card */
+.weather-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.weather-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* Card header styling */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background-color: #24292f;
+  color: white;
+  font-weight: 500;
+}
+
+.header-title {
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.timestamp {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* Card body styling */
+.card-body {
+  padding: 20px;
+}
+
+/* Data content styling */
+.data-content {
+  font-family: 'Roboto Mono', monospace;
+  line-height: 1.6;
+  background-color: #f9f9f9;
+  padding: 16px;
+  border-radius: 6px;
+  border-left: 3px solid #444;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  font-size: 14px;
+  color: #222;
+}
+
+/* Highlighted text styling */
+.data-content .highlight {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* Make sure the paragraphs inside data-content have appropriate spacing */
+.data-content p {
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 15px;
+  }
+  
+  .data-content {
+    padding: 12px;
+    font-size: 13px;
+  }
+}
+
+/* Override any conflicting styles from other CSS files */
+.weather-card h2, 
+.weather-card h3, 
+.weather-card p {
+  margin: 0;
+  padding: 0;
+}
+
+
 /* Only affects search containers within FlightCard */
 .combined-search{
   margin: 0px;
