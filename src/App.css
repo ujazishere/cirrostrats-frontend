@@ -114,7 +114,7 @@
   padding: 10px;
   border-radius: 6px;
   border-left: 3px solid #444;
-  font-size: 14px;
+  font-size: 18px;
   color: #222;
   overflow-x: auto; /* Enable horizontal scrolling */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
@@ -149,7 +149,7 @@
   
   .data-content {
     padding: 8px;
-    font-size: 12px;
+    font-size: 16px;
   }
 }
 
