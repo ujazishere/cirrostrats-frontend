@@ -27,7 +27,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
   const [freshSuggestions, setFreshSuggestions] = useState([]);
   // const searchSuggestions = await searchService.fetchMostSearched(userEmail);
 
-  // Initial fetch 
+  // Initial fetch : Triggered only once on the initial render of the homepage.
   useEffect(() => {
     /**
      * Fetches most searched items from backend, formats suggestions,
@@ -42,19 +42,13 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
       const searchSuggestions = await searchService.fetchMostSearched(userEmail, inputValue);
       // Formats suggestions, assigns value,label, type, etc.
       const formattedSuggestions = formatSuggestions(searchSuggestions);
-      // console.log('formattedSuggestions', formattedSuggestions);
-      setInitialSuggestions(formattedSuggestions);
+      const newfilteredSuggestions = matchingSuggestion(formattedSuggestions, inputValue);
+      setFilteredSuggestions(newfilteredSuggestions);
+      // setInitialSuggestions(formattedSuggestions);
     };
 
     fetchMostSearched();
   }, [userEmail]);
-
-
-  // Sets filteredaSuggestions and allSuggestions from initialSuggestions.
-  useEffect(() => {
-    setFilteredSuggestions(initialSuggestions);
-    setAllSuggestions(initialSuggestions);
-  }, [initialSuggestions]);
 
 
   // This function matches suggestions with dropdown for the live inputValue in search and updates the filteredSuggestions state based on matches
@@ -63,7 +57,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
       const newfilteredSuggestions = matchingSuggestion(initialSuggestions, inputValue);
       setFilteredSuggestions(newfilteredSuggestions);
       // if the number of suggestions is less than 10 and dropdown is open
-      if (newfilteredSuggestions.length < 10 && dropOpen && inputValue) {      // if suggestions are less than 2 and debouncedInputValue is not empty
+      if (newfilteredSuggestions.length < 10 && dropOpen) {      // if suggestions are less than 2 and debouncedInputValue is not empty
         // setPage(page + 1);
         // setFilterChange(true);
         console.log('triggering update sug', freshSuggestions.length);
@@ -77,7 +71,6 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
       setFilteredSuggestions(freshSuggestions);
     }
 
-  
   }, [inputValue, dropOpen]);
 
   const updateSuggestions = async () =>{
@@ -95,7 +88,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
           page,
           searchService
         });
-        console.log('updating sugs');
+        // updating the state
         setFreshSuggestions(newSuggestions);
         setFilteredSuggestions([]);
         setFilteredSuggestions(newSuggestions);
@@ -131,7 +124,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
 
 
 
-  // Fetch raw query
+  // Fetch raw query. triggered every debouncedInputValue
   useEffect(() => {
     const fetchRawQuery = async (debouncedInputValue) => {
       if (!debouncedInputValue) return;

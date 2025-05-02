@@ -40,6 +40,7 @@ export const matchingSuggestion = (initialSuggestions, inputValue) => {
 
 /**
  * Asynchronously fetches and filters search suggestions based on the input value.
+ * Is triggered after every inputValue change - keystroke.
  * It attempts to gather enough suggestions by fetching additional pages from the backend
  * until a minimum threshold is met or no more pages are available.
  *
@@ -61,17 +62,17 @@ export const fetchAndFilterSuggestions = async ({
   let filteredSuggestions = matchingSuggestion(currentSuggestions, inputValue);
   // TODO: searching `aid` causes infinite while loop. it breaks after exhausting backend pages but keeps getting triggered.
   try {
-    console.log('input, filteredSuggestions.length, ', inputValue, filteredSuggestions.length); // testing purposes only. remove later.
     let rawSuggestions = await searchService.fetchMostSearched(
       userEmail,
       inputValue,
     );
     rawSuggestions = formatSuggestions(rawSuggestions);
-      
+    if (!rawSuggestions || rawSuggestions.length === 0) {
+      console.log('rawSuggestions is empty');
+      return;
+    };
     filteredSuggestions = matchingSuggestion(rawSuggestions, inputValue);
     
-    console.log('filtered suggestions', filteredSuggestions);
-      
   } catch (error) {
     console.error("Error fetching suggestions:", error);
   }
