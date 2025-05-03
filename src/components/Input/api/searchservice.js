@@ -8,10 +8,8 @@ const searchService = {
    */
   fetchMostSearched: async (userEmail, inputValue="", page=0, pageSize=10) => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    console.log('backend url:', apiUrl);
     try {
       const response = await axios.get(`${apiUrl}/searches/suggestions/${userEmail}?query=${inputValue}&page=${page}&page_size=${pageSize}`)
-      // const response = await axios.get(`${apiUrl}/initialSuggestions/${userEmail}?query=${inputValue}&page=${page}`)
       return response.data;
     } catch (error) {
       console.error("Error fetching suggestions:", error);

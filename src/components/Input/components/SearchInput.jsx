@@ -5,10 +5,10 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 // import { trackSearch} from "../hooks/useTracksearch";
-import useSearch from "../hooks/useSearch";
+import useSearch from "../hooks/useSuggestions";
 import useInputHandlers from "../hooks/useInputHandlers";
 
-// components/SearchInput.jsx
+
 /**
  * @function SearchInput
  * @description Renders the search input UI (e.g., Autocomplete).

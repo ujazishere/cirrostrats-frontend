@@ -1,9 +1,10 @@
 import { getObjectType } from "./getObjectType";
 import { typeMap } from "./typeMap";
 
+
 // Gets triggered once on the initial render of the homepage. sets the initialSuggestions for the dropdown.
+// Thence onwards, it's triggered on every keystroke.
 export const formatSuggestions = (searchSuggestions) => {
-  console.log('searchSuggestions', searchSuggestions);
   
   return Object.keys(searchSuggestions).map((eachItem) => ({
     id: searchSuggestions[eachItem]._id || searchSuggestions[eachItem].id,
@@ -26,12 +27,13 @@ export const formatSuggestions = (searchSuggestions) => {
     // fuzzyFind: searchSuggestions[eachItem].fuzzyFind // Optional (if available)
 }))};
 
-export const matchingSuggestion = (initialSuggestions, inputValue) => {
-  if (!inputValue) return initialSuggestions;
+
+export const matchingSuggestion = (suggestions, inputValue) => {
+  if (!inputValue) return suggestions;
   const lowercaseInputValue = inputValue.toLowerCase();
 
   // Filter local data
-  return initialSuggestions.filter(
+  return suggestions.filter(
     (searches) =>
       searches.label.toLowerCase().includes(lowercaseInputValue)
   );
@@ -60,8 +62,9 @@ export const fetchAndFilterSuggestions = async ({
 }) => {
   // First filter the current suggestions
   let filteredSuggestions = matchingSuggestion(currentSuggestions, inputValue);
-  // TODO: searching `aid` causes infinite while loop. it breaks after exhausting backend pages but keeps getting triggered.
+
   try {
+    // console.log('fetching most searched suggestions');
     let rawSuggestions = await searchService.fetchMostSearched(
       userEmail,
       inputValue,
