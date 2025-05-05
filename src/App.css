@@ -34,24 +34,22 @@
   }
 }
 
-
-
-/* Simple, optimized animations for mobile */
-
 /* Base animation classes */
 .animate-left {
-  animation: slideFromRight 300ms ease forwards;
+  animation: slideFromRight 300ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  will-change: transform, opacity;
 }
 
 .animate-right {
-  animation: slideFromLeft 300ms ease forwards;
+  animation: slideFromLeft 300ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  will-change: transform, opacity;
 }
 
-/* Simple slide animations that work well on mobile */
+/* Simple slide animations with improved easing */
 @keyframes slideFromRight {
   0% {
     opacity: 0;
-    transform: translateX(15px);
+    transform: translateX(20px);
   }
   100% {
     opacity: 1;
@@ -62,7 +60,7 @@
 @keyframes slideFromLeft {
   0% {
     opacity: 0;
-    transform: translateX(-15px);
+    transform: translateX(-20px);
   }
   100% {
     opacity: 1;
@@ -70,35 +68,62 @@
   }
 }
 
-/* Optimize rendering */
+/* Optimize hardware acceleration */
 .weather-tabs-content {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
-/* Improve touchscreen responsiveness */
+/* Prevent text selection during animations */
 .weather-tabs-container {
   touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
-/* Prevent button jumping */
+/* Smooth tab button transitions */
 .weather-tab-button {
   transition: background-color 0.2s ease, color 0.2s ease;
+  transform: translateZ(0);
 }
 
-/* Make sure tab content is visible */
+/* Ensure tab panels are visible and don't create additional stacking contexts */
 .weather-tab-panel {
   opacity: 1;
+  position: relative;
+  transform: translateZ(0);
+  width: 100%;
 }
 
-/* Reduce layout thrashing by predefining heights of elements */
+/* Reduce layout thrashing by defining content container styles */
 .weather-tabs-content {
   min-height: 200px; /* Adjust as needed */
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  contain: content;
 }
 
+/* Ensure smooth sticky header transitions */
+.weather-tabs-navigation.sticky {
+  transition: none;
+  will-change: position;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+
+
+
+ 
 
 
 /* weatherCard.css */
