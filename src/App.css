@@ -124,7 +124,7 @@
 
 /* For smoother tab button transitions */
 .weather-tab-button {
-  transition: background-color 0.2s ease !important, color 0.2s ease !important;
+  transition: background-color 0.2s ease, color 0.2s ease !important;
   touch-action: manipulation !important;
 }
 
