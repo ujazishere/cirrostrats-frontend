@@ -35,6 +35,58 @@
 }
 
 
+/* Add these styles to your CSS file to enhance the animations */
+
+.weather-tabs-content {
+  transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.3s ease-in-out;
+  will-change: transform, opacity;
+  transform: translateX(0);
+  opacity: 1;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* For smoother tab button transitions */
+.weather-tab-button {
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+
+/* Disable text selection during swipe to improve performance */
+.weather-tabs-container {
+  user-select: none;
+}
+
+/* Optional: Add these if you're still using the animate-left/right classes */
+.animate-left {
+  animation: slideLeft 0.35s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+.animate-right {
+  animation: slideRight 0.35s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+@keyframes slideLeft {
+  0% {
+    transform: translateX(5%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight {
+  0% {
+    transform: translateX(-5%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 
 
 
