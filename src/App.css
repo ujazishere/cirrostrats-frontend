@@ -35,56 +35,156 @@
 }
 
 
-/* Add these styles to your CSS file to enhance the animations */
+/* Mobile-optimized tab animations with !important tags */
 
+/* Base styles for tab content container */
 .weather-tabs-content {
-  transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.3s ease-in-out;
-  will-change: transform, opacity;
-  transform: translateX(0);
-  opacity: 1;
-  backface-visibility: hidden;
-  perspective: 1000px;
+  will-change: transform, opacity !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  position: relative !important;
+}
+
+/* Static state */
+.tab-content-static {
+  transition: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* Left/right animations optimized for mobile */
+.tab-content-left {
+  animation: smoothMobileSlideLeft 300ms forwards !important;
+}
+
+.tab-content-right {
+  animation: smoothMobileSlideRight 300ms forwards !important;
+}
+
+/* For desktop devices (non-mobile) */
+@media (min-width: 769px) {
+  .tab-content-left {
+    animation: smoothDesktopSlideLeft 350ms cubic-bezier(0.4, 0.0, 0.2, 1) forwards !important;
+  }
+  
+  .tab-content-right {
+    animation: smoothDesktopSlideRight 350ms cubic-bezier(0.4, 0.0, 0.2, 1) forwards !important;
+  }
+}
+
+/* Smooth animations with minimal properties for mobile */
+@keyframes smoothMobileSlideLeft {
+  0% {
+    opacity: 0 !important;
+    transform: translateX(10px) !important;
+  }
+  100% {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
+}
+
+@keyframes smoothMobileSlideRight {
+  0% {
+    opacity: 0 !important;
+    transform: translateX(-10px) !important;
+  }
+  100% {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
+}
+
+/* Slightly more sophisticated animations for desktop */
+@keyframes smoothDesktopSlideLeft {
+  0% {
+    opacity: 0.8 !important;
+    transform: translateX(20px) !important;
+  }
+  100% {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
+}
+
+@keyframes smoothDesktopSlideRight {
+  0% {
+    opacity: 0.8 !important;
+    transform: translateX(-20px) !important;
+  }
+  100% {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
 }
 
 /* For smoother tab button transitions */
 .weather-tab-button {
-  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+  transition: background-color 0.2s ease !important, color 0.2s ease !important;
+  touch-action: manipulation !important;
 }
 
-/* Disable text selection during swipe to improve performance */
+/* Disable default touch behaviors to improve performance */
 .weather-tabs-container {
-  user-select: none;
+  touch-action: pan-y !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
 }
 
-/* Optional: Add these if you're still using the animate-left/right classes */
-.animate-left {
-  animation: slideLeft 0.35s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+/* Individual panel styles */
+.weather-tab-panel {
+  opacity: 1 !important;
+  transform: translateZ(0) !important;
+  transition: opacity 0.2s ease !important;
 }
 
-.animate-right {
-  animation: slideRight 0.35s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+/* Optional: Add hardware acceleration for smoother sticky behavior */
+.weather-tabs-navigation.sticky {
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
 }
 
-@keyframes slideLeft {
-  0% {
-    transform: translateX(5%);
-    opacity: 0.8;
+/* Ensure content is properly positioned */
+.weather-tab-panel > * {
+  transform: translateZ(0) !important;
+}
+
+/* Ensure tab content has proper position context */
+.nas-tab-content, .route-tab-content {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Force GPU rendering for entire tabs container */
+.weather-tabs-container {
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  transform: translate3d(0, 0, 0) !important;
+  -webkit-perspective: 1000 !important;
+  perspective: 1000 !important;
+  -webkit-transform-style: flat !important;
+  transform-style: flat !important;
+}
+
+/* Force limited-animation mode on low-end devices */
+@media (pointer: coarse) {
+  .weather-tabs-content {
+    transition: opacity 0.25s ease-out !important;
   }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
+  
+  .tab-content-left, .tab-content-right {
+    animation-duration: 250ms !important;
   }
 }
 
-@keyframes slideRight {
-  0% {
-    transform: translateX(-5%);
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
+/* Override any other transform that might be applied */
+.weather-tabs-content * {
+  backface-visibility: hidden !important;
 }
 
 

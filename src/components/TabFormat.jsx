@@ -18,11 +18,13 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   const [isSticky, setIsSticky] = useState(false);
   const [animateDirection, setAnimateDirection] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [nextTab, setNextTab] = useState(null);
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
   const tabPositionRef = useRef(null);
+  const isMobile = useRef(window.innerWidth <= 768);
   
-  // Swipe handlers
+  // Swipe handlers with reduced sensitivity for mobile
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       if (isAnimating) return; // Prevent swipe during animation
@@ -48,8 +50,9 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
     },
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
-    swipeDuration: 500, // Increase swipe duration for smoother detection
-    delta: 10 // Decrease delta for more sensitive swipe detection
+    swipeDuration: isMobile.current ? 300 : 500, // Faster swipe for mobile
+    delta: isMobile.current ? 30 : 10, // Increased threshold for mobile to reduce false triggers
+    trackTouch: true
   });
 
   // Helper function to change tab with animation
@@ -58,12 +61,30 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
     
     setIsAnimating(true);
     setAnimateDirection(direction);
+    setNextTab(tab);
     
-    // Slight delay before changing tab to let animation start
-    setTimeout(() => {
+    // For mobile, change tab immediately but handle animation via CSS 
+    if (isMobile.current) {
       setActiveTab(tab);
-    }, 50);
+    } else {
+      // On desktop, slight delay before changing tab to let animation start
+      setTimeout(() => {
+        setActiveTab(tab);
+      }, 50);
+    }
   };
+
+  // Check if device is mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      isMobile.current = window.innerWidth <= 768;
+    };
+    
+    window.addEventListener('resize', checkMobile);
+    checkMobile(); // Initial check
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Store the initial position of the tabs when component mounts
   useEffect(() => {
@@ -80,13 +101,13 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       
       // Check if we've scrolled past the original position of the tabs
       if (window.scrollY >= tabPositionRef.current) {
-        setIsSticky(true);
+        if (!isSticky) setIsSticky(true);
       } else {
-        setIsSticky(false);
+        if (isSticky) setIsSticky(false);
       }
     };
     
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     // Initial check
     handleScroll();
@@ -94,15 +115,19 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [isSticky]);
 
   // Effect to reset animation direction after the animation completes
   useEffect(() => {
     if (animateDirection) {
+      const animationTime = isMobile.current ? 300 : 350;
+      
       const timeout = setTimeout(() => {
         setAnimateDirection(null);
         setIsAnimating(false);
-      }, 400); // Match the duration of the CSS animation plus a small buffer
+        setNextTab(null);
+      }, animationTime); // Match the duration of the CSS animation
+      
       return () => clearTimeout(timeout);
     }
   }, [animateDirection]);
@@ -119,7 +144,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
 
   // Handle tab change without losing sticky behavior
   const handleTabChange = (tab) => {
-    if (isAnimating) return; // Prevent clicking during animation
+    if (isAnimating || tab === activeTab) return; // Prevent clicking during animation
     
     // Determine direction based on tab order
     const tabOrder = ['departure', 'destination', 'route', 'nas'];
@@ -137,12 +162,16 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
     requestAnimationFrame(() => {
       // Maintain scroll position if we're in sticky mode
       if (isSticky) {
-        window.scrollTo({
-          top: Math.max(tabPositionRef.current, currentScrollY),
-          behavior: 'auto'
-        });
+        window.scrollTo(0, Math.max(tabPositionRef.current, currentScrollY));
       }
     });
+  };
+
+  // Get appropriate class for tab content animation
+  const getTabContentClass = () => {
+    if (!animateDirection) return 'tab-content-static';
+    
+    return `tab-content-${animateDirection}`;
   };
 
   return (
@@ -189,17 +218,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       {/* Tab content */}
       <div 
         ref={contentRef}
-        className={`weather-tabs-content ${animateDirection ? `animate-${animateDirection}` : ''}`}
-        style={{
-          transition: 'transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.3s ease-in-out',
-          transform: animateDirection ? 
-            `translateX(${animateDirection === 'left' ? '-5%' : '5%'})` : 
-            'translateX(0)',
-          opacity: animateDirection ? '0.95' : '1',
-          willChange: 'transform, opacity',
-          backfaceVisibility: 'hidden',
-          perspective: '1000px'
-        }}
+        className={`weather-tabs-content ${getTabContentClass()}`}
       >
         {/* Departure Weather Tab */}
         {activeTab === 'departure' && (
