@@ -74,55 +74,142 @@
   }
 }
 
-/* Optimize hardware acceleration */
-.weather-tabs-content {
-  backface-visibility: hidden;
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  contain: strict; /* More aggressive containment */
-}
 
-/* Prevent text selection during animations */
+
+/* Base container styles */
 .weather-tabs-container {
-  touch-action: pan-y;
+  touch-action: none; /* Disable browser handling of all touch gestures */
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  overflow: hidden; /* Prevent scroll during animation */
+  overflow: hidden;
+  width: 100%;
 }
 
-/* Smooth tab button transitions */
-.weather-tab-button {
-  transition: background-color 0.2s ease, color 0.2s ease;
+/* Tab content and animation container */
+.weather-tabs-content {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  /* Hardware acceleration */
+  will-change: transform;
   transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  /* High-performance containment */
+  contain: content;
 }
 
-/* Ensure tab panels are properly layered */
+/* Panel styles */
 .weather-tab-panel {
-  opacity: 1;
   position: relative;
   width: 100%;
   height: 100%;
+  opacity: 1;
+  /* Ensure smooth appearance */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tab button styles */
+.weather-tab-button {
+  transition: background-color 0.2s ease, color 0.2s ease;
+  will-change: background-color, color;
+  -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  touch-action: manipulation;
 }
 
-/* Reduce layout thrashing */
-.weather-tabs-content {
-  min-height: 200px;
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Sticky header styles */
+/* Sticky navigation */
 .weather-tabs-navigation.sticky {
   will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Add this to prevent any potential jank */
-html, body {
-  overscroll-behavior-y: contain;
+/* Animation classes - optimized for iOS and Android */
+.animate-left {
+  animation: slideLeft 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  -webkit-animation: slideLeft 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
+
+.animate-right {
+  animation: slideRight 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  -webkit-animation: slideRight 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* Keyframes using transform instead of left/right for better performance */
+@keyframes slideLeft {
+  0% {
+    transform: translateX(0);
+    -webkit-transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+    -webkit-transform: translateX(-100%);
+  }
+}
+
+@-webkit-keyframes slideLeft {
+  0% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+  100% {
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slideRight {
+  0% {
+    transform: translateX(0);
+    -webkit-transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+  }
+}
+
+@-webkit-keyframes slideRight {
+  0% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+  100% {
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+}
+
+/* Fix for iOS momentum scrolling issues */
+html, body {
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent content jumping during animations */
+.tabs-placeholder {
+  transition: height 0.2s ease;
+}
+
+/* Ensure animations don't affect scroll position */
+.weather-tabs-content * {
+  max-height: 100%;
+}
+
+/* Fix for Safari */
+@supports (-webkit-touch-callout: none) {
+  .weather-tabs-content {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 
 
 
