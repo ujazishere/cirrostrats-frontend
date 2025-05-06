@@ -36,46 +36,6 @@
 
 
 
-/* Base animation classes - Optimized for smoothness */
-.animate-left {
-  animation: slideFromRight 300ms cubic-bezier(0.42, 0, 0.58, 1) forwards;
-  will-change: transform;
-  backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-}
-
-.animate-right {
-  animation: slideFromLeft 300ms cubic-bezier(0.42, 0, 0.58, 1) forwards;
-  will-change: transform;
-  backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-}
-
-/* Simple linear slide animations - removed bounce effect */
-@keyframes slideFromRight {
-  from {
-    opacity: 0.8;
-    transform: translate3d(20px, 0, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes slideFromLeft {
-  from {
-    opacity: 0.8;
-    transform: translate3d(-20px, 0, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-
-
 /* Base container styles */
 .weather-tabs-container {
   touch-action: none; /* Disable browser handling of all touch gestures */
@@ -91,15 +51,10 @@
   width: 100%;
   min-height: 200px;
   /* Hardware acceleration */
-  will-change: transform;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  perspective: 1000;
-  -webkit-perspective: 1000;
-  /* High-performance containment */
-  contain: content;
 }
 
 /* Panel styles */
@@ -108,108 +63,58 @@
   width: 100%;
   height: 100%;
   opacity: 1;
-  /* Ensure smooth appearance */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Tab button styles */
 .weather-tab-button {
   transition: background-color 0.2s ease, color 0.2s ease;
-  will-change: background-color, color;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  touch-action: manipulation;
 }
 
 /* Sticky navigation */
 .weather-tabs-navigation.sticky {
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
-/* Animation classes - optimized for iOS and Android */
+/* Animation classes - simplified linear transitions */
 .animate-left {
-  animation: slideLeft 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-  -webkit-animation: slideLeft 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation: slideLeft 0.1s linear forwards;
+  -webkit-animation: slideLeft 0.1s linear forwards;
 }
 
 .animate-right {
-  animation: slideRight 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-  -webkit-animation: slideRight 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation: slideRight 0.1s linear forwards;
+  -webkit-animation: slideRight 0.1s linear forwards;
 }
 
-/* Keyframes using transform instead of left/right for better performance */
+/* Keyframes with linear movement - no easing */
 @keyframes slideLeft {
-  0% {
-    transform: translateX(0);
-    -webkit-transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-100%);
-    -webkit-transform: translateX(-100%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
 }
 
 @-webkit-keyframes slideLeft {
-  0% {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-  }
-  100% {
-    -webkit-transform: translateX(-100%);
-    transform: translateX(-100%);
-  }
+  from { -webkit-transform: translateX(0); }
+  to { -webkit-transform: translateX(-100%); }
 }
 
 @keyframes slideRight {
-  0% {
-    transform: translateX(0);
-    -webkit-transform: translateX(0);
-  }
-  100% {
-    transform: translateX(100%);
-    -webkit-transform: translateX(100%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
 }
 
 @-webkit-keyframes slideRight {
-  0% {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-  }
-  100% {
-    -webkit-transform: translateX(100%);
-    transform: translateX(100%);
-  }
+  from { -webkit-transform: translateX(0); }
+  to { -webkit-transform: translateX(100%); }
 }
 
-/* Fix for iOS momentum scrolling issues */
+/* Fix for iOS scrolling issues */
 html, body {
   overscroll-behavior-y: none;
-  -webkit-overflow-scrolling: touch;
 }
-
-/* Prevent content jumping during animations */
-.tabs-placeholder {
-  transition: height 0.2s ease;
-}
-
-/* Ensure animations don't affect scroll position */
-.weather-tabs-content * {
-  max-height: 100%;
-}
-
-/* Fix for Safari */
-@supports (-webkit-touch-callout: none) {
-  .weather-tabs-content {
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-  }
-}
-
 
 
 

@@ -25,7 +25,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   // Tab order for animation direction determination
   const tabOrder = ['departure', 'destination', 'route', 'nas'];
   
-  // Improved swipe handlers for better cross-device compatibility
+  // Simplified swipe handlers with minimal config
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       if (isAnimating) return; // Prevent swipe during animation
@@ -44,24 +44,20 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       }
     },
     trackTouch: true,
-    trackMouse: false, // Only track touch for mobile
-    preventScrollOnSwipe: true, // Prevent scrolling during swipe
-    delta: 10, // Lower threshold for better responsiveness
-    swipeDuration: 250, // Shorter duration for better performance
+    trackMouse: false,
+    preventDefaultTouchmoveEvent: true,
+    delta: 50, // Increased threshold to prevent accidental triggers
+    swipeDuration: 500, // More lenient timing
   });
 
-  // Helper function to change tab with animation
+  // Helper function to change tab with animation - simplified for no delays
   const changeTab = (tab, direction) => {
     if (activeTab === tab || isAnimating) return;
     
-    // Prevent new animations during transition
+    // Set animation state immediately
     setIsAnimating(true);
     setAnimateDirection(direction);
-    
-    // Change tab after brief delay to ensure animation starts properly
-    setTimeout(() => {
-      setActiveTab(tab);
-    }, 10);
+    setActiveTab(tab);
   };
 
   // Store the initial position of the tabs when component mounts
@@ -98,13 +94,13 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
     };
   }, []);
 
-  // Effect to reset animation direction after the animation completes
+  // Effect to reset animation direction after the animation completes - exact match with CSS duration
   useEffect(() => {
     if (animateDirection) {
       const timeout = setTimeout(() => {
         setAnimateDirection(null);
         setIsAnimating(false);
-      }, 350); // Animation duration - slightly longer than CSS transition
+      }, 300); // Exactly matching CSS animation duration
       return () => clearTimeout(timeout);
     }
   }, [animateDirection]);
