@@ -38,10 +38,9 @@
 
 /* Base container styles */
 .weather-tabs-container {
-  touch-action: none; /* Disable browser handling of all touch gestures */
+  touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  overflow: hidden;
   width: 100%;
 }
 
@@ -50,19 +49,24 @@
   position: relative;
   width: 100%;
   min-height: 200px;
-  /* Hardware acceleration */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+/* Simple fade animations */
+.fade-out {
+  opacity: 0;
+}
+
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.25s ease;
 }
 
 /* Panel styles */
 .weather-tab-panel {
   position: relative;
   width: 100%;
-  height: 100%;
-  opacity: 1;
 }
 
 /* Tab button styles */
@@ -73,47 +77,16 @@
 /* Sticky navigation */
 .weather-tabs-navigation.sticky {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-}
-
-/* Animation classes - simplified linear transitions */
-.animate-left {
-  animation: slideLeft 0.1s linear forwards;
-  -webkit-animation: slideLeft 0.1s linear forwards;
-}
-
-.animate-right {
-  animation: slideRight 0.1s linear forwards;
-  -webkit-animation: slideRight 0.1s linear forwards;
-}
-
-/* Keyframes with linear movement - no easing */
-@keyframes slideLeft {
-  from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
-}
-
-@-webkit-keyframes slideLeft {
-  from { -webkit-transform: translateX(0); }
-  to { -webkit-transform: translateX(-100%); }
-}
-
-@keyframes slideRight {
-  from { transform: translateX(0); }
-  to { transform: translateX(100%); }
-}
-
-@-webkit-keyframes slideRight {
-  from { -webkit-transform: translateX(0); }
-  to { -webkit-transform: translateX(100%); }
 }
 
 /* Fix for iOS scrolling issues */
 html, body {
-  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure animations don't affect scroll position */
+.weather-tabs-content * {
+  transition: none;
 }
 
 

@@ -16,48 +16,70 @@ import RoutePanel from "./RoutePanel";
 const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   const [activeTab, setActiveTab] = useState('departure');
   const [isSticky, setIsSticky] = useState(false);
-  const [animateDirection, setAnimateDirection] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
   const tabPositionRef = useRef(null);
   
-  // Tab order for animation direction determination
+  // Tab order for navigation
   const tabOrder = ['departure', 'destination', 'route', 'nas'];
   
-  // Simplified swipe handlers with minimal config
+  // Simple swipe handlers
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      if (isAnimating) return; // Prevent swipe during animation
+      if (isAnimating) return;
       
       const currentIndex = tabOrder.indexOf(activeTab);
       if (currentIndex < tabOrder.length - 1) {
-        changeTab(tabOrder[currentIndex + 1], 'left');
+        changeTab(tabOrder[currentIndex + 1]);
       }
     },
     onSwipedRight: () => {
-      if (isAnimating) return; // Prevent swipe during animation
+      if (isAnimating) return;
       
       const currentIndex = tabOrder.indexOf(activeTab);
       if (currentIndex > 0) {
-        changeTab(tabOrder[currentIndex - 1], 'right');
+        changeTab(tabOrder[currentIndex - 1]);
       }
     },
     trackTouch: true,
     trackMouse: false,
     preventDefaultTouchmoveEvent: true,
-    delta: 50, // Increased threshold to prevent accidental triggers
-    swipeDuration: 500, // More lenient timing
+    delta: 50,
+    swipeDuration: 500,
   });
 
-  // Helper function to change tab with animation - simplified for no delays
-  const changeTab = (tab, direction) => {
+  // Helper function to change tab with fade animation
+  const changeTab = (tab) => {
     if (activeTab === tab || isAnimating) return;
     
-    // Set animation state immediately
     setIsAnimating(true);
-    setAnimateDirection(direction);
-    setActiveTab(tab);
+    
+    // Add fade-out class to current content
+    if (contentRef.current) {
+      contentRef.current.classList.add('fade-out');
+    }
+    
+    // Wait for fade out, then change tab and fade in
+    setTimeout(() => {
+      setActiveTab(tab);
+      
+      // Remove fade-out class and add fade-in
+      if (contentRef.current) {
+        contentRef.current.classList.remove('fade-out');
+        contentRef.current.classList.add('fade-in');
+        
+        // Remove fade-in class after animation completes
+        setTimeout(() => {
+          if (contentRef.current) {
+            contentRef.current.classList.remove('fade-in');
+          }
+          setIsAnimating(false);
+        }, 250);
+      } else {
+        setIsAnimating(false);
+      }
+    }, 150);
   };
 
   // Store the initial position of the tabs when component mounts
@@ -66,13 +88,6 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       // Store the original top position of the tabs
       tabPositionRef.current = tabsNavRef.current.getBoundingClientRect().top + window.scrollY;
     }
-    
-    // Add passive touch move event listener to improve scroll performance
-    document.addEventListener('touchmove', () => {}, { passive: true });
-    
-    return () => {
-      document.removeEventListener('touchmove', () => {});
-    };
   }, []);
 
   // Effect to handle the sticky behavior for tabs
@@ -94,17 +109,6 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
     };
   }, []);
 
-  // Effect to reset animation direction after the animation completes - exact match with CSS duration
-  useEffect(() => {
-    if (animateDirection) {
-      const timeout = setTimeout(() => {
-        setAnimateDirection(null);
-        setIsAnimating(false);
-      }, 300); // Exactly matching CSS animation duration
-      return () => clearTimeout(timeout);
-    }
-  }, [animateDirection]);
-
   // Effect to ensure minimum content height so scroll behavior is consistent
   useEffect(() => {
     if (contentRef.current) {
@@ -117,18 +121,13 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
 
   // Handle tab change without losing sticky behavior
   const handleTabChange = (tab) => {
-    if (isAnimating || tab === activeTab) return; // Prevent clicking during animation
-    
-    // Determine direction based on tab order
-    const currentIndex = tabOrder.indexOf(activeTab);
-    const targetIndex = tabOrder.indexOf(tab);
-    const direction = targetIndex > currentIndex ? 'left' : 'right';
+    if (isAnimating || tab === activeTab) return;
     
     // Preserve scroll position when changing tabs
     const currentScrollY = window.scrollY;
     
     // Change tab with animation
-    changeTab(tab, direction);
+    changeTab(tab);
     
     // Use requestAnimationFrame to ensure DOM updates before scrolling
     requestAnimationFrame(() => {
@@ -183,7 +182,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       {/* Tab content */}
       <div 
         ref={contentRef}
-        className={`weather-tabs-content ${animateDirection ? `animate-${animateDirection}` : ''}`}
+        className="weather-tabs-content"
       >
         {/* Departure Weather Tab */}
         {activeTab === 'departure' && (
