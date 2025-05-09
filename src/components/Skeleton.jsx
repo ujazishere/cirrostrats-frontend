@@ -1,82 +1,129 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 // LoadingWeatherCard: Displays a skeleton loader for weather-related information
 export const LoadingWeatherCard = () => (
-  <div className="skeleton-section">
+  <div className="skeleton-section shimmer-container">
     {/* D-ATIS Section Skeleton */}
     <div className="skeleton-header">
-      <div className="skeleton-title"></div>
-      <div className="skeleton-time"></div>
+      <div className="skeleton-title shimmer-element"></div>
+      <div className="skeleton-time shimmer-element"></div>
     </div>
     <div className="skeleton-content">
-      <div className="skeleton-text-short"></div>
+      <div className="skeleton-text-short shimmer-element"></div>
     </div>
-    
     {/* METAR Section Skeleton */}
     <div className="skeleton-header">
-      <div className="skeleton-title"></div>
-      <div className="skeleton-time"></div>
+      <div className="skeleton-title shimmer-element"></div>
+      <div className="skeleton-time shimmer-element"></div>
     </div>
     <div className="skeleton-content">
-      <div className="skeleton-text-medium"></div>
+      <div className="skeleton-text-medium shimmer-element"></div>
     </div>
-    
     {/* TAF Section Skeleton */}
     <div className="skeleton-header">
-      <div className="skeleton-title"></div>
-      <div className="skeleton-time"></div>
+      <div className="skeleton-title shimmer-element"></div>
+      <div className="skeleton-time shimmer-element"></div>
     </div>
     <div className="skeleton-content skeleton-taf">
       {[1, 2, 3, 4, 5].map((line) => (
-        <div key={line} className="skeleton-text-line"></div>
+        <div key={line} className="skeleton-text-line shimmer-element"></div>
       ))}
     </div>
   </div>
 );
 
 // LoadingFlightCard: Displays a skeleton loader for flight-related details
-export const LoadingFlightCard = () => (
-  <div className="details">
-    {/* Flight Info Card Skeleton */}
-    <div className="skeleton-flight-card">
-      <div className="skeleton-flight-header">
-        <div className="skeleton-flight-id"></div>
-        <div className="skeleton-flight-number"></div>
+export const LoadingFlightCard = () => {
+  // Initialize shimmer effect when component mounts
+  useEffect(() => {
+    initShimmerEffect();
+  }, []);
+
+  return (
+    <div className="details shimmer-container">
+      {/* Flight Info Card Skeleton */}
+      <div className="skeleton-flight-card">
+        <div className="skeleton-flight-header">
+          <div className="skeleton-flight-id shimmer-element"></div>
+          <div className="skeleton-flight-number shimmer-element"></div>
+        </div>
+        <div className="skeleton-flight-body">
+          {/* Left Gate Skeleton */}
+          <div className="skeleton-gate-container">
+            <div className="skeleton-gate-label shimmer-element"></div>
+            <div className="skeleton-gate-value shimmer-element"></div>
+            <div className="skeleton-gate-schedule shimmer-element"></div>
+            <div className="skeleton-gate-status shimmer-element"></div>
+          </div>
+          {/* Right Gate Skeleton */}
+          <div className="skeleton-gate-container">
+            <div className="skeleton-gate-label shimmer-element"></div>
+            <div className="skeleton-gate-value shimmer-element"></div>
+            <div className="skeleton-gate-schedule shimmer-element"></div>
+            <div className="skeleton-gate-status shimmer-element"></div>
+          </div>
+        </div>
       </div>
-      
-      <div className="skeleton-flight-body">
-        {/* Left Gate Skeleton */}
-        <div className="skeleton-gate-container">
-          <div className="skeleton-gate-label"></div>
-          <div className="skeleton-gate-value"></div>
-          <div className="skeleton-gate-schedule"></div>
-          <div className="skeleton-gate-status"></div>
+      {/* Tabs Skeleton */}
+      <div className="skeleton-tabs-container">
+        {/* Tab Headers */}
+        <div className="skeleton-tabs-header">
+          <div className="skeleton-tab skeleton-tab-active shimmer-element"></div>
+          <div className="skeleton-tab shimmer-element"></div>
+          <div className="skeleton-tab shimmer-element"></div>
+          <div className="skeleton-tab shimmer-element"></div>
         </div>
-        
-        {/* Right Gate Skeleton */}
-        <div className="skeleton-gate-container">
-          <div className="skeleton-gate-label"></div>
-          <div className="skeleton-gate-value"></div>
-          <div className="skeleton-gate-schedule"></div>
-          <div className="skeleton-gate-status"></div>
-        </div>
+        <LoadingWeatherCard />
       </div>
     </div>
+  );
+};
+
+// Function to initialize shimmer effect
+const initShimmerEffect = () => {
+  // Add CSS for shimmer effect
+  const shimmerStyle = document.createElement('style');
+  shimmerStyle.textContent = `
+    /* Base styles for shimmer containers */
+    .shimmer-container {
+      position: relative;
+      overflow: hidden;
+    }
     
-    {/* Tabs Skeleton */}
-    <div className="skeleton-tabs-container">
-      {/* Tab Headers */}
-      <div className="skeleton-tabs-header">
-        <div className="skeleton-tab skeleton-tab-active"></div>
-        <div className="skeleton-tab"></div>
-        <div className="skeleton-tab"></div>
-        <div className="skeleton-tab"></div>
-      </div>
-      
-      <LoadingWeatherCard />
-    </div>
-  </div>
-);
+    /* Base styles for elements that will shimmer */
+    .shimmer-element {
+      position: relative;
+      overflow: hidden;
+      background: #e0e0e0;
+    }
+    
+    /* Shimmer animation */
+    .shimmer-element::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(
+        90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.2) 20%, 
+        rgba(255, 255, 255, 0.5) 60%, 
+        rgba(255, 255, 255, 0)
+      );
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      100% {
+        transform: translateX(2%);
+      }
+    }
+  `;
+  document.head.appendChild(shimmerStyle);
+};
 
 export default {
   LoadingWeatherCard,

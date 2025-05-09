@@ -37,6 +37,10 @@ import WeatherCard from "./WeatherCard"; // Import the WeatherCard component fro
  */
 const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   console.log("flightData", flightData);
+  
+  // Reference for the search container
+  const searchContainerRef = useRef(null);
+  
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerWidth > 768) return;
@@ -76,6 +80,17 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize);
     
+    // Apply custom styling to the search container specifically for this page
+    if (searchContainerRef.current) {
+      // Use stronger CSS approach for the top margin
+      searchContainerRef.current.style.cssText = 'margin-top: -70px !important; margin-bottom: -40px;';
+      // Also adjust the parent element if needed
+      const parentElement = searchContainerRef.current.parentElement;
+      if (parentElement && parentElement.classList.contains('details')) {
+        parentElement.style.paddingTop = '0';
+      }
+    }
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
@@ -85,8 +100,8 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
 
   return (
     <div className="details">
-          {/* Search Input Component at the very top */}
-      <div className="combined-search">
+      {/* Search Input Component at the very top */}
+      <div className="combined-search" ref={searchContainerRef}>
         <Input userEmail="user@example.com" isLoggedIn={true} />
       </div>
 

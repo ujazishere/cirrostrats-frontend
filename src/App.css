@@ -34,6 +34,22 @@
   }
 }
 
+/* ===== SHIMMER EFFECT ===== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* Base container styles */
@@ -517,7 +533,6 @@ html, body {
   left: 0 !important;
   right: 0 !important;
   height: 2px !important;
-  background-color: #333 !important;
 }
 
 /* Header sections */
@@ -1565,11 +1580,12 @@ footer {
   font-size: 0.75rem;
   color: #6b7280;
   text-align: center;
+  font-weight: 500;
 }
 
 .info-value, .time-value {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 22px;
+  font-weight: 600;
   text-align: center;
 }
 
@@ -1712,22 +1728,6 @@ footer {
   }
 }
 
-.skeleton-loader {
-  background: #f0f0f0;
-  border-radius: 4px;
-  margin: 4px 0;
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 0%,
-    #f8f8f8 20%,
-    #f0f0f0 40%,
-    #f0f0f0 100%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2.5s ease-in-out infinite;
-}
 
 .table-container {
   position: relative;
