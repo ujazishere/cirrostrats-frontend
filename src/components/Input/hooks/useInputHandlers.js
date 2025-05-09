@@ -22,17 +22,9 @@ const useInputHandlers = () => {
   }
 
   const handleInputChange = (event, newInputValue, userEmail,) => {
-    // TODO: have most popular search terms - flight numbers for gjs, GJS airport of operation, terminals
-        // get gjs from the jms /flight returns
-        // This should be a standard datum with predertimed count values that exceed a certain threshold
-        // This should be about 100.
-        // Once these are nearing exhaustion the inputValue processer should dertermine the the kind of inputValue:-
-            // Wheather it is a flight number, airport, terminal, etc.
-            // once that is determined more fetches should be made to the backend to get only the apporpriate data
+    // TODO:
             // *******Account for backspaces and deletions 
-    // Here the user should have most popular search terms displayed in the dropdown.
-    // once the user initiates typing if the inputValue is more than 2 and filteredSuggestions(dropdown items) is less than 7,
-    // then call the updateSuggestions function.
+    // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
 
     setInputValue(newInputValue);
     trackSearch(userEmail, newInputValue);

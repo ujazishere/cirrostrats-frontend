@@ -9,19 +9,24 @@ export const formatSuggestions = (searchSuggestions) => {
   return Object.keys(searchSuggestions).map((eachItem) => ({
     id: searchSuggestions[eachItem]._id || searchSuggestions[eachItem].id,
 
-    // Check if flightID exists, if it does, add the flightID property to the object
+    // Check if flightID exists, 
     ...(searchSuggestions[eachItem].flightID && {
+    // and if it does, add the flightID property to the object--> flightID: its associated value.
     flightID: searchSuggestions[eachItem].flightID}),
 
     // label - this is what the user will see in the dropdown. It will be the flightID if it exists, otherwise it will be the airport code and name.
-    label: searchSuggestions[eachItem].flightID
-        ? searchSuggestions[eachItem].flightID.startsWith('GJS')    // if flightID starts with GJS, it's a UA flight. This is causing issues with submits.
-        ? `UA${searchSuggestions[eachItem].flightID.slice(3)} (${searchSuggestions[eachItem].flightID})`
-        : searchSuggestions[eachItem].flightID                      // else  if it doesnt start with GJS, it other airline.
+    label:
+        // if doc['display'] starts with GJS, it's a UA flight. This is causing issues with submits.
+        searchSuggestions[eachItem].display
+        ?searchSuggestions[eachItem].type === 'flight' 
+        && searchSuggestions[eachItem].display.startsWith('GJS')
+            
+        ? `UA${searchSuggestions[eachItem].display.slice(3)} (${searchSuggestions[eachItem].display})`
+        : searchSuggestions[eachItem].display                      // else  if it doesnt start with GJS, it other airline.
         : `${searchSuggestions[eachItem].code} - ${searchSuggestions[eachItem].name}`,    // else if flightID doesnt exist, it's an airport.
 
-    // type - could be airport, flight, gate. - this is what /Details.jsx will use to request appropriate data from backend.
-    type: typeMap[getObjectType(searchSuggestions[eachItem])],
+    // type - could be `airport`, `flight`, `gate`. - this is what /Details.jsx will use to request appropriate data from backend.
+    type: searchSuggestions[eachItem].type
 
     // count: searchSuggestions[eachItem].count, // Optional
     // fuzzyFind: searchSuggestions[eachItem].fuzzyFind // Optional (if available)

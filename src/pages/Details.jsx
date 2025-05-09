@@ -57,7 +57,8 @@ const Details = () => {
             axios.get(`${apiUrl}/ajms/${flightID}`),
             axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`),
             axios.get(`${apiUrl}/flightStatsTZ/${flightID}`),
-            axios.get(`${apiUrl}/flightAware/UA/${flightID}`),
+            // TODO: flightAware needs fixing - airline code.
+            axios.get(`${apiUrl}/flightAware/UA/${flightID}`),    
           ]);
           console.log("ajms", ajms.data);
           console.log("flightViewGateInfo",flightViewGateInfo.data );

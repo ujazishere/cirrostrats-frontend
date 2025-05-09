@@ -24,7 +24,6 @@ const useFetchData = (userEmail) => {
 
       setIsLoading(true);
       try {
-        // TODO: This needs to be changed such that the data fetched is incremental instead of lumpsum
         // This section fetches all data in parallel.
         const [searchSuggestions] = await Promise.all([
           // axios.get(`${apiUrl}/airports`),

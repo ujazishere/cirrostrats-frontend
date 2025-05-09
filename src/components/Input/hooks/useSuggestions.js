@@ -42,6 +42,7 @@ export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedIn
       const searchSuggestions = await searchService.fetchMostSearched(userEmail, inputValue);
       // Formats suggestions, assigns value,label, type, etc.
       const formattedSuggestions = formatSuggestions(searchSuggestions);
+      console.log(formattedSuggestions)
       setInitialSuggestions(formattedSuggestions);
     };
 
