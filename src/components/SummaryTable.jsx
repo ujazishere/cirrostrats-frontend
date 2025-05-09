@@ -10,7 +10,7 @@
 import React from 'react';
 
 /**
- * Displays comprehensive flight information in a grid layout
+ * Displflight-number-textays comprehensive flight information in a grid layout
  * @param {Object} props
  * @param {Object} props.flightData - Flight information with departure and destination details
  */

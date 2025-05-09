@@ -843,7 +843,7 @@ html, body {
 }
 
 .airport-code {
-  font-size: 1.25rem;
+  font-size: 1.30rem;
   font-weight: bold;
 }
 
@@ -1562,10 +1562,10 @@ footer {
 }
 
 .airport-code {
-  font-size: 1.5rem;
+  font-size: 2.2rem;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 0.25rem;
+  margin-bottom: 1.0rem;
 }
 
 .info-item {
@@ -1587,6 +1587,7 @@ footer {
   font-size: 22px;
   font-weight: 600;
   text-align: center;
+  margin-bottom: 0.4rem;
 }
 
 .time-value {
