@@ -77,13 +77,13 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Features section */}
+{/* Features section */}
+{/*
       <div className="features-section">
         <div className="container">
           <h3 className="section-title">Aviation Information at Your Fingertips</h3>
 
           <div className="features-grid">
-            {/* Weather Card */}
             <div className="feature-card">
               <div className="card-header weather-header">
                 <h4 className="card-title">Weather Reports</h4>
@@ -94,9 +94,9 @@ const HomePage = () => {
                   KEWR 261951Z 27012G23KT 10SM FEW055...
                 </div>
               </div>
-            </div>
+            </div> 
 
-            {/* Flight Card */}
+
             <div className="feature-card">
               <div className="card-header flight-header">
                 <h4 className="card-title">Flight Details</h4>
@@ -119,7 +119,6 @@ const HomePage = () => {
               </div>
             </div>
 
-            {/* NOTAMs Card */}
             <div className="feature-card">
               <div className="card-header notam-header">
                 <h4 className="card-title">NOTAMs</h4>
@@ -133,7 +132,8 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> 
+*/}
 
       {/* Mobile view login */}
       {!isLoggedIn && (
@@ -144,8 +144,8 @@ const HomePage = () => {
         </div>
       )}
 
-      {/* Footer */}
-      <footer>
+{/* Footer */}
+ {/*     <footer>
         <div className="footer">
           <div className="footer-content">
             <div className="footer-logo">
@@ -156,7 +156,7 @@ const HomePage = () => {
             © 2025 Cirrostrats. All rights reserved.
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 };

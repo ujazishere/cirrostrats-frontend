@@ -12,7 +12,7 @@
  */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import NASDetails from "./NASDetails";
 import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
 import Input from "../components/Input/Index"; // Ensure this path is correct
@@ -41,6 +41,56 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
   // Reference for the search container
   const searchContainerRef = useRef(null);
   
+  // Use location to detect URL changes which indicate new searches
+  const location = useLocation();
+  
+  // State to track current search parameters to clear results on new searches
+  const [currentSearch, setCurrentSearch] = useState('');
+  
+  // Add a new effect that monitors for search input changes
+  useEffect(() => {
+    // Get the search input element
+    const searchInput = document.querySelector('.search-container input[type="text"]');
+    if (!searchInput) return;
+    
+    // Create a function to handle search form submissions
+    const handleSearchFormSubmit = (e) => {
+      if (e.target.closest('form')) {
+        // Clear any existing search results from the DOM
+        const existingResults = document.querySelectorAll('.search-result-item');
+        existingResults.forEach(result => result.remove());
+        
+        // Update our current search state
+        const searchInputValue = searchInput.value;
+        setCurrentSearch(searchInputValue);
+      }
+    };
+    
+    // Add event listener to capture form submissions
+    document.addEventListener('submit', handleSearchFormSubmit);
+    
+    return () => {
+      document.removeEventListener('submit', handleSearchFormSubmit);
+    };
+  }, []);
+  
+  // Monitor location changes which indicate search navigation
+  useEffect(() => {
+    // When URL changes, it might indicate a new search was done
+    // This will help ensure results are cleared
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get('q') || '';
+    
+    if (searchQuery && searchQuery !== currentSearch) {
+      // If there's a new query parameter, clear existing results
+      const existingResults = document.querySelectorAll('.search-result-item');
+      existingResults.forEach(result => result.remove());
+      
+      // Update current search
+      setCurrentSearch(searchQuery);
+    }
+  }, [location, currentSearch]);
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerWidth > 768) return;
@@ -102,7 +152,10 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
     <div className="details">
       {/* Search Input Component at the very top */}
       <div className="combined-search" ref={searchContainerRef}>
-        <Input userEmail="user@example.com" isLoggedIn={true} />
+        <Input 
+          userEmail="user@example.com" 
+          isLoggedIn={true} 
+        />
       </div>
 
       {/* Flight Overview Section */}
