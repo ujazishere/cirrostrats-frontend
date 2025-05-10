@@ -78,7 +78,7 @@ const HomePage = () => {
       </div>
 
 {/* Features section */}
-{/*
+
       <div className="features-section">
         <div className="container">
           <h3 className="section-title">Aviation Information at Your Fingertips</h3>
@@ -90,9 +90,6 @@ const HomePage = () => {
               </div>
               <div className="card-body">
                 <p className="card-text">Access the latest METAR, TAF, and ATIS information.</p>
-                <div className="code-sample">
-                  KEWR 261951Z 27012G23KT 10SM FEW055...
-                </div>
               </div>
             </div> 
 
@@ -105,15 +102,11 @@ const HomePage = () => {
                 <p className="card-text">Track flight status, gate information, and much more.</p>
                 <div className="flight-route">
                   <div className="airport-info">
-                    <div className="airport-code">KEWR</div>
-                    <div className="gate-info">Gate 32B</div>
                   </div>
                   <div className="route-line">
                     <div className="route-marker"></div>
                   </div>
                   <div className="airport-info">
-                    <div className="airport-code">KDCA</div>
-                    <div className="gate-info">Gate 15A</div>
                   </div>
                 </div>
               </div>
@@ -121,19 +114,18 @@ const HomePage = () => {
 
             <div className="feature-card">
               <div className="card-header notam-header">
-                <h4 className="card-title">NOTAMs</h4>
+                <h4 className="card-title">NAS</h4>
               </div>
               <div className="card-body">
                 <p className="card-text">Stay informed about critical notices, restrictions.</p>
                 <div className="notam-alert">
-                  <div className="notam-text">Runway 11/29 Closed for maintenance until 270800Z</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div> 
-*/}
+
 
       {/* Mobile view login */}
       {!isLoggedIn && (
@@ -145,7 +137,7 @@ const HomePage = () => {
       )}
 
 {/* Footer */}
- {/*     <footer>
+      <footer>
         <div className="footer">
           <div className="footer-content">
             <div className="footer-logo">
@@ -156,7 +148,7 @@ const HomePage = () => {
             © 2025 Cirrostrats. All rights reserved.
           </div>
         </div>
-      </footer> */}
+      </footer> 
     </div>
   );
 };
