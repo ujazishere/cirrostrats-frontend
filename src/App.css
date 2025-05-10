@@ -52,58 +52,7 @@
 
 
 
-/* Base container styles */
-.weather-tabs-container {
-  touch-action: pan-y;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  width: 100%;
-}
 
-/* Tab content and animation container */
-.weather-tabs-content {
-  position: relative;
-  width: 100%;
-  min-height: 200px;
-  opacity: 1;
-  transition: opacity 0.15s ease;
-}
-
-/* Simple fade animations */
-.fade-out {
-  opacity: 0;
-}
-
-.fade-in {
-  opacity: 1;
-  transition: opacity 0.25s ease;
-}
-
-/* Panel styles */
-.weather-tab-panel {
-  position: relative;
-  width: 100%;
-}
-
-/* Tab button styles */
-.weather-tab-button {
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* Sticky navigation */
-.weather-tabs-navigation.sticky {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Fix for iOS scrolling issues */
-html, body {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Ensure animations don't affect scroll position */
-.weather-tabs-content * {
-  transition: none;
-}
 
 
 

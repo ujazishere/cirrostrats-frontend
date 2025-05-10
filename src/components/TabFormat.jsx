@@ -1,18 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSwipeable } from 'react-swipeable';
-import WeatherCard from './WeatherCard'; // Assuming you'll also extract WeatherCard to its own file
+import WeatherCard from './WeatherCard';
 import NASDetails from "./NASDetails";
 import RoutePanel from "./RoutePanel";
 
-/**
- * Component for tabbed content display for departure and destination weather
- * @param {Object} props
- * @param {Object} props.dep_weather - Departure weather data
- * @param {Object} props.dest_weather - Destination weather data
- * @param {Object} props.flightData - Flight details object
- * @param {Object} props.nasDepartureResponse - NAS info for departure airport
- * @param {Object} props.nasDestinationResponse - NAS info for destination airport
- */
 const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
   const [activeTab, setActiveTab] = useState('departure');
   const [isSticky, setIsSticky] = useState(false);
@@ -20,34 +11,184 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
   const tabPositionRef = useRef(null);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const swipeAnimationRef = useRef(null);
   
   // Tab order for navigation
   const tabOrder = ['departure', 'destination', 'route', 'nas'];
   
-  // Simple swipe handlers
+  // Enhanced swipe handlers with smooth animation
   const handlers = useSwipeable({
-    onSwipedLeft: () => {
+    onSwiping: (e) => {
       if (isAnimating) return;
       
-      const currentIndex = tabOrder.indexOf(activeTab);
-      if (currentIndex < tabOrder.length - 1) {
-        changeTab(tabOrder[currentIndex + 1]);
+      // Calculate swipe percentage (limited to 30% of screen width)
+      const swipePercent = Math.min(Math.abs(e.deltaX) / window.innerWidth, 0.3);
+      
+      // Apply transform based on swipe direction
+      if (contentRef.current) {
+        const direction = e.deltaX > 0 ? 1 : -1;
+        contentRef.current.style.transform = `translateX(${direction * swipePercent * 100}%)`;
+        contentRef.current.style.opacity = `${1 - swipePercent}`;
       }
     },
-    onSwipedRight: () => {
+    onSwipedLeft: (e) => {
       if (isAnimating) return;
-      
-      const currentIndex = tabOrder.indexOf(activeTab);
-      if (currentIndex > 0) {
-        changeTab(tabOrder[currentIndex - 1]);
-      }
+      handleSwipeEnd(e, 'left');
+    },
+    onSwipedRight: (e) => {
+      if (isAnimating) return;
+      handleSwipeEnd(e, 'right');
     },
     trackTouch: true,
     trackMouse: false,
-    preventDefaultTouchmoveEvent: true,
-    delta: 50,
+    preventDefaultTouchmoveEvent: false, // Important for smooth iOS scrolling
+    delta: 10,
     swipeDuration: 500,
   });
+
+  // Handle swipe end with smooth transition
+  const handleSwipeEnd = (e, direction) => {
+    if (isAnimating) return;
+    
+    // Cancel any ongoing animation
+    if (swipeAnimationRef.current) {
+      cancelAnimationFrame(swipeAnimationRef.current);
+    }
+    
+    const currentIndex = tabOrder.indexOf(activeTab);
+    let nextTab = null;
+    
+    if (direction === 'left' && currentIndex < tabOrder.length - 1) {
+      nextTab = tabOrder[currentIndex + 1];
+    } else if (direction === 'right' && currentIndex > 0) {
+      nextTab = tabOrder[currentIndex - 1];
+    }
+    
+    if (nextTab) {
+      // Start the swipe animation
+      animateSwipeTransition(direction, nextTab);
+    } else {
+      // Return to original position if no tab change
+      resetSwipePosition();
+    }
+  };
+
+  // Animate the swipe transition
+  const animateSwipeTransition = (direction, nextTab) => {
+    setIsAnimating(true);
+    const startTime = performance.now();
+    const duration = 300; // ms
+    
+    const animate = (time) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeProgress = easeOutCubic(progress);
+      
+      if (contentRef.current) {
+        // Slide out the current content
+        const translateX = direction === 'left' ? 
+          -100 + (100 * easeProgress) : 
+          100 - (100 * easeProgress);
+        
+        contentRef.current.style.transform = `translateX(${translateX}%)`;
+        contentRef.current.style.opacity = `${1 - easeProgress}`;
+      }
+      
+      if (progress < 1) {
+        swipeAnimationRef.current = requestAnimationFrame(animate);
+      } else {
+        // Animation complete - change tab and animate in
+        setActiveTab(nextTab);
+        animateSwipeIn(direction);
+      }
+    };
+    
+    swipeAnimationRef.current = requestAnimationFrame(animate);
+  };
+
+  // Animate the new tab sliding in
+  const animateSwipeIn = (direction) => {
+    const startTime = performance.now();
+    const duration = 300; // ms
+    
+    // Set initial position for incoming content
+    if (contentRef.current) {
+      const initialX = direction === 'left' ? 100 : -100;
+      contentRef.current.style.transform = `translateX(${initialX}%)`;
+      contentRef.current.style.opacity = '0';
+    }
+    
+    const animate = (time) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeProgress = easeOutCubic(progress);
+      
+      if (contentRef.current) {
+        // Slide in the new content
+        const translateX = direction === 'left' ? 
+          100 - (100 * easeProgress) : 
+          -100 + (100 * easeProgress);
+        
+        contentRef.current.style.transform = `translateX(${translateX}%)`;
+        contentRef.current.style.opacity = `${easeProgress}`;
+      }
+      
+      if (progress < 1) {
+        swipeAnimationRef.current = requestAnimationFrame(animate);
+      } else {
+        // Animation complete
+        if (contentRef.current) {
+          contentRef.current.style.transform = '';
+          contentRef.current.style.opacity = '';
+        }
+        setIsAnimating(false);
+        swipeAnimationRef.current = null;
+      }
+    };
+    
+    swipeAnimationRef.current = requestAnimationFrame(animate);
+  };
+
+  // Reset position if swipe didn't result in tab change
+  const resetSwipePosition = () => {
+    const startTime = performance.now();
+    const duration = 200; // ms
+    
+    const animate = (time) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeProgress = easeOutCubic(progress);
+      
+      if (contentRef.current) {
+        // Return to original position
+        const currentX = parseFloat(contentRef.current.style.transform.replace('translateX(', '').replace('%)', '')) || 0;
+        const newX = currentX * (1 - easeProgress);
+        
+        contentRef.current.style.transform = `translateX(${newX}%)`;
+        contentRef.current.style.opacity = `${0.7 + (0.3 * easeProgress)}`;
+      }
+      
+      if (progress < 1) {
+        swipeAnimationRef.current = requestAnimationFrame(animate);
+      } else {
+        // Animation complete
+        if (contentRef.current) {
+          contentRef.current.style.transform = '';
+          contentRef.current.style.opacity = '';
+        }
+        swipeAnimationRef.current = null;
+      }
+    };
+    
+    swipeAnimationRef.current = requestAnimationFrame(animate);
+  };
+
+  // Easing function for smooth animation
+  const easeOutCubic = (t) => {
+    return (--t) * t * t + 1;
+  };
 
   // Helper function to change tab with fade animation
   const changeTab = (tab) => {
@@ -88,6 +229,13 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       // Store the original top position of the tabs
       tabPositionRef.current = tabsNavRef.current.getBoundingClientRect().top + window.scrollY;
     }
+
+    // Clean up animation frame on unmount
+    return () => {
+      if (swipeAnimationRef.current) {
+        cancelAnimationFrame(swipeAnimationRef.current);
+      }
+    };
   }, []);
 
   // Effect to handle the sticky behavior for tabs
@@ -183,6 +331,10 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       <div 
         ref={contentRef}
         className="weather-tabs-content"
+        style={{
+          transition: 'none', // We handle transitions with JS
+          willChange: 'transform, opacity' // Hint for hardware acceleration
+        }}
       >
         {/* Departure Weather Tab */}
         {activeTab === 'departure' && (
