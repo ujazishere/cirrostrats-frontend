@@ -16,18 +16,20 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   // Tab order for navigation
   const tabOrder = ['departure', 'destination', 'route', 'nas'];
   
-  // Simplified swipe handlers with smooth animation
+  // Smooth swipe handlers with proper boundaries
   const handlers = useSwipeable({
     onSwiping: (e) => {
       if (isAnimating) return;
       
-      // Calculate swipe percentage (limited to 50% of screen width)
-      const swipePercent = Math.min(Math.abs(e.deltaX) / window.innerWidth, 0.5);
+      // Limit swipe to 30% of screen width
+      const maxSwipe = window.innerWidth * 0.3;
+      const swipeDistance = Math.min(Math.abs(e.deltaX), maxSwipe);
+      const direction = e.deltaX > 0 ? 1 : -1;
+      const swipePercent = swipeDistance / maxSwipe;
       
-      // Apply transform based on swipe direction
+      // Apply transform with boundaries
       if (contentRef.current) {
-        const direction = e.deltaX > 0 ? 1 : -1;
-        contentRef.current.style.transform = `translateX(${direction * swipePercent * 100}%)`;
+        contentRef.current.style.transform = `translateX(${direction * swipePercent * 30}%)`;
       }
     },
     onSwipedLeft: () => {
@@ -59,31 +61,24 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
     }
     
     if (nextTab) {
-      animateSwipe(direction, nextTab);
+      animateSwipeTransition(direction, nextTab);
     } else {
       resetPosition();
     }
   };
 
   // Animate the swipe transition
-  const animateSwipe = (direction, nextTab) => {
+  const animateSwipeTransition = (direction, nextTab) => {
     setIsAnimating(true);
     const startTime = performance.now();
     const duration = 300; // ms
-    
-    // Set initial position
-    if (contentRef.current) {
-      contentRef.current.style.transition = 'none';
-      const currentX = parseFloat(contentRef.current.style.transform.replace('translateX(', '').replace('%)', '')) || 0;
-      contentRef.current.style.transform = `translateX(${currentX}%)`;
-    }
     
     const animate = (time) => {
       const elapsed = time - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
       if (contentRef.current) {
-        // Calculate new position
+        // Calculate new position (from current to -100% or 100%)
         const targetX = direction === 'left' ? -100 : 100;
         const currentX = parseFloat(contentRef.current.style.transform.replace('translateX(', '').replace('%)', '')) || 0;
         const newX = currentX + (targetX - currentX) * progress;
@@ -108,11 +103,10 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
     const startTime = performance.now();
     const duration = 300; // ms
     
-    // Set initial position for incoming content
+    // Set initial position for incoming content (opposite side)
     if (contentRef.current) {
       const initialX = direction === 'left' ? 100 : -100;
       contentRef.current.style.transform = `translateX(${initialX}%)`;
-      contentRef.current.style.transition = 'none';
     }
     
     const animate = (time) => {
@@ -120,10 +114,10 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       const progress = Math.min(elapsed / duration, 1);
       
       if (contentRef.current) {
-        // Slide in the new content
+        // Slide in the new content (from 100%/-100% to 0%)
         const newX = direction === 'left' ? 
-          100 - (200 * progress) : 
-          -100 + (200 * progress);
+          100 - (100 * progress) : 
+          -100 + (100 * progress);
         
         contentRef.current.style.transform = `translateX(${newX}%)`;
       }
@@ -134,7 +128,6 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
         // Animation complete
         if (contentRef.current) {
           contentRef.current.style.transform = '';
-          contentRef.current.style.transition = '';
         }
         setIsAnimating(false);
         swipeAnimationRef.current = null;
@@ -154,9 +147,8 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       const progress = Math.min(elapsed / duration, 1);
       
       if (contentRef.current) {
-        // Get current position
+        // Return to original position (0%)
         const currentX = parseFloat(contentRef.current.style.transform.replace('translateX(', '').replace('%)', '')) || 0;
-        // Calculate new position (easing back to 0)
         const newX = currentX * (1 - progress);
         
         contentRef.current.style.transform = `translateX(${newX}%)`;
@@ -313,12 +305,13 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
       {/* Add padding when tabs are sticky to prevent content jump */}
       {isSticky && <div className="tabs-placeholder" style={{ height: tabsNavRef.current?.offsetHeight || 0 }}></div>}
 
-      {/* Tab content */}
+      {/* Tab content with overflow hidden to contain swipe */}
       <div 
         ref={contentRef}
         className="weather-tabs-content"
         style={{
-          willChange: 'transform'
+          willChange: 'transform',
+          overflowX: 'hidden' // Prevent horizontal scroll during swipe
         }}
       >
         {/* Departure Weather Tab */}
