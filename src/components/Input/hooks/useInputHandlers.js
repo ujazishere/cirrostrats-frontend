@@ -96,7 +96,12 @@ const useInputHandlers = () => {
     let searchValue;
     trackSearch(userEmail,null, submitTerm.label, submitTerm.mdb);
     if (submitTerm) {
+      //
+      if (!submitTerm.label) {
+        submitTerm = submitTerm.toUpperCase()
+        }
       setSelectedValue(submitTerm.label);
+      // TODO Just make submitTerm uppercase since it can be as is without label
       searchValue = submitTerm || { value: inputValue, label: inputValue, type: "unknown" };
     }
     // const searchValue = submitTerm.mdb || { value: inputValue, label: inputValue };

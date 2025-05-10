@@ -54,7 +54,7 @@ const Details = () => {
           const flightID = searchValue?.flightID || searchValue;
           console.log("flightID", flightID);
           const [ajms, flightViewGateInfo, flightStatsTZRes, flightAwareRes] = await Promise.all([
-            axios.get(`${apiUrl}/ajms/${flightID}`),
+            axios.get(`${apiUrl}/ajms/${flightID}`),    // TODO: Direct this to JMS instead of rerouting from backend - Dont make sense to trigger it 3 ways.
             axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`),
             axios.get(`${apiUrl}/flightStatsTZ/${flightID}`),
             // TODO: flightAware needs fixing - airline code.
