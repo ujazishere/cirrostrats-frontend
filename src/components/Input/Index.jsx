@@ -13,7 +13,12 @@ import { useNavigate } from "react-router-dom";
  * @param {string} userEmail The user's email address
  * @param {boolean} isLoggedIn Whether the user is logged in or not
  * @returns {JSX.Element} The JSX element to render the search component 
+ * 
  */
+
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+
 export default function Input({ userEmail, isLoggedIn }) {
 
   return (

@@ -116,6 +116,7 @@
   -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
   max-width: 100%;
   display: block;
+  text-align: left;
 }
 
 /* Highlighted text styling */
