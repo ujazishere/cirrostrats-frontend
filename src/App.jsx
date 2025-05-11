@@ -9,8 +9,6 @@ import Source from "./pages/Source";
 import Details from "./pages/Details";
 import UTCTime from "./components/UTCTime";
 import Table from "./components/Table";
-import Dummy from "./components/Dummy";
-import WeatherInfo from './components/Cards/WeatherInfo';
 import "./WeatherInfo.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 // import Input from './components/Input'; // Adjusted import path
@@ -29,7 +27,6 @@ function App() {
           <Route path="/source" element={<Source />} />
           <Route path="/details" element={<Details />} />
           <Route path="/table" element={<Table />} />
-          <Route path="/dummy" element={<Dummy />} />
         </Routes>
       </div>
     </GoogleOAuthProvider>

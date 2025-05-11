@@ -1,5 +1,4 @@
 import React from 'react';
-import { highlightWeatherText } from "../components/utility/highlightWeatherText";
 import Input from "../components/Input/Index"; // Ensure this path is correct
 
 /**
@@ -26,7 +25,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
           </div>
           <div className="card-body">
             <div className="data-content">
-              <p dangerouslySetInnerHTML={{ __html: highlightWeatherText(datis) }}></p>
+              <p dangerouslySetInnerHTML={{ __html: datis }}></p>
             </div>
           </div>
         </div>
@@ -39,7 +38,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
           </div>
           <div className="card-body">
             <div className="data-content">
-              <p dangerouslySetInnerHTML={{ __html: highlightWeatherText(metar) }}></p>
+              <p dangerouslySetInnerHTML={{ __html: metar }}></p>
             </div>
           </div>
         </div>
@@ -52,7 +51,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
           </div>
           <div className="card-body">
             <div className="data-content">
-              <p dangerouslySetInnerHTML={{ __html: highlightWeatherText(taf) }}></p>
+              <p dangerouslySetInnerHTML={{ __html: taf }}></p>
             </div>
           </div>
         </div>

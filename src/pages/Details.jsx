@@ -35,14 +35,24 @@ const Details = () => {
           setFlightData(res.data);
           setWeatherResponse(res.data);
           setNasResponse(res.data);
+          setLoadingFlightData(false); // Added this line to fix airport data not loading
 
         } else if (searchValue?.type === "airport") {
           // search query is an airport and returns airport weather component
           
-          const res = await axios.get(`${apiUrl}/airport/${searchValue.id}`);
+          const res = await axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`);
           setAirportWx(res.data);
           setLoadingWeather(false);
           setLoadingFlightData(false); // Added this line to fix airport data not loading
+  
+          // TODO: once mdb weather gets updatede it should fetch live weather too.
+              // Currently it wont since the searchValue is objectID type and need aiport code to be supplied
+          // const [weather] = await Promise.all([
+            // axios.get(`${apiUrl}/liveAirportWeather/${searchValue.code}`),
+          // ]);
+
+          setAirportWx(res.data);
+          setLoadingWeather(false);
 
         } else if (searchValue?.type === "Terminal/Gate") {
           // search query is a gate type and returns airport weather component
@@ -60,9 +70,11 @@ const Details = () => {
             // TODO: flightAware needs fixing - airline code.
             axios.get(`${apiUrl}/flightAware/UA/${flightID}`),    
           ]);
+
           console.log("ajms", ajms.data);
           console.log("flightViewGateInfo",flightViewGateInfo.data );
           console.log("flightStatsTZRes", flightStatsTZRes.data);
+
           setFlightData({
             ...ajms.data,
             ...flightViewGateInfo.data,
@@ -72,17 +84,50 @@ const Details = () => {
           });
           setLoadingFlightData(false);
 
-          const [nasRes, depWeather, destWeather] = await Promise.all([
-            axios.get(`${apiUrl}/NAS/${ajms.data.departure}/${ajms.data.arrival}`),
-            axios.get(`${apiUrl}/Weather/${ajms.data.departure}`),
-            axios.get(`${apiUrl}/Weather/${ajms.data.arrival}`),
+
+          let departure, arrival;
+          if (ajms.data.arrival && ajms.data.departure) {
+            departure = ajms.data.departure;
+            arrival = ajms.data.arrival;
+          } else {
+            departure = flightStatsTZRes.data.flightStatsOrigin || flightViewGateInfo.data.flightViewDeparture || null; 
+            arrival = flightStatsTZRes.data.flightStatsDestination || flightViewGateInfo.data.flightViewDestination || null; 
+          }
+          console.log('arrdep,', arrival, departure)
+          // Fetch weather data as soon as AJMS data is available
+          if (departure && arrival) {
+            console.log('got jms data')
+            const [nasRes, depWeather, destWeather] = await Promise.all([
+              axios.get(`${apiUrl}/NAS/${departure}/${arrival}`),
+              axios.get(`${apiUrl}/mdbAirportWeather/${departure}`),
+              axios.get(`${apiUrl}/mdbAirportWeather/${arrival}`),
+            ]);
+
+            setWeatherResponse({
+              dep_weather: depWeather.data,
+              dest_weather: destWeather.data,
+            });
+            setNasResponse(nasRes.data);
+            setLoadingWeather(false);
+            setLoadingNAS(false);
+          }
+
+          // TODO: if at any time any departure,arrival codes availble then fire the weather. Otherwise if ajms or others unavailbale then this will throw errors.
+
+          const [depWeather, destWeather] = await Promise.all([
+            // axios.get(`${apiUrl}/mdbAirportWeather/${ajms.data.departure}`),
+            // axios.get(`${apiUrl}/mdbAirportWeather/${ajms.data.arrival}`),
+
+            // TODO: fetch live only once attempting mdbAirportWeather. if available match it with mdb if change then use liveWeather else use mdb,
+                //if weather n/a in mdb then use liveWeather 
+            axios.get(`${apiUrl}/liveAirportWeather/${departure}`),
+            axios.get(`${apiUrl}/liveAirportWeather/${arrival}`),
           ]);
 
           setWeatherResponse({
             dep_weather: depWeather.data,
             dest_weather: destWeather.data,
           });
-          setNasResponse(nasRes.data);
           setLoadingWeather(false);
           setLoadingNAS(false);
         }

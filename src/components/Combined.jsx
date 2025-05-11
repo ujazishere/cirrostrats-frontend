@@ -16,7 +16,6 @@ import { NavLink, useLocation } from "react-router-dom";
 import NASDetails from "./NASDetails";
 import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
 import Input from "../components/Input/Index"; // Ensure this path is correct
-import { highlightWeatherText } from "../components/utility/highlightWeatherText";
 import RoutePanel from "./RoutePanel"; // Import the new RouteTabPanel component
 import SummaryTable from "./SummaryTable"; // Import the new SummaryTable component
 import TabFormat from "./TabFormat"; // Import the new TabFormat component

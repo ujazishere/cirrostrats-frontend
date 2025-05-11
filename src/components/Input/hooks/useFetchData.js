@@ -4,9 +4,6 @@ import axios from "axios";
 
 // Custom hook for debouncing input value changes
 const useFetchData = (userEmail) => {
-  const [airports, setAirports] = useState([]);
-  const [flightNumbers, setFlightNumbers] = useState([]);
-  const [gates, setGates] = useState([]);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [isFetched, setIsFetched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

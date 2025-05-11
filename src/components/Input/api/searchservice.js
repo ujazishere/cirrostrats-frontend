@@ -2,6 +2,9 @@ import axios from "axios";
 import testJmsflights from './testJmsFlights.json';
 
 const searchService = {
+
+
+
   /**
    * Fetch most searched items.
    * @param {string} userEmail
@@ -19,6 +22,7 @@ const searchService = {
   },
 
 
+
   fetchJmsuggestions: () => {                 // fetch for testing in local dev.
     // fetchJmsuggestions: async () => {      // fetch (async) for production fetching.
     
@@ -27,6 +31,9 @@ const searchService = {
     // // actual fetch from jms
     // const response = await axios.get(`${apiUrl}/flights`);
   },
+
+
+
 
   /**
    * Fetch search suggestions (airports, flight numbers, concourses).
@@ -40,42 +47,8 @@ const searchService = {
     return response.data;
   },
 
-  /**
-   * Fetch airports matching the search term.
-   * @param {string} searchTerm
-   * @param {string} userEmail
-   * @param {boolean} isLoggedIn
-   */
-  fetchAirports: async (searchTerm, userEmail, isLoggedIn) => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await axios.get(`${apiUrl}/airports`)
-    return response.data;
-  },
 
-  /**
-   * Fetch flight numbers matching the search term.
-   * @param {string} searchTerm
-   * @param {string} userEmail
-   * @param {boolean} isLoggedIn
-   */
-  fetchFlightNumbers: async (searchTerm, userEmail, isLoggedIn) => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await axios.get(`${apiUrl}/flightNumbers`);
-          
-    return response.data;
-  },
 
-  /**
-   * Fetch concourses matching the search term.
-   * @param {string} searchTerm
-   * @param {string} userEmail
-   * @param {boolean} isLoggedIn
-   */
-  fetchConcourses: async (searchTerm, userEmail, isLoggedIn) => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await axios.get(`${apiUrl}/gates`);
-    return response.data;
-  },
 
   /**
    * Fetch raw query
@@ -88,6 +61,7 @@ const searchService = {
     const response = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
     return response.data;
   },
+
 };
 
 export default searchService;
