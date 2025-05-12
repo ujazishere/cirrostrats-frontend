@@ -104,8 +104,11 @@ const HomePage = () => {
       {/* Hero section */}
       <div className="hero-section">
         <div className="container">
-          <h2 className="hero-title">
-            Cirrostrats - A Unified Aviation Information Platform.
+          <h1 className="hero-title">
+            Cirrostrats
+          </h1>
+          <h2 className="hero-title-2">
+            A Unified Aviation Information Platform.
           </h2>
 
           {/* Search input */}

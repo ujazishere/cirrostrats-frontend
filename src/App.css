@@ -190,11 +190,21 @@
 }
 
 .hero-title {
-  font-size: 2rem;
+  font-size: 60px !important;
   font-weight: bold;
   margin-bottom: 1.5rem;
-  color: #1e293b;
+  color: #1e293b; 
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
 }
+
+  .hero-title-2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1e293b; 
+  }
+
 
 /* New navigation links styles - moved directly below search bar */
 .nav-links-container {
@@ -910,13 +920,6 @@
   padding: 4rem 0;
 }
 
-.hero-title {
-  font-size: 2.25rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 2rem;
-  color: black;
-}
 
 /* Features section styles */
 .features-section {
