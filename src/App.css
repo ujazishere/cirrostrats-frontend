@@ -35,6 +35,107 @@
 }
  
 
+/* HomePage.css */
+
+/* General styles */
+
+.bg-slate-50 {
+  background-color: #f8fafc;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Hero section */
+.hero-section {
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+
+/* New navigation links styles - moved directly below search bar */
+.nav-links-container {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;  /* Keep links in one row */
+  white-space: nowrap; /* Prevent wrapping of text */
+}
+
+.nav-link {
+  color: #334155;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  transition: color 0.2s ease;
+  margin-top: -10px;
+
+}
+
+.nav-link:hover {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
+.nav-separator {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0 0.25rem;
+  margin-top: -10px;
+}
+
+/* Features section - kept empty */
+.features-section {
+  padding: 1rem 0;
+}
+
+
+
+/* Responsive styles - ensure horizontal display on all screens */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.75rem;
+  }
+  
+  .nav-links {
+    overflow-x: auto;  /* Allow horizontal scrolling if needed */
+    width: 100%;
+    margin-top: -30px;
+  }
+  
+  .nav-link {
+    font-size: 0.85rem; /* Slightly smaller on mobile */
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* weatherCard.css */
 /* Main container */
