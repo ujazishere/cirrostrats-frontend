@@ -30,30 +30,7 @@ const useInputHandlers = () => {
     setInputValue(newInputValue);
     trackSearch(userEmail, newInputValue);
   }
-    // Filter local data
-    // const filteredAirports = airports.filter(
-    //   (airport) =>
-    //     airport.name.toLowerCase().includes(lowercaseInputValue) ||
-    //     airport.code.toLowerCase().includes(lowercaseInputValue)
-    // );
-
-    // const filteredFlightNumbers = flightNumbers.filter((flight) =>
-    //   flight.flightNumber.toLowerCase().includes(lowercaseInputValue)
-    // );
-
-    // const filteredGates = gates.filter((gate) =>
-    //   gate.gate.toLowerCase().includes(lowercaseInputValue)
-    // );
-
-    // // Merge all filtered results
-    // const newFilteredSuggestions = [
-    //   ...filteredAirports,
-    //   ...filteredFlightNumbers,
-    //   ...filteredGates,
-    // ];
-
-    // setFilteredSuggestions(newFilteredSuggestions);
-
+  
     // // Update inline prediction
     // const prediction = findInlinePrediction(debouncedInputValue, newFilteredSuggestions);
     // setInlinePrediction(prediction);

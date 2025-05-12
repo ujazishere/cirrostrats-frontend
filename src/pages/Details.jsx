@@ -63,8 +63,30 @@ const Details = () => {
           setLoadingNAS(false);
 
         } else if (searchValue?.type === "airport") {
-          const res = await axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`);
-          setAirportWx(res.data);
+          const [mdbAirportWeather,liveAirportWeather,nasRes] = await Promise.all([
+            // TODO: NAS takes departure and des, unnecessary. just give it one.
+            // axios.get(`${apiUrl}/NAS/${searchValue.code}/${searchValue.id}`).catch(e => { console.error("NAS Error:", e); return { data: {} }; }),
+            
+            // TODO the id is the bson ObjectID. Cant use it to send to Nas not for Live data fuck sake!
+            axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`).catch(e => { console.error("mdb Error:", e); return { data: {} }; }),
+            
+            // axios.get(`${apiUrl}/liveAirportWeather/${searchValue.id}`).catch(e => { console.error("liveWeather Error:", e); return { data: {} }; }),
+          ])
+          
+          // setNasResponse(nasRes.data);
+          // Set the weather data, 
+          setAirportWx(mdbAirportWeather.data);
+          // prioritizing live data if it exists and differs from mdb. Is a must!
+          if (liveAirportWeather.data && 
+            JSON.stringify(liveAirportWeather.data) !== JSON.stringify(mdbAirportWeather.data)){
+            setAirportWx(liveAirportWeather.data)
+            };
+
+          // const res = await axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`);
+          // setAirportWx(mdbAirportWeather.data);
+          console.log(nasRes.data,)
+
+          
           setLoadingWeather(false);
           // For an airport search, we are not loading flight data or NAS primarily
           setLoadingFlightData(false);
@@ -74,7 +96,7 @@ const Details = () => {
           // This fetches all gates. GateCard would need to filter or this API needs to change.
           // For this example, assuming GateCard can take the searchValue to identify the specific gate from the list,
           // or the API needs to be more specific: `${apiUrl}/gates/${searchValue.id}`
-          const res = await axios.get(`${apiUrl}/gates`); // Fetches all gates
+          const res = await axios.get(`${apiUrl}/gates/${searchValue.id}`); // Fetches all gates
           setGateData(res.data); // gateData now holds an array of all gates
           // For a gate search, not loading flight, weather, or NAS primarily
           setLoadingFlightData(false);
