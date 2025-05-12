@@ -190,7 +190,7 @@
 }
 
 .hero-title {
-  font-size: 60px !important;
+  font-size: 3.75rem !important;
   font-weight: bold;
   margin-bottom: 1.5rem;
   color: #1e293b; 
@@ -253,9 +253,7 @@
 
 /* Responsive styles - ensure horizontal display on all screens */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 1.75rem;
-  }
+
   
   .nav-links {
     overflow-x: auto;  /* Allow horizontal scrolling if needed */
@@ -1106,8 +1104,15 @@ footer {
 /* Media queries */
 @media (min-width: 768px) {
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 3.75rem;
   }
+
+  .hero-title-2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1e293b; 
+  }
+
   
   .features-grid {
     grid-template-columns: repeat(3, 1fr);
