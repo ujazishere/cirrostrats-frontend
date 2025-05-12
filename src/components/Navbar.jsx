@@ -1,20 +1,6 @@
-/**
- * Responsive Navigation Bar Component
- * 
- * Features:
- * - Responsive design with mobile hamburger menu
- * - Sliding sidebar for mobile navigation
- * - Click-outside detection to close sidebar
- * - Active route highlighting
- * - Smooth transitions for menu open/close
- * 
- * The component provides navigation links to different sections of the application
- * and includes a mobile-friendly sidebar that can be toggled with a hamburger menu.
- */
-
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
-
+import LogoImage from '/logo.png'; // Note the updated import path
 const Navbar = () => {
   // State to control sidebar visibility
   const [showLinks, setShowLinks] = useState(false);
@@ -22,11 +8,14 @@ const Navbar = () => {
   // Refs for click-outside detection
   const sidebarRef = useRef(null);
   const overlayRef = useRef(null);
+  const hamburgerRef = useRef(null);
 
   /**
    * Toggles the sidebar open/closed state
    */
-  const toggleSidebar = () => {
+  const toggleSidebar = (event) => {
+    // Prevent event from propagating to document
+    event.stopPropagation();
     setShowLinks(prev => !prev);
   };
 
@@ -43,12 +32,14 @@ const Navbar = () => {
    */
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Check if click is outside both sidebar and overlay
+      // Check if click is outside sidebar, overlay, and hamburger
       if (
         sidebarRef.current && 
         !sidebarRef.current.contains(event.target) && 
         overlayRef.current && 
-        !overlayRef.current.contains(event.target)
+        !overlayRef.current.contains(event.target) &&
+        hamburgerRef.current &&
+        !hamburgerRef.current.contains(event.target)
       ) {
         closeSidebar();
       }
@@ -61,30 +52,31 @@ const Navbar = () => {
 
   return (
     <div className="navbar">
-      {/* Logo/Brand Link */}
-      <h2>
-        <NavLink
-          to="/"
-          className="navbar__title"
-          style={({ isActive }) => ({
-            color: isActive ? "white" : "black",
-            textDecoration: "none",
-          })}
-          onClick={closeSidebar}
-        >
-          Cirrostrats
-        </NavLink>
-      </h2>
+      {/* Logo Link */}
+      <NavLink
+        to="/"
+        className="navbar__logo"
+        onClick={closeSidebar}
+      >
+        <img 
+          src={LogoImage} 
+          alt="Cirrostrats Logo" 
+          className="navbar__logo-image"
+        />
+      </NavLink>
 
       {/* Mobile Menu Toggle Button */}
-      <span 
-        className="material-symbols-outlined navbar__menu" 
+      <div 
+        ref={hamburgerRef}
+        className="navbar__hamburger" 
         onClick={toggleSidebar}
       >
-        menu
-      </span>
+        <span className="hamburger-line"></span>
+        <span className="hamburger-line"></span>
+        <span className="hamburger-line"></span>
+      </div>
 
-      {/* Overlay for mobile sidebar */}
+      {/* Overlay for sidebar */}
       {showLinks && (
         <div 
           className="sidebar-overlay" 
