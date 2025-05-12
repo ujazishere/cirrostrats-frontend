@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Input from "../components/Input/Index"; // Ensure this path is correct
 
 /**
@@ -14,8 +14,32 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;
   
+  // Reference for the search container
+  const searchContainerRef = useRef(null);
+  
+  // Apply the same styling as in combined.jsx
+  useEffect(() => {
+    // Apply custom styling to the search container specifically for this page
+    if (searchContainerRef.current) {
+      // Use stronger CSS approach for the top margin
+      searchContainerRef.current.style.cssText = 'margin-top: -70px !important; margin-bottom: -40px;';
+      // Also adjust the parent element if needed
+      const parentElement = searchContainerRef.current.parentElement;
+      if (parentElement && parentElement.classList.contains('weather-container')) {
+        parentElement.style.paddingTop = '0';
+      }
+    }
+  }, []);
+
   return (
     <div className="weather-container">
+      {/* Search Input Component moved to the top with the same styling as combined.jsx */}
+      {showSearchBar && (
+        <div className="combined-search" ref={searchContainerRef}>
+          <Input userEmail="user@example.com" isLoggedIn={true} />
+        </div>
+      )}
+      
       <div className="weather-cards">
         {/* D-ATIS Card */}
         <div className="weather-card">
@@ -29,7 +53,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
             </div>
           </div>
         </div>
-        
+
         {/* METAR Card */}
         <div className="weather-card">
           <div className="card-header">
@@ -42,7 +66,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
             </div>
           </div>
         </div>
-        
+
         {/* TAF Card */}
         <div className="weather-card">
           <div className="card-header">
@@ -56,13 +80,6 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
           </div>
         </div>
       </div>
-      
-      {/* Search Input Component moved to the bottom */}
-      {showSearchBar && (
-        <div className="search-container search-container-bottom">
-          <Input userEmail="user@example.com" isLoggedIn={true} />
-        </div>
-      )}
     </div>
   );
 };

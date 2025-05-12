@@ -104,7 +104,7 @@ return (
     <div className="hero-section">
       <div className="container">
         <h2 className="hero-title">
-          Check Weather, Gate, and Flight Information
+          A Unified Aviation Information Platform
         </h2>
 
         {/* Search input */}

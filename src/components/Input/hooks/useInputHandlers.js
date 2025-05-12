@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useDebounce from "./useDebounce";
 import { trackSearch } from "./useTrackSearch";
 import useSearch from "./useSuggestions";
+import WeatherCard from "../../WeatherCard";
 
 /*
 This file manages UI interactions (click, submit, keyboard events)
@@ -136,6 +137,7 @@ const useInputHandlers = () => {
       flightdetailscard: ".flight-details-card",
       WeatherTabs: ".weather-tabs-container",
       FeaturesSection: ".features-section",
+      WeatherCard: ".weather-cards",
     };
 
     Object.entries(elements).forEach(([key, selector]) => {
@@ -168,6 +170,8 @@ const useInputHandlers = () => {
           flightdetailscard: ".flight-details-card",
           WeatherTabs: ".weather-tabs-container",
           FeaturesSection: ".features-section",
+          data: ".data-content",
+          WeatherCard: ".weather-cards",
 
         };
 
