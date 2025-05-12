@@ -111,17 +111,7 @@ const Details = () => {
             axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {} }; }),
             axios.get(`${apiUrl}/flightAware/UA/${flightID}`).catch(e => { console.error("FlightAware Error:", e); return { data: {} }; }), // TODO: Airline code might need to be dynamic
           ]);
-
-          const combinedFlightData = {
-            ...ajms.data,
-            ...flightViewGateInfo.data,
-            ...flightStatsTZRes.data,
-            ...flightAwareRes.data,
-            flightID: flightID,
-          };
-          setFlightData(combinedFlightData);
-          setLoadingFlightData(false);
-
+          
           let departure, arrival;
           if (ajms.data?.arrival && ajms.data?.departure) {
             departure = ajms.data.departure;
@@ -131,6 +121,19 @@ const Details = () => {
             arrival = flightStatsTZRes.data?.flightStatsDestination || flightViewGateInfo.data?.flightViewDestination || null;
           }
           console.log('Departure/Arrival for weather lookup:', arrival, departure);
+
+          const combinedFlightData = {
+            flightID: flightID,
+            departure: departure,
+            arrival: arrival,
+            ...ajms.data,
+            ...flightViewGateInfo.data,
+            ...flightStatsTZRes.data,
+            ...flightAwareRes.data,
+          };
+          setFlightData(combinedFlightData);
+          setLoadingFlightData(false);
+
 
           if (departure && arrival) {
             const [nasRes, depWeatherLive, destWeatherLive, depWeatherMdb, destWeatherMdb] = await Promise.all([

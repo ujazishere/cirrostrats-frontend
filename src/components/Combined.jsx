@@ -35,7 +35,7 @@ import WeatherCard from "./WeatherCard"; // Import the WeatherCard component fro
  * @param {Object} props.nasDestinationResponse - NAS info for destination airport
  */
 const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
-  console.log("flightData", flightData);
+  // console.log("flightData, combined.jsx", flightData);
   
   // Reference for the search container
   const searchContainerRef = useRef(null);
