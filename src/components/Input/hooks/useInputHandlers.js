@@ -115,6 +115,8 @@ const useInputHandlers = () => {
       WeatherTabs: ".weather-tabs-container",
       FeaturesSection: ".features-section",
       WeatherCard: ".weather-cards",
+      title2: ".hero-title-2",
+      navlinks: ".nav-links-container",
     };
 
     Object.entries(elements).forEach(([key, selector]) => {
@@ -149,6 +151,11 @@ const useInputHandlers = () => {
           FeaturesSection: ".features-section",
           data: ".data-content",
           WeatherCard: ".weather-cards",
+          title2: ".hero-title-2",
+          navlinks: ".nav-links-container",
+
+
+
 
         };
 
