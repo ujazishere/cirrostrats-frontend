@@ -63,34 +63,63 @@ const Details = () => {
           setLoadingNAS(false);
 
         } else if (searchValue?.type === "airport") {
-          const [mdbAirportWeather,liveAirportWeather,nasRes] = await Promise.all([
-            // TODO: NAS takes departure and des, unnecessary. just give it one.
-            // axios.get(`${apiUrl}/NAS/${searchValue.code}/${searchValue.id}`).catch(e => { console.error("NAS Error:", e); return { data: {} }; }),
-            
-            // TODO the id is the bson ObjectID. Cant use it to send to Nas not for Live data fuck sake!
-            axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`).catch(e => { console.error("mdb Error:", e); return { data: {} }; }),
-            
-            // axios.get(`${apiUrl}/liveAirportWeather/${searchValue.id}`).catch(e => { console.error("liveWeather Error:", e); return { data: {} }; }),
-          ])
-          
-          // setNasResponse(nasRes.data);
-          // Set the weather data, 
-          setAirportWx(mdbAirportWeather.data);
-          // prioritizing live data if it exists and differs from mdb. Is a must!
-          if (liveAirportWeather.data && 
-            JSON.stringify(liveAirportWeather.data) !== JSON.stringify(mdbAirportWeather.data)){
-            setAirportWx(liveAirportWeather.data)
-            };
+          // Get airport weather from database - could be old data
+          const mdbAirportWeather = await axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`)
+            .catch(e => { 
+              console.error("mdb Error:", e); 
+              return { data: null }; 
+            });
 
-          // const res = await axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`);
-          // setAirportWx(mdbAirportWeather.data);
-          console.log(nasRes.data,)
-
+          // Initialize variables
+          let airportCode = null;
+          let formattedAirportCode = null;
           
-          setLoadingWeather(false);
-          // For an airport search, we are not loading flight data or NAS primarily
-          setLoadingFlightData(false);
-          setLoadingNAS(false);
+          // Process the airport weather data if it exists
+          if (mdbAirportWeather.data){
+            setAirportWx(mdbAirportWeather.data);
+            setLoadingWeather(false);
+            airportCode = mdbAirportWeather.data.code
+
+            // Format the airport code for the API calls
+            // Store both the original code and the formatted code
+            formattedAirportCode = airportCode;
+            if (airportCode && airportCode.length === 3) {
+              formattedAirportCode = `K${airportCode}`;
+              console.log('Formatted airport code:', formattedAirportCode);
+            }
+          }
+          // Only proceed with additional API calls if we have a valid airport code
+          if (formattedAirportCode) {
+            const [nasRes, liveAirportWeather] = await Promise.all([
+              // Use the formatted code for NAS API
+              axios.get(`${apiUrl}/NAS/${formattedAirportCode}/${formattedAirportCode}`)
+                .catch(e => { 
+                  console.error("NAS Error:", e); 
+                  return { data: null }; 
+                }),
+              
+              // Use the formatted code for live weather API
+              axios.get(`${apiUrl}/liveAirportWeather/${formattedAirportCode}`)
+                .catch(e => { 
+                  console.error("liveWeather Error:", e); 
+                  return { data: null }; 
+                })
+            ]);
+
+            if (nasRes.data){
+              // TODO: Need to show this component in the weather card.
+              setNasResponse(nasRes.data);
+              setLoadingNAS(false);
+            } 
+          
+            // Set the weather data, 
+            // prioritizing live data if it exists and differs from mdb. Is a must!
+            if (liveAirportWeather.data && 
+              JSON.stringify(liveAirportWeather.data) !== JSON.stringify(mdbAirportWeather.data)){
+              setAirportWx(liveAirportWeather.data)
+              setLoadingWeather(false);
+              };
+          }
 
         } else if (searchValue?.type === "Terminal/Gate") {
           // This fetches all gates. GateCard would need to filter or this API needs to change.
