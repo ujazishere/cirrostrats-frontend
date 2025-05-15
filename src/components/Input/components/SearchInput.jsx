@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 // import { trackSearch} from "../hooks/useTracksearch";
-import useSearch from "../hooks/useSuggestions";
+import useSearchSuggestions from "../hooks/useSuggestions";
 import useInputHandlers from "../hooks/useInputHandlers";
 
 
@@ -33,7 +33,7 @@ export default function SearchInput({
     handleKeyDown,
   } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed to all others.
 
-  const { filteredSuggestions } = useSearch(userEmail, null, inputValue, debouncedInputValue, dropOpen);
+  const { filteredSuggestions } = useSearchSuggestions(userEmail, null, inputValue, debouncedInputValue, dropOpen);
 
   return (
     <div className="search-container">

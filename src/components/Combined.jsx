@@ -169,9 +169,11 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
         <SummaryTable flightData={flightData} />
       </div>
 
-      <div className="flight-details-card">
-        <ClearanceTable flightData={flightData} />
-      </div>
+      {flightData?.clearance && (
+        <div className="flight-details-card">
+          <ClearanceTable clearance={flightData.clearance} />
+        </div>
+      )}
 
 
       

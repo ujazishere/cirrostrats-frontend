@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "./useDebounce";
 import { trackSearch } from "./useTrackSearch";
-import useSearch from "./useSuggestions";
-import WeatherCard from "../../WeatherCard";
 
 /*
 This file manages UI interactions (click, submit, keyboard events)

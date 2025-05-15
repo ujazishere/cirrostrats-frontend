@@ -17,7 +17,7 @@ import useFetchSuggestions from "./useFetchSuggestions";
  * @param {*} debouncedInputValue 
  * @returns 
  */
-export default function useSearch(userEmail, isLoggedIn, inputValue, debouncedInputValue, dropOpen) {
+export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, debouncedInputValue, dropOpen) {
   const [initialSuggestions, setInitialSuggestions] = useState([]);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [allSuggestions, setAllSuggestions] = useState([]);

@@ -154,8 +154,6 @@ const Details = () => {
             return;
           }
           
-          console.log("Resolved flightID for API calls:", flightID);
-
           const [ajms, flightViewGateInfo, flightStatsTZRes, flightAwareRes] = await Promise.all([
             axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {} }; }),
             axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`).catch(e => { console.error("FlightViewGateInfo Error:", e); return { data: {} }; }),
@@ -171,7 +169,6 @@ const Details = () => {
             departure = flightStatsTZRes.data?.flightStatsOrigin || flightViewGateInfo.data?.flightViewDeparture || null;
             arrival = flightStatsTZRes.data?.flightStatsDestination || flightViewGateInfo.data?.flightViewDestination || null;
           }
-          console.log('Departure/Arrival for weather lookup:', arrival, departure);
 
           const combinedFlightData = {
             flightID: flightID,

@@ -1,5 +1,4 @@
 import axios from "axios";
-import testJmsflights from './testJmsFlights.json';
 
 const searchService = {
 
@@ -20,34 +19,6 @@ const searchService = {
     }
     // const response = await axios.get(`${apiUrl}/searches/suggestions/${userEmail}`)
   },
-
-
-
-  fetchJmsuggestions: () => {                 // fetch for testing in local dev.
-    // fetchJmsuggestions: async () => {      // fetch (async) for production fetching.
-    
-    return testJmsflights;
-    // const apiUrl = import.meta.env.VITE_JMS_URL;
-    // // actual fetch from jms
-    // const response = await axios.get(`${apiUrl}/flights`);
-  },
-
-
-
-
-  /**
-   * Fetch search suggestions (airports, flight numbers, concourses).
-   * @param {string} searchTerm
-   * @param {string} userEmail
-   * @param {boolean} isLoggedIn
-   */
-  fetchSuggestions: async (searchTerm, userEmail, isLoggedIn) => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await axios.get(`${apiUrl}/searches/suggestions/${userEmail}?q=${searchTerm}`);
-    return response.data;
-  },
-
-
 
 
   /**
