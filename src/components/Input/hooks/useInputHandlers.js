@@ -75,19 +75,25 @@ const useInputHandlers = () => {
     if (submitTerm) {
       if (typeof submitTerm === 'string') {      // Raw serachterm submit. 
         searchService.fetchRawQuery(submitTerm).then(rawReturn => {
-          submitTerm = rawReturn
+          if (rawReturn) {
+            searchValue = rawReturn
+            console.log('raw', searchValue);
+            navigate("/details", { state: { searchValue } });
+            console.log('sent to dets');
+            setSelectedValue(submitTerm);
+          } else {
+          setSelectedValue(submitTerm.label);
+          searchValue = submitTerm
+          console.log('serv', searchValue)
+          navigate("/details", { state: { searchValue } });
+          };
         });
-        setSelectedValue(submitTerm);
-      } else {
-        setSelectedValue(submitTerm.label);
-        }
+      }
+    };
+  }
       // TODO Just make submitTerm uppercase since it can be as is without label
-      searchValue = submitTerm
-    }
     // const searchValue = submitTerm.mdb || { value: inputValue, label: inputValue };
-    navigate("/details", { state: { searchValue } });
     // trackSearch(inputValue, searchValue.label);
-  };
 
   // const handleSuggestionClick = (searchTerm) => {
   //   setInputValue(searchTerm);

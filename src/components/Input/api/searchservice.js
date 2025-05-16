@@ -29,7 +29,6 @@ const searchService = {
   const apiUrl = import.meta.env.VITE_API_URL;
   return axios.get(`${apiUrl}/query?search=${query}`)
     .then(response => {
-      console.log('data', response.data)
       return response.data;
     });
   }

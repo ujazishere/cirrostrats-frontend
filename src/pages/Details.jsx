@@ -63,31 +63,39 @@ const Details = () => {
           setLoadingNAS(false);
 
         } else if (searchValue?.type === "airport") {
-          // Get airport weather from database - could be old data
-          const mdbAirportWeather = await axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`)
+          // Initialize variables
+          let mdbAirportCode = null;
+          let formattedAirportCode = null;
+          let mdbAirportWeather = null
+          let rawAirportCode = null
+          // Get airport weather from database if availbale - could be old data
+          if (searchValue.id) {
+            const mdbAirportWeather = await axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`)
             .catch(e => { 
               console.error("mdb Error:", e); 
               return { data: null }; 
             });
-
-          // Initialize variables
-          let airportCode = null;
-          let formattedAirportCode = null;
-          
-          // Process the airport weather data if it exists
-          if (mdbAirportWeather.data){
-            setAirportWx(mdbAirportWeather.data);
-            setLoadingWeather(false);
-            airportCode = mdbAirportWeather.data.code
-
-            // Format the airport code for the API calls
-            // Store both the original code and the formatted code
-            formattedAirportCode = airportCode;
-            if (airportCode && airportCode.length === 3) {
-              formattedAirportCode = `K${airportCode}`;
-              console.log('Formatted airport code:', formattedAirportCode);
+            // Process the airport weather data if it exists
+            console.log('here');
+            if (mdbAirportWeather.data){
+              console.log('mdb.ata',);
+              setAirportWx(mdbAirportWeather.data);
+              setLoadingWeather(false);
+              mdbAirportCode = mdbAirportWeather.data.code
+              // Format the airport code for the API calls
+              // Store both the original code and the formatted code
+              formattedAirportCode = mdbAirportCode;
+              if (mdbAirportCode && mdbAirportCode.length === 3) {
+                formattedAirportCode = `K${mdbAirportCode}`;
+                console.log('Formatted airport code:', formattedAirportCode);
+              }
             }
+          } else if (searchValue.airport){
+            console.log('search airport code', searchValue.airport);
+            rawAirportCode = searchValue.airport
+            formattedAirportCode = searchValue.airport
           }
+          
           // Only proceed with additional API calls if we have a valid airport code
           if (formattedAirportCode) {
             const [nasRes, liveAirportWeather] = await Promise.all([
@@ -114,11 +122,11 @@ const Details = () => {
           
             // Set the weather data, 
             // prioritizing live data if it exists and differs from mdb. Is a must!
-            if (liveAirportWeather.data && 
-              JSON.stringify(liveAirportWeather.data) !== JSON.stringify(mdbAirportWeather.data)){
+            if ((liveAirportWeather.data && mdbAirportWeather &&
+              JSON.stringify(liveAirportWeather.data) !== JSON.stringify(mdbAirportWeather.data)) || rawAirportCode){
               setAirportWx(liveAirportWeather.data)
               setLoadingWeather(false);
-              };
+              } 
           }
 
         } else if (searchValue?.type === "Terminal/Gate") {
@@ -133,6 +141,7 @@ const Details = () => {
           setLoadingNAS(false);
 
         } else if (searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') || (searchValue && !searchValue.type)) {
+          return
           // Handles flight type or raw string input (assumed to be a flight number)
           let flightID = null;
           if (searchValue?.flightID) {
@@ -218,7 +227,7 @@ const Details = () => {
 
   const renderContent = () => {
     // Determine if the current search is primarily for a flight
-    const isFlightSearch = searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string' && !searchValue.type) || (searchValue && !searchValue.type && (searchValue.flightID || searchValue.value || searchValue.label));
+    const isFlightSearch = searchValue?.type === "flight" || (searchValue && !searchValue.type && (searchValue.flightID || searchValue.value || searchValue.label));
 
 
     if (loadingFlightData && isFlightSearch) {
