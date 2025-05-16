@@ -141,7 +141,6 @@ const Details = () => {
           setLoadingNAS(false);
 
         } else if (searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') || (searchValue && !searchValue.type)) {
-          return
           // Handles flight type or raw string input (assumed to be a flight number)
           let flightID = null;
           if (searchValue?.flightID) {
