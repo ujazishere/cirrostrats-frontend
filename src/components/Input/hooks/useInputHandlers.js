@@ -18,7 +18,6 @@ const useInputHandlers = () => {
   
   const handleValue = (value) => {
     setSelectedValue(value);
-    console.log("value", value);
   }
 
   const handleInputChange = (event, newInputValue, userEmail,) => {
@@ -69,7 +68,6 @@ const useInputHandlers = () => {
   // Other handlers...
   const handleSubmit = (e, submitTerm, userEmail) => {
     if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
-    // console.log("submitTerm", submitTerm);
     let searchValue;
     trackSearch(userEmail,null, submitTerm.label, submitTerm.mdb);
     if (submitTerm) {
@@ -77,19 +75,21 @@ const useInputHandlers = () => {
         searchService.fetchRawQuery(submitTerm).then(rawReturn => {
           if (rawReturn) {
             searchValue = rawReturn
-            console.log('raw', searchValue);
             navigate("/details", { state: { searchValue } });
-            console.log('sent to dets');
             setSelectedValue(submitTerm);
           } else {
           setSelectedValue(submitTerm.label);
           searchValue = submitTerm
-          console.log('serv', searchValue)
           navigate("/details", { state: { searchValue } });
           };
         });
-      }
+      } else {
+      // Process the dropdown selection. since they have the id, type and such built in.
+      searchValue = submitTerm
+      navigate("/details", { state: { searchValue } });
     };
+
+    } 
   }
       // TODO Just make submitTerm uppercase since it can be as is without label
     // const searchValue = submitTerm.mdb || { value: inputValue, label: inputValue };

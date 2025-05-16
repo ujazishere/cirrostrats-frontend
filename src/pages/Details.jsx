@@ -76,9 +76,7 @@ const Details = () => {
               return { data: null }; 
             });
             // Process the airport weather data if it exists
-            console.log('here');
             if (mdbAirportWeather.data){
-              console.log('mdb.ata',);
               setAirportWx(mdbAirportWeather.data);
               setLoadingWeather(false);
               mdbAirportCode = mdbAirportWeather.data.code
@@ -87,11 +85,9 @@ const Details = () => {
               formattedAirportCode = mdbAirportCode;
               if (mdbAirportCode && mdbAirportCode.length === 3) {
                 formattedAirportCode = `K${mdbAirportCode}`;
-                console.log('Formatted airport code:', formattedAirportCode);
               }
             }
           } else if (searchValue.airport){
-            console.log('search airport code', searchValue.airport);
             rawAirportCode = searchValue.airport
             formattedAirportCode = searchValue.airport
           }
@@ -150,7 +146,7 @@ const Details = () => {
           }
 
           if (!flightID) {
-            console.error("Could not determine Flight ID from searchValue:", searchValue);
+            console.error("Impossile return, Could not determine Flight ID from searchValue:", searchValue);
             setLoadingFlightData(false);
             setLoadingWeather(false);
             setLoadingNAS(false);
