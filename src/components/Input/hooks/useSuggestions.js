@@ -4,13 +4,12 @@ import { typeMap } from "../utils/typeMap";
 import { formatSuggestions, matchingSuggestion, fetchAndFilterSuggestions } from "../utils/formatSuggestions";
 import useDebounce from "./useDebounce";
 import searchService from "../api/searchservice";
-import useFetchSuggestions from "./useFetchSuggestions";
 // import useTrackSearch from "./useTrackSearch"
 
 /**
  * @function useSearch
  * @description Centralized State Management Hook. Role: Manages all search-related state and logic.
- *      Responsibilities: Combines smaller hooks (useDebounce, useFetchData, useFetchSuggestions, etc.).
+ *      Responsibilities: Combines smaller hooks (useDebounce, useFetchData, etc.).
  *      Exposes state and handlers to the parent component
  * @param {*} userEmail 
  * @param {*} isLoggedIn 
@@ -96,31 +95,18 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
   };
 
 
-  useEffect(() => {
-    const updateSuggestions = async () =>{
-      // if page is more than or equal to 2 then fetch more suggestions
-      if (page >= 2) {
-        console.log('newfilteredSuggestions less than 10', filteredSuggestions.length);
-        const updatedSuggestions = await searchService.fetchMostSearched(userEmail, null, page, ); // fetch more suggestions
+  // useEffect(() => {
+  //   const updateSuggestions = async () =>{
+  //     // if page is more than or equal to 2 then fetch more suggestions
+  //     if (page >= 2) {
+  //       console.log('newfilteredSuggestions less than 10', filteredSuggestions.length);
+  //       const updatedSuggestions = await searchService.fetchMostSearched(userEmail, null, page, ); // fetch more suggestions
 
-      console.log('page changed', page);
-      }
-    }
-    updateSuggestions();
-  }, [filterChange]);
-
-
-
-  // Fetch raw query. triggered every debouncedInputValue
-  useEffect(() => {
-    const fetchRawQuery = async (debouncedInputValue) => {
-      if (!debouncedInputValue) return;
-      // console.log('raw query debouncedInputValue', debouncedInputValue);
-      // const searchSuggestions = await searchService.fetchRawQuery(debouncedInputValue);
-    }
-    fetchRawQuery(debouncedInputValue);
-  }, [debouncedInputValue]);
-
+  //     console.log('page changed', page);
+  //     }
+  //   }
+  //   updateSuggestions();
+  // }, [filterChange]);
 
 
   return {

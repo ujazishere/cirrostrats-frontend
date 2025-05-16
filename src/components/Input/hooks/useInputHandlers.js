@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "./useDebounce";
 import { trackSearch } from "./useTrackSearch";
+import searchService from "../api/searchservice";
 
 /*
 This file manages UI interactions (click, submit, keyboard events)
@@ -72,13 +73,16 @@ const useInputHandlers = () => {
     let searchValue;
     trackSearch(userEmail,null, submitTerm.label, submitTerm.mdb);
     if (submitTerm) {
-      //
-      if (!submitTerm.label) {
-        submitTerm = submitTerm.toUpperCase()
+      if (typeof submitTerm === 'string') {      // Raw serachterm submit. 
+        searchService.fetchRawQuery(submitTerm).then(rawReturn => {
+          submitTerm = rawReturn
+        });
+        setSelectedValue(submitTerm);
+      } else {
+        setSelectedValue(submitTerm.label);
         }
-      setSelectedValue(submitTerm.label);
       // TODO Just make submitTerm uppercase since it can be as is without label
-      searchValue = submitTerm || { value: inputValue, label: inputValue, type: "unknown" };
+      searchValue = submitTerm
     }
     // const searchValue = submitTerm.mdb || { value: inputValue, label: inputValue };
     navigate("/details", { state: { searchValue } });

@@ -39,6 +39,7 @@ export default function SearchInput({
     <div className="search-container">
       <div className="search-wrapper">
         <Autocomplete
+          freeSolo
           open={dropOpen}     // Controls whether the Autocomplete dropdown is open or closed
           options={filteredSuggestions} // list of filtered dropdown items
           value={selectedValue}
@@ -114,7 +115,6 @@ export default function SearchInput({
           filterOptions={(x) => x}
           disableClearable
           forcePopupIcon={false}
-          freeSolo
           selectOnFocus
           clearOnBlur={false}
           handleHomeEndKeys

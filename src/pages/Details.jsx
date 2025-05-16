@@ -139,12 +139,7 @@ const Details = () => {
             flightID = searchValue.flightID;
           } else if (typeof searchValue === 'string') {
             flightID = searchValue;
-          } else if (searchValue?.value) { // From Autocomplete option not having flightID but a value
-            flightID = searchValue.value;
-          } else if (searchValue?.label) { // Fallback to label
-             flightID = searchValue.label;
           }
-
 
           if (!flightID) {
             console.error("Could not determine Flight ID from searchValue:", searchValue);
@@ -232,7 +227,8 @@ const Details = () => {
 
     // If it's an airport search and weather is loading (and not a flight search that also loads weather)
     if (loadingWeather && searchValue?.type === "airport" && !isFlightSearch) {
-        // You might want a generic weather loading skeleton here
+        // TODO: This wont trigger yet since fall back raw search is flight as of May 15 2025
+              // You might want a generic weather loading skeleton here
         return <p>Loading airport weather...</p>;
     }
     
