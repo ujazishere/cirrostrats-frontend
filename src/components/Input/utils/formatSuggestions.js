@@ -34,14 +34,17 @@ export const formatSuggestions = (searchSuggestions) => {
 
 
 export const matchingSuggestion = (suggestions, inputValue) => {
-  if (!inputValue) return suggestions;
+  if (!inputValue) return suggestions.slice(0,5);
   const lowercaseInputValue = inputValue.toLowerCase();
 
   // Filter local data
-  return suggestions.filter(
-    (searches) =>
-      searches.label.toLowerCase().includes(lowercaseInputValue)
-  );
+   return suggestions
+    .filter(s => s.label.toLowerCase().includes(lowercaseInputValue))
+    .slice(0, 5);
+  // return suggestions.filter(
+    // (searches) =>
+      // searches.label.toLowerCase().includes(lowercaseInputValue)
+  // );
 };
 
 
