@@ -4,265 +4,243 @@ import axios from "axios";
 import UTCTime from "../components/UTCTime";
 import { FlightCard, WeatherCard, GateCard } from "../components/Combined";
 import { LoadingFlightCard } from "../components/Skeleton";
+import useAirportData from "../components/AirportData"; // Import the new custom hook
 
 // API base URL from environment variables
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Details = () => {
-  // State variables for managing data and loading statuses
-  const [airportWx, setAirportWx] = useState(null);
-  const [flightData, setFlightData] = useState(null);
-  const [gateData, setGateData] = useState(null); // Should hold data for a specific gate or all gates if GateCard filters
-  const [weatherResponse, setWeatherResponse] = useState(null);
-  const [nasResponse, setNasResponse] = useState(null);
-
-  const [loadingFlightData, setLoadingFlightData] = useState(true);
-  const [loadingWeather, setLoadingWeather] = useState(true);
-  const [loadingNAS, setLoadingNAS] = useState(true);
-
   const location = useLocation();
   const searchValue = location?.state?.searchValue;
 
-  useEffect(() => {
-    // --- BEGIN FIX: Reset states on new search ---
-    setAirportWx(null);
-    setFlightData(null);
-    setGateData(null);
-    setWeatherResponse(null);
-    setNasResponse(null);
+  // States for flight data
+  const [flightData, setFlightData] = useState(null);
+  const [loadingFlightData, setLoadingFlightData] = useState(false);
+  const [weatherResponseFlight, setWeatherResponseFlight] = useState(null);
+  const [nasResponseFlight, setNasResponseFlight] = useState(null);
+  const [flightError, setFlightError] = useState(null);
 
-    if (searchValue) {
-      // Set loading states to true only if we have a search value
-      // Specific loading states will be set to false as data comes in or if not applicable
-      setLoadingFlightData(true);
-      setLoadingWeather(true);
-      setLoadingNAS(true);
-    } else {
-      // No search value, so nothing is loading, clear all.
-      setLoadingFlightData(false);
-      setLoadingWeather(false);
-      setLoadingNAS(false);
+
+  // States for gate data
+  const [gateData, setGateData] = useState(null);
+  const [loadingGateData, setLoadingGateData] = useState(false);
+  const [gateError, setGateError] = useState(null);
+
+  // Use the custom hook for airport data
+  const {
+    airportWx,
+    nasResponseAirport,
+    loadingAirportDetails,
+    // airportError // airportError is available from the hook if needed for UI
+  } = useAirportData(searchValue, apiUrl);
+
+  // Overall loading state for the component might not be strictly needed
+  // if individual loading states are handled in renderContent
+
+  useEffect(() => {
+    // Reset states on new search value
+    setFlightData(null);
+    setWeatherResponseFlight(null);
+    setNasResponseFlight(null);
+    setFlightError(null);
+    setLoadingFlightData(false);
+
+    setGateData(null);
+    setGateError(null);
+    setLoadingGateData(false);
+
+    // airportWx, nasResponseAirport, loadingAirportDetails are handled by the useAirportData hook
+
+    if (!searchValue) {
       return; // Exit early if no searchValue
     }
-    // --- END FIX ---
 
-    async function fetchData() {
+    const fetchData = async () => {
       try {
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
+          setLoadingFlightData(true);
           const res = await axios.get(`${apiUrl}/testDataReturns`);
           console.log("!!TEST DATA!!", res.data);
-          // Assuming test data might provide all pieces of data needed
-          setFlightData(res.data.flightData || res.data); // Adjust based on actual test data structure
-          setWeatherResponse(res.data.weatherResponse || res.data);
-          setNasResponse(res.data.nasResponse || res.data);
-          setAirportWx(res.data.airportWx || null); // If test data includes airport weather
-          setGateData(res.data.gateData || null); // If test data includes gate data
-
+          setFlightData(res.data.flightData || res.data);
+          setWeatherResponseFlight(res.data.weatherResponse || res.data);
+          setNasResponseFlight(res.data.nasResponse || res.data);
+          // If test data needs to provide airportWx or gateData, it should be set here too.
+          // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
           setLoadingFlightData(false);
-          setLoadingWeather(false);
-          setLoadingNAS(false);
 
         } else if (searchValue?.type === "airport") {
-          // Initialize variables
-          let mdbAirportCode = null;
-          let formattedAirportCode = null;
-          let mdbAirportWeather = null
-          let rawAirportCode = null
-          // Get airport weather from database if availbale - could be old data
-          if (searchValue.id) {
-            const mdbAirportWeather = await axios.get(`${apiUrl}/mdbAirportWeather/${searchValue.id}`)
-            .catch(e => { 
-              console.error("mdb Error:", e); 
-              return { data: null }; 
-            });
-            // Process the airport weather data if it exists
-            if (mdbAirportWeather.data){
-              setAirportWx(mdbAirportWeather.data);
-              setLoadingWeather(false);
-              mdbAirportCode = mdbAirportWeather.data.code
-              // Format the airport code for the API calls
-              // Store both the original code and the formatted code
-              formattedAirportCode = mdbAirportCode;
-              if (mdbAirportCode && mdbAirportCode.length === 3) {
-                formattedAirportCode = `K${mdbAirportCode}`;
-              }
-            }
-          } else if (searchValue.airport){
-            rawAirportCode = searchValue.airport
-            formattedAirportCode = searchValue.airport
-          }
-          
-          // Only proceed with additional API calls if we have a valid airport code
-          if (formattedAirportCode) {
-            const [nasRes, liveAirportWeather] = await Promise.all([
-              // Use the formatted code for NAS API
-              axios.get(`${apiUrl}/NAS/${formattedAirportCode}/${formattedAirportCode}`)
-                .catch(e => { 
-                  console.error("NAS Error:", e); 
-                  return { data: null }; 
-                }),
-              
-              // Use the formatted code for live weather API
-              axios.get(`${apiUrl}/liveAirportWeather/${formattedAirportCode}`)
-                .catch(e => { 
-                  console.error("liveWeather Error:", e); 
-                  return { data: null }; 
-                })
-            ]);
-
-            if (nasRes.data){
-              // TODO: Need to show this component in the weather card.
-              setNasResponse(nasRes.data);
-              setLoadingNAS(false);
-            } 
-          
-            // Set the weather data, 
-            // prioritizing live data if it exists and differs from mdb. Is a must!
-            if ((liveAirportWeather.data && mdbAirportWeather &&
-              JSON.stringify(liveAirportWeather.data) !== JSON.stringify(mdbAirportWeather.data)) || rawAirportCode){
-              setAirportWx(liveAirportWeather.data)
-              setLoadingWeather(false);
-              } 
-          }
-
+          // Airport data fetching is handled by the useAirportData hook.
+          // loadingAirportDetails will be true via the hook.
+          // setLoadingFlightData(false) and setLoadingGateData(false) are already defaults.
         } else if (searchValue?.type === "Terminal/Gate") {
-          // This fetches all gates. GateCard would need to filter or this API needs to change.
-          // For this example, assuming GateCard can take the searchValue to identify the specific gate from the list,
-          // or the API needs to be more specific: `${apiUrl}/gates/${searchValue.id}`
-          const res = await axios.get(`${apiUrl}/gates/${searchValue.id}`); // Fetches all gates
-          setGateData(res.data); // gateData now holds an array of all gates
-          // For a gate search, not loading flight, weather, or NAS primarily
-          setLoadingFlightData(false);
-          setLoadingWeather(false);
-          setLoadingNAS(false);
-
+          setLoadingGateData(true);
+          try {
+            const res = await axios.get(`${apiUrl}/gates/${searchValue.id}`);
+            setGateData(res.data);
+          } catch (e) {
+            console.error("Gate Data Error:", e.response?.data || e.message);
+            setGateError(e.response?.data || e.message);
+          } finally {
+            setLoadingGateData(false);
+          }
         } else if (searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') || (searchValue && !searchValue.type)) {
-          // Handles flight type or raw string input (assumed to be a flight number)
+          setLoadingFlightData(true);
+          setFlightError(null);
           let flightID = null;
           if (searchValue?.flightID) {
             flightID = searchValue.flightID;
           } else if (typeof searchValue === 'string') {
             flightID = searchValue;
+          } else if (searchValue?.value) { // From react-select or similar
+            flightID = searchValue.value;
           }
+
 
           if (!flightID) {
-            console.error("Impossile return, Could not determine Flight ID from searchValue:", searchValue);
+            console.error("Could not determine Flight ID from searchValue:", searchValue);
+            setFlightError("Invalid Flight ID provided.");
             setLoadingFlightData(false);
-            setLoadingWeather(false);
-            setLoadingNAS(false);
             return;
           }
-          
-          const [ajms, flightViewGateInfo, flightStatsTZRes, flightAwareRes] = await Promise.all([
-            axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {} }; }),
-            axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`).catch(e => { console.error("FlightViewGateInfo Error:", e); return { data: {} }; }),
-            axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {} }; }),
-            axios.get(`${apiUrl}/flightAware/UA/${flightID}`).catch(e => { console.error("FlightAware Error:", e); return { data: {} }; }), // TODO: Airline code might need to be dynamic
-          ]);
-          
-          let departure, arrival;
-          if (ajms.data?.arrival && ajms.data?.departure) {
-            departure = ajms.data.departure;
-            arrival = ajms.data.arrival;
-          } else {
-            departure = flightStatsTZRes.data?.flightStatsOrigin || flightViewGateInfo.data?.flightViewDeparture || null;
-            arrival = flightStatsTZRes.data?.flightStatsDestination || flightViewGateInfo.data?.flightViewDestination || null;
-          }
 
-          const combinedFlightData = {
-            flightID: flightID,
-            departure: departure,
-            arrival: arrival,
-            ...ajms.data,
-            ...flightViewGateInfo.data,
-            ...flightStatsTZRes.data,
-            ...flightAwareRes.data,
-          };
-          setFlightData(combinedFlightData);
-          setLoadingFlightData(false);
-
-
-          if (departure && arrival) {
-            const [nasRes, depWeatherLive, destWeatherLive, depWeatherMdb, destWeatherMdb] = await Promise.all([
-              axios.get(`${apiUrl}/NAS/${departure}/${arrival}`).catch(e => { console.error("NAS Error:", e); return { data: {} }; }),
-              axios.get(`${apiUrl}/liveAirportWeather/${departure}`).catch(e => { console.warn(`Live Dep Weather Error for ${departure}:`, e.response?.data); return { data: null }; }),
-              axios.get(`${apiUrl}/liveAirportWeather/${arrival}`).catch(e => { console.warn(`Live Dest Weather Error for ${arrival}:`, e.response?.data); return { data: null }; }),
-              axios.get(`${apiUrl}/mdbAirportWeather/${departure}`).catch(e => { console.warn(`MDB Dep Weather Error for ${departure}:`, e.response?.data); return { data: null }; }),
-              axios.get(`${apiUrl}/mdbAirportWeather/${arrival}`).catch(e => { console.warn(`MDB Dest Weather Error for ${arrival}:`, e.response?.data); return { data: null }; }),
+          try {
+            const [ajms, flightViewGateInfo, flightStatsTZRes, flightAwareRes] = await Promise.all([
+              axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {}, error: true }; }),
+              axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`).catch(e => { console.error("FlightViewGateInfo Error:", e); return { data: {}, error: true }; }),
+              axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {}, error: true }; }),
+              axios.get(`${apiUrl}/flightAware/UA/${flightID}`).catch(e => { console.error("FlightAware Error:", e); return { data: {}, error: true }; }), // TODO: Airline code might need to be dynamic
             ]);
-            
-            setWeatherResponse({
-              dep_weather: depWeatherLive.data || depWeatherMdb.data, // Prioritize live, fallback to MDB
-              dest_weather: destWeatherLive.data || destWeatherMdb.data,
-            });
-            setNasResponse(nasRes.data);
-          } else {
-            console.warn("Departure or arrival airport code missing for flightID", flightID, "Cannot fetch detailed weather/NAS.");
+
+            // Basic check if all primary sources failed
+            if (ajms.error && flightViewGateInfo.error && flightStatsTZRes.error && flightAwareRes.error && !Object.keys(ajms.data).length && !Object.keys(flightViewGateInfo.data).length ) {
+                setFlightError(`Could not retrieve sufficient data for flight ${flightID}.`);
+            }
+
+
+            let departure, arrival;
+            if (ajms.data?.arrival && ajms.data?.departure) {
+              departure = ajms.data.departure;
+              arrival = ajms.data.arrival;
+            } else {
+              departure = flightStatsTZRes.data?.flightStatsOrigin || flightViewGateInfo.data?.flightViewDeparture || null;
+              arrival = flightStatsTZRes.data?.flightStatsDestination || flightViewGateInfo.data?.flightViewDestination || null;
+            }
+
+            const combinedFlightData = {
+              flightID: flightID,
+              departure: departure,
+              arrival: arrival,
+              ...ajms.data,
+              ...flightViewGateInfo.data,
+              ...flightStatsTZRes.data,
+              ...flightAwareRes.data,
+            };
+            setFlightData(combinedFlightData);
+
+            if (departure && arrival) {
+              const [nasRes, depWeatherLive, destWeatherLive, depWeatherMdb, destWeatherMdb] = await Promise.all([
+                axios.get(`${apiUrl}/NAS/${departure}/${arrival}`).catch(e => { console.error("Flight NAS Error:", e); return { data: {} }; }),
+                axios.get(`${apiUrl}/liveAirportWeather/${departure}`).catch(e => { console.warn(`Live Dep Weather Error for ${departure}:`, e.response?.data); return { data: null }; }),
+                axios.get(`${apiUrl}/liveAirportWeather/${arrival}`).catch(e => { console.warn(`Live Dest Weather Error for ${arrival}:`, e.response?.data); return { data: null }; }),
+                axios.get(`${apiUrl}/mdbAirportWeather/${departure}`).catch(e => { console.warn(`MDB Dep Weather Error for ${departure}:`, e.response?.data); return { data: null }; }),
+                axios.get(`${apiUrl}/mdbAirportWeather/${arrival}`).catch(e => { console.warn(`MDB Dest Weather Error for ${arrival}:`, e.response?.data); return { data: null }; }),
+              ]);
+
+              setWeatherResponseFlight({
+                dep_weather: depWeatherLive.data || depWeatherMdb.data,
+                dest_weather: destWeatherLive.data || destWeatherMdb.data,
+              });
+              setNasResponseFlight(nasRes.data);
+            } else if (Object.keys(combinedFlightData).length > 2) { // flightID, departure, arrival are 3 keys minimum if flight is somewhat valid
+              console.warn("Departure or arrival airport code missing for flightID", flightID, "Cannot fetch detailed weather/NAS for flight.");
+            } else {
+                // If no departure/arrival and minimal data, it might indicate a failed flight lookup overall
+                if (!flightError) setFlightError(`Limited data for flight ${flightID}. Departure/Arrival info missing.`);
+            }
+          } catch (e) {
+            console.error("Error fetching flight details bundle:", e);
+            setFlightError(`Failed to fetch details for flight ${flightID}.`);
+          } finally {
+            setLoadingFlightData(false);
           }
-          setLoadingWeather(false);
-          setLoadingNAS(false);
         } else {
-          // Fallback for unknown search type or if searchValue is present but not fitting other conditions
           console.warn("Unknown or unhandled search type:", searchValue?.type);
-          setLoadingFlightData(false);
-          setLoadingWeather(false);
-          setLoadingNAS(false);
+          // Potentially set a generic error or state here
         }
-      } catch (error) {
-        console.error("Error in fetchData:", error);
+      } catch (error) { // Catch errors from the outer try block (e.g., test data fetching)
+        console.error("Error in fetchData outer block:", error);
+        // Ensure loading states are false if a top-level error occurs
         setLoadingFlightData(false);
-        setLoadingWeather(false);
-        setLoadingNAS(false);
+        setLoadingGateData(false);
+        // loadingAirportDetails is handled by its hook
       }
-    }
+    };
 
-    fetchData(); // This is now safe due to the early return if !searchValue
+    fetchData();
 
-  }, [searchValue]); // useEffect dependency
+  }, [searchValue, apiUrl]); // useEffect dependency, apiUrl passed to hook
 
   const renderContent = () => {
-    // Determine if the current search is primarily for a flight
-    const isFlightSearch = searchValue?.type === "flight" || (searchValue && !searchValue.type && (searchValue.flightID || searchValue.value || searchValue.label));
+    const isFlightSearch = searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') || (searchValue && !searchValue.type && (searchValue.flightID || searchValue.value));
+    const isAirportSearch = searchValue?.type === "airport";
+    const isGateSearch = searchValue?.type === "Terminal/Gate";
+    const searchLabel = searchValue?.label || searchValue?.value || (typeof searchValue === 'string' && searchValue) || "";
 
 
-    if (loadingFlightData && isFlightSearch) {
+    if (isFlightSearch && loadingFlightData) {
       return <LoadingFlightCard />;
     }
-
-    // If it's an airport search and weather is loading (and not a flight search that also loads weather)
-    if (loadingWeather && searchValue?.type === "airport" && !isFlightSearch) {
-        // TODO: This wont trigger yet since fall back raw search is flight as of May 15 2025
-              // You might want a generic weather loading skeleton here
-        return <p>Loading airport weather...</p>;
+    if (isAirportSearch && loadingAirportDetails) {
+      return <p>Loading airport information for {searchLabel}...</p>;
     }
-    
-    // If it's a gate search and data is loading (assuming a gate loading state if needed)
-    // For now, GateCard is simple and doesn't have its own loading state in this example
+    if (isGateSearch && loadingGateData) {
+      return <p>Loading gate information for {searchLabel}...</p>;
+    }
 
-    const noDataFound = !airportWx && !gateData && !flightData;
-    const stillLoading = loadingFlightData || loadingWeather || loadingNAS;
+    // Error display
+    if (isFlightSearch && flightError && !flightData) { // Show error if flight data fetch failed significantly
+        return <p>Error fetching flight data: {typeof flightError === 'string' ? flightError : `Failed to load data for ${searchLabel}`}</p>;
+    }
+    // airportError can be displayed similarly if needed:
+    // if (isAirportSearch && airportError && !airportWx) {
+    //   return <p>Error fetching airport data for {searchLabel}.</p>;
+    // }
+    if (isGateSearch && gateError && !gateData) {
+        return <p>Error fetching gate data for {searchLabel}.</p>;
+    }
 
+
+    // Content display
+    let contentFound = false;
     return (
       <>
-        {airportWx && <WeatherCard title="Airport Weather" weatherDetails={airportWx} />}
-        
-        {/* If gateData is an array of all gates, GateCard needs to filter it using searchValue.id or label */}
-        {/* For example: const targetGate = gateData?.find(g => g.id === searchValue.id || g.Gate === searchValue.label); */}
-        {/* Then: {targetGate && <GateCard gateData={targetGate} />} */}
-        {/* For simplicity, assuming gateData might be specific or GateCard handles it */}
-        {gateData && searchValue?.type === "Terminal/Gate" && <GateCard gateData={gateData} currentSearchValue={searchValue} />}
-        
-        {flightData && (
+        {airportWx && isAirportSearch && (
+          (contentFound = true),
+          // For an airport search, NAS data is passed directly to WeatherCard
+          // Assuming WeatherCard can handle `nasDetails` for a single airport.
+          // The original code had a TODO: "Need to show this component in the weather card."
+          <WeatherCard title={`Weather for ${airportWx.name || searchLabel}`} weatherDetails={airportWx} nasDetails={nasResponseAirport} />
+        )}
+
+        {gateData && isGateSearch && (
+          (contentFound = true),
+          <GateCard gateData={gateData} currentSearchValue={searchValue} />
+        )}
+
+        {flightData && isFlightSearch && (
+          (contentFound = true),
           <FlightCard
             flightData={flightData}
-            dep_weather={weatherResponse?.dep_weather}
-            dest_weather={weatherResponse?.dest_weather}
-            nasDepartureResponse={nasResponse?.nas_departure_affected}
-            nasDestinationResponse={nasResponse?.nas_destination_affected}
+            dep_weather={weatherResponseFlight?.dep_weather}
+            dest_weather={weatherResponseFlight?.dest_weather}
+            nasDepartureResponse={nasResponseFlight?.nas_departure_affected}
+            nasDestinationResponse={nasResponseFlight?.nas_destination_affected}
+            flightError={flightError} // Pass partial data error to FlightCard
           />
         )}
-        {!stillLoading && noDataFound && searchValue && (
-             <p>No information found for your search: {searchValue.label || searchValue.value || (typeof searchValue === 'string' && searchValue)}</p>
+
+        {!loadingFlightData && !loadingAirportDetails && !loadingGateData && !contentFound && searchValue && (
+          <p>No information found for your search: {searchLabel}</p>
         )}
       </>
     );
