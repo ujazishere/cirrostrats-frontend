@@ -19,7 +19,6 @@ import searchService from "../api/searchservice";
 export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, debouncedInputValue, dropOpen) {
   const [initialSuggestions, setInitialSuggestions] = useState([]);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-  const [page, setPage] = useState(0);
   const [isloading, setIsLoading] = useState(false);
   const [freshSuggestions, setFreshSuggestions] = useState([]);
   // const searchSuggestions = await searchService.fetchMostSearched(userEmail);
@@ -34,15 +33,15 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
    * @function
    * @returns {Promise<void>}
    */
-    const fetchMostSearched = async () => {
+    const fetchPopularSuggestions = async () => {
       // fetches most searched from backend
-      const searchSuggestions = await searchService.fetchMostSearched(userEmail, inputValue);
+      const searchSuggestions = await searchService.fetchPopularSuggestions(userEmail, inputValue);
       // Formats suggestions, assigns value,label, type, etc.
       const formattedSuggestions = formatSuggestions(searchSuggestions);
       setInitialSuggestions(formattedSuggestions);
     };
 
-    fetchMostSearched();
+    fetchPopularSuggestions();
   }, [userEmail]);
 
 
@@ -62,12 +61,11 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
     console.log('updateing suggestions');
     setIsLoading(true);
     try {
-      const { newSuggestions, currentPage, hasMorePages } = 
+      const { newSuggestions, currentPage} = 
         await fetchAndFilterSuggestions({
           currentSuggestions: filteredSuggestions,
           inputValue,
           userEmail,
-          page,
           searchService
         });
 
@@ -75,7 +73,6 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
         setFreshSuggestions(newSuggestions);
         setFilteredSuggestions([]);
         setFilteredSuggestions(newSuggestions);
-        setPage(currentPage);
 
     } catch (error) {
       console.error("Failed to fetch suggestions:", error);

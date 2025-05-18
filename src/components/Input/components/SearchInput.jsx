@@ -72,22 +72,6 @@ export default function SearchInput({
                   className: "search-input-field",
                 }}
               />
-              {/* {inlinePrediction && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: params.InputProps.startAdornment ? 'auto' : '14px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: '#999',
-                    pointerEvents: 'none',
-                    whiteSpace: 'pre',
-                  }}
-                >
-                  <span style={{ visibility: 'hidden' }}>{inputValue}</span>
-                  <span>{inlinePrediction}</span>
-                </div>
-              )} */}
             </div>
           )}
           // the renderOption function is being used to highlight matching parts of the option's label based on the user's input.
@@ -111,7 +95,6 @@ export default function SearchInput({
               </li>
             );
           }}
-          noOptionsText="Where are you flying to?"
           filterOptions={(x) => x}
           disableClearable
           forcePopupIcon={false}

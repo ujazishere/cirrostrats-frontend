@@ -73,7 +73,7 @@ export const fetchAndFilterSuggestions = async ({
 
   try {
     // console.log('fetching most searched suggestions');
-    let rawSuggestions = await searchService.fetchMostSearched(
+    let rawSuggestions = await searchService.fetchPopularSuggestions(
       userEmail,
       inputValue,
     );
