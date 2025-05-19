@@ -27,10 +27,11 @@ const Details = () => {
   const [gateError, setGateError] = useState(null);
 
   // Use the custom hook for airport data
+  // Airport data fetching is handled by the useAirportData hook.
   const {
     airportWx,
     nasResponseAirport,
-    loadingAirportDetails,
+    loadingWeather,
     // airportError // airportError is available from the hook if needed for UI
   } = useAirportData(searchValue, apiUrl);
 
@@ -49,7 +50,7 @@ const Details = () => {
     setGateError(null);
     setLoadingGateData(false);
 
-    // airportWx, nasResponseAirport, loadingAirportDetails are handled by the useAirportData hook
+    // airportWx, nasResponseAirport, loadingWeather are handled by the useAirportData hook
 
     if (!searchValue) {
       return; // Exit early if no searchValue
@@ -68,10 +69,6 @@ const Details = () => {
           // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
           setLoadingFlightData(false);
 
-        } else if (searchValue?.type === "airport") {
-          // Airport data fetching is handled by the useAirportData hook.
-          // loadingAirportDetails will be true via the hook.
-          // setLoadingFlightData(false) and setLoadingGateData(false) are already defaults.
         } else if (searchValue?.type === "Terminal/Gate") {
           setLoadingGateData(true);
           try {
@@ -83,7 +80,7 @@ const Details = () => {
           } finally {
             setLoadingGateData(false);
           }
-        } else if (searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') || (searchValue && !searchValue.type)) {
+        } else if (searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') ) {
           setLoadingFlightData(true);
           setFlightError(null);
           let flightID = null;
@@ -172,7 +169,7 @@ const Details = () => {
         // Ensure loading states are false if a top-level error occurs
         setLoadingFlightData(false);
         setLoadingGateData(false);
-        // loadingAirportDetails is handled by its hook
+        // loadingWeather is handled by its hook
       }
     };
 
@@ -181,40 +178,32 @@ const Details = () => {
   }, [searchValue, apiUrl]); // useEffect dependency, apiUrl passed to hook
 
   const renderContent = () => {
-    const isFlightSearch = searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') || (searchValue && !searchValue.type && (searchValue.flightID || searchValue.value));
+    const isFlightSearch = searchValue?.type === "flight" || searchValue.flightID;
     const isAirportSearch = searchValue?.type === "airport";
     const isGateSearch = searchValue?.type === "Terminal/Gate";
     const searchLabel = searchValue?.label || searchValue?.value || (typeof searchValue === 'string' && searchValue) || "";
-
-
-    if (isFlightSearch && loadingFlightData) {
-      return <LoadingFlightCard />;
+    if (
+      (isFlightSearch && loadingFlightData) ||
+      (isAirportSearch && loadingWeather) ||
+      (isGateSearch && loadingGateData)
+    ) {
+      return (
+        <div>
+          {isFlightSearch && <LoadingFlightCard />}
+          {/* {isAirportSearch && <p>Loading airport information for {searchLabel}...</p>} */}
+          {isGateSearch && <p>Loading gate information for {searchLabel}...</p>}
+        </div>
+      );
     }
-    if (isAirportSearch && loadingAirportDetails) {
-      return <p>Loading airport information for {searchLabel}...</p>;
+    if (!loadingFlightData && !loadingWeather && !loadingGateData && searchValue && !airportWx && !gateData && !flightData) {
+      return <p>No information found for your search: {searchLabel}</p>;
     }
-    if (isGateSearch && loadingGateData) {
-      return <p>Loading gate information for {searchLabel}...</p>;
-    }
-
-    // Error display
-    if (isFlightSearch && flightError && !flightData) { // Show error if flight data fetch failed significantly
-        return <p>Error fetching flight data: {typeof flightError === 'string' ? flightError : `Failed to load data for ${searchLabel}`}</p>;
-    }
-    // airportError can be displayed similarly if needed:
-    // if (isAirportSearch && airportError && !airportWx) {
-    //   return <p>Error fetching airport data for {searchLabel}.</p>;
-    // }
-    if (isGateSearch && gateError && !gateData) {
-        return <p>Error fetching gate data for {searchLabel}.</p>;
-    }
-
 
     // Content display
     let contentFound = false;
     return (
       <>
-        {airportWx && isAirportSearch && (
+        {isAirportSearch && airportWx &&(
           (contentFound = true),
           // For an airport search, NAS data is passed directly to WeatherCard
           // Assuming WeatherCard can handle `nasDetails` for a single airport.
@@ -239,9 +228,6 @@ const Details = () => {
           />
         )}
 
-        {!loadingFlightData && !loadingAirportDetails && !loadingGateData && !contentFound && searchValue && (
-          <p>No information found for your search: {searchLabel}</p>
-        )}
       </>
     );
   };
