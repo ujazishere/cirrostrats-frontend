@@ -239,9 +239,7 @@ const Details = () => {
           />
         )}
 
-        {!loadingFlightData && !loadingAirportDetails && !loadingGateData && !contentFound && searchValue && (
-          <p>No information found for your search: {searchLabel}</p>
-        )}
+
       </>
     );
   };
