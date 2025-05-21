@@ -195,9 +195,6 @@ const Details = () => {
         </div>
       );
     }
-    if (!loadingFlightData && !loadingWeather && !loadingGateData && searchValue && !airportWx && !gateData && !flightData) {
-      return <p>No information found for your search: {searchLabel}</p>;
-    }
 
     // Content display
     let contentFound = false;
