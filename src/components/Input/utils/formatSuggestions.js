@@ -7,7 +7,8 @@ import { typeMap } from "./typeMap";
 export const formatSuggestions = (searchSuggestions) => {
   
   return Object.keys(searchSuggestions).map((eachItem) => ({
-    id: searchSuggestions[eachItem]._id || searchSuggestions[eachItem].id,
+    stId: searchSuggestions[eachItem].stId, // id - this is the unique identifier for the searchTrack index.
+    id: searchSuggestions[eachItem].id,
 
     // Check if flightID exists, 
     ...(searchSuggestions[eachItem].flightID && {

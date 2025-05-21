@@ -80,6 +80,7 @@ const Details = () => {
           } finally {
             setLoadingGateData(false);
           }
+        // TODO VHP: searchValue as string is Redundant since raw query is fed through QC in backend - remove all `string` related items in this section.
         } else if (searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') ) {
           setLoadingFlightData(true);
           setFlightError(null);
@@ -112,7 +113,6 @@ const Details = () => {
             if (ajms.error && flightViewGateInfo.error && flightStatsTZRes.error && flightAwareRes.error && !Object.keys(ajms.data).length && !Object.keys(flightViewGateInfo.data).length ) {
                 setFlightError(`Could not retrieve sufficient data for flight ${flightID}.`);
             }
-
 
             let departure, arrival;
             if (ajms.data?.arrival && ajms.data?.departure) {

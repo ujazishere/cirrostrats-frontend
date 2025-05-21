@@ -26,7 +26,7 @@ const useInputHandlers = () => {
     // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
 
     setInputValue(newInputValue);
-    trackSearch(userEmail, newInputValue);
+    // trackSearch(userEmail, newInputValue);
   }
   
     // // Update inline prediction
@@ -69,7 +69,7 @@ const useInputHandlers = () => {
   const handleSubmit = (e, submitTerm, userEmail) => {
     if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
     let searchValue;
-    trackSearch(userEmail,null, submitTerm.label, submitTerm.mdb);
+    trackSearch(userEmail, submitTerm);
     if (submitTerm) {
       if (typeof submitTerm === 'string') {      // Raw serachterm submit. 
         searchService.fetchRawQuery(submitTerm).then(rawReturn => {
