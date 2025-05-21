@@ -227,7 +227,6 @@ const Details = () => {
             flightError={flightError} // Pass partial data error to FlightCard
           />
         )}
-
       </>
     );
   };
