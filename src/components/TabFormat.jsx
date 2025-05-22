@@ -12,8 +12,8 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   const contentRef = useRef(null);
   const tabPositionRef = useRef(null);
   
-  // Tab order for navigation
-  const tabOrder = ['departure', 'destination', 'route', 'nas'];
+  // Tab order for navigation - only two tabs now
+  const tabOrder = ['departure', 'destination'];
   
   // Simplified swipe handlers with clean animation
   const handlers = useSwipeable({
@@ -139,149 +139,137 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   };
 
   return (
-    <div className="weather-tabs-container" {...handlers}>
-      {/* CSS for animations - include in your stylesheet or as inline styles */}
-      <style>
-        {`
-          .slide-left-exit {
-            animation: slideLeftExit 0.25s forwards;
-          }
-          .slide-left-enter {
-            animation: slideLeftEnter 0.3s forwards;
-          }
-          .slide-right-exit {
-            animation: slideRightExit 0.25s forwards;
-          }
-          .slide-right-enter {
-            animation: slideRightEnter 0.3s forwards;
-          }
-          .fade-exit {
-            animation: fadeOut 0.15s forwards;
-          }
-          .fade-enter {
-            animation: fadeIn 0.2s forwards;
-          }
-          
-          @keyframes slideLeftExit {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(-15%); opacity: 0; }
-          }
-          @keyframes slideLeftEnter {
-            from { transform: translateX(15%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-          }
-          @keyframes slideRightExit {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(15%); opacity: 0; }
-          }
-          @keyframes slideRightEnter {
-            from { transform: translateX(-15%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-          }
-          @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-          }
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-        `}
-      </style>
-      
-      {/* Tabs navigation - add sticky class conditionally */}
-      <div 
-        ref={tabsNavRef}
-        className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}
-        style={{ position: isSticky ? 'fixed' : 'relative', top: isSticky ? '0' : 'auto', width: '100%', zIndex: 1000 }}
-      >
-        <button 
-          className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
-          onClick={() => handleTabChange('departure')}
-          disabled={isAnimating}
-        >
-          Departure
-        </button>
-        <button 
-          className={`weather-tab-button ${activeTab === 'destination' ? 'active' : ''}`}
-          onClick={() => handleTabChange('destination')}
-          disabled={isAnimating}
-        >
-          Destination
-        </button>
-        <button 
-          className={`weather-tab-button ${activeTab === 'route' ? 'active' : ''}`}
-          onClick={() => handleTabChange('route')}
-          disabled={isAnimating}
-        >
-          Route
-        </button>
-        <button 
-          className={`weather-tab-button ${activeTab === 'nas' ? 'active' : ''}`}
-          onClick={() => handleTabChange('nas')}
-          disabled={isAnimating}
-        >
-          NAS
-        </button>
+    <div className="weather-container">
+      {/* Route section - now outside of tabs */}
+      <div className="route-section">
+        <RoutePanel flightData={flightData} />
       </div>
 
-      {/* Add padding when tabs are sticky to prevent content jump */}
-      {isSticky && <div className="tabs-placeholder" style={{ height: tabsNavRef.current?.offsetHeight || 0 }}></div>}
+      <div className="weather-tabs-container" {...handlers}>
+        {/* CSS for animations - include in your stylesheet or as inline styles */}
+        <style>
+          {`
+            .slide-left-exit {
+              animation: slideLeftExit 0.25s forwards;
+            }
+            .slide-left-enter {
+              animation: slideLeftEnter 0.3s forwards;
+            }
+            .slide-right-exit {
+              animation: slideRightExit 0.25s forwards;
+            }
+            .slide-right-enter {
+              animation: slideRightEnter 0.3s forwards;
+            }
+            .fade-exit {
+              animation: fadeOut 0.15s forwards;
+            }
+            .fade-enter {
+              animation: fadeIn 0.2s forwards;
+            }
+            
+            @keyframes slideLeftExit {
+              from { transform: translateX(0); opacity: 1; }
+              to { transform: translateX(-15%); opacity: 0; }
+            }
+            @keyframes slideLeftEnter {
+              from { transform: translateX(15%); opacity: 0; }
+              to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideRightExit {
+              from { transform: translateX(0); opacity: 1; }
+              to { transform: translateX(15%); opacity: 0; }
+            }
+            @keyframes slideRightEnter {
+              from { transform: translateX(-15%); opacity: 0; }
+              to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+              from { opacity: 1; }
+              to { opacity: 0; }
+            }
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+          `}
+        </style>
+        
+        {/* Tabs navigation - now only two tabs */}
+        <div 
+          ref={tabsNavRef}
+          className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}
+          style={{ position: isSticky ? 'fixed' : 'relative', top: isSticky ? '0' : 'auto', width: '100%', zIndex: 1000 }}
+        >
+          <button 
+            className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
+            onClick={() => handleTabChange('departure')}
+            disabled={isAnimating}
+          >
+            Departure
+          </button>
+          <button 
+            className={`weather-tab-button ${activeTab === 'destination' ? 'active' : ''}`}
+            onClick={() => handleTabChange('destination')}
+            disabled={isAnimating}
+          >
+            Destination
+          </button>
+        </div>
 
-      {/* Tab content */}
-      <div 
-        ref={contentRef}
-        className="weather-tabs-content"
-      >
-        {/* Departure Weather Tab */}
-        {activeTab === 'departure' && (
-          <div className="weather-tab-panel">
-            <div className="weather-tab-header">
-              <h3 className="weather-tab-title">
-                 {flightData?.departure}
-              </h3>
-            </div>
-            {dep_weather ? (
-              <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} showSearchBar={false} />
-            ) : (
-              <div className="no-weather-data">No weather data available</div>
-            )}
-          </div>
-        )}
+        {/* Add padding when tabs are sticky to prevent content jump */}
+        {isSticky && <div className="tabs-placeholder" style={{ height: tabsNavRef.current?.offsetHeight || 0 }}></div>}
 
-        {/* Destination Weather Tab */}
-        {activeTab === 'destination' && (
-          <div className="weather-tab-panel">
-            <div className="weather-tab-header">
-              <h3 className="weather-tab-title">
-                {flightData?.arrival}
-              </h3>
+        {/* Tab content - now only departure and destination */}
+        <div 
+          ref={contentRef}
+          className="weather-tabs-content"
+        >
+          {/* Departure Weather Tab */}
+          {activeTab === 'departure' && (
+            <div className="weather-tab-panel">
+              <div className="weather-tab-header">
+                <h3 className="weather-tab-title">
+                   {flightData?.departure}
+                </h3>
+              </div>
+              {dep_weather ? (
+                <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} showSearchBar={false} />
+              ) : (
+                <div className="no-weather-data">No weather data available</div>
+              )}
             </div>
-            {dest_weather ? (
-              <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} showSearchBar={false} />
-            ) : (
-              <div className="no-weather-data">No weather data available</div>
-            )}
-          </div>
-        )}
+          )}
 
-        {/* Route Tab */}
-        {activeTab === 'route' && <RoutePanel flightData={flightData} />}
+          {/* Destination Weather Tab */}
+          {activeTab === 'destination' && (
+            <div className="weather-tab-panel">
+              <div className="weather-tab-header">
+                <h3 className="weather-tab-title">
+                  {flightData?.arrival}
+                </h3>
+              </div>
+              {dest_weather ? (
+                <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} showSearchBar={false} />
+              ) : (
+                <div className="no-weather-data">No weather data available</div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
-        {/* NAS Table Tab */}
-        {activeTab === 'nas' && (
-          <div className="weather-tab-panel">
-            <div className="weather-tab-header">
-              <h3 className="weather-tab-title">
-                NAS Information
-              </h3>
-            </div>
-            <div className="nas-tab-content">
-              <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
-              <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
-            </div>
-          </div>
-        )}
+      {/* NAS section - moved outside of tabs but kept at bottom */}
+      <div className="nas-section">
+        <div className="weather-tab-header">
+          <h3 className="weather-tab-title">
+            NAS Information
+          </h3>
+        </div>
+        <div className="nas-tab-content">
+          <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
+          <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
+        </div>
       </div>
     </div>
   );

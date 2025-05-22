@@ -18,7 +18,6 @@ import { useSwipeable } from 'react-swipeable'; // Import the swipeable library
 import Input from "../components/Input/Index"; // Ensure this path is correct
 import RoutePanel from "./RoutePanel"; // Import the new RouteTabPanel component
 import SummaryTable from "./SummaryTable"; // Import the new SummaryTable component
-import ClearanceTable from "./ClearanceTable"; // Import the ClearanceTable component
 import TabFormat from "./TabFormat"; // Import the new TabFormat component
 import GateCard from "./GateCard"; // Import the GateCard component from its new file
 import WeatherCard from "./WeatherCard"; // Import the WeatherCard component from its own file
@@ -169,11 +168,7 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
         <SummaryTable flightData={flightData} />
       </div>
 
-      {flightData?.clearance && (
-        <div className="flight-details-card">
-          <ClearanceTable clearance={flightData.clearance} />
-        </div>
-      )}
+
 
 
       
