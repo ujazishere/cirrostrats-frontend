@@ -9,5 +9,8 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
   },
-    plugins: [react()],
+  plugins: [react()],
+  css: {
+    postcss: './postcss.config.js' // Explicitly point to config
+  }
 })
