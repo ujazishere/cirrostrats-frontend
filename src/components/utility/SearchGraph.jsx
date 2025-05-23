@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight, Clock, MapPin } from 'lucide-react';
 const SearchGraph = ({ rawData }) => {
   // Transform the raw data and format timestamps
   const data = rawData.map(item => {
-    const labelKey = Object.keys(item).find(key => key !== '_id');
+    const labelKey = Object.keys(item).find(key => key !== '_id');      // labelKey is the search term.
     const timestamps = item[labelKey];
     // Format timestamps to HH:MM
     const formattedTimes = timestamps.map(timestamp => {
@@ -46,8 +46,8 @@ const SearchGraph = ({ rawData }) => {
     setExpandedItems(newExpanded);
   };
 
-  // Calculate total records
-  const totalRecords = data.reduce((sum, item) => sum + item.count, 0);
+  // Calculate total searches
+  const totalSearches = data.reduce((sum, item) => sum + item.count, 0);
 
 
   return (
@@ -55,14 +55,6 @@ const SearchGraph = ({ rawData }) => {
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Flight Activity Dashboard</h1>
           <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span className="flex items-center gap-1">
-              <MapPin size={16} />
-              {data.length} locations
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock size={16} />
-              {totalRecords} total records
-            </span>
           </div>
         </div>
 
@@ -88,24 +80,25 @@ const SearchGraph = ({ rawData }) => {
                     
                     <div className="flex-grow">
                       <div className="flex items-center gap-2 mb-1">
-                        {item.isAirport ? (
+                        {/* This section is for displaying location icon based on the type -  */}
+                        {/* {item.isAirport ? (
                           <MapPin size={16} className="text-blue-600" />
                         ) : (
                           <div className="w-4 h-4 bg-green-600 rounded text-white text-xs flex items-center justify-center font-bold">
                             F
                           </div>
-                        )}
+                        )} */}
                         <h3 className="font-semibold text-gray-800">{item.name}</h3>
                       </div>
                       <p className="text-sm text-gray-600">
-                        {item.count} record{item.count !== 1 ? 's' : ''}
+                        {/* {item.count} record{item.count !== 1 ? 's' : ''} */}     
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                      {item.count}
+                      {/* Total Searches of an item - length of timestamps */}{item.count}
                     </span>
                   </div>
                 </button>
@@ -154,16 +147,16 @@ const SearchGraph = ({ rawData }) => {
           <h3 className="font-semibold text-blue-900 mb-2">Activity Summary</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-blue-700 font-medium">Total Locations:</span>
+              <span className="text-blue-700 font-medium">Total Uniques:</span>
               <span className="ml-2 text-blue-900">{data.length}</span>
             </div>
             <div>
-              <span className="text-blue-700 font-medium">Total Records:</span>
-              <span className="ml-2 text-blue-900">{totalRecords}</span>
+              <span className="text-blue-700 font-medium">Total Searches:</span>
+              <span className="ml-2 text-blue-900">{totalSearches}</span>
             </div>
             <div>
-              <span className="text-blue-700 font-medium">Average per Location:</span>
-              <span className="ml-2 text-blue-900">{(totalRecords / data.length).toFixed(1)}</span>
+              <span className="text-blue-700 font-medium">Average per Unique:</span>
+              <span className="ml-2 text-blue-900">{(totalSearches / data.length).toFixed(1)}</span>
             </div>
           </div>
         </div>
