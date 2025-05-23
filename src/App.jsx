@@ -8,6 +8,7 @@ import Contact from "./pages/Contact";
 import Source from "./pages/Source";
 import Details from "./pages/Details";
 import SearchesPage from "./pages/Searches";
+import SearchesTimeline from "./pages/SearchesTimeline";
 import Table from "./components/Table";
 import UTCTime from "./components/UTCTime";
 import "./WeatherInfo.css";
@@ -29,6 +30,7 @@ function App() {
           <Route path="/details" element={<Details />} />
           <Route path="/table" element={<Table />} />
           <Route path="/searches" element={<SearchesPage />} />
+          <Route path="/st" element={<SearchesTimeline />} />
 
         </Routes>
       </div>

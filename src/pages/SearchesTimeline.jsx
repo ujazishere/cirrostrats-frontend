@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import SearchGraph from "../components/utility/SearchGraph";
+import SearchGraph from "../components/utility/SearchTimeline";
 
-const SearchesPage = () => {
+const SearchesTimeline = () => {
   const [rawData, setRawData] = useState([]);
   const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
-    fetch(`${apiUrl}/searches/all`)
+    fetch(`${apiUrl}/searches/timeline`)
       .then(res => res.json())
       .then(json => setRawData(json))
       .catch(err => console.error(err));
@@ -19,4 +19,4 @@ const SearchesPage = () => {
   );
 };
 
-export default SearchesPage;
+export default SearchesTimeline;

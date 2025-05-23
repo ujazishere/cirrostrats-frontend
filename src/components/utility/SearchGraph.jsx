@@ -53,7 +53,7 @@ const SearchGraph = ({ rawData }) => {
   return (
       <div className="max-w-4xl mx-auto p-6 bg-white">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Flight Activity Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Search World</h1>
           <div className="flex items-center gap-4 text-sm text-gray-600">
           </div>
         </div>
