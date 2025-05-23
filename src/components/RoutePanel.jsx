@@ -8,12 +8,10 @@ import React from 'react';
 const RoutePanel = ({ flightData }) => {
   return (
     <div className="weather-tab-panel">
-      <div className="weather-tab-header">
-        <h3 className="weather-tab-title">
-          Flight Route
-        </h3>
-      </div>
       <div className="route-tab-content">
+        <h3 className="weather-tab-title">
+          Route
+        </h3>
         {flightData?.route ? (
           <>
             <div className="route-display">

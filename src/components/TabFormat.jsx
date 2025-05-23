@@ -145,6 +145,19 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
         <RoutePanel flightData={flightData} />
       </div>
 
+      {/* NAS section - moved above the weather tabs */}
+      <div className="nas-section">
+        <div className="nas-tab-header">
+          <h3 className="weather-tab-title">
+            NAS Information
+          </h3>
+        </div>
+        <div className="nas-tab-content">
+          <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
+          <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
+        </div>
+      </div>
+
       <div className="weather-tabs-container" {...handlers}>
         {/* CSS for animations - include in your stylesheet or as inline styles */}
         <style>
@@ -256,19 +269,6 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
               )}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* NAS section - moved outside of tabs but kept at bottom */}
-      <div className="nas-section">
-        <div className="weather-tab-header">
-          <h3 className="weather-tab-title">
-            NAS Information
-          </h3>
-        </div>
-        <div className="nas-tab-content">
-          <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
-          <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
         </div>
       </div>
     </div>

@@ -35,6 +35,140 @@
 }
 
 
+/* Main container for all NAS sections */
+.nas-details-container {
+  width: 100%;
+  max-width: 800px; /* Adjust max-width as needed */
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* A single collapsible section (header + content) */
+.nas-section {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden; /* Important for the border-radius to apply correctly */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Clickable header for each section */
+.nas-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  user-select: none; /* Prevents text selection on click */
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.nas-section-header:hover {
+  background-color: #efefef;
+}
+
+/* Title within the header */
+.nas-section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+}
+
+/* Arrow icon that indicates open/closed state */
+.nas-toggle-icon {
+  font-size: 1rem;
+  color: #555;
+  transition: transform 0.3s ease; /* Smooth rotation animation */
+}
+
+/* Rotate the icon when the section is open */
+.nas-toggle-icon.open {
+  transform: rotate(180deg);
+}
+
+/* Wrapper for the table content for smooth animation */
+.nas-section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out; /* The core animation logic */
+  background-color: #ffffff;
+}
+
+/* When the section is open, expand the content */
+.nas-section-content.open {
+  max-height: 1000px; /* A large enough value to show all content */
+  transition: max-height 0.5s ease-in-out;
+}
+
+/* Inner padding for the content area */
+.nas-content-inner {
+  padding: 1.5rem;
+  border-top: 1px solid #e0e0e0; /* Separator line */
+}
+
+/* Styling for the data table */
+.nas-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.nas-table td {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  color: #444;
+}
+
+/* Remove bottom border from the last row */
+.nas-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Style for the key/property name column */
+.nas-table td:first-child {
+  font-weight: 500;
+  color: #111;
+  padding-right: 1rem;
+  width: 35%; /* Adjust width as needed */
+  vertical-align: top;
+}
+
+/* Message for when there is no data */
+.nas-no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #777;
+  font-style: italic;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ClearanceTable.css */
 
@@ -1186,6 +1320,14 @@ footer {
   background-color: #f8f9fa;
   padding: 12px 16px;
   border-bottom: 1px solid #e0e0e0;
+  border-top: 1px solid #e0e0e0;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+}
+
+.nas-tab-header {
+  background-color: #f8f9fa;
+  padding: 12px;
 }
 
 /* Styles for the tab navigation */
@@ -1320,6 +1462,7 @@ footer {
   font-weight: 600;
   color: #333;
   margin: 0;
+  padding-bottom: 10px;
 }
 
 .no-weather-data {
@@ -1333,6 +1476,8 @@ footer {
 .route-tab-content {
   padding: 16px;
   background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .route-display {
