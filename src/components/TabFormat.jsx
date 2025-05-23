@@ -11,6 +11,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
   const tabPositionRef = useRef(null);
+  const [isNasExpanded, setIsNasExpanded] = useState(true);
   
   // Tab order for navigation - only two tabs now
   const tabOrder = ['departure', 'destination'];
@@ -145,6 +146,28 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
         <RoutePanel flightData={flightData} />
       </div>
 
+      {/* NAS section - moved above the weather tabs */}
+      <div className="nas-section">
+        <div 
+          className="nas-tab-header" 
+          onClick={() => setIsNasExpanded(!isNasExpanded)}
+          style={{ cursor: 'pointer' }}
+        >
+          <h3 className="weather-tab-title">
+            NAS Information
+            <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
+              {isNasExpanded ? '▼' : '▶'}
+            </span>
+          </h3>
+        </div>
+        {isNasExpanded && (
+          <div className="nas-tab-content">
+            <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
+            <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
+          </div>
+        )}
+      </div>
+
       <div className="weather-tabs-container" {...handlers}>
         {/* CSS for animations - include in your stylesheet or as inline styles */}
         <style>
@@ -256,19 +279,6 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
               )}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* NAS section - moved outside of tabs but kept at bottom */}
-      <div className="nas-section">
-        <div className="weather-tab-header">
-          <h3 className="weather-tab-title">
-            NAS Information
-          </h3>
-        </div>
-        <div className="nas-tab-content">
-          <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
-          <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
         </div>
       </div>
     </div>
