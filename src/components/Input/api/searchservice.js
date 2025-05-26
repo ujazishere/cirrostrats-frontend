@@ -25,7 +25,7 @@ const searchService = {
    * @param {string} userEmail
    * @param {boolean} isLoggedIn
    */
-  fetchRawQuery: (query) => {
+fetchRawQuery: (query) => {
   const apiUrl = import.meta.env.VITE_API_URL;
   return axios.get(`${apiUrl}/query?search=${query}`)
     .then(response => {

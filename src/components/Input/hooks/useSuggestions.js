@@ -58,17 +58,16 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
   }, [inputValue, dropOpen]);
 
   const updateSuggestions = async () =>{
-    console.log('updateing suggestions');
+    console.log('updating suggestions');
     setIsLoading(true);
     try {
-      const { newSuggestions, currentPage} = 
+      const { newSuggestions } = 
         await fetchAndFilterSuggestions({
           currentSuggestions: filteredSuggestions,
           inputValue,
           userEmail,
           searchService
         });
-
         // updating the state
         setFreshSuggestions(newSuggestions);
         setFilteredSuggestions([]);

@@ -1,5 +1,6 @@
 import { getObjectType } from "./getObjectType";
 import { typeMap } from "./typeMap";
+import useDebounce from "../hooks/useDebounce";
 
 
 // Gets triggered once on the initial render of the homepage. sets the initialSuggestions for the dropdown.
@@ -35,17 +36,16 @@ export const formatSuggestions = (searchSuggestions) => {
 
 
 export const matchingSuggestion = (suggestions, inputValue) => {
-  if (!inputValue) return suggestions.slice(0,5);
+  if (!inputValue) return suggestions.slice(0,5);         // If inputValue is empty(initial state), return the first 5 suggestions
+  if (!suggestions || !Array.isArray(suggestions)) {      // If suggestions is not an array or is empty, return an empty array
+    return [];
+  }
   const lowercaseInputValue = inputValue.toLowerCase();
 
-  // Filter local data
+  // Filter local data and only show upto 5 suggestions for drop down view.
    return suggestions
     .filter(s => s.label.toLowerCase().includes(lowercaseInputValue))
     .slice(0, 5);
-  // return suggestions.filter(
-    // (searches) =>
-      // searches.label.toLowerCase().includes(lowercaseInputValue)
-  // );
 };
 
 
@@ -69,27 +69,38 @@ export const fetchAndFilterSuggestions = async ({
   userEmail,
   searchService,
 }) => {
-  // First filter the current suggestions
+  // First filter the current suggestions based on the input value so if raw suggestions are not available, we can still show matches.
   let filteredSuggestions = matchingSuggestion(currentSuggestions, inputValue);
-
   try {
-    // console.log('fetching most searched suggestions');
+    // Fetching popular suggestions based on the input value and email. This will replace the current filteredSuggestions with fresh data.
     let rawSuggestions = await searchService.fetchPopularSuggestions(
       userEmail,
       inputValue,
     );
-    rawSuggestions = formatSuggestions(rawSuggestions);
-    if (!rawSuggestions || rawSuggestions.length === 0) {
-      console.log('rawSuggestions is empty');
-      return;
-    };
-    filteredSuggestions = matchingSuggestion(rawSuggestions, inputValue);
+    if ((!rawSuggestions || rawSuggestions.length === 0) && inputValue.length >= 3) {
+      // TODO: Need to add debounce here to avoid too many requests - and request through the parse query.
+      console.log("No suggestions found, fetching from parse query");
+      // TODO: The idea is to use instant fetch when suggestions are available and when suggestions run out and inputValue.length >= 3 then the debounce makes sense to avoid too many requests from backend.
+      // const debouncedInputValue = useDebounce(inputValue, 1000);
+      const rawSuggestions = await searchService.fetchPopularSuggestions(
+        userEmail,
+        inputValue,
+        // debouncedInputValue,   // Using the `debouncedInputValue` instead of regular `inputValue` to avoid too many requests
+      );
+      filteredSuggestions = matchingSuggestion(rawSuggestions, inputValue);
+      // console.log("rawSuggestions:", rawSuggestions);
+
+    } else if (rawSuggestions && rawSuggestions.length > 0) {
+      rawSuggestions = formatSuggestions(rawSuggestions);
+      filteredSuggestions = matchingSuggestion(rawSuggestions, inputValue);
+      // console.log("rawSuggestions:", rawSuggestions);
+    }
     
   } catch (error) {
     console.error("Error fetching suggestions:", error);
   }
   
   return {
-    newSuggestions:filteredSuggestions,
+    newSuggestions: filteredSuggestions,
   };
 };
