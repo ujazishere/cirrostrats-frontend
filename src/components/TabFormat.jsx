@@ -17,6 +17,43 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   // Tab order for navigation - only two tabs now
   const tabOrder = ['departure', 'destination'];
   
+  // Helper function to check if NAS data is available
+  const hasNasData = (nasResponse) => {
+    if (!nasResponse) return false;
+    
+    // Check if nasResponse has meaningful data
+    // Adjust these conditions based on your actual data structure
+    if (Array.isArray(nasResponse)) {
+      return nasResponse.length > 0;
+    }
+    
+    if (typeof nasResponse === 'object') {
+      // Check if object has any meaningful properties with data
+      const keys = Object.keys(nasResponse);
+      if (keys.length === 0) return false;
+      
+      // Check for common empty states
+      if (nasResponse.data && Array.isArray(nasResponse.data)) {
+        return nasResponse.data.length > 0;
+      }
+      
+      if (nasResponse.items && Array.isArray(nasResponse.items)) {
+        return nasResponse.items.length > 0;
+      }
+      
+      // Check if all values are null, undefined, or empty
+      const hasValidData = keys.some(key => {
+        const value = nasResponse[key];
+        return value !== null && value !== undefined && value !== '' && 
+               (Array.isArray(value) ? value.length > 0 : true);
+      });
+      
+      return hasValidData;
+    }
+    
+    return true; // If it's a string or other truthy value
+  };
+  
   // Simplified swipe handlers with clean animation
   const handlers = useSwipeable({
     onSwipedLeft: () => {
@@ -235,25 +272,30 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                    {flightData?.departure}
                 </h3>
               </div>
-              <div className="nas-section">
-                <div 
-                  className="nas-tab-header" 
-                  onClick={() => setIsNasExpanded(!isNasExpanded)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <h3 className="weather-tab-title">
-                    Airport Closure - Departure
-                    <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
-                      {isNasExpanded ? '▼' : '▶'}
-                    </span>
-                  </h3>
-                </div>
-                {isNasExpanded && (
-                  <div className="nas-tab-content">
-                    <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
+              
+              {/* Conditionally render NAS section for departure */}
+              {hasNasData(nasDepartureResponse) && (
+                <div className="nas-section">
+                  <div 
+                    className="nas-tab-header" 
+                    onClick={() => setIsNasExpanded(!isNasExpanded)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <h3 className="weather-tab-title">
+                      Airport Closure - Departure
+                      <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
+                        {isNasExpanded ? '▼' : '▶'}
+                      </span>
+                    </h3>
                   </div>
-                )}
-              </div>
+                  {isNasExpanded && (
+                    <div className="nas-tab-content">
+                      <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {dep_weather ? (
                 <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} showSearchBar={false} />
               ) : (
@@ -270,25 +312,30 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                   {flightData?.arrival}
                 </h3>
               </div>
-              <div className="nas-section">
-                <div 
-                  className="nas-tab-header" 
-                  onClick={() => setIsNasDestExpanded(!isNasDestExpanded)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <h3 className="weather-tab-title">
-                    Airport Closure - Destination
-                    <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
-                      {isNasDestExpanded ? '▼' : '▶'}
-                    </span>
-                  </h3>
-                </div>
-                {isNasDestExpanded && (
-                  <div className="nas-tab-content">
-                    <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
+              
+              {/* Conditionally render NAS section for destination */}
+              {hasNasData(nasDestinationResponse) && (
+                <div className="nas-section">
+                  <div 
+                    className="nas-tab-header" 
+                    onClick={() => setIsNasDestExpanded(!isNasDestExpanded)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <h3 className="weather-tab-title">
+                      Airport Closure - Destination
+                      <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
+                        {isNasDestExpanded ? '▼' : '▶'}
+                      </span>
+                    </h3>
                   </div>
-                )}
-              </div>
+                  {isNasDestExpanded && (
+                    <div className="nas-tab-content">
+                      <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {dest_weather ? (
                 <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} showSearchBar={false} />
               ) : (
