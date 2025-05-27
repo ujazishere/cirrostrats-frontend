@@ -22,9 +22,7 @@ const useInputHandlers = () => {
 
   const handleInputChange = (event, newInputValue, userEmail,) => {
     // TODO:
-            // *******Account for backspaces and deletions 
     // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
-
     setInputValue(newInputValue);
     // trackSearch(userEmail, newInputValue);
   }

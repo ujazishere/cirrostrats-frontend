@@ -80,7 +80,7 @@ export const fetchAndFilterSuggestions = async ({
     if ((!rawSuggestions || rawSuggestions.length === 0) && inputValue.length >= 3) {
       // TODO: Need to add debounce here to avoid too many requests - and request through the parse query.
       console.log("No suggestions found, fetching from parse query");
-      // TODO: The idea is to use instant fetch when suggestions are available and when suggestions run out and inputValue.length >= 3 then the debounce makes sense to avoid too many requests from backend.
+      // TODO: The idea is to use instant fetch when raw suggestions are available and when suggestions run out and inputValue.length >= 3 then the debounce makes sense to avoid too many requests from backend.
       // const debouncedInputValue = useDebounce(inputValue, 1000);
       const rawSuggestions = await searchService.fetchPopularSuggestions(
         userEmail,

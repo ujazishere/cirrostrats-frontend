@@ -85,6 +85,48 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
   };
 }
 
+  // const debouncedInputValue = useDebounce(inputValue, 1000); // 1 second debounce
+
+//   useEffect(() => {
+//     const fetchSuggestions = async () => {
+//       if (debouncedInputValue.length < 3) return;
+      
+//       setIsLoading(true);
+//       try {
+//         let rawSuggestions = await searchService.fetchPopularSuggestions(
+//           userEmail,
+//           debouncedInputValue
+//         );
+
+//         if (!rawSuggestions || rawSuggestions.length === 0) {
+//           rawSuggestions = await searchService.fetchFromParseQuery(
+//             userEmail,
+//             debouncedInputValue
+//           );
+//         }
+
+//         setFilteredSuggestions(
+//           rawSuggestions 
+//             ? matchingSuggestion(formatSuggestions(rawSuggestions), debouncedInputValue)
+//             : []
+//         );
+//       } catch (error) {
+//         console.error("Error fetching suggestions:", error);
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     fetchSuggestions();
+//   }, [debouncedInputValue, userEmail, filteredSuggestions]);
+
+//   return {
+//     suggestions,
+//     isLoading,
+//     setInputValue,
+//     inputValue
+//   };
+// };
 
 
   // // FetchMore -- This function is supposed to be triggered when the suggestions are running out. 
