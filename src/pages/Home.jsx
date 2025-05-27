@@ -4,45 +4,15 @@ import GoogleButton from 'react-google-button';
 import axios from 'axios';
 import Input from "../components/Input/Index"; // Ensure this path is correct
 
-const loginStyles = {
-  login: {
-    position: 'fixed',
-    bottom: '1.5rem',
-    left: 0,
-    right: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  container: {
-    padding: '0.5rem',
-    borderRadius: '0.5rem',
-    backgroundColor: 'white',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-  },
-  userProfile: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-  },
-  userEmail: {
-    fontWeight: 'bold',
-  },
-  logoutButton: {
-    padding: '8px 16px',
-    backgroundColor: '#ef4444',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  }
-};
+// Import your CSS file here
+// import './HomePage.css';
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [userEmail, setUserEmail] = useState("Anonymous");
   const [currentUTC, setCurrentUTC] = useState("");
+  const [hoveredLink, setHoveredLink] = useState(null);
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
@@ -63,7 +33,17 @@ const HomePage = () => {
     updateClock();
     const interval = setInterval(updateClock, 1000);
 
-    return () => clearInterval(interval);
+    // Add mobile styles to document head if needed
+    // const styleElement = document.createElement('style');
+    // styleElement.textContent = mobileStyles;
+    // document.head.appendChild(styleElement);
+
+    return () => {
+      clearInterval(interval);
+      // if (document.head.contains(styleElement)) {
+      //   document.head.removeChild(styleElement);
+      // }
+    };
   }, []);
 
   const googleLogin = useGoogleLogin({
@@ -99,8 +79,19 @@ const HomePage = () => {
     localStorage.removeItem("userEmail");
   };
 
+  const handleLinkHover = (linkType) => {
+    setHoveredLink(linkType);
+  };
+
+  const handleLinkLeave = () => {
+    setHoveredLink(null);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* FontAwesome CDN */}
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+      
       {/* Hero section */}
       <div className="hero-section">
         <div className="container">
@@ -130,14 +121,14 @@ const HomePage = () => {
       </div>
       
       {/* Login/Logout section - visible on all devices */}
-      <div style={loginStyles.login}>
-        <div style={loginStyles.container}>
+      <div className="login-section">
+        <div className="login-container">
           {isLoggedIn ? (
-            <div style={loginStyles.userProfile}>
-              <span style={loginStyles.userEmail}>{userEmail}</span>
+            <div className="user-profile">
+              <span className="user-email">{userEmail}</span>
               <button 
                 onClick={handleLogout}
-                style={loginStyles.logoutButton}
+                className="logout-button"
               >
                 Logout
               </button>
@@ -148,26 +139,37 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Features section - now empty as we moved the navigation */}
+      {/* Features section */}
       <div className="features-section">
         <div className="container">
-          {/* Removed the heading */}
+          {/* Content area */}
         </div>
       </div> 
 
-      {/* Footer */}
-      {/*  <footer>
-        <div className="footer">
-          <div className="footer-content">
-            <div className="footer-logo">
-              <div className="footer-title"></div>
-            </div>
-          </div>
-          <div className="footer-copyright">
-            © 2025 Cirrostrats. All rights reserved.
-          </div>
+      {/* Footer - Single footer with support links */}
+      <footer className="footer-support">
+        <div className="footer-support-container">
+          <a 
+            href="tel:+12015099485"
+            className={`footer-support-link ${hoveredLink === 'phone' ? 'hovered' : ''}`}
+            onMouseEnter={() => handleLinkHover('phone')}
+            onMouseLeave={handleLinkLeave}
+          >
+            <i className={`fas fa-phone-alt footer-support-icon ${hoveredLink === 'phone' ? 'hovered' : ''}`}></i>
+            Call for Support
+          </a>
+          
+          <a 
+            href="sms:+12015099485"
+            className={`footer-support-link ${hoveredLink === 'text' ? 'hovered' : ''}`}
+            onMouseEnter={() => handleLinkHover('text')}
+            onMouseLeave={handleLinkLeave}
+          >
+            <i className={`fas fa-comment-alt footer-support-icon ${hoveredLink === 'text' ? 'hovered' : ''}`}></i>
+            Text for Support
+          </a>
         </div>
-      </footer>  */}
+      </footer> 
     </div>
   );
 };
