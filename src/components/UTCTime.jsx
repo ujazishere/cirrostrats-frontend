@@ -2,7 +2,6 @@
 // This React component displays the current UTC time in a formatted string ("UTC: DD HH:MMZ")
 // and updates every minute to stay in sync with real time. It uses React hooks to manage
 // the time state and lifecycle effects.
-
 import React, { useEffect, useState } from "react";
 
 // Define the UTCTime component
@@ -17,7 +16,7 @@ const UTCTime = () => {
       const day = String(date.getUTCDate()).padStart(2, "0"); // Get and pad UTC day
       const hour = String(date.getUTCHours()).padStart(2, "0"); // Get and pad UTC hour
       const minute = String(date.getUTCMinutes()).padStart(2, "0"); // Get and pad UTC minute
-
+      
       // Construct the formatted UTC time string
       const currentDate = `UTC: ${day} ${hour}:${minute}Z`;
       setCurrentDate(currentDate); // Update the state
@@ -35,7 +34,9 @@ const UTCTime = () => {
   return (
     // Render the UTC time inside a container
     <div className="utc__container">
-      <span>{currentDate}</span>
+      <div className="utc__time-display">
+        <span className="utc__time-text">{currentDate}</span>
+      </div>
     </div>
   );
 };
