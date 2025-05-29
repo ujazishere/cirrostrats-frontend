@@ -11,7 +11,6 @@ const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [userEmail, setUserEmail] = useState("Anonymous");
-  const [currentUTC, setCurrentUTC] = useState("");
   const [hoveredLink, setHoveredLink] = useState(null);
 
   useEffect(() => {
@@ -23,27 +22,16 @@ const HomePage = () => {
       setIsLoggedIn(true);
     }
 
-    // UTC Clock update
-    const updateClock = () => {
-      const now = new Date();
-      const utcString = now.toUTCString().split(' ');
-      setCurrentUTC(`${utcString[4]} UTC`);
-    };
-
-    updateClock();
-    const interval = setInterval(updateClock, 1000);
-
     // Add mobile styles to document head if needed
     // const styleElement = document.createElement('style');
     // styleElement.textContent = mobileStyles;
     // document.head.appendChild(styleElement);
 
-    return () => {
-      clearInterval(interval);
-      // if (document.head.contains(styleElement)) {
-      //   document.head.removeChild(styleElement);
-      // }
-    };
+    // return () => {
+    //   if (document.head.contains(styleElement)) {
+    //     document.head.removeChild(styleElement);
+    //   }
+    // };
   }, []);
 
   const googleLogin = useGoogleLogin({

@@ -113,7 +113,6 @@ const useInputHandlers = () => {
       searchbar: ".searchbar-container",
       title: ".hero-title",
       googleButton: ".google-button",
-      utcContainer: ".utc__container",
       featurecard: ".features-grid",
       footer: ".footer",
       gatecard: ".gate-card",
@@ -123,6 +122,11 @@ const useInputHandlers = () => {
       WeatherCard: ".weather-cards",
       title2: ".hero-title-2",
       navlinks: ".nav-links-container",
+      clearrrr: ".route-tab-content",
+
+
+
+      
     };
 
     Object.entries(elements).forEach(([key, selector]) => {
@@ -148,7 +152,6 @@ const useInputHandlers = () => {
           searchbar: ".searchbar-container",
           title: ".hero-title",
           googleButton: ".google-button",
-          utcContainer: ".utc__container",
           featurecard: ".features-grid",
           footer: ".footer",
           gatecard: ".gate-card",
@@ -159,9 +162,7 @@ const useInputHandlers = () => {
           WeatherCard: ".weather-cards",
           title2: ".hero-title-2",
           navlinks: ".nav-links-container",
-
-
-
+          clearrrr: ".route-tab-content",
 
         };
 
