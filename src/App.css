@@ -2698,13 +2698,25 @@ form {
 
 /* UTCTime.css */
 
-/* Main container - positioned on right side, hidden by default */
+/* Main container - positioned on right side, draggable vertically */
 .utc__container {
   position: fixed;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10000000000;
+  transition: none;
+  pointer-events: auto;
+}
+
+/* Ensure only one instance exists */
+#utc-time-widget-singleton {
+  position: fixed;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 10000000000;
+  transition: none;
+  pointer-events: auto;
 }
 
 /* Toggle button styling */
@@ -2715,13 +2727,16 @@ form {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 25px 0 0 25px;
   padding: 12px 8px 12px 16px;
-  cursor: pointer;
+  cursor: grab;
   display: flex;
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
   transform: translateX(4px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  user-select: none;
+  outline: none;
+  position: relative;
 }
 
 .utc__toggle-button:hover {
@@ -2730,12 +2745,22 @@ form {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Dragging state */
+.utc__toggle-button--dragging {
+  cursor: grabbing !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  transform: translateX(0) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+  transition: none !important;
+}
+
 /* Clock icon */
 .utc__clock-icon {
   font-size: 16px;
   color: #60a5fa;
   line-height: 1;
   flex-shrink: 0;
+  pointer-events: none;
 }
 
 /* Time display container */
@@ -2745,6 +2770,7 @@ form {
   overflow: hidden;
   transition: all 0.3s ease;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 /* Visible state for time display */
@@ -2762,6 +2788,7 @@ form {
   font-weight: 600;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 /* Responsive adjustments */
@@ -2806,9 +2833,9 @@ form {
 
 /* Focus styles for accessibility */
 .utc__toggle-button:focus {
+  outline: 2px solid #60a5fa;
   outline-offset: 2px;
 }
-
 
 
 
