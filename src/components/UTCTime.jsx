@@ -1,7 +1,7 @@
 // UTCTime.jsx
 // This React component displays the current UTC time in a formatted string ("UTC: DD HH:MMZ")
 // and updates every minute to stay in sync with real time. It uses React hooks to manage
-// the time state and lifecycle effects.
+// the time state and lifecycle effects. Now supports both mouse and touch events for mobile.
 import React, { useEffect, useState, useRef, useCallback } from "react";
 
 // Global flag to ensure only one instance exists
@@ -29,7 +29,7 @@ const UTCTime = () => {
   
   // Ref for the draggable element
   const dragRef = useRef(null);
-  // Ref to track initial mouse position
+  // Ref to track initial pointer position (mouse or touch)
   const dragStartRef = useRef({ x: 0, y: 0 });
 
   // Check if instance already exists and handle singleton logic
@@ -79,13 +79,23 @@ const UTCTime = () => {
     return () => clearInterval(intervalId);
   }, [shouldRender]); // Depend on shouldRender
 
-  // Handle drag functionality
-  const handleMouseMove = useCallback((e) => {
+  // Helper function to get pointer coordinates (works for both mouse and touch)
+  const getPointerCoords = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
+  };
+
+  // Handle drag functionality (works for both mouse and touch)
+  const handlePointerMove = useCallback((e) => {
     if (!isDragging) return;
     
-    // Check if mouse has moved enough to be considered a drag
-    const deltaX = Math.abs(e.clientX - dragStartRef.current.x);
-    const deltaY = Math.abs(e.clientY - dragStartRef.current.y);
+    const coords = getPointerCoords(e);
+    
+    // Check if pointer has moved enough to be considered a drag
+    const deltaX = Math.abs(coords.x - dragStartRef.current.x);
+    const deltaY = Math.abs(coords.y - dragStartRef.current.y);
     
     if (deltaX > 3 || deltaY > 3) {
       setHasDragged(true);
@@ -93,22 +103,23 @@ const UTCTime = () => {
     
     const windowHeight = window.innerHeight;
     const elementHeight = dragRef.current?.offsetHeight || 50;
-    const mouseY = e.clientY;
+    const pointerY = coords.y;
     
     // Calculate percentage position, constrained between margins
     const minY = elementHeight / 2;
     const maxY = windowHeight - elementHeight / 2;
-    const constrainedY = Math.max(minY, Math.min(maxY, mouseY));
+    const constrainedY = Math.max(minY, Math.min(maxY, pointerY));
     const percentage = (constrainedY / windowHeight) * 100;
     
     setPosition(percentage);
   }, [isDragging]);
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     if (isDragging) {
       setIsDragging(false);
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
+      document.body.style.touchAction = '';
       
       // Small delay to prevent immediate click after drag
       setTimeout(() => {
@@ -123,24 +134,35 @@ const UTCTime = () => {
     if (isDragging) {
       document.body.style.userSelect = 'none';
       document.body.style.cursor = 'grabbing';
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.touchAction = 'none'; // Prevent scrolling on mobile
+      
+      // Add both mouse and touch event listeners
+      document.addEventListener('mousemove', handlePointerMove);
+      document.addEventListener('mouseup', handlePointerUp);
+      document.addEventListener('touchmove', handlePointerMove, { passive: false });
+      document.addEventListener('touchend', handlePointerUp);
+      document.addEventListener('touchcancel', handlePointerUp);
       
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', handlePointerMove);
+        document.removeEventListener('mouseup', handlePointerUp);
+        document.removeEventListener('touchmove', handlePointerMove);
+        document.removeEventListener('touchend', handlePointerUp);
+        document.removeEventListener('touchcancel', handlePointerUp);
       };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp, shouldRender]);
+  }, [isDragging, handlePointerMove, handlePointerUp, shouldRender]);
 
-  const handleMouseDown = (e) => {
+  const handlePointerDown = (e) => {
     if (!shouldRender) return;
     
     e.preventDefault();
     e.stopPropagation();
     
-    // Store initial mouse position
-    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    const coords = getPointerCoords(e);
+    
+    // Store initial pointer position
+    dragStartRef.current = { x: coords.x, y: coords.y };
     setHasDragged(false);
     setIsDragging(true);
   };
@@ -173,8 +195,10 @@ const UTCTime = () => {
       <button 
         className={`utc__toggle-button ${isDragging ? 'utc__toggle-button--dragging' : ''}`}
         onClick={handleClick}
-        onMouseDown={handleMouseDown}
+        onMouseDown={handlePointerDown}
+        onTouchStart={handlePointerDown}
         aria-label="Toggle UTC Clock"
+        style={{ touchAction: 'none' }} // Prevent default touch behaviors
       >
         <span className="utc__clock-icon">🕐</span>
         <div className={`utc__time-display ${isVisible ? 'utc__time-display--visible' : ''}`}>

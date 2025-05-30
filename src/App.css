@@ -2697,7 +2697,6 @@ form {
 
 
 /* UTCTime.css */
-
 /* Main container - positioned on right side, draggable vertically */
 .utc__container {
   position: fixed;
@@ -2707,6 +2706,10 @@ form {
   z-index: 10000000000;
   transition: none;
   pointer-events: auto;
+  /* Touch optimization */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
 }
 
 /* Ensure only one instance exists */
@@ -2717,6 +2720,10 @@ form {
   z-index: 10000000000;
   transition: none;
   pointer-events: auto;
+  /* Touch optimization */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
 }
 
 /* Toggle button styling */
@@ -2737,12 +2744,27 @@ form {
   user-select: none;
   outline: none;
   position: relative;
+  /* Touch optimization */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Larger touch target for mobile */
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .utc__toggle-button:hover {
   background: rgba(0, 0, 0, 0.7);
   transform: translateX(0);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Active state for touch devices */
+.utc__toggle-button:active {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateX(0);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
 /* Dragging state */
@@ -2761,6 +2783,11 @@ form {
   line-height: 1;
   flex-shrink: 0;
   pointer-events: none;
+  /* Prevent text selection on mobile */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Time display container */
@@ -2771,6 +2798,11 @@ form {
   transition: all 0.3s ease;
   white-space: nowrap;
   pointer-events: none;
+  /* Prevent text selection on mobile */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Visible state for time display */
@@ -2789,13 +2821,44 @@ form {
   letter-spacing: 0.5px;
   white-space: nowrap;
   pointer-events: none;
+  /* Prevent text selection on mobile */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .utc__toggle-button {
+    padding: 12px 8px 12px 14px;
+    border-radius: 22px 0 0 22px;
+    /* Ensure good touch target size */
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  .utc__clock-icon {
+    font-size: 16px;
+  }
+  
+  .utc__time-text {
+    font-size: 12px;
+  }
+  
+  .utc__time-display--visible {
+    max-width: 125px;
+  }
+}
+
+/* For very small screens */
+@media (max-width: 480px) {
+  .utc__toggle-button {
     padding: 10px 6px 10px 12px;
     border-radius: 20px 0 0 20px;
+    /* Maintain good touch target */
+    min-height: 44px;
+    min-width: 44px;
   }
   
   .utc__clock-icon {
@@ -2807,27 +2870,7 @@ form {
   }
   
   .utc__time-display--visible {
-    max-width: 120px;
-  }
-}
-
-/* For very small screens */
-@media (max-width: 480px) {
-  .utc__toggle-button {
-    padding: 8px 5px 8px 10px;
-    border-radius: 18px 0 0 18px;
-  }
-  
-  .utc__clock-icon {
-    font-size: 12px;
-  }
-  
-  .utc__time-text {
-    font-size: 10px;
-  }
-  
-  .utc__time-display--visible {
-    max-width: 110px;
+    max-width: 115px;
   }
 }
 
@@ -2835,6 +2878,16 @@ form {
 .utc__toggle-button:focus {
   outline: 2px solid #60a5fa;
   outline-offset: 2px;
+}
+
+/* Disable text selection globally when dragging */
+body.utc-dragging {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  touch-action: none !important;
+  -webkit-touch-callout: none !important;
 }
 
 
