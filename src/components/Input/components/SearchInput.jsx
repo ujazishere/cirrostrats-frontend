@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
-// import { trackSearch} from "../hooks/useTracksearch";
 import useSearchSuggestions from "../hooks/useSuggestions";
 import useInputHandlers from "../hooks/useInputHandlers";
 
@@ -26,14 +24,14 @@ export default function SearchInput({
     inputValue,
     handleSubmit,
     selectedValue,
-    debouncedInputValue,
+    // debouncedInputValue,
     handleInputChange,
     handleFocus,
     handleBlur,
     handleKeyDown,
   } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed to all others.
 
-  const { filteredSuggestions } = useSearchSuggestions(userEmail, null, inputValue, debouncedInputValue, dropOpen);
+  const { filteredSuggestions } = useSearchSuggestions(userEmail, null, inputValue, dropOpen);
 
   return (
     <div className="search-container">

@@ -14,7 +14,7 @@ const useInputHandlers = () => {
   const [selectedValue, setSelectedValue] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const debouncedInputValue = useDebounce(inputValue, 300);
+  // const debouncedInputValue = useDebounce(inputValue, 300);
   
   const handleValue = (value) => {
     setSelectedValue(value);
@@ -45,23 +45,6 @@ const useInputHandlers = () => {
     //     setSelectedValue(null);
     //   }
     // }
-
-    // // Fetch from API if no matches found
-    // if (newFilteredSuggestions.length === 0) {
-    //   try {
-    //     const data = await axios.get(`${apiUrl}/query?search=${debouncedInputValue}`);
-    //     trackSearch(debouncedInputValue);
-    //     if (data.data && data.data.length > 0) {
-    //       setFilteredSuggestions(data.data);
-    //       const apiPrediction = findInlinePrediction(debouncedInputValue, data.data);
-    //       setInlinePrediction(apiPrediction);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching API data from backend:", error);
-    //   }
-    // }
-    // setIsExpanded(false);
-  // };
 
   // Other handlers...
   const handleSubmit = (e, submitTerm, userEmail) => {
@@ -221,7 +204,7 @@ const useInputHandlers = () => {
     setSelectedValue,
     inputValue,
     setInputValue,
-    debouncedInputValue,
+    // debouncedInputValue,
     handleSubmit,
     handleValue,
     handleInputChange,

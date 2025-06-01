@@ -1,155 +1,210 @@
-import { useState, useEffect } from "react";
-import { getObjectType } from "../utils/getObjectType";
-import { typeMap } from "../utils/typeMap";
-import { formatSuggestions, matchingSuggestion, fetchAndFilterSuggestions } from "../utils/formatSuggestions";
+import { useState, useEffect, useCallback, useRef } from "react";
 import useDebounce from "./useDebounce";
 import searchService from "../api/searchservice";
-// import useTrackSearch from "./useTrackSearch"
 
 /**
- * @function useSearch
- * @description Centralized State Management Hook. Role: Manages all search-related state and logic.
- *      Responsibilities: Combines smaller hooks (useDebounce, useFetchData, etc.).
- *      Exposes state and handlers to the parent component
- * @param {*} userEmail 
- * @param {*} isLoggedIn 
- * @param {*} debouncedInputValue 
- * @returns 
+ * Enhanced search suggestions hook with proper caching and backspace handling
  */
-export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, debouncedInputValue, dropOpen) {
-  const [initialSuggestions, setInitialSuggestions] = useState([]);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-  const [isloading, setIsLoading] = useState(false);
-  const [freshSuggestions, setFreshSuggestions] = useState([]);
-  // const searchSuggestions = await searchService.fetchMostSearched(userEmail);
+export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, dropOpen) {
+  // Core suggestion state
+  const [suggestions, setSuggestions] = useState({
+    initial: [],       // Popular suggestions loaded once (up to 500)
+    backend: [],       // Additional suggestions from backend searches
+    filtered: [],      // Currently displayed suggestions (max 5)
+    hasMore: true      // Whether more suggestions might be available
+  });
 
-  // Initial fetch : Triggered only once on the initial render of the homepage.
+  // Cache for display history to handle backspace scenarios
+  const [displayCache, setDisplayCache] = useState(new Map());
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Debounce for backend queries (only when initial suggestions run out)
+  const debouncedInputValue = useDebounce(inputValue, 300);
+  
+  // Track if initial suggestions have been loaded
+  const initialLoadedRef = useRef(false);
+  const lastInputRef = useRef('');
+
+  // Utility functions
+  const formatSuggestions = useCallback((rawSuggestions) => {
+    if (!rawSuggestions || !Array.isArray(rawSuggestions)) return [];
+    
+    return rawSuggestions.map((item) => ({
+      stId: item.stId,
+      id: item.id,
+      ...(item.flightID && { flightID: item.flightID }),
+      label: item.display
+        ? (item.type === 'flight' && item.display.startsWith('GJS')
+            ? `UA${item.display.slice(3)} (${item.display})`
+            : item.display)
+        : `${item.code} - ${item.name}`,
+      type: item.type
+    }));
+  }, []);
+
+  const matchingSuggestions = useCallback((suggestionPool, query) => {
+    if (!query) return suggestionPool.slice(0, 5);
+    if (!suggestionPool || !Array.isArray(suggestionPool)) return [];
+    
+    const lowercaseQuery = query.toLowerCase();
+    return suggestionPool
+      .filter(s => s.label.toLowerCase().includes(lowercaseQuery))
+      .slice(0, 5);
+  }, []);
+
+  // Initial fetch of popular suggestions (called once)
   useEffect(() => {
-    /**
-     * Fetches most searched items from backend, formats suggestions,
-     * and assigns them to initialSuggestions state.
-     * Only triggers once on the initial render of the homepage.
-   * @async
-   * @function
-   * @returns {Promise<void>}
-   */
-    const fetchPopularSuggestions = async () => {
-      // fetches most searched from backend
-      const searchSuggestions = await searchService.fetchPopularSuggestions(userEmail, inputValue);
-      // Formats suggestions, assigns value,label, type, etc.
-      const formattedSuggestions = formatSuggestions(searchSuggestions);
-      setInitialSuggestions(formattedSuggestions);
-    };
+    if (!initialLoadedRef.current && userEmail) {
+      const fetchInitialSuggestions = async () => {
+        try {
+          setIsLoading(true);
+          const rawData = await searchService.fetchPopularSuggestions(userEmail, '');
+          const formatted = formatSuggestions(rawData);
+          
+          setSuggestions(prev => ({
+            ...prev,
+            initial: formatted,
+            filtered: formatted.slice(0, 5)
+          }));
+          
+          initialLoadedRef.current = true;
+        } catch (error) {
+          console.error("Failed to fetch initial suggestions:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-    fetchPopularSuggestions();
-  }, [userEmail]);
+      fetchInitialSuggestions();
+    }
+  }, [userEmail, formatSuggestions]);
 
-
-  // This function matches suggestions with dropdown for the live inputValue in search and updates the filteredSuggestions state based on matches
+  // Handle input changes and filtering
   useEffect(() => {
-    const newfilteredSuggestions = matchingSuggestion(initialSuggestions, inputValue);
-    setFilteredSuggestions(newfilteredSuggestions);
-    // TODO: Here the suggestions 
+    // early return if dropdown not open or initial suggestions are not loaded.
+    if (!dropOpen || !initialLoadedRef.current) return;
 
-    if (dropOpen && newfilteredSuggestions.length < 5) {
-      updateSuggestions();
-    };
+    const currentInput = inputValue || '';
+    const lastInput = lastInputRef.current;
+    
+    // Determine if user is backspacing
+    const isBackspacing = currentInput.length < lastInput.length && 
+                         lastInput.startsWith(currentInput);
+    
+    // Get all available suggestions
+    const allSuggestions = [...suggestions.initial, ...suggestions.backend];
+    
+    if (isBackspacing && displayCache.has(currentInput)) {
+      // Use cached results for backspace
+      const cachedResults = displayCache.get(currentInput);
+      setSuggestions(prev => ({
+        ...prev,
+        filtered: cachedResults
+      }));
+    } else {
+      // Filter suggestions normally
+      const filtered = matchingSuggestions(allSuggestions, currentInput);
+      
+      setSuggestions(prev => ({
+        ...prev,
+        filtered
+      }));
+      
+      // Cache the results
+      setDisplayCache(prev => new Map(prev).set(currentInput, filtered));
+    }
+    
+    lastInputRef.current = currentInput;
+  }, [inputValue, dropOpen, suggestions.initial, suggestions.backend, matchingSuggestions, displayCache]);
 
-  }, [inputValue, dropOpen]);
-
-  const updateSuggestions = async () =>{
-    console.log('updating suggestions');
-    setIsLoading(true);
+  // Fetch additional suggestions when needed
+  const fetchAdditionalSuggestions = useCallback(async (query) => {
+    if (!query || query.length < 2) return;
+    
     try {
-      const { newSuggestions } = 
-        await fetchAndFilterSuggestions({
-          currentSuggestions: filteredSuggestions,
-          inputValue,
-          userEmail,
-          searchService
+      setIsLoading(true);
+      const rawData = await searchService.fetchPopularSuggestions(userEmail, query);
+      
+      if (rawData && rawData.length > 0) {
+        const formatted = formatSuggestions(rawData);
+        
+        setSuggestions(prev => {
+          // Avoid duplicates
+          const existingIds = new Set([...prev.initial, ...prev.backend].map(s => s.id));
+          const newSuggestions = formatted.filter(s => !existingIds.has(s.id));
+          
+          return {
+            ...prev,
+            backend: [...prev.backend, ...newSuggestions]
+          };
         });
-        // updating the state
-        setFreshSuggestions(newSuggestions);
-        setFilteredSuggestions([]);
-        setFilteredSuggestions(newSuggestions);
-
+      }
     } catch (error) {
-      console.error("Failed to fetch suggestions:", error);
+      console.error("Failed to fetch additional suggestions:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userEmail, formatSuggestions]);
+
+  // Trigger backend fetch when filtered suggestions are low and input is debounced
+  useEffect(() => {
+    if (!dropOpen || !debouncedInputValue) return;
+    
+    const shouldFetchMore = suggestions.filtered.length < 5 && 
+                           debouncedInputValue.length >= 2 &&
+                           suggestions.hasMore;
+    
+    if (shouldFetchMore) {
+      fetchAdditionalSuggestions(debouncedInputValue);
+    }
+  }, [debouncedInputValue, suggestions.filtered.length, dropOpen, fetchAdditionalSuggestions, suggestions.hasMore]);
+
+  // Parse query for complex searches (when all else fails)
+  const parseQuery = useCallback(async (query) => {
+    if (!query || query.length < 3) return;
+    
+    try {
+      setIsLoading(true);
+      // Implement your parse query logic here
+      // const results = await searchService.parseQuery(userEmail, query);
+      // Handle parse query results...
+    } catch (error) {
+      console.error("Parse query failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userEmail]);
+
+  // Cleanup cache periodically to prevent memory leaks
+  useEffect(() => {
+    const cleanup = () => {
+      setDisplayCache(prev => {
+        const newCache = new Map();
+        // Keep only recent entries (last 10)
+        const entries = Array.from(prev.entries()).slice(-10);
+        entries.forEach(([key, value]) => newCache.set(key, value));
+        return newCache;
+      });
+    };
+
+    const interval = setInterval(cleanup, 60000); // Cleanup every minute
+    return () => clearInterval(interval);
+  }, []);
 
   return {
-    filteredSuggestions
+    filteredSuggestions: suggestions.filtered,
+    isLoading,
+    hasMore: suggestions.hasMore,
+    // Additional utilities you might need
+    clearCache: () => setDisplayCache(new Map()),
+    refetch: () => {
+      initialLoadedRef.current = false;
+      setSuggestions({
+        initial: [],
+        backend: [],
+        filtered: [],
+        hasMore: true
+      });
+    }
   };
 }
-
-  // const debouncedInputValue = useDebounce(inputValue, 1000); // 1 second debounce
-
-//   useEffect(() => {
-//     const fetchSuggestions = async () => {
-//       if (debouncedInputValue.length < 3) return;
-      
-//       setIsLoading(true);
-//       try {
-//         let rawSuggestions = await searchService.fetchPopularSuggestions(
-//           userEmail,
-//           debouncedInputValue
-//         );
-
-//         if (!rawSuggestions || rawSuggestions.length === 0) {
-//           rawSuggestions = await searchService.fetchFromParseQuery(
-//             userEmail,
-//             debouncedInputValue
-//           );
-//         }
-
-//         setFilteredSuggestions(
-//           rawSuggestions 
-//             ? matchingSuggestion(formatSuggestions(rawSuggestions), debouncedInputValue)
-//             : []
-//         );
-//       } catch (error) {
-//         console.error("Error fetching suggestions:", error);
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-
-//     fetchSuggestions();
-//   }, [debouncedInputValue, userEmail, filteredSuggestions]);
-
-//   return {
-//     suggestions,
-//     isLoading,
-//     setInputValue,
-//     inputValue
-//   };
-// };
-
-
-  // // FetchMore -- This function is supposed to be triggered when the suggestions are running out. 
-  // // The idea is to always have something in the dropdown.
-  // useEffect(() => {
-  //   const updateSuggestions = async () =>{
-  //     // console.log('debouncedInputValue', debouncedInputValue);
-  //     // if (filteredSuggestions.length < 9) {      // if suggestions are less than 2 and debouncedInputValue is not empty
-  //     //   console.log('updating suggestions');
-  //     //   setPage(page + 0);
-  //     //   console.log('page', page);
-  //     //   const updatedSuggestions = await searchService.fetchMostSearched(userEmail, inputValue, page, 49); // fetch more suggestions
-  //     //   // if updatedSuggestions is less than 49, increment page. 
-  //     //   const formattedSuggestions = formatSuggestions(updatedSuggestions);
-  //     // }
-  //   }
-
-  //   updateSuggestions();
-  // }, [filteredSuggestions]);
-
-
-
-
-
-
-

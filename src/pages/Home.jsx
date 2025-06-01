@@ -87,7 +87,7 @@ const HomePage = () => {
             Cirrostrats
           </h1>
           <h2 className="hero-title-2">
-            A Unified Aviation Information Platform.
+            Unified Aviation Information Platform.
           </h2>
 
           {/* Search input */}
