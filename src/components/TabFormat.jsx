@@ -282,7 +282,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                     style={{ cursor: 'pointer' }}
                   >
                     <h3 className="weather-tab-title">
-                      Airport Closure - Departure
+                      NAS Status - Departure
                       <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
                         {isNasExpanded ? '▼' : '▶'}
                       </span>
@@ -290,7 +290,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                   </div>
                   {isNasExpanded && (
                     <div className="nas-tab-content">
-                      <NASDetails nasResponse={nasDepartureResponse} title="Airport Closure - Departure" />
+                      <NASDetails nasResponse={nasDepartureResponse} title=" NAS Status - Departure" />
                     </div>
                   )}
                 </div>
@@ -322,7 +322,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                     style={{ cursor: 'pointer' }}
                   >
                     <h3 className="weather-tab-title">
-                      Airport Closure - Destination
+                      NAS Status - Destination
                       <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
                         {isNasDestExpanded ? '▼' : '▶'}
                       </span>
@@ -330,7 +330,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                   </div>
                   {isNasDestExpanded && (
                     <div className="nas-tab-content">
-                      <NASDetails nasResponse={nasDestinationResponse} title="Airport Closure - Destination" />
+                      <NASDetails nasResponse={nasDestinationResponse} title="NAS Status - Destination" />
                     </div>
                   )}
                 </div>

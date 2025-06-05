@@ -11,6 +11,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 const Details = () => {
   const location = useLocation();
+  // TODO VHP TEST: This searchValue needs a detailed descripton of what this  search value could be, the type and usage
   const searchValue = location?.state?.searchValue;
 
   // States for flight data
