@@ -1886,6 +1886,12 @@ footer {
   margin: 0;
 }
 
+.aircraft-type {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-left: 6.0rem;
+}
+
 .aircraft-number {
   font-size: 0.875rem;
   color: #6b7280;

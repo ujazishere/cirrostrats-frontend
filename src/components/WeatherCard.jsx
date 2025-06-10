@@ -8,7 +8,8 @@ import Input from "../components/Input/Index"; // Ensure this path is correct
  * @param {string} props.title - Card title
  * @param {Object} props.weatherDetails - Weather data object
  * @param {boolean} props.showSearchBar - Whether to show the search bar (default true)
- * *@param {Object} props.flightData - Flight information with departure and destination details
+ *  * @param {Object} props.flightData - Flight information with departure and destination details
+
  */
 const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => {
   const datis = weatherDetails?.datis;
@@ -17,21 +18,6 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
   
   // Reference for the search container
   const searchContainerRef = useRef(null);
-  
-  // Function to get color based on minutes
-  const getTimestampColor = (timestampHtml) => {
-    if (!timestampHtml) return 'black';
-    
-    // Extract text from HTML and then extract minutes
-    const textContent = timestampHtml.replace(/<[^>]*>/g, ''); // Remove HTML tags
-    const minutesMatch = textContent.match(/(\d+)\s*(mins?|minutes?)/i);
-    if (minutesMatch) {
-      const minutes = parseInt(minutesMatch[1], 10);
-      return minutes <= 55 ? 'green' : 'red';
-    }
-    
-    return 'black'; // Default color if no match
-  };
   
   // Apply the same styling as in combined.jsx
   useEffect(() => {
@@ -55,16 +41,13 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
           <Input userEmail="user@example.com" isLoggedIn={true} />
         </div>
       )}
+      
       <div className="weather-cards">
         {/* D-ATIS Card */}
         <div className="weather-card">
           <div className="card-header">
             <h2 className="header-title">D-ATIS</h2>
-            <span 
-              className="timestamp" 
-              style={{ color: getTimestampColor(weatherDetails?.datis_zt) }}
-              dangerouslySetInnerHTML={{ __html: weatherDetails?.datis_zt }}
-            ></span>
+            <span className="timestamp">{weatherDetails?.datis_zt}</span>
           </div>
           <div className="card-body">
             <div className="data-content">
@@ -77,11 +60,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
         <div className="weather-card">
           <div className="card-header">
             <h2 className="header-title">METAR</h2>
-            <span 
-              className="timestamp" 
-              style={{ color: getTimestampColor(weatherDetails?.metar_zt) }}
-              dangerouslySetInnerHTML={{ __html: weatherDetails?.metar_zt }}
-            ></span>
+            <span className="timestamp">{weatherDetails?.metar_zt}</span>
           </div>
           <div className="card-body">
             <div className="data-content">
@@ -94,11 +73,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
         <div className="weather-card">
           <div className="card-header">
             <h2 className="header-title">TAF</h2>
-            <span 
-              className="timestamp" 
-              style={{ color: getTimestampColor(weatherDetails?.taf_zt) }}
-              dangerouslySetInnerHTML={{ __html: weatherDetails?.taf_zt }}
-            ></span>
+            <span className="timestamp">{weatherDetails?.taf_zt}</span>
           </div>
           <div className="card-body">
             <div className="data-content">

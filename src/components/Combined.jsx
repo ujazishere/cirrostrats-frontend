@@ -162,6 +162,8 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
         <div className="flight-number">
           <h2 className="flight-number-text">{flightData?.flightID}</h2>
           <span className="aircraft-number">{flightData?.registration}</span>
+          <span className="aircraft-type">{flightData?.aircraftType}</span>
+
         </div>
 
         {/* Using the new SummaryTable component */}
