@@ -16,10 +16,10 @@ const RoutePanel = ({ flightData }) => {
           <>
             <div className="route-display">
               <div className="card-body">
-                <div className="data-content">{flightData.route}</div>
-                {flightData?.sv && (
+              <div className="data-content">{flightData.fa_route || flightData.route}</div>
+                {flightData?.fa_sv && (
                   <div className="route-actions">
-                    <a href={flightData.sv} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
+                    <a href={flightData.fa_sv} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
                       View on SkyVector
                     </a>
                   </div>

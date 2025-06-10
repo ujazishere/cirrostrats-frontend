@@ -4,7 +4,7 @@ import axios from 'axios';
 const useAirportData = (searchValue, apiUrl) => {
   const [airportWx, setAirportWx] = useState(null);
   const [nasResponseAirport, setNasResponseAirport] = useState(null);
-  const [LoadingNAS, setLoadingNAS] = useState(null)
+  const [loadingNAS, setLoadingNAS] = useState(null)
   const [loadingWeather, setLoadingWeather] = useState(null)
   const [loadingAirportDetails, setLoadingAirportDetails] = useState(false); // Initialized to false, true when relevant search
   const [airportError, setAirportError] = useState(null);
@@ -22,6 +22,20 @@ const useAirportData = (searchValue, apiUrl) => {
 
     const fetchAirportData = async () => {
       try {
+        if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
+          const res = await axios.get(`${apiUrl}/testDataReturns?airportLookup=KBOS`);
+          setLoadingWeather(true)
+          console.log("!!TEST DATA!!", res.data);
+          setAirportWx(res.data);
+          setLoadingWeather(false);
+
+          setLoadingNAS(true);
+          setNasResponseAirport(res.data.nas_departure_affected);
+          setLoadingNAS(false);
+          
+          // If test data needs to provide airportWx or gateData, it should be set here too.
+          // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
+        } else {
         // Initialize variables
         let mdbAirportId = null
         let mdbAirportCode = null;
@@ -110,7 +124,7 @@ const useAirportData = (searchValue, apiUrl) => {
               };
             };
         }
-      } catch (e) {
+      }} catch (e) {
         console.error("Error in fetchAirportData:", e);
         setAirportError(e);
       } finally {
@@ -122,7 +136,7 @@ const useAirportData = (searchValue, apiUrl) => {
 
   }, [searchValue, apiUrl]); // Effect dependencies
 
-  return { airportWx, nasResponseAirport, loadingWeather, LoadingNAS, airportError };
+  return { airportWx, nasResponseAirport, loadingWeather, LoadingNAS: loadingNAS, airportError };
 };
 
 export default useAirportData;

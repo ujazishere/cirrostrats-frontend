@@ -59,7 +59,7 @@ const Details = () => {
 
     const fetchData = async () => {
       try {
-        if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
+        if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true" && searchValue?.type === "flight") {
           setLoadingFlightData(true);
           const res = await axios.get(`${apiUrl}/testDataReturns`);
           console.log("!!TEST DATA!!", res.data);
@@ -82,14 +82,16 @@ const Details = () => {
             setLoadingGateData(false);
           }
         // TODO VHP: searchValue as string is Redundant since raw query is fed through QC in backend - remove all `string` related items in this section.
-        } else if (searchValue?.type === "flight" || (searchValue && typeof searchValue === 'string') ) {
+        } else if (searchValue?.type === "flight" || (searchValue?.type === "N-Number")) {
+          
           setLoadingFlightData(true);
           setFlightError(null);
           let flightID = null;
+          
           if (searchValue?.flightID) {
             flightID = searchValue.flightID;
-          } else if (typeof searchValue === 'string') {
-            flightID = searchValue;
+          } else if (searchValue?.nnumber) { // From react-select or similar
+            flightID = searchValue.nnumber;
           } else if (searchValue?.value) { // From react-select or similar
             flightID = searchValue.value;
           }
@@ -103,22 +105,35 @@ const Details = () => {
           }
 
           try {
-            const [ajms, flightViewGateInfo, flightStatsTZRes, flightAwareRes] = await Promise.all([
+            const [ajms, flightViewGateInfo, flightStatsTZRes, ] = await Promise.all([
               axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {}, error: true }; }),
               axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`).catch(e => { console.error("FlightViewGateInfo Error:", e); return { data: {}, error: true }; }),
               axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {}, error: true }; }),
-              axios.get(`${apiUrl}/flightAware/UA/${flightID}`).catch(e => { console.error("FlightAware Error:", e); return { data: {}, error: true }; }), // TODO: Airline code might need to be dynamic
             ]);
+            let flightAwareRes = { data: {}, error: true }
+            if (import.meta.env.VITE_APP_AVOID_FLIGHT_AWARE !== "true") {
+              console.log('ggetting flightaware data');
+              flightAwareRes = await axios.get(`${apiUrl}/flightAware/${flightID}`).catch(e => { 
+                console.error("FlightAware Error:", e); 
+                return { data: {}, error: true }; 
+              });
+              console.log(flightAwareRes.data);
+            };
 
             // Basic check if all primary sources failed
             if (ajms.error && flightViewGateInfo.error && flightStatsTZRes.error && flightAwareRes.error && !Object.keys(ajms.data).length && !Object.keys(flightViewGateInfo.data).length ) {
                 setFlightError(`Could not retrieve sufficient data for flight ${flightID}.`);
             }
 
+            // TODO VHP Test: compare departure and arrival from different sources for absolute verification! 
+                // Anomaly may exist between sources and arrival/departure alternate may not be accurate depending on weather conditions -- mismatch possible.
             let departure, arrival;
             if (ajms.data?.arrival && ajms.data?.departure) {
               departure = ajms.data.departure;
               arrival = ajms.data.arrival;
+            } else if (flightAwareRes.data) {
+              departure = flightAwareRes.data?.fa_origin || null;
+              arrival = flightAwareRes.data?.fa_destionation || null;
             } else {
               departure = flightStatsTZRes.data?.flightStatsOrigin || flightViewGateInfo.data?.flightViewDeparture || null;
               arrival = flightStatsTZRes.data?.flightStatsDestination || flightViewGateInfo.data?.flightViewDestination || null;

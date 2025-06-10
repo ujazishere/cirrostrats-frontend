@@ -39,7 +39,7 @@ const SummaryTable = ({ flightData }) => {
             <div className="info-label">Scheduled In</div>
             {/* This scheduled_in time is from flightAware.
             TODO: need to change name to flightAwareScheduledIn. */}
-            <div className="info-value">{flightData?.scheduled_in || 'N/A'}</div>
+            <div className="info-value">{flightData?.fa_scheduled_in || 'N/A'}</div>
           </div>
         </div>
       </div>
@@ -63,7 +63,7 @@ const SummaryTable = ({ flightData }) => {
             <div className="info-label">Scheduled Out</div>
             {/* This scheduled_out time is from flightAware.
             TODO: Need to change name to flightAwareScheduledOut. */}
-            <div className="info-value">{flightData?.scheduled_out || 'N/A'}</div>
+            <div className="info-value">{flightData?.fa_scheduled_out || 'N/A'}</div>
           </div>
         </div>
       </div>
