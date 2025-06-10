@@ -45,7 +45,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
         <div className="weather-card">
           <div className="card-header">
             <h2 className="header-title">D-ATIS</h2>
-            <span className="timestamp">34 mins ago</span>
+            <span className="timestamp">3sssss ago</span>
           </div>
           <div className="card-body">
             <div className="data-content">

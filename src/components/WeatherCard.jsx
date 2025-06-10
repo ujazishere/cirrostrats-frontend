@@ -8,6 +8,8 @@ import Input from "../components/Input/Index"; // Ensure this path is correct
  * @param {string} props.title - Card title
  * @param {Object} props.weatherDetails - Weather data object
  * @param {boolean} props.showSearchBar - Whether to show the search bar (default true)
+ *  * @param {Object} props.flightData - Flight information with departure and destination details
+
  */
 const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => {
   const datis = weatherDetails?.datis;
@@ -45,7 +47,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
         <div className="weather-card">
           <div className="card-header">
             <h2 className="header-title">D-ATIS</h2>
-            <span className="timestamp">34 mins ago</span>
+            <span className="timestamp">{weatherDetails?.datis_zt}</span>
           </div>
           <div className="card-body">
             <div className="data-content">
@@ -58,7 +60,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
         <div className="weather-card">
           <div className="card-header">
             <h2 className="header-title">METAR</h2>
-            <span className="timestamp">34 mins ago</span>
+            <span className="timestamp">{weatherDetails?.metar_zt}</span>
           </div>
           <div className="card-body">
             <div className="data-content">
@@ -71,7 +73,7 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
         <div className="weather-card">
           <div className="card-header">
             <h2 className="header-title">TAF</h2>
-            <span className="timestamp">166 mins ago</span>
+            <span className="timestamp">{weatherDetails?.taf_zt}</span>
           </div>
           <div className="card-body">
             <div className="data-content">
