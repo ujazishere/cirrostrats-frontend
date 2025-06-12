@@ -14,8 +14,8 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   const [isNasExpanded, setIsNasExpanded] = useState(true);
   const [isNasDestExpanded, setIsNasDestExpanded] = useState(true);
   
-  // Tab order for navigation - only two tabs now
-  const tabOrder = ['departure', 'destination'];
+  // Tab order for navigation - now four tabs
+  const tabOrder = ['departure', 'alt-departure', 'destination', 'alt-destination'];
   
   // Helper function to check if NAS data is available
   const hasNasData = (nasResponse) => {
@@ -234,7 +234,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
           `}
         </style>
         
-        {/* Tabs navigation - now only two tabs */}
+        {/* Tabs navigation - now four tabs */}
         <div 
           ref={tabsNavRef}
           className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}
@@ -248,18 +248,32 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
             Departure
           </button>
           <button 
+            className={`weather-tab-button ${activeTab === 'alt-departure' ? 'active' : ''}`}
+            onClick={() => handleTabChange('alt-departure')}
+            disabled={isAnimating}
+          >
+            Alt-Dep
+          </button>
+          <button 
             className={`weather-tab-button ${activeTab === 'destination' ? 'active' : ''}`}
             onClick={() => handleTabChange('destination')}
             disabled={isAnimating}
           >
             Destination
           </button>
+          <button 
+            className={`weather-tab-button ${activeTab === 'alt-destination' ? 'active' : ''}`}
+            onClick={() => handleTabChange('alt-destination')}
+            disabled={isAnimating}
+          >
+            Alt-Dest
+          </button>
         </div>
 
         {/* Add padding when tabs are sticky to prevent content jump */}
         {isSticky && <div className="tabs-placeholder" style={{ height: tabsNavRef.current?.offsetHeight || 0 }}></div>}
 
-        {/* Tab content - now only departure and destination */}
+        {/* Tab content - now four tabs */}
         <div 
           ref={contentRef}
           className="weather-tabs-content"
@@ -304,6 +318,20 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
             </div>
           )}
 
+          {/* Alt-Departure Weather Tab */}
+          {activeTab === 'alt-departure' && (
+            <div className="weather-tab-panel">
+              <div className="weather-tab-header">
+                <h3 className="weather-tab-title">
+                  Alt-Dep
+                </h3>
+              </div>
+              
+              {/* Placeholder content - you can add data later */}
+              <div className="no-weather-data">Alt-Departure data will be added later</div>
+            </div>
+          )}
+
           {/* Destination Weather Tab */}
           {activeTab === 'destination' && (
             <div className="weather-tab-panel">
@@ -341,6 +369,20 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
               ) : (
                 <div className="no-weather-data">No weather data available</div>
               )}
+            </div>
+          )}
+
+          {/* Alt-Destination Weather Tab */}
+          {activeTab === 'alt-destination' && (
+            <div className="weather-tab-panel">
+              <div className="weather-tab-header">
+                <h3 className="weather-tab-title">
+                  Alt-Dest
+                </h3>
+              </div>
+              
+              {/* Placeholder content - you can add data later */}
+              <div className="no-weather-data">Alt-Destination data will be added later</div>
             </div>
           )}
         </div>
