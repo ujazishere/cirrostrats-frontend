@@ -4,7 +4,7 @@ import WeatherCard from './WeatherCard';
 import NASDetails from "./NASDetails";
 import RoutePanel from "./RoutePanel";
 
-const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
+const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse, departure_alternate_weather, arrival_alternate_weather }) => {
   const [activeTab, setActiveTab] = useState('departure'); // Default to departure (2nd tab in new order)
   const [isSticky, setIsSticky] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -289,8 +289,11 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                 </h3>
               </div>
               
-              {/* Placeholder content - you can add data later */}
-              <div className="no-weather-data">Alt-Departure data will be added later</div>
+              {departure_alternate_weather ? (
+                <WeatherCard arrow={false} title="Alt-Departure Weather" weatherDetails={departure_alternate_weather} showSearchBar={false} />
+              ) : (
+                <div className="no-weather-data">No alt-departure weather data available</div>
+              )}
             </div>
           )}
 
@@ -383,8 +386,11 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                 </h3>
               </div>
               
-              {/* Placeholder content - you can add data later */}
-              <div className="no-weather-data">Alt-Destination data will be added later</div>
+              {arrival_alternate_weather ? (
+                <WeatherCard arrow={false} title="Alt-Destination Weather" weatherDetails={arrival_alternate_weather} showSearchBar={false} />
+              ) : (
+                <div className="no-weather-data">No alt-destination weather data available</div>
+              )}
             </div>
           )}
         </div>
