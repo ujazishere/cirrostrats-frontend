@@ -285,12 +285,15 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
             <div className="weather-tab-panel">
               <div className="weather-tab-header">
                 <h3 className="weather-tab-title" style={{ color: '#856404' }}>
-                  Alt-Departure
+                Departure Alternate
+                </h3>
+                <h3 className="weather-tab-title" style={{ color: '#856404' }}>
+                  {flightData?.departureAlternate}
                 </h3>
               </div>
               
-              {departure_alternate_weather ? (
-                <WeatherCard arrow={false} title="Alt-Departure Weather" weatherDetails={departure_alternate_weather} showSearchBar={false} />
+              {flightData.departure_alternate_weather ? (
+                <WeatherCard arrow={false} title="Alt-Departure Weather" weatherDetails={flightData.departure_alternate_weather} showSearchBar={false} />
               ) : (
                 <div className="no-weather-data">No alt-departure weather data available</div>
               )}
@@ -382,12 +385,15 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
             <div className="weather-tab-panel">
               <div className="weather-tab-header">
                 <h3 className="weather-tab-title" style={{ color: '#856404' }}>
-                  Alt-Destination
+                Arrival Alternate
+                </h3>
+                <h3 className="weather-tab-title" style={{ color: '#856404' }}>
+                  {flightData?.arrivalAlternate}
                 </h3>
               </div>
               
-              {arrival_alternate_weather ? (
-                <WeatherCard arrow={false} title="Alt-Destination Weather" weatherDetails={arrival_alternate_weather} showSearchBar={false} />
+              {flightData.arrival_alternate_weather ? (
+                <WeatherCard arrow={false} title="Alt-Destination Weather" weatherDetails={flightData.arrival_alternate_weather} showSearchBar={false} />
               ) : (
                 <div className="no-weather-data">No alt-destination weather data available</div>
               )}
