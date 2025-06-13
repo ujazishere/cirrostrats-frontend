@@ -5,7 +5,7 @@ import NASDetails from "./NASDetails";
 import RoutePanel from "./RoutePanel";
 
 const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
-  const [activeTab, setActiveTab] = useState('alt-departure');
+  const [activeTab, setActiveTab] = useState('departure');
   const [isSticky, setIsSticky] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const tabsNavRef = useRef(null);
@@ -15,7 +15,7 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   const [isNasDestExpanded, setIsNasDestExpanded] = useState(true);
   
   // Tab order for navigation - now four tabs
-  const tabOrder = ['alt-departure', 'departure', 'destination', 'alt-destination'];
+  const tabOrder = ['departure', 'alt-departure', 'destination', 'alt-destination'];
   
   // Helper function to check if NAS data is available
   const hasNasData = (nasResponse) => {
@@ -241,19 +241,19 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
           style={{ position: isSticky ? 'fixed' : 'relative', top: isSticky ? '0' : 'auto', width: '100%', zIndex: 1000 }}
         >
           <button 
+            className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
+            onClick={() => handleTabChange('departure')}
+            disabled={isAnimating}
+          >
+            Departure
+          </button>
+          <button 
             className={`weather-tab-button ${activeTab === 'alt-departure' ? 'active' : ''}`}
             onClick={() => handleTabChange('alt-departure')}
             disabled={isAnimating}
             style={{ backgroundColor: activeTab === 'alt-departure' ? '#fff3cd' : '#f8f9fa', color: activeTab === 'alt-departure' ? '#856404' : 'inherit' }}
           >
             Alt-Dep
-          </button>
-          <button 
-            className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
-            onClick={() => handleTabChange('departure')}
-            disabled={isAnimating}
-          >
-            Departure
           </button>
           <button 
             className={`weather-tab-button ${activeTab === 'destination' ? 'active' : ''}`}
@@ -280,20 +280,6 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
           ref={contentRef}
           className="weather-tabs-content"
         >
-          {/* Alt-Departure Weather Tab */}
-          {activeTab === 'alt-departure' && (
-            <div className="weather-tab-panel">
-              <div className="weather-tab-header">
-                <h3 className="weather-tab-title" style={{ color: '#856404' }}>
-                  Alt-Departure
-                </h3>
-              </div>
-              
-              {/* Placeholder content - you can add data later */}
-              <div className="no-weather-data">Alt-Departure data will be added later</div>
-            </div>
-          )}
-
           {/* Departure Weather Tab */}
           {activeTab === 'departure' && (
             <div className="weather-tab-panel">
@@ -331,6 +317,20 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
               ) : (
                 <div className="no-weather-data">No weather data available</div>
               )}
+            </div>
+          )}
+
+          {/* Alt-Departure Weather Tab */}
+          {activeTab === 'alt-departure' && (
+            <div className="weather-tab-panel">
+              <div className="weather-tab-header">
+                <h3 className="weather-tab-title" style={{ color: '#856404' }}>
+                  Alt-Departure
+                </h3>
+              </div>
+              
+              {/* Placeholder content - you can add data later */}
+              <div className="no-weather-data">Alt-Departure data will be added later</div>
             </div>
           )}
 
