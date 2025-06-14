@@ -4,7 +4,15 @@ import WeatherCard from './WeatherCard';
 import NASDetails from "./NASDetails";
 import RoutePanel from "./RoutePanel";
 
-const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse, departure_alternate_weather, arrival_alternate_weather }) => {
+const TabFormat = ({
+  flightData, 
+  dep_weather, 
+  dest_weather, 
+  nasDepartureResponse, 
+  nasDestinationResponse, 
+  departure_alternate_weather, 
+  arrival_alternate_weather
+}) => {
   const [activeTab, setActiveTab] = useState('departure'); // Default to departure (2nd tab in new order)
   const [isSticky, setIsSticky] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -13,6 +21,9 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
   const tabPositionRef = useRef(null);
   const [isNasExpanded, setIsNasExpanded] = useState(true);
   const [isNasDestExpanded, setIsNasDestExpanded] = useState(true);
+  // Add state for alternate NAS expansion - using same NAS data
+  const [isNasAltDepExpanded, setIsNasAltDepExpanded] = useState(true);
+  const [isNasAltDestExpanded, setIsNasAltDestExpanded] = useState(true);
   
   // Tab order for navigation - rearranged as requested
   const tabOrder = ['alt-departure', 'departure', 'destination', 'alt-destination'];
@@ -292,6 +303,29 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                 </h3>
               </div>
               
+              {/* Add NAS section for alternate departure - using same departure NAS data */}
+              {hasNasData(nasDepartureResponse) && (
+                <div className="nas-section">
+                  <div 
+                    className="nas-tab-header" 
+                    onClick={() => setIsNasAltDepExpanded(!isNasAltDepExpanded)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <h3 className="weather-tab-title">
+                      NAS Status - Departure
+                      <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
+                        {isNasAltDepExpanded ? '▼' : '▶'}
+                      </span>
+                    </h3>
+                  </div>
+                  {isNasAltDepExpanded && (
+                    <div className="nas-tab-content">
+                      <NASDetails nasResponse={nasDepartureResponse} title="NAS Status - Departure" />
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {flightData.departure_alternate_weather ? (
                 <WeatherCard arrow={false} title="Alt-Departure Weather" weatherDetails={flightData.departure_alternate_weather} showSearchBar={false} />
               ) : (
@@ -391,6 +425,29 @@ const TabFormat = ({flightData, dep_weather, dest_weather, nasDepartureResponse,
                   {flightData?.arrivalAlternate}
                 </h3>
               </div>
+              
+              {/* Add NAS section for alternate destination - using same destination NAS data */}
+              {hasNasData(nasDestinationResponse) && (
+                <div className="nas-section">
+                  <div 
+                    className="nas-tab-header" 
+                    onClick={() => setIsNasAltDestExpanded(!isNasAltDestExpanded)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <h3 className="weather-tab-title">
+                      NAS Status - Destination
+                      <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
+                        {isNasAltDestExpanded ? '▼' : '▶'}
+                      </span>
+                    </h3>
+                  </div>
+                  {isNasAltDestExpanded && (
+                    <div className="nas-tab-content">
+                      <NASDetails nasResponse={nasDestinationResponse} title="NAS Status - Destination" />
+                    </div>
+                  )}
+                </div>
+              )}
               
               {flightData.arrival_alternate_weather ? (
                 <WeatherCard arrow={false} title="Alt-Destination Weather" weatherDetails={flightData.arrival_alternate_weather} showSearchBar={false} />
