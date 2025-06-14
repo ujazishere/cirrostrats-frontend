@@ -13,7 +13,56 @@ const TabFormat = ({
   departure_alternate_weather, 
   arrival_alternate_weather
 }) => {
-  const [activeTab, setActiveTab] = useState('departure'); // Default to departure (2nd tab in new order)
+  // Helper function to check if weather data is available and meaningful
+  const hasWeatherData = (weatherData) => {
+    if (!weatherData) return false;
+    
+    // Check if it's an empty object
+    if (typeof weatherData === 'object' && Object.keys(weatherData).length === 0) {
+      return false;
+    }
+    
+    // Check if it's an empty array
+    if (Array.isArray(weatherData) && weatherData.length === 0) {
+      return false;
+    }
+    
+    // Check if all values are null, undefined, or empty strings
+    if (typeof weatherData === 'object' && !Array.isArray(weatherData)) {
+      const hasValidData = Object.values(weatherData).some(value => 
+        value !== null && value !== undefined && value !== ''
+      );
+      return hasValidData;
+    }
+    
+    return true;
+  };
+
+  // Check if alternate weather data is available
+  const hasAltDepWeather = hasWeatherData(flightData?.departure_alternate_weather);
+  const hasAltDestWeather = hasWeatherData(flightData?.arrival_alternate_weather);
+  
+  // Create dynamic tab order based on available data
+  const createTabOrder = () => {
+    const tabs = [];
+    
+    if (hasAltDepWeather) tabs.push('alt-departure');
+    tabs.push('departure');
+    tabs.push('destination');
+    if (hasAltDestWeather) tabs.push('alt-destination');
+    
+    return tabs;
+  };
+
+  const tabOrder = createTabOrder();
+  
+  // Set default active tab - prioritize departure, but fall back to first available tab
+  const getDefaultTab = () => {
+    if (tabOrder.includes('departure')) return 'departure';
+    return tabOrder[0] || 'departure';
+  };
+
+  const [activeTab, setActiveTab] = useState(getDefaultTab());
   const [isSticky, setIsSticky] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const tabsNavRef = useRef(null);
@@ -25,8 +74,12 @@ const TabFormat = ({
   const [isNasAltDepExpanded, setIsNasAltDepExpanded] = useState(true);
   const [isNasAltDestExpanded, setIsNasAltDestExpanded] = useState(true);
   
-  // Tab order for navigation - rearranged as requested
-  const tabOrder = ['alt-departure', 'departure', 'destination', 'alt-destination'];
+  // Update active tab if it becomes unavailable due to data changes
+  useEffect(() => {
+    if (!tabOrder.includes(activeTab)) {
+      setActiveTab(getDefaultTab());
+    }
+  }, [hasAltDepWeather, hasAltDestWeather]);
   
   // Helper function to check if NAS data is available
   const hasNasData = (nasResponse) => {
@@ -245,20 +298,24 @@ const TabFormat = ({
           `}
         </style>
         
-        {/* Tabs navigation - rearranged order */}
+        {/* Tabs navigation - conditionally rendered based on available data */}
         <div 
           ref={tabsNavRef}
           className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}
           style={{ position: isSticky ? 'fixed' : 'relative', top: isSticky ? '0' : 'auto', width: '100%', zIndex: 1000 }}
         >
-          <button 
-            className={`weather-tab-button ${activeTab === 'alt-departure' ? 'active' : ''}`}
-            onClick={() => handleTabChange('alt-departure')}
-            disabled={isAnimating}
-            style={{ backgroundColor: activeTab === 'alt-departure' ? '#fff3cd' : '#f8f9fa', color: activeTab === 'alt-departure' ? '#856404' : 'inherit' }}
-          >
-            Alt-Dep
-          </button>
+          {/* Only show Alt-Dep tab if there's weather data */}
+          {hasAltDepWeather && (
+            <button 
+              className={`weather-tab-button ${activeTab === 'alt-departure' ? 'active' : ''}`}
+              onClick={() => handleTabChange('alt-departure')}
+              disabled={isAnimating}
+              style={{ backgroundColor: activeTab === 'alt-departure' ? '#fff3cd' : '#f8f9fa', color: activeTab === 'alt-departure' ? '#856404' : 'inherit' }}
+            >
+              Alt-Dep
+            </button>
+          )}
+          
           <button 
             className={`weather-tab-button ${activeTab === 'departure' ? 'active' : ''}`}
             onClick={() => handleTabChange('departure')}
@@ -266,6 +323,7 @@ const TabFormat = ({
           >
             Departure
           </button>
+          
           <button 
             className={`weather-tab-button ${activeTab === 'destination' ? 'active' : ''}`}
             onClick={() => handleTabChange('destination')}
@@ -273,26 +331,30 @@ const TabFormat = ({
           >
             Destination
           </button>
-          <button 
-            className={`weather-tab-button ${activeTab === 'alt-destination' ? 'active' : ''}`}
-            onClick={() => handleTabChange('alt-destination')}
-            disabled={isAnimating}
-            style={{ backgroundColor: activeTab === 'alt-destination' ? '#fff3cd' : '#f8f9fa', color: activeTab === 'alt-destination' ? '#856404' : 'inherit' }}
-          >
-            Alt-Dest
-          </button>
+          
+          {/* Only show Alt-Dest tab if there's weather data */}
+          {hasAltDestWeather && (
+            <button 
+              className={`weather-tab-button ${activeTab === 'alt-destination' ? 'active' : ''}`}
+              onClick={() => handleTabChange('alt-destination')}
+              disabled={isAnimating}
+              style={{ backgroundColor: activeTab === 'alt-destination' ? '#fff3cd' : '#f8f9fa', color: activeTab === 'alt-destination' ? '#856404' : 'inherit' }}
+            >
+              Alt-Dest
+            </button>
+          )}
         </div>
 
         {/* Add padding when tabs are sticky to prevent content jump */}
         {isSticky && <div className="tabs-placeholder" style={{ height: tabsNavRef.current?.offsetHeight || 0 }}></div>}
 
-        {/* Tab content - same content, just reordered */}
+        {/* Tab content - conditionally rendered */}
         <div 
           ref={contentRef}
           className="weather-tabs-content"
         >
-          {/* Alt-Departure Weather Tab */}
-          {activeTab === 'alt-departure' && (
+          {/* Alt-Departure Weather Tab - only render if data exists */}
+          {activeTab === 'alt-departure' && hasAltDepWeather && (
             <div className="weather-tab-panel">
               <div className="weather-tab-header">
                 <h3 className="weather-tab-title" style={{ color: '#856404' }}>
@@ -326,11 +388,7 @@ const TabFormat = ({
                 </div>
               )}
               
-              {flightData.departure_alternate_weather ? (
-                <WeatherCard arrow={false} title="Alt-Departure Weather" weatherDetails={flightData.departure_alternate_weather} showSearchBar={false} />
-              ) : (
-                <div className="no-weather-data">No alt-departure weather data available</div>
-              )}
+              <WeatherCard arrow={false} title="Alt-Departure Weather" weatherDetails={flightData.departure_alternate_weather} showSearchBar={false} />
             </div>
           )}
 
@@ -414,8 +472,8 @@ const TabFormat = ({
             </div>
           )}
 
-          {/* Alt-Destination Weather Tab */}
-          {activeTab === 'alt-destination' && (
+          {/* Alt-Destination Weather Tab - only render if data exists */}
+          {activeTab === 'alt-destination' && hasAltDestWeather && (
             <div className="weather-tab-panel">
               <div className="weather-tab-header">
                 <h3 className="weather-tab-title" style={{ color: '#856404' }}>
@@ -449,11 +507,7 @@ const TabFormat = ({
                 </div>
               )}
               
-              {flightData.arrival_alternate_weather ? (
-                <WeatherCard arrow={false} title="Alt-Destination Weather" weatherDetails={flightData.arrival_alternate_weather} showSearchBar={false} />
-              ) : (
-                <div className="no-weather-data">No alt-destination weather data available</div>
-              )}
+              <WeatherCard arrow={false} title="Alt-Destination Weather" weatherDetails={flightData.arrival_alternate_weather} showSearchBar={false} />
             </div>
           )}
         </div>
