@@ -5,6 +5,7 @@ import UTCTime from "../components/UTCTime";
 import { FlightCard, WeatherCard, GateCard } from "../components/Combined";
 import { LoadingFlightCard } from "../components/Skeleton";
 import useAirportData from "../components/AirportData"; // Import the new custom hook
+import flightService from '../components/utility/flightService';
 
 // API base URL from environment variables
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -90,9 +91,9 @@ const Details = () => {
           
           if (searchValue?.flightID) {
             flightID = searchValue.flightID;
-          } else if (searchValue?.nnumber) { // From react-select or similar
+          } else if (searchValue?.nnumber) {
             flightID = searchValue.nnumber;
-          } else if (searchValue?.value) { // From react-select or similar
+          } else if (searchValue?.value) {
             flightID = searchValue.value;
           }
 
@@ -105,65 +106,74 @@ const Details = () => {
           }
 
           try {
-            const [ajms, flightViewGateInfo, flightStatsTZRes, ] = await Promise.all([
-              axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {}, error: true }; }),
-              axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`).catch(e => { console.error("FlightViewGateInfo Error:", e); return { data: {}, error: true }; }),
-              axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {}, error: true }; }),
-            ]);
-            let flightAwareRes = { data: {}, error: true }
-            if (import.meta.env.VITE_APP_AVOID_FLIGHT_AWARE !== "true") {
-              console.log('ggetting flightaware data');
-              flightAwareRes = await axios.get(`${apiUrl}/flightAware/${flightID}`).catch(e => { 
-                console.error("FlightAware Error:", e); 
-                return { data: {}, error: true }; 
-              });
-              console.log(flightAwareRes.data);
-            };
+            // Getting primary flight data from primary sources
+            const {
+              ajms, flightAwareRes, flightViewGateInfo, flightStatsTZRes
+            } = await flightService.getPrimaryFlightData(flightID);
 
             // Basic check if all primary sources failed
             if (ajms.error && flightViewGateInfo.error && flightStatsTZRes.error && flightAwareRes.error && !Object.keys(ajms.data).length && !Object.keys(flightViewGateInfo.data).length ) {
                 setFlightError(`Could not retrieve sufficient data for flight ${flightID}.`);
-            }
+            }   
 
-            // TODO VHP Test: compare departure and arrival from different sources for absolute verification! 
-                // Anomaly may exist between sources and arrival/departure alternate may not be accurate depending on weather conditions -- mismatch possible.
-            let departure, arrival;
-            if (ajms.data?.arrival && ajms.data?.departure) {
-              departure = ajms.data.departure;
-              arrival = ajms.data.arrival;
-            } else if (flightAwareRes.data) {
-              departure = flightAwareRes.data?.fa_origin || null;
-              arrival = flightAwareRes.data?.fa_destionation || null;
-            } else {
-              departure = flightStatsTZRes.data?.flightStatsOrigin || flightViewGateInfo.data?.flightViewDeparture || null;
-              arrival = flightStatsTZRes.data?.flightStatsDestination || flightViewGateInfo.data?.flightViewDestination || null;
-            }
+            // assigning airports depending on source.
+            const { 
+              departure, 
+              arrival, 
+              departureAlternate, 
+              arrivalAlternate 
+            } = flightService.getAirports({
+              ajms,
+              flightAwareRes,
+              flightStatsTZRes,
+              flightViewGateInfo
+            });
 
+            if (departure && arrival) {
+            }
+            
+            // merging flight primary flight data.
             const combinedFlightData = {
               flightID: flightID,
               departure: departure,
               arrival: arrival,
+              departureAlternate: departureAlternate,
+              arrivalAlternate: arrivalAlternate,
               ...ajms.data,
-              ...flightViewGateInfo.data,
-              ...flightStatsTZRes.data,
               ...flightAwareRes.data,
+              ...flightStatsTZRes.data,
+              ...flightViewGateInfo.data,
             };
             setFlightData(combinedFlightData);
 
             if (departure && arrival) {
-              const [nasRes, depWeatherLive, destWeatherLive, depWeatherMdb, destWeatherMdb] = await Promise.all([
-                axios.get(`${apiUrl}/NAS/${departure}/${arrival}`).catch(e => { console.error("Flight NAS Error:", e); return { data: {} }; }),
-                axios.get(`${apiUrl}/liveAirportWeather/${departure}`).catch(e => { console.warn(`Live Dep Weather Error for ${departure}:`, e.response?.data); return { data: null }; }),
-                axios.get(`${apiUrl}/liveAirportWeather/${arrival}`).catch(e => { console.warn(`Live Dest Weather Error for ${arrival}:`, e.response?.data); return { data: null }; }),
-                axios.get(`${apiUrl}/mdbAirportWeather/${departure}`).catch(e => { console.warn(`MDB Dep Weather Error for ${departure}:`, e.response?.data); return { data: null }; }),
-                axios.get(`${apiUrl}/mdbAirportWeather/${arrival}`).catch(e => { console.warn(`MDB Dest Weather Error for ${arrival}:`, e.response?.data); return { data: null }; }),
-              ]);
+
+              const departureNASandWeather = await flightService.getWeatherAndNAS(departure)
+              const arrivalNASandWeather = await flightService.getWeatherAndNAS(departure)
+              if (departureAlternate){
+                const departureAlternateNASandWeather = await flightService.getWeatherAndNAS(departure)
+              }
+              if (arrivalAlternate){
+                const arrivalAlternateNASandWeather = await flightService.getWeatherAndNAS(departure)
+              }
 
               setWeatherResponseFlight({
-                dep_weather: depWeatherLive.data || depWeatherMdb.data,
-                dest_weather: destWeatherLive.data || destWeatherMdb.data,
+                departureWeatherMdb: departureNASandWeather.weather.mdb,
+                departureWeatherLive: departureNASandWeather.weather.live,
+                arrivalWeatherMdb: arrivalNASandWeather.weather.mdb,
+                arrivalWeatherLive: arrivalNASandWeather.weather.live,
+                departureAlternateWeatherMdb: departureAlternateNASandWeather?.weather.mdb || null,
+                arrivalAlternateWeatherLive: arrivalAlternateNASandWeather?.weather.live || null,
               });
-              setNasResponseFlight(nasRes.data);
+
+              setNasResponseFlight({
+                departureNAS: departureNASandWeather.NAS,
+                arrivalNAS: arrivalNASandWeather.NAS,
+                departureAlternateNAS: departureAlternateNASandWeather?.NAS || null,
+                arrivalAlternateNAS: arrivalAlternateNASandWeather?.NAS || null,
+              }
+              );
+            
             } else if (Object.keys(combinedFlightData).length > 2) { // flightID, departure, arrival are 3 keys minimum if flight is somewhat valid
               console.warn("Departure or arrival airport code missing for flightID", flightID, "Cannot fetch detailed weather/NAS for flight.");
             } else {
@@ -233,10 +243,17 @@ const Details = () => {
           (contentFound = true),
           <FlightCard
             flightData={flightData}
+
             dep_weather={weatherResponseFlight?.dep_weather}
             dest_weather={weatherResponseFlight?.dest_weather}
-            nasDepartureResponse={nasResponseFlight?.nas_departure_affected}
-            nasDestinationResponse={nasResponseFlight?.nas_destination_affected}
+            depAlternateWeather={weatherResponseFlight?.dep_weather}
+            destAlternateWeather={weatherResponseFlight?.dest_weather}
+
+            nasDepartureResponse={nasResponseFlight?.nas_affectred_departure}
+            nasDestinationResponse={nasResponseFlight?.nas_affected_destination}
+            nasDepartureAlternateResponse={nasResponseFlight?.nas_affectred_departure}
+            nasArrivalAlternateResponse={nasResponseFlight?.nas_affected_destination}
+
             flightError={flightError} // Pass partial data error to FlightCard
           />
         )}

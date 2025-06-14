@@ -65,7 +65,7 @@ const useInputHandlers = () => {
           };
         });
       } else {
-      // Process the dropdown selection. since they have the id, type and such built in.
+      // Dropdown selection submit. since they have the id, type and such built in.
       searchValue = submitTerm
       navigate("/details", { state: { searchValue } });
     };

@@ -5,6 +5,9 @@ const searchService = {
   /**
    * Fetch most searched items.
    * @param {string} userEmail
+   * @param {string} inputValue
+   * @param {number} page
+   * @param {number} pageSize
    */
   fetchPopularSuggestions: async (userEmail, inputValue="", page=0, pageSize=10) => {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -21,16 +24,14 @@ const searchService = {
 
   /**
    * Fetch raw query
-   * @param {string} searchTerm
-   * @param {string} userEmail
-   * @param {boolean} isLoggedIn
+   * @param {string} query
    */
-fetchRawQuery: (query) => {
-  const apiUrl = import.meta.env.VITE_API_URL;
-  return axios.get(`${apiUrl}/query?search=${query}`)
-    .then(response => {
-      return response.data;
-    });
+  fetchRawQuery: (query) => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    return axios.get(`${apiUrl}/query?search=${query}`)
+      .then(response => {
+        return response.data;
+      });
   }
 };
 

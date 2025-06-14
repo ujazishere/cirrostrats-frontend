@@ -7,6 +7,17 @@ const SearchTimeline = ({ rawData }) => {
     new Date(b.timestamp) - new Date(a.timestamp)
   );
 
+  const formatUTCDateTime = (timestamp) => {
+  // Parse the timestamp as UTC (important for correct date interpretation)
+  const date = new Date(timestamp);
+  
+  // Get UTC components directly
+  const day = String(date.getUTCDate()).padStart(2, '0');       // DD (01-31)
+  const hours = String(date.getUTCHours()).padStart(2, '0');    // HH (00-23)
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0'); // MM (00-59)
+  
+  return `${day} ${hours}${minutes}`;  // Format: "DD HHMM" (UTC)
+  };
   const getDisplayValue = (entry) => {
     // Find first non-timestamp field with a value
     const fields = Object.keys(entry).filter(k => k !== 'timestamp');
@@ -23,7 +34,7 @@ const SearchTimeline = ({ rawData }) => {
     }}>
       <h2 style={{
         fontSize: '1.5rem',
-        marginBottom: '20px',
+        marginBottom: '10px',
         color: '#333',
         display: 'flex',
         alignItems: 'center',
@@ -38,7 +49,7 @@ const SearchTimeline = ({ rawData }) => {
       }}>
         {sortedData.map((item, index) => (
           <div key={index} style={{
-            marginBottom: '24px',
+            // marginBottom: '24px',
             position: 'relative'
           }}>
             {/* Timeline dot */}
@@ -63,7 +74,7 @@ const SearchTimeline = ({ rawData }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                marginBottom: '6px'
+                marginBottom: '3px'
               }}>
                 <span style={{ fontWeight: '600', color: '#1e40af' }}>
                   {item.fid_st ? `Flight: ${item.fid_st}` : item.airport_st ? `Airport: ${item.airport_st}` : item.rst ? `Raw: ${item.rst}` : 'Unknown'}
@@ -77,14 +88,13 @@ const SearchTimeline = ({ rawData }) => {
                 fontSize: '0.875rem',
                 color: '#64748b'
               }}>
-                <Clock size={18} />
-                {new Date(item.timestamp).toLocaleString('en-US', {
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })}
+                <Clock size={12} />
+                {
+                // new Date(item.timestamp).getUTCDate() + ' ' +
+                  new Date(item.timestamp).toDateString().toString().slice(8,10)+ ' ' +
+                  new Date(item.timestamp).toTimeString().toString().slice(0,2) +
+                  new Date(item.timestamp).toTimeString().toString().slice(3,5) + 'Z'
+                  }
               </div>
             </div>
           </div>

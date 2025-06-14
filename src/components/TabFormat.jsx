@@ -39,8 +39,8 @@ const TabFormat = ({
   };
 
   // Check if alternate weather data is available
-  const hasAltDepWeather = hasWeatherData(flightData?.departure_alternate_weather);
-  const hasAltDestWeather = hasWeatherData(flightData?.arrival_alternate_weather);
+  const hasAltDepWeather = hasWeatherData(flightData?.departureAlternate);
+  const hasAltDestWeather = hasWeatherData(flightData?.arrivalAlternate);
   
   // Create dynamic tab order based on available data
   const createTabOrder = () => {

@@ -19,7 +19,7 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
   const [isLoading, setIsLoading] = useState(false);
   
   // Debounce for backend queries (only when initial suggestions run out)
-  const debouncedInputValue = useDebounce(inputValue, 300);
+  const debouncedInputValue = useDebounce(inputValue, 500);
   
   // Track if initial suggestions have been loaded
   const initialLoadedRef = useRef(false);
