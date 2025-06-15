@@ -137,7 +137,7 @@ const flightService = {
 
   getAirportNAS: async (airportCode) => {
     try {
-      const nasRes = await axios.get(`${apiUrl}/NAS/?airport=${airportCode}`)
+      const nasRes = await axios.get(`${apiUrl}/NAS?airport=${airportCode}`)
         .catch(error => {
           console.error("NAS API Error:", error);
           return null;
