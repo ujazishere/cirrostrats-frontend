@@ -109,8 +109,8 @@ const flightService = {
       ]);
 
       return {
-        weather: weatherRes,  // Fixed: was weatherRes, should be weather
-        NAS: NASRes,         // Fixed: was NASRes, should be NAS
+        weather: weatherRes,
+        NAS: NASRes,
       };
     } catch (error) {
       console.error("Error in getWeatherAndNAS:", error);
@@ -128,18 +128,20 @@ const flightService = {
       return {
         live: liveWeather?.data || null,
         mdb: mdbWeather?.data || null,
-      }
+      };
     } catch (error) {
       console.error(`Error getting weather for ${airportCode}:`, error);
       return null;
     }
   },
 
-  getAirportNas: async (airportCode) => {
+  getAirportNAS: async (airportCode) => {
     try {
-      const [nasRes] = await Promise.all([
-        axios.get(`${apiUrl}/NAS/?airport=${airportCode}`).catch(handleError("NAS")),
-      ]);
+      const nasRes = await axios.get(`${apiUrl}/NAS/?airport=${airportCode}`)
+        .catch(error => {
+          console.error("NAS API Error:", error);
+          return null;
+        });
 
       return nasRes?.data || null;
     } catch (error) {
@@ -147,5 +149,6 @@ const flightService = {
       return null;
     }
   },
-}
+};
+
 export default flightService

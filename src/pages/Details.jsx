@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import UTCTime from "../components/UTCTime";
-import { FlightCard, WeatherCard, GateCard } from "../components/Combined";
+import NASDetails from "../components/NASDetails";
+import Input from "../components/Input/Index"; // Ensure this path is correct
+import WeatherCard from "../components/WeatherCard"
+import { FlightCard, GateCard } from "../components/Combined";
 import { LoadingFlightCard } from "../components/Skeleton";
 import useAirportData from "../components/AirportData"; // Import the new custom hook
 import flightService from '../components/utility/flightService';
@@ -14,6 +17,8 @@ const Details = () => {
   const location = useLocation();
   // TODO VHP TEST: This searchValue needs a detailed descripton of what this  search value could be, the type and usage
   const searchValue = location?.state?.searchValue;
+  // Reference for the search container
+  const searchContainerRef = useRef(null);
 
   // States for flight data
   const [flightData, setFlightData] = useState(null);
@@ -63,10 +68,10 @@ const Details = () => {
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true" && searchValue?.type === "flight") {
           setLoadingFlightData(true);
           const res = await axios.get(`${apiUrl}/testDataReturns`);
-          console.log("!!TEST DATA!!", res.data);
+          console.log("!!TEST FLIGHT DATA!!", res.data);
           setFlightData(res.data.flightData || res.data);
-          setWeatherResponseFlight(res.data.weatherResponse || res.data);
-          setNasResponseFlight(res.data.nasResponse || res.data);
+          setWeatherResponseFlight(res.data.weather || res.data);
+          setNasResponseFlight(res.data.NAS || res.data);
           // If test data needs to provide airportWx or gateData, it should be set here too.
           // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
           setLoadingFlightData(false);
@@ -147,33 +152,56 @@ const Details = () => {
             setFlightData(combinedFlightData);
 
             if (departure && arrival) {
+                // Create array of requests based on what airports we have
+                const requests = [
+                  flightService.getWeatherAndNAS(departure),
+                  flightService.getWeatherAndNAS(arrival),  // Fixed: was departure, should be arrival
+                ];
+                
+                // Add alternate airport requests if they exist
+                if (departureAlternate) {
+                  requests.push(flightService.getWeatherAndNAS(departureAlternate));  // Fixed: was departure
+                }
+                if (arrivalAlternate) {
+                  requests.push(flightService.getWeatherAndNAS(arrivalAlternate));    // Fixed: was departure
+                }
 
-              const departureNASandWeather = await flightService.getWeatherAndNAS(departure)
-              const arrivalNASandWeather = await flightService.getWeatherAndNAS(departure)
-              if (departureAlternate){
-                const departureAlternateNASandWeather = await flightService.getWeatherAndNAS(departure)
-              }
-              if (arrivalAlternate){
-                const arrivalAlternateNASandWeather = await flightService.getWeatherAndNAS(departure)
-              }
+                // Execute all requests in parallel
+                const results = await Promise.all(requests);
+                
+                // Destructure results based on what we requested
+                let departureData, arrivalData, departureAlternateData, arrivalAlternateData;
+                
+                [departureData, arrivalData] = results;
+                
+                if (departureAlternate && arrivalAlternate) {
+                  [, , departureAlternateData, arrivalAlternateData] = results;
+                } else if (departureAlternate) {
+                  [, , departureAlternateData] = results;
+                } else if (arrivalAlternate) {
+                  [, , arrivalAlternateData] = results;
+                }
 
-              setWeatherResponseFlight({
-                departureWeatherMdb: departureNASandWeather.weather.mdb,
-                departureWeatherLive: departureNASandWeather.weather.live,
-                arrivalWeatherMdb: arrivalNASandWeather.weather.mdb,
-                arrivalWeatherLive: arrivalNASandWeather.weather.live,
-                departureAlternateWeatherMdb: departureAlternateNASandWeather?.weather.mdb || null,
-                arrivalAlternateWeatherLive: arrivalAlternateNASandWeather?.weather.live || null,
-              });
+                setWeatherResponseFlight({
+                  departureWeatherMdb: departureData?.weather?.mdb || null,
+                  departureWeatherLive: departureData?.weather?.live || null,
+                  arrivalWeatherMdb: arrivalData?.weather?.mdb || null,
+                  arrivalWeatherLive: arrivalData?.weather?.live || null,
 
-              setNasResponseFlight({
-                departureNAS: departureNASandWeather.NAS,
-                arrivalNAS: arrivalNASandWeather.NAS,
-                departureAlternateNAS: departureAlternateNASandWeather?.NAS || null,
-                arrivalAlternateNAS: arrivalAlternateNASandWeather?.NAS || null,
-              }
-              );
-            
+                  // Alternate airports weather
+                  departureAlternateWeatherMdb: departureAlternateData?.weather?.mdb || null,
+                  departureAlternateWeatherLive: departureAlternateData?.weather?.live || null,  // Fixed: was arrivalAlternateNASandWeather
+                  arrivalAlternateWeatherMdb: arrivalAlternateData?.weather?.mdb || null,        // Added missing field
+                  arrivalAlternateWeatherLive: arrivalAlternateData?.weather?.live || null,
+                });
+
+                setNasResponseFlight({
+                  departureNAS: departureData?.NAS || null,
+                  arrivalNAS: arrivalData?.NAS || null,
+                  departureAlternateNAS: departureAlternateData?.NAS || null,
+                  arrivalAlternateNAS: arrivalAlternateData?.NAS || null,
+                });
+
             } else if (Object.keys(combinedFlightData).length > 2) { // flightID, departure, arrival are 3 keys minimum if flight is somewhat valid
               console.warn("Departure or arrival airport code missing for flightID", flightID, "Cannot fetch detailed weather/NAS for flight.");
             } else {
@@ -186,9 +214,6 @@ const Details = () => {
           } finally {
             setLoadingFlightData(false);
           }
-        } else {
-          console.warn("Unknown or unhandled search type:", searchValue?.type);
-          // Potentially set a generic error or state here
         }
       } catch (error) { // Catch errors from the outer try block (e.g., test data fetching)
         console.error("Error in fetchData outer block:", error);
@@ -224,35 +249,40 @@ const Details = () => {
 
     // Content display
     let contentFound = false;
+    if (isAirportSearch && airportWx) {contentFound = true;}
     return (
       <>
+        {/* Search Input Component at the very top */}
+        <div className="combined-search" ref={searchContainerRef}>
+          <Input 
+            userEmail="user@example.com" 
+            isLoggedIn={true} 
+          />
+        </div>
+
+        {/* airportCard for airport lookups */}
         {isAirportSearch && airportWx &&(
-          (contentFound = true),
-          // For an airport search, NAS data is passed directly to WeatherCard
-          // Assuming WeatherCard can handle `nasDetails` for a single airport.
-          // The original code had a TODO: "Need to show this component in the weather card."
-          <WeatherCard title={`Weather for ${airportWx.name || searchLabel}`} weatherDetails={airportWx} nasDetails={nasResponseAirport} />
+          <>
+          <NASDetails nasResponse={nasResponseAirport} title=" NAS Status" />
+          <WeatherCard 
+            weatherDetails={airportWx} />
+          </>
         )}
 
+        {/* GateCard for gate lookups */}
         {gateData && isGateSearch && (
           (contentFound = true),
           <GateCard gateData={gateData} currentSearchValue={searchValue} />
         )}
 
+        {/* FlightCard for flightID lookups */}
         {flightData && isFlightSearch && (
           (contentFound = true),
           <FlightCard
             flightData={flightData}
 
-            dep_weather={weatherResponseFlight?.dep_weather}
-            dest_weather={weatherResponseFlight?.dest_weather}
-            depAlternateWeather={weatherResponseFlight?.dep_weather}
-            destAlternateWeather={weatherResponseFlight?.dest_weather}
-
-            nasDepartureResponse={nasResponseFlight?.nas_affectred_departure}
-            nasDestinationResponse={nasResponseFlight?.nas_affected_destination}
-            nasDepartureAlternateResponse={nasResponseFlight?.nas_affectred_departure}
-            nasArrivalAlternateResponse={nasResponseFlight?.nas_affected_destination}
+            weather={weatherResponseFlight}
+            NAS={nasResponseFlight}
 
             flightError={flightError} // Pass partial data error to FlightCard
           />

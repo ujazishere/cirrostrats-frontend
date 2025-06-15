@@ -25,12 +25,12 @@ const useAirportData = (searchValue, apiUrl) => {
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
           const res = await axios.get(`${apiUrl}/testDataReturns?airportLookup=KBOS`);
           setLoadingWeather(true)
-          console.log("!!TEST DATA!!", res.data);
-          setAirportWx(res.data);
+          console.log("!!TEST AIRPROT DATA!!", res.data);
+          setAirportWx(res.data.weather);
           setLoadingWeather(false);
 
           setLoadingNAS(true);
-          setNasResponseAirport(res.data.nas_departure_affected);
+          setNasResponseAirport(res.data.NAS);
           setLoadingNAS(false);
           
           // If test data needs to provide airportWx or gateData, it should be set here too.
@@ -78,7 +78,7 @@ const useAirportData = (searchValue, apiUrl) => {
         if (ICAOformattedAirportCode) {
           const [nasRes, liveAirportWeather] = await Promise.all([
             // Use the formatted code for NAS API
-            axios.get(`${apiUrl}/NAS/${ICAOformattedAirportCode}/${ICAOformattedAirportCode}`)
+            axios.get(`${apiUrl}/NAS?airport=${ICAOformattedAirportCode}`)
               .catch(e => { 
                 console.error("NAS Error:", e); 
                 return { data: null }; 
@@ -98,10 +98,6 @@ const useAirportData = (searchValue, apiUrl) => {
             setLoadingNAS(false);
           } 
         
-          // console.log("Live weather data:", liveAirportWeather.data);
-          // console.log("Live weather data mdb:", mdbAirportWeather.data);
-          // console.log("mismatch:", JSON.stringify(liveAirportWeather.data) !== JSON.stringify(mdbAirportWeather.data));
-
           // Set the weather data, 
           // prioritizing live data if it exists and differs from mdb. Is a must!
           if ((liveAirportWeather.data && mdbAirportWeather &&

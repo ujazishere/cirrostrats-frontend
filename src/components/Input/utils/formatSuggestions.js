@@ -42,7 +42,6 @@ export const matchingSuggestion = (suggestions, inputValue) => {
   // Filter local data and only show upto 5 suggestions for drop down view.
   let all_suggestions = suggestions
     .filter(s => s.label.toLowerCase().includes(lowercaseInputValue))
-  // console.log('as l',all_suggestions.length);
    return all_suggestions.slice(0, 5);
 };
 

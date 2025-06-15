@@ -20,7 +20,6 @@ import RoutePanel from "./RoutePanel"; // Import the new RouteTabPanel component
 import SummaryTable from "./SummaryTable"; // Import the new SummaryTable component
 import TabFormat from "./TabFormat"; // Import the new TabFormat component
 import GateCard from "./GateCard"; // Import the GateCard component from its new file
-import WeatherCard from "./WeatherCard"; // Import the WeatherCard component from its own file
 
 /**
  * Main component for displaying comprehensive flight information
@@ -29,14 +28,11 @@ import WeatherCard from "./WeatherCard"; // Import the WeatherCard component fro
  * 
  * @param {Object} props
  * @param {Object} props.flightData - Flight information
- * @param {Object} props.dep_weather - Departure weather data
- * @param {Object} props.dest_weather - Destination weather data
- * @param {Object} props.nasDepartureResponse - NAS info for departure airport
- * @param {Object} props.nasDestinationResponse - NAS info for destination airport
+ * @param {Object} props.weather - Departure weather data
+ * @param {Object} props.NAS - NAS data
  */
-const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureResponse, nasDestinationResponse }) => {
-  // console.log("flightData, combined.jsx", flightData);
-  
+const FlightCard = ({flightData, weather, NAS}) => {
+
   // Reference for the search container
   const searchContainerRef = useRef(null);
   
@@ -149,13 +145,6 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
 
   return (
     <div className="details">
-      {/* Search Input Component at the very top */}
-      <div className="combined-search" ref={searchContainerRef}>
-        <Input 
-          userEmail="user@example.com" 
-          isLoggedIn={true} 
-        />
-      </div>
 
       {/* Flight Overview Section */}
       <div className="flight-details-card">
@@ -170,22 +159,15 @@ const FlightCard = ({ flightData, dep_weather, dest_weather, nasDepartureRespons
         <SummaryTable flightData={flightData} />
       </div>
 
-
-
-
-      
-
       {/* Using the new TabFormat component instead of WeatherTabs */}
       <TabFormat 
         flightData={flightData} 
-        dep_weather={dep_weather} 
-        dest_weather={dest_weather} 
-        nasDepartureResponse={nasDepartureResponse}
-        nasDestinationResponse={nasDestinationResponse}
+        weather={weather}
+        NAS={NAS}
       />
     </div>
 /*******  d7a1acfe-e25e-4e85-86d7-012259ef5956  *******/
   );
 };
 
-export { FlightCard, WeatherCard, GateCard, NASDetails, RoutePanel };
+export { FlightCard, GateCard, RoutePanel };

@@ -80,13 +80,6 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
 
   return (
     <div className="gate-card-container">
-      {/* Search Input Component at the top with the same styling as combined.jsx */}
-      {showSearchBar && (
-        <div className="combined-search" ref={searchContainerRef}>
-          <Input userEmail="user@example.com" isLoggedIn={true} />
-        </div>
-      )}
-      
       <div className="gate-card">
         <table className="departure-table">
           <thead>

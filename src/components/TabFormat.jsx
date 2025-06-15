@@ -6,13 +6,22 @@ import RoutePanel from "./RoutePanel";
 
 const TabFormat = ({
   flightData, 
-  dep_weather, 
-  dest_weather, 
-  nasDepartureResponse, 
-  nasDestinationResponse, 
-  departure_alternate_weather, 
-  arrival_alternate_weather
+  weather,
+  NAS
 }) => {
+  // Weather for Airports
+  const dep_weather = weather.departureWeatherLive;
+  const dest_weather = weather.arrivalWeatherLive;
+  const departure_alternate_weather = weather.departureAlternateWeatherLive
+  const arrival_alternate_weather = weather.arrivalAlternateWeatherLive
+  // TODO: priority should be mdb and if live is available then live.
+  // NAS for airports
+  const nasDepartureResponse = NAS.departureNAS;
+  const nasDestinationResponse = NAS.arrivalNAS;
+  const nasDepartureAlternateResponse = NAS.departureAlternateNAS;
+  const nasDestinationAlternateResponse = NAS.arrivalAlternateNAS;
+
+
   // Helper function to check if weather data is available and meaningful
   const hasWeatherData = (weatherData) => {
     if (!weatherData) return false;
@@ -80,43 +89,6 @@ const TabFormat = ({
       setActiveTab(getDefaultTab());
     }
   }, [hasAltDepWeather, hasAltDestWeather]);
-  
-  // Helper function to check if NAS data is available
-  const hasNasData = (nasResponse) => {
-    if (!nasResponse) return false;
-    
-    // Check if nasResponse has meaningful data
-    // Adjust these conditions based on your actual data structure
-    if (Array.isArray(nasResponse)) {
-      return nasResponse.length > 0;
-    }
-    
-    if (typeof nasResponse === 'object') {
-      // Check if object has any meaningful properties with data
-      const keys = Object.keys(nasResponse);
-      if (keys.length === 0) return false;
-      
-      // Check for common empty states
-      if (nasResponse.data && Array.isArray(nasResponse.data)) {
-        return nasResponse.data.length > 0;
-      }
-      
-      if (nasResponse.items && Array.isArray(nasResponse.items)) {
-        return nasResponse.items.length > 0;
-      }
-      
-      // Check if all values are null, undefined, or empty
-      const hasValidData = keys.some(key => {
-        const value = nasResponse[key];
-        return value !== null && value !== undefined && value !== '' && 
-               (Array.isArray(value) ? value.length > 0 : true);
-      });
-      
-      return hasValidData;
-    }
-    
-    return true; // If it's a string or other truthy value
-  };
   
   // Simplified swipe handlers with clean animation
   const handlers = useSwipeable({
@@ -353,7 +325,7 @@ const TabFormat = ({
           ref={contentRef}
           className="weather-tabs-content"
         >
-          {/* Alt-Departure Weather Tab - only render if data exists */}
+          {/* Alt-Departure Tab - Weather and NAS - only render if data exists */}
           {activeTab === 'alt-departure' && hasAltDepWeather && (
             <div className="weather-tab-panel">
               <div className="weather-tab-header">
@@ -364,35 +336,14 @@ const TabFormat = ({
                   {flightData?.departureAlternate}
                 </h3>
               </div>
-              
-              {/* Add NAS section for alternate departure - using same departure NAS data */}
-              {hasNasData(nasDepartureResponse) && (
-                <div className="nas-section">
-                  <div 
-                    className="nas-tab-header" 
-                    onClick={() => setIsNasAltDepExpanded(!isNasAltDepExpanded)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <h3 className="weather-tab-title">
-                      NAS Status - Departure
-                      <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
-                        {isNasAltDepExpanded ? '▼' : '▶'}
-                      </span>
-                    </h3>
-                  </div>
-                  {isNasAltDepExpanded && (
-                    <div className="nas-tab-content">
-                      <NASDetails nasResponse={nasDepartureResponse} title="NAS Status - Departure" />
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              <WeatherCard arrow={false} title="Alt-Departure Weather" weatherDetails={flightData.departure_alternate_weather} showSearchBar={false} />
+
+              <NASDetails nasResponse={nasDepartureAlternateResponse} title=" NAS Status - Departure" />
+              <WeatherCard
+                weatherDetails={departure_alternate_weather} />
             </div>
           )}
 
-          {/* Departure Weather Tab */}
+          {/* Departure Tab - Weather and NAS */}
           {activeTab === 'departure' && (
             <div className="weather-tab-panel">
               <div className="weather-tab-header">
@@ -401,38 +352,13 @@ const TabFormat = ({
                 </h3>
               </div>
               
-              {/* Conditionally render NAS section for departure */}
-              {hasNasData(nasDepartureResponse) && (
-                <div className="nas-section">
-                  <div 
-                    className="nas-tab-header" 
-                    onClick={() => setIsNasExpanded(!isNasExpanded)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <h3 className="weather-tab-title">
-                      NAS Status - Departure
-                      <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
-                        {isNasExpanded ? '▼' : '▶'}
-                      </span>
-                    </h3>
-                  </div>
-                  {isNasExpanded && (
-                    <div className="nas-tab-content">
-                      <NASDetails nasResponse={nasDepartureResponse} title=" NAS Status - Departure" />
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {dep_weather ? (
-                <WeatherCard arrow={false} title="Departure Weather" weatherDetails={dep_weather} showSearchBar={false} />
-              ) : (
-                <div className="no-weather-data">No weather data available</div>
-              )}
+              <NASDetails nasResponse={nasDepartureResponse} title=" NAS Status - Departure" />
+              <WeatherCard
+                weatherDetails={dep_weather} />
             </div>
           )}
 
-          {/* Destination Weather Tab */}
+          {/* Destination Tab - Weather and NAS */}
           {activeTab === 'destination' && (
             <div className="weather-tab-panel">
               <div className="weather-tab-header">
@@ -440,39 +366,14 @@ const TabFormat = ({
                   {flightData?.arrival}
                 </h3>
               </div>
-              
-              {/* Conditionally render NAS section for destination */}
-              {hasNasData(nasDestinationResponse) && (
-                <div className="nas-section">
-                  <div 
-                    className="nas-tab-header" 
-                    onClick={() => setIsNasDestExpanded(!isNasDestExpanded)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <h3 className="weather-tab-title">
-                      NAS Status - Destination
-                      <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
-                        {isNasDestExpanded ? '▼' : '▶'}
-                      </span>
-                    </h3>
-                  </div>
-                  {isNasDestExpanded && (
-                    <div className="nas-tab-content">
-                      <NASDetails nasResponse={nasDestinationResponse} title="NAS Status - Destination" />
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {dest_weather ? (
-                <WeatherCard arrow={false} title="Destination Weather" weatherDetails={dest_weather} showSearchBar={false} />
-              ) : (
-                <div className="no-weather-data">No weather data available</div>
-              )}
+
+              <NASDetails nasResponse={nasDestinationResponse} title=" NAS Status - Departure" />
+              <WeatherCard
+                weatherDetails={dest_weather} />
             </div>
           )}
 
-          {/* Alt-Destination Weather Tab - only render if data exists */}
+          {/* Alt-Destination Tab -Weather and NAS - only render if data exists */}
           {activeTab === 'alt-destination' && hasAltDestWeather && (
             <div className="weather-tab-panel">
               <div className="weather-tab-header">
@@ -483,31 +384,10 @@ const TabFormat = ({
                   {flightData?.arrivalAlternate}
                 </h3>
               </div>
-              
-              {/* Add NAS section for alternate destination - using same destination NAS data */}
-              {hasNasData(nasDestinationResponse) && (
-                <div className="nas-section">
-                  <div 
-                    className="nas-tab-header" 
-                    onClick={() => setIsNasAltDestExpanded(!isNasAltDestExpanded)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <h3 className="weather-tab-title">
-                      NAS Status - Destination
-                      <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
-                        {isNasAltDestExpanded ? '▼' : '▶'}
-                      </span>
-                    </h3>
-                  </div>
-                  {isNasAltDestExpanded && (
-                    <div className="nas-tab-content">
-                      <NASDetails nasResponse={nasDestinationResponse} title="NAS Status - Destination" />
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              <WeatherCard arrow={false} title="Alt-Destination Weather" weatherDetails={flightData.arrival_alternate_weather} showSearchBar={false} />
+
+              <NASDetails nasResponse={nasDestinationAlternateResponse} title=" NAS Status - Departure" />
+              <WeatherCard
+                weatherDetails={arrival_alternate_weather} />
             </div>
           )}
         </div>
