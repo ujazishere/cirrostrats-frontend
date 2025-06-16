@@ -44,7 +44,7 @@ const Details = () => {
 
   // Overall loading state for the component might not be strictly needed
   // if individual loading states are handled in renderContent
-
+  
   useEffect(() => {
     // Reset states on new search value
     setFlightData(null);

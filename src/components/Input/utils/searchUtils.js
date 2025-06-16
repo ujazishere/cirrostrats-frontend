@@ -1,0 +1,25 @@
+export const formatSuggestions = (rawSuggestions) => {
+  if (!rawSuggestions || !Array.isArray(rawSuggestions)) return [];
+  
+  return rawSuggestions.map((item) => ({
+    stId: item.stId,
+    id: item.id,
+    ...(item.flightID && { flightID: item.flightID }),
+    label: item.display
+      ? (item.type === 'flight' && item.display.startsWith('GJS')
+          ? `UA${item.display.slice(3)} (${item.display})`
+          : item.display)
+      : `${item.code} - ${item.name}`,
+    type: item.type
+  }));
+};
+
+export const matchingSuggestions = (suggestionPool, query) => {
+  if (!query) return suggestionPool.slice(0, 5);
+  if (!suggestionPool || !Array.isArray(suggestionPool)) return [];
+  
+  const lowercaseQuery = query.toLowerCase();
+  return suggestionPool
+    .filter(s => s.label.toLowerCase().includes(lowercaseQuery))
+    .slice(0, 5);
+};

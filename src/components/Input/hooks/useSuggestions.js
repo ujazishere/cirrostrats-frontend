@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import useDebounce from "./useDebounce";
+import { 
+  formatSuggestions, 
+  matchingSuggestions,
+} from "../utils/searchUtils";
 import searchService from "../api/searchservice";
 
 /**
@@ -24,33 +28,6 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
   // Track if initial suggestions have been loaded
   const initialLoadedRef = useRef(false);
   const lastInputRef = useRef('');
-
-  // Utility functions
-  const formatSuggestions = useCallback((rawSuggestions) => {
-    if (!rawSuggestions || !Array.isArray(rawSuggestions)) return [];
-    
-    return rawSuggestions.map((item) => ({
-      stId: item.stId,
-      id: item.id,
-      ...(item.flightID && { flightID: item.flightID }),
-      label: item.display
-        ? (item.type === 'flight' && item.display.startsWith('GJS')
-            ? `UA${item.display.slice(3)} (${item.display})`
-            : item.display)
-        : `${item.code} - ${item.name}`,
-      type: item.type
-    }));
-  }, []);
-
-  const matchingSuggestions = useCallback((suggestionPool, query) => {
-    if (!query) return suggestionPool.slice(0, 5);
-    if (!suggestionPool || !Array.isArray(suggestionPool)) return [];
-    
-    const lowercaseQuery = query.toLowerCase();
-    return suggestionPool
-      .filter(s => s.label.toLowerCase().includes(lowercaseQuery))
-      .slice(0, 5);
-  }, []);
 
   // Initial fetch of popular suggestions (called once)
   useEffect(() => {
@@ -130,7 +107,10 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
         
         setSuggestions(prev => {
           // Avoid duplicates
+          // TODO: inspect this .id -- this will prevent me from feeding data to the sti outside of the id realm and may break the code. 
           const existingIds = new Set([...prev.initial, ...prev.backend].map(s => s.id));
+          
+          // Filters formatted (newly fetched suggestions) to exclude any items whose IDs already exist in existingIds.
           const newSuggestions = formatted.filter(s => !existingIds.has(s.id));
           
           return {
