@@ -70,7 +70,7 @@ const flightService = {
    */
   getPrimaryFlightData: async (flightID) => {
 
-    const [ajms, flightViewGateInfo, flightStatsTZRes, ] = await Promise.all([
+    const [ajms, flightStatsTZRes, flightViewGateInfo ] = await Promise.all([
     axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {}, error: true }; }),
     axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {}, error: true }; }),
     axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`).catch(e => { console.error("FlightViewGateInfo Error:", e); return { data: {}, error: true }; }),
