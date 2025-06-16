@@ -1,7 +1,5 @@
 import React from "react";
 import SearchInput from "./components/SearchInput";
-import useInputHandlers from "./hooks/useInputHandlers";
-import { useNavigate } from "react-router-dom";
 
 /**
  * @function Input
@@ -27,7 +25,6 @@ export default function Input({ userEmail, isLoggedIn }) {
         {/* Search input is where the autocomplete UI is rendered and will need associated props */}
         <SearchInput
           userEmail={userEmail}
-          isLoggedIn={isLoggedIn}
         />
       </form>
     </div>

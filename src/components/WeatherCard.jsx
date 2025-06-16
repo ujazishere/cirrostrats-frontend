@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import Input from "../components/Input/Index"; // Ensure this path is correct
 
 /**
  * Component to display weather information including D-ATIS, METAR, and TAF

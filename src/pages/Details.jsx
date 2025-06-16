@@ -17,6 +17,7 @@ const Details = () => {
   const location = useLocation();
   // TODO VHP TEST: This searchValue needs a detailed descripton of what this  search value could be, the type and usage
   const searchValue = location?.state?.searchValue;
+  const userEmail = location?.state?.userEmail;
   // Reference for the search container
   const searchContainerRef = useRef(null);
 
@@ -120,7 +121,6 @@ const Details = () => {
             if (ajms.error && flightViewGateInfo.error && flightStatsTZRes.error && flightAwareRes.error && !Object.keys(ajms.data).length && !Object.keys(flightViewGateInfo.data).length ) {
                 setFlightError(`Could not retrieve sufficient data for flight ${flightID}.`);
             }   
-
             // assigning airports depending on source.
             const { 
               departure, 
@@ -255,8 +255,7 @@ const Details = () => {
         {/* Search Input Component at the very top */}
         <div className="combined-search" ref={searchContainerRef}>
           <Input 
-            userEmail="user@example.com" 
-            isLoggedIn={true} 
+            userEmail={userEmail}
           />
         </div>
 

@@ -27,26 +27,6 @@ const useInputHandlers = () => {
     // trackSearch(userEmail, newInputValue);
   }
   
-    // // Update inline prediction
-    // const prediction = findInlinePrediction(debouncedInputValue, newFilteredSuggestions);
-    // setInlinePrediction(prediction);
-
-    // if (debouncedInputValue.length >= minCharsForAutofill && newFilteredSuggestions.length > 0) {
-    //   if (isUniqueMatch(debouncedInputValue, newFilteredSuggestions)) {
-    //     const exactMatch = newFilteredSuggestions.find(suggestion => 
-    //       suggestion.label.toLowerCase().startsWith(lowercaseInputValue)
-    //     );
-        
-    //     if (exactMatch) {
-    //       setSelectedValue(exactMatch);
-    //       setIsExpanded(true);
-    //     }
-    //   } else {
-    //     setSelectedValue(null);
-    //   }
-    // }
-
-  // Other handlers...
   const handleSubmit = (e, submitTerm, userEmail) => {
     if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
     let searchValue;
@@ -56,36 +36,21 @@ const useInputHandlers = () => {
         searchService.fetchRawQuery(submitTerm).then(rawReturn => {
           if (rawReturn) {
             searchValue = rawReturn
-            navigate("/details", { state: { searchValue } });
+            navigate("/details", { state: { searchValue }, userEmail });
             setSelectedValue(submitTerm);
           } else {
           setSelectedValue(submitTerm.label);
           searchValue = submitTerm
-          navigate("/details", { state: { searchValue } });
+          navigate("/details", { state: { searchValue }, userEmail });
           };
         });
       } else {
-      // Dropdown selection submit. since they have the id, type and such built in.
-      searchValue = submitTerm
-      navigate("/details", { state: { searchValue } });
-    };
-
+        // Dropdown selection submit. since they have the id, type and such built in.
+        searchValue = submitTerm
+        navigate("/details", { state: { searchValue }, userEmail });
+      };
     } 
   }
-      // TODO Just make submitTerm uppercase since it can be as is without label
-    // const searchValue = submitTerm.mdb || { value: inputValue, label: inputValue };
-    // trackSearch(inputValue, searchValue.label);
-
-  // const handleSuggestionClick = (searchTerm) => {
-  //   setInputValue(searchTerm);
-  //   const matchingSuggestion = filteredSuggestions.find(
-  //     (suggestion) => suggestion.label.toLowerCase() === searchTerm.toLowerCase()
-  //   );
-  //   if (matchingSuggestion) {
-  //     setSelectedValue(matchingSuggestion);
-  //     navigate("/details", { state: { searchValue: matchingSuggestion } });
-  //   }
-  // };
 
   const handleFocus = () => {
     // setIsExpanded(true);
@@ -106,10 +71,6 @@ const useInputHandlers = () => {
       title2: ".hero-title-2",
       navlinks: ".nav-links-container",
       clearrrr: ".route-tab-content",
-
-
-
-      
     };
 
     Object.entries(elements).forEach(([key, selector]) => {

@@ -3,7 +3,6 @@
  * Shows flight status, scheduled and actual departure times
  */
 import React, { useEffect, useRef } from 'react';
-import Input from "../components/Input/Index"; // Ensure this path is correct
 
 /**
  * Component to display departure information for a specific gate
