@@ -7,7 +7,8 @@ import RoutePanel from "./RoutePanel";
 const TabFormat = ({
   flightData, 
   weather,
-  NAS
+  NAS,
+  hideChildSearchBars = false // Add this prop to control search bars
 }) => {
   // Weather for Airports
   const dep_weather = weather.departureWeatherLive;
@@ -339,7 +340,8 @@ const TabFormat = ({
 
               <NASDetails nasResponse={nasDepartureAlternateResponse} title=" NAS Status - Departure" />
               <WeatherCard
-                weatherDetails={departure_alternate_weather} />
+                weatherDetails={departure_alternate_weather}
+                showSearchBar={!hideChildSearchBars} />
             </div>
           )}
 
@@ -354,7 +356,8 @@ const TabFormat = ({
               
               <NASDetails nasResponse={nasDepartureResponse} title=" NAS Status - Departure" />
               <WeatherCard
-                weatherDetails={dep_weather} />
+                weatherDetails={dep_weather}
+                showSearchBar={!hideChildSearchBars} />
             </div>
           )}
 
@@ -369,7 +372,8 @@ const TabFormat = ({
 
               <NASDetails nasResponse={nasDestinationResponse} title=" NAS Status - Departure" />
               <WeatherCard
-                weatherDetails={dest_weather} />
+                weatherDetails={dest_weather}
+                showSearchBar={!hideChildSearchBars} />
             </div>
           )}
 
@@ -387,7 +391,8 @@ const TabFormat = ({
 
               <NASDetails nasResponse={nasDestinationAlternateResponse} title=" NAS Status - Departure" />
               <WeatherCard
-                weatherDetails={arrival_alternate_weather} />
+                weatherDetails={arrival_alternate_weather}
+                showSearchBar={!hideChildSearchBars} />
             </div>
           )}
         </div>

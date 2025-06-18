@@ -145,6 +145,11 @@ const FlightCard = ({flightData, weather, NAS}) => {
 
   return (
     <div className="details">
+      {/* Search Input Component at the very top */}
+      <div className="combined-search" ref={searchContainerRef}>
+        <Input userEmail="user@example.com" 
+          isLoggedIn={true} />
+      </div>
 
       {/* Flight Overview Section */}
       <div className="flight-details-card">
@@ -152,7 +157,6 @@ const FlightCard = ({flightData, weather, NAS}) => {
           <h2 className="flight-number-text">{flightData?.flightID}</h2>
           <span className="aircraft-number">{flightData?.registration}</span>
           <span className="aircraft-type">{flightData?.aircraftType}</span>
-
         </div>
 
         {/* Using the new SummaryTable component */}
@@ -164,9 +168,9 @@ const FlightCard = ({flightData, weather, NAS}) => {
         flightData={flightData} 
         weather={weather}
         NAS={NAS}
+        hideChildSearchBars={true} // Pass this prop to prevent search bar in child components
       />
     </div>
-/*******  d7a1acfe-e25e-4e85-86d7-012259ef5956  *******/
   );
 };
 

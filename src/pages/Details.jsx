@@ -252,12 +252,6 @@ const Details = () => {
     if (isAirportSearch && airportWx) {contentFound = true;}
     return (
       <>
-        {/* Search Input Component at the very top */}
-        <div className="combined-search" ref={searchContainerRef}>
-          <Input 
-            userEmail={userEmail}
-          />
-        </div>
 
         {/* airportCard for airport lookups */}
         {isAirportSearch && airportWx &&(

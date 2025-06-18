@@ -134,27 +134,17 @@ const HomePage = () => {
         </div>
       </div> 
 
-      {/* Footer - Single footer with support links */}
+      {/* Footer - Single footer with email support link */}
       <footer className="footer-support">
         <div className="footer-support-container">
           <a 
-            href="tel:+12015099485"
-            className={`footer-support-link ${hoveredLink === 'phone' ? 'hovered' : ''}`}
-            onMouseEnter={() => handleLinkHover('phone')}
+            href="mailto:publicuj@gmail.com"
+            className={`footer-support-link ${hoveredLink === 'email' ? 'hovered' : ''}`}
+            onMouseEnter={() => handleLinkHover('email')}
             onMouseLeave={handleLinkLeave}
           >
-            <i className={`fas fa-phone-alt footer-support-icon ${hoveredLink === 'phone' ? 'hovered' : ''}`}></i>
-            Call for Support
-          </a>
-          
-          <a 
-            href="sms:+12015099485"
-            className={`footer-support-link ${hoveredLink === 'text' ? 'hovered' : ''}`}
-            onMouseEnter={() => handleLinkHover('text')}
-            onMouseLeave={handleLinkLeave}
-          >
-            <i className={`fas fa-comment-alt footer-support-icon ${hoveredLink === 'text' ? 'hovered' : ''}`}></i>
-            Text for Support
+            <i className={`fas fa-envelope footer-support-icon ${hoveredLink === 'email' ? 'hovered' : ''}`}></i>
+            Email for Support
           </a>
         </div>
       </footer> 

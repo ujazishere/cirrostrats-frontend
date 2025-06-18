@@ -3,6 +3,8 @@
  * Shows flight status, scheduled and actual departure times
  */
 import React, { useEffect, useRef } from 'react';
+import Input from "../components/Input/Index"; // Ensure this path is correct
+
 
 /**
  * Component to display departure information for a specific gate
@@ -79,6 +81,12 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
 
   return (
     <div className="gate-card-container">
+      {/* Search Input Component at the top with the same styling as combined.jsx | DO NOT DELETE THIS CODE */}
+       {showSearchBar && ( 
+        <div className="combined-search" ref={searchContainerRef}>
+         <Input userEmail="user@example.com" isLoggedIn={true} />
+        </div>
+    )}
       <div className="gate-card">
         <table className="departure-table">
           <thead>
