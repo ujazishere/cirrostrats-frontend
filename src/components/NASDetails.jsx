@@ -18,10 +18,12 @@ import React, { useState, useEffect } from "react";
 
 const NASDetails = ({ nasResponse, title = "NAS Status" }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  // TODO TEST: NAS response can be shady: build integration tests, any new data available should be tested here. for formatteing error and integration issues.
+
   // Helper function to check if NAS data is available
   const hasNasData = (nasResponse) => {
     if (!nasResponse) return false;
-    
+    // Prioritize checking nasResponse.data if it's an array
     // Check if nasResponse has meaningful data
     if (Array.isArray(nasResponse)) {
       return nasResponse.length > 0;

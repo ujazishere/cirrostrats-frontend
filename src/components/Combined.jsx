@@ -162,7 +162,7 @@ const FlightCard = ({flightData, weather, NAS}) => {
         {/* Using the new SummaryTable component */}
         <SummaryTable flightData={flightData} />
       </div>
-
+      {/* TODO ismail: This is where Route and clearance belongs. Move it from tab to here. */}
       {/* Using the new TabFormat component instead of WeatherTabs */}
       <TabFormat 
         flightData={flightData} 

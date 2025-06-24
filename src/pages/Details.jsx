@@ -4,7 +4,7 @@ import axios from "axios";
 import UTCTime from "../components/UTCTime";
 import NASDetails from "../components/NASDetails";
 import Input from "../components/Input/Index"; // Ensure this path is correct
-import WeatherCard from "../components/WeatherCard"
+import AirportCard from "../components/AirportCard"
 import { FlightCard, GateCard } from "../components/Combined";
 import { LoadingFlightCard } from "../components/Skeleton";
 import useAirportData from "../components/AirportData"; // Import the new custom hook
@@ -73,6 +73,7 @@ const Details = () => {
           setFlightData(res.data.flightData || res.data);
           setWeatherResponseFlight(res.data.weather || res.data);
           setNasResponseFlight(res.data.NAS || res.data);
+          console.log(res.data.NAS);
           // If test data needs to provide airportWx or gateData, it should be set here too.
           // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
           setLoadingFlightData(false);
@@ -256,9 +257,10 @@ const Details = () => {
         {/* airportCard for airport lookups */}
         {isAirportSearch && airportWx &&(
           <>
-          <NASDetails nasResponse={nasResponseAirport} title=" NAS Status" />
-          <WeatherCard 
-            weatherDetails={airportWx} />
+          {/* <NASDetails nasResponse={nasResponseAirport} title=" NAS Status" /> */}
+          <AirportCard 
+            weatherDetails={airportWx}
+            nasResponseAirport={nasResponseAirport} />
           </>
         )}
 

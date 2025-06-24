@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSwipeable } from 'react-swipeable';
-import WeatherCard from './WeatherCard';
+import AirportCard from './AirportCard';
 import NASDetails from "./NASDetails";
 import RoutePanel from "./RoutePanel";
 
@@ -16,6 +16,7 @@ const TabFormat = ({
   const departure_alternate_weather = weather.departureAlternateWeatherLive
   const arrival_alternate_weather = weather.arrivalAlternateWeatherLive
   // TODO: priority should be mdb and if live is available then live.
+
   // NAS for airports
   const nasDepartureResponse = NAS.departureNAS;
   const nasDestinationResponse = NAS.arrivalNAS;
@@ -216,6 +217,7 @@ const TabFormat = ({
 
   return (
     <div className="weather-container">
+      {/* TODO: This route section should not be here since this file is dedicated for tab format*/}
       {/* Route section - now outside of tabs */}
       <div className="route-section">
         <RoutePanel flightData={flightData} />
@@ -339,7 +341,7 @@ const TabFormat = ({
               </div>
 
               <NASDetails nasResponse={nasDepartureAlternateResponse} title=" NAS Status - Departure" />
-              <WeatherCard
+              <AirportCard
                 weatherDetails={departure_alternate_weather}
                 showSearchBar={!hideChildSearchBars} />
             </div>
@@ -355,7 +357,7 @@ const TabFormat = ({
               </div>
               
               <NASDetails nasResponse={nasDepartureResponse} title=" NAS Status - Departure" />
-              <WeatherCard
+              <AirportCard
                 weatherDetails={dep_weather}
                 showSearchBar={!hideChildSearchBars} />
             </div>
@@ -371,7 +373,7 @@ const TabFormat = ({
               </div>
 
               <NASDetails nasResponse={nasDestinationResponse} title=" NAS Status - Departure" />
-              <WeatherCard
+              <AirportCard
                 weatherDetails={dest_weather}
                 showSearchBar={!hideChildSearchBars} />
             </div>
@@ -390,7 +392,7 @@ const TabFormat = ({
               </div>
 
               <NASDetails nasResponse={nasDestinationAlternateResponse} title=" NAS Status - Departure" />
-              <WeatherCard
+              <AirportCard
                 weatherDetails={arrival_alternate_weather}
                 showSearchBar={!hideChildSearchBars} />
             </div>

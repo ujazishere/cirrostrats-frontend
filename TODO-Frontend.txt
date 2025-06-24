@@ -1,30 +1,4 @@
-Practice readibility and simplicity, aviod code duplication.
-Include description and documentation every step of the way please.
-
-**FRONTEND:   use command shift f to find targetted tasks - "TODO: is"
+Tests:
+    search dropdown
+        sti, exhaustion - on homepage, on airport lookup, flight lookup and terminal lookup.
     
-
-    *Luis - Saving searchbar queries - users,timestamp to database/collection. Give ability to login using facebook/email etc as well.
-        Basically the feature will be like this user can login and then we can save their searched queries in the database so we can load the most searched query faster (preloaded) or something like that
-    
-    
-    *Unassigned:
-        Investigate and find a fix for components being rendered multiple times
-        
-
-    
-    
-    DONE! Media queries for mobile vs desktop view. use css media queries. Check bootstrap navbar. Target screens(IPAD, smaller, etc)
-        make side bar
-    DONE! VVI: Details.jsx need if statement to check if searchvalue is an object then request data through airport route, otherwise request other route for rawQuery rocessing
-    DONE! account for nas alongside weather- in airport lookup query
-    DONE! integrate user auth for login through google/facebook/email etc.
-    DONE! Fix searchbar keystrokes disappearing.
-    DONE! implement show and hide feature for departure and destination boxes on flight_deet page
-    DONE! Make all pages in Menu bar symmetric.
-    DONE! Make dark mode switch symmetric
-    DONE! Make the flight deet page more like the google flight packet. search `i 492` to view the flight deet
-    DONE! Use Dark mode across the web.
-    DONE! Make seperate css for templates/dj_app/base.html instead of having it within the base.html. Its not a good practive to have styling within html. 
-    DONE! add activator() scrape to include data from few hours later since its currently only showing 6am, 12pm and 6pm.
-    DONE! Include ground stop information.

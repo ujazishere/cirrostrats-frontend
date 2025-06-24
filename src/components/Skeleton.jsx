@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
-// LoadingWeatherCard: Displays a skeleton loader for weather-related information
-export const LoadingWeatherCard = () => (
+// LoadingAirportCard: Displays a skeleton loader for weather-related information
+export const LoadingAirportCard = () => (
   <div className="skeleton-section shimmer-container">
     {/* D-ATIS Section Skeleton */}
     <div className="skeleton-header">
@@ -73,7 +73,7 @@ export const LoadingFlightCard = () => {
           <div className="skeleton-tab shimmer-element"></div>
           <div className="skeleton-tab shimmer-element"></div>
         </div>
-        <LoadingWeatherCard />
+        <LoadingAirportCard />
       </div>
     </div>
   );
@@ -126,6 +126,6 @@ const initShimmerEffect = () => {
 };
 
 export default {
-  LoadingWeatherCard,
+  LoadingAirportCard: LoadingAirportCard,
   LoadingFlightCard
 };

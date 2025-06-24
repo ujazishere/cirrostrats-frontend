@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import Input from "../components/Input/Index"; // Ensure this path is correct
+import Input from "./Input/Index"; // Ensure this path is correct
 
 /**
  * Component to display weather information including D-ATIS, METAR, and TAF
@@ -9,7 +9,7 @@ import Input from "../components/Input/Index"; // Ensure this path is correct
  * @param {Object} props.weatherDetails - Weather data object
  * @param {boolean} props.showSearchBar - Whether to show the search bar (default true)
  */
-const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => {
+const AirportCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => {
   const datis = weatherDetails?.datis;
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;
@@ -84,4 +84,4 @@ const WeatherCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
   );
 };
 
-export default WeatherCard;
+export default AirportCard;
