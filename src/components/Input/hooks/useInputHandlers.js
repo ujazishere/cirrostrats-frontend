@@ -71,6 +71,8 @@ const useInputHandlers = () => {
       title2: ".hero-title-2",
       navlinks: ".nav-links-container",
       clearrrr: ".route-tab-content",
+      nas: ".nas-section",
+
     };
 
     Object.entries(elements).forEach(([key, selector]) => {
@@ -107,6 +109,7 @@ const useInputHandlers = () => {
           title2: ".hero-title-2",
           navlinks: ".nav-links-container",
           clearrrr: ".route-tab-content",
+          nas: ".nas-section",
 
         };
 
