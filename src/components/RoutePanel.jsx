@@ -12,14 +12,14 @@ const RoutePanel = ({ flightData }) => {
         <h3 className="weather-tab-title">
           Route
         </h3>
-        {flightData?.route ? (
+        {(flightData?.fa_route || flightData?.route) ? (
           <>
             <div className="route-display">
               <div className="card-body">
               <div className="data-content">{flightData.fa_route || flightData.route}</div>
-                {flightData?.fa_sv && (
+                {(flightData?.fa_sv || flightData?.faa_skyvector) && (
                   <div className="route-actions">
-                    <a href={flightData.fa_sv} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
+                    <a href={flightData.fa_sv || flightData.faa_skyvector} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
                       View on SkyVector
                     </a>
                   </div>

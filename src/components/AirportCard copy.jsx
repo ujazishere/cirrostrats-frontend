@@ -13,10 +13,10 @@ const AirportCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
   const datis = weatherDetails?.datis;
   const metar = weatherDetails?.metar;
   const taf = weatherDetails?.taf;
-  
+
   // Reference for the search container
   const searchContainerRef = useRef(null);
-  
+
   // Apply the same styling as in combined.jsx
   useEffect(() => {
     // Apply custom styling to the search container specifically for this page
@@ -39,7 +39,7 @@ const AirportCard = ({ arrow, title, weatherDetails, showSearchBar = true }) => 
           <Input userEmail="user@example.com" isLoggedIn={true} />
         </div>
       )}
-      
+
       <div className="weather-cards">
         {/* D-ATIS Card */}
         <div className="weather-card">
