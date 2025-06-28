@@ -20,67 +20,78 @@ import React from 'react';
 const SummaryTable = ({ flightData }) => {
   return (
     <div className="flight-info-container">
-      {/* Departure Airport Information */}
-      <div className="airport-section">
-        <div className="airport-code">{flightData?.departure || 'N/A'}</div>
-        <br />
-        <div className="info-item">
-          <div className="info-label">Gate</div>
-          <div className="info-value">{flightData?.flightViewDepartureGate || 'N/A'}</div>
+      {/* Top Header Section: Flight, Tail Number, Aircraft */}
+      <div className="flight-header-section">
+        <div className="flight-header-item">
+          <span className="flight-header-label">Flight</span>
+          <h2 className="flight-number-text">{flightData?.flightID || 'N/A'}</h2>
         </div>
-        <br />
-        <div className="info-item">
-          <div className="info-label">Scheduled Local</div>
-          <div className="time-value">{flightData?.flightStatsScheduledDepartureTime || 'N/A'}</div>
+        <div className="flight-header-item">
+          <span className="flight-header-label">Tail Number</span>
+          <span className="aircraft-number">{flightData?.registration || 'N/A'}</span>
         </div>
-        <br />
-        <div className="info-grid">
+        <div className="flight-header-item">
+          <span className="flight-header-label">Aircraft</span>
+          <span className="aircraft-type">{flightData?.aircraftType || 'N/A'}</span>
+        </div>
+      </div>
+
+      {/* Airport Codes with Arrow (Departure on left, Arrow in middle, Arrival on right) */}
+      <div className="airport-codes-section">
+        <div className="airport-code-large">{flightData?.departure || 'N/A'}</div>
+        <div className="arrow-icon">→</div>
+        <div className="airport-code-large">{flightData?.arrival || 'N/A'}</div>
+      </div>
+
+      {/* Main Flight Details: Gates and Scheduled Local Times */}
+      <div className="flight-details-grid">
+        {/* Departure Details */}
+        <div className="departure-details">
           <div className="info-item">
-            <div className="info-label">Scheduled Out</div>
-            {/* This scheduled_in time is from flightAware.
-            TODO: need to change name to flightAwareScheduledIn. */}
-            <div className="info-value">{flightData?.fa_scheduled_out || 'N/A'}</div>
+            <div className="info-label">Gate</div>
+            <div className="info-value">{flightData?.flightViewDepartureGate || 'N/A'}</div>
+          </div>
+          <div className="info-item">
+            <div className="info-label">Scheduled Local</div>
+            <div className="time-value">{flightData?.flightStatsScheduledDepartureTime || 'N/A'}</div>
           </div>
         </div>
-        <br />
-        <div className="info-grid">
+
+        {/* Arrival Details */}
+        <div className="arrival-details">
           <div className="info-item">
-            <div className="info-label">Estimated Out</div>
-            {/* This scheduled_in time is from flightAware.
-            TODO: need to change name to flightAwareScheduledIn. */}
-            <div className="info-value">{flightData?.fa_estimated_out || 'N/A'}</div>
+            <div className="info-label">Gate</div>
+            <div className="info-value">{flightData?.flightViewArrivalGate || 'N/A'}</div>
+          </div>
+          <div className="info-item">
+            <div className="info-label">Scheduled Local</div>
+            <div className="time-value">{flightData?.flightStatsScheduledArrivalTime || 'N/A'}</div>
           </div>
         </div>
       </div>
 
-      {/* Destination Airport Information */}
-      <div className="airport-section">
-        <div className="airport-code">{flightData?.arrival || 'N/A'}</div>
-        <br />
-        <div className="info-item">
-          <div className="info-label">Gate</div>
-          <div className="info-value">{flightData?.flightViewArrivalGate || 'N/A'}</div>
-        </div>
-        <br />
-        <div className="info-item">
-          <div className="info-label">Scheduled Local</div>
-          <div className="time-value">{flightData?.flightStatsScheduledArrivalTime || 'N/A'}</div>
-        </div>
-        <br />
-        <div className="info-grid">
+      {/* Scheduled/Estimated Times Section */}
+      <div className="scheduled-estimated-grid">
+        {/* Departure Out Times */}
+        <div className="departure-out-times">
           <div className="info-item">
-            <div className="info-label">Scheduled In</div>
-            {/* This scheduled_out time is from flightAware.
-            TODO: Need to change name to flightAwareScheduledOut. */}
-            <div className="info-value">{flightData?.fa_scheduled_in || 'N/A'}</div>
+            <div className="info-label">Scheduled Out</div>
+            <div className="info-value">{flightData?.flightAwareScheduledOut || 'N/A'}</div> {/* Renamed */}
+          </div>
+          <div className="info-item">
+            <div className="info-label">Estimated Out</div>
+            <div className="info-value">{flightData?.fa_estimated_out || 'N/A'}</div>
           </div>
         </div>
-        <br />
-        <div className="info-grid">
+
+        {/* Arrival In Times */}
+        <div className="arrival-in-times">
+          <div className="info-item">
+            <div className="info-label">Scheduled In</div>
+            <div className="info-value">{flightData?.flightAwareScheduledIn || 'N/A'}</div> {/* Renamed */}
+          </div>
           <div className="info-item">
             <div className="info-label">Estimated In</div>
-            {/* This scheduled_out time is from flightAware.
-            TODO: Need to change name to flightAwareScheduledOut. */}
             <div className="info-value">{flightData?.fa_estimated_in || 'N/A'}</div>
           </div>
         </div>

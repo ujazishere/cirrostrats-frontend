@@ -36,6 +36,364 @@
 
 
 
+/* Base container styling for the entire table */
+.flight-info-container {
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.5) !important;
+    padding: 24px !important;
+    margin: 20px auto !important;
+    max-width: 800px !important; /* Slightly reduced max-width to make the table smaller */
+    font-family: 'Inter', sans-serif !important;
+    color: #333 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important; /* Space between major sections */
+}
+
+/* Header section (Flight, Tail Number, Aircraft) */
+.flight-header-section {
+    display: flex !important;
+    justify-content: space-between !important; /* Distribute items with space between them */
+    align-items: flex-start !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    padding-bottom: 15px !important;
+    width: 100% !important; /* Ensure it takes full width of its container */
+}
+
+.flight-header-item {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important; /* Allows each item to take equal available space */
+    min-width: 0 !important; /* Prevent content from overflowing flex item */
+}
+
+/* Flight - Left aligned */
+.flight-header-item:nth-child(1) {
+    align-items: flex-start !important;
+    text-align: left !important;
+}
+
+/* Tail Number - Center aligned (as it's general info) */
+.flight-header-item:nth-child(2) {
+    align-items: center !important;
+    text-align: center !important;
+}
+
+/* Aircraft - Right aligned */
+.flight-header-item:nth-child(3) {
+    align-items: flex-end !important;
+    text-align: right !important;
+}
+
+.flight-header-label {
+    font-size: 0.85rem !important;
+    color: #666 !important;
+    margin-bottom: 5px !important;
+    text-transform: uppercase !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important; /* Prevent label wrapping */
+}
+
+.flight-number-text {
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+    margin: 0 !important;
+    white-space: nowrap !important; /* Prevent flight number wrapping */
+}
+
+.aircraft-number,
+.aircraft-type {
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+    margin-top: 2px !important; /* Align with flight number visually */
+    white-space: nowrap !important; /* Prevent text wrapping */
+}
+
+/* Airport Codes and Arrow Section */
+.airport-codes-section {
+    display: flex !important;
+    justify-content: space-between !important; /* Push departure to left, arrival to right */
+    align-items: center !important;
+    gap: 5px !important; /* Reduced gap to allow codes to push out */
+    padding: 15px 0 !important;
+}
+
+.airport-code-large {
+    font-size: 2.5rem !important; /* Larger font size for airport codes */
+    font-weight: 800 !important;
+    color: #000 !important;
+    letter-spacing: -1px !important;
+    flex-shrink: 0 !important; /* Prevent shrinking */
+    flex-grow: 0 !important; /* Prevent growing */
+}
+
+/* Departure airport code on the left */
+.airport-codes-section .airport-code-large:first-child {
+    margin-right: auto !important; /* Push it to the left */
+}
+
+/* Arrival airport code on the right */
+.airport-codes-section .airport-code-large:last-child {
+    margin-left: auto !important; /* Push it to the right */
+}
+
+.arrow-icon {
+    font-size: 2.5rem !important;
+    color: #007bff !important; /* Blue color for arrow */
+    font-weight: 600 !important;
+    flex-shrink: 0 !important; /* Prevent shrinking */
+    flex-grow: 0 !important; /* Prevent growing */
+    margin: 0 10px !important; /* Small margin around arrow */
+}
+
+/* Main Flight Details Grid (Gates and Scheduled Local Times) */
+.flight-details-grid {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 20px !important; /* Space between departure and arrival columns */
+    border-top: 1px solid #e0e0e0 !important;
+    padding-top: 20px !important;
+}
+
+/* Departure Details - Left aligned */
+.departure-details {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    gap: 10px !important; /* Space between info items within a column */
+    align-items: flex-start !important;
+    text-align: left !important;
+}
+
+/* Arrival Details - Right aligned */
+.arrival-details {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    gap: 10px !important; /* Space between info items within a column */
+    align-items: flex-end !important;
+    text-align: right !important;
+}
+
+.info-item {
+    display: flex !important;
+    flex-direction: column !important;
+    /* Alignment is handled by parent .departure-details or .arrival-details */
+}
+
+.info-label {
+    font-size: 0.8rem !important;
+    color: #666 !important;
+    text-transform: uppercase !important;
+    font-weight: 500 !important;
+    margin-bottom: 3px !important;
+}
+
+.info-value,
+.time-value {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #000 !important;
+    white-space: nowrap !important; /* Prevent time values from wrapping */
+}
+
+/* Scheduled/Estimated Times Section */
+.scheduled-estimated-grid {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 20px !important;
+    border-top: 1px solid #e0e0e0 !important;
+    padding-top: 20px !important;
+}
+
+/* Departure Out Times - Left aligned */
+.departure-out-times {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+}
+
+/* Arrival In Times - Right aligned */
+.arrival-in-times {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    gap: 10px !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+}
+
+/* Clearance Section Styling (as per original request, not heavily modified) */
+.flight-clearance-container {
+  background-color: #f8f8f8 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 8px !important;
+  padding: 15px !important;
+  margin-top: 20px !important;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05) !important;
+  font-family: 'Inter', sans-serif !important;
+  color: #333 !important;
+}
+
+.clearance-title {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #555 !important;
+  margin-bottom: 8px !important;
+  text-transform: uppercase !important;
+}
+
+.clearance-content {
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+  color: #444 !important;
+  white-space: pre-wrap !important; /* Preserves formatting from the data */
+}
+
+/* Responsive adjustments for smaller screens (mobile) */
+@media (max-width: 600px) {
+    .flight-info-container {
+        padding: 15px !important;
+        margin: 10px auto !important;
+        max-width: 98% !important; /* Allow wider on mobile */
+        width: calc(100% - 20px) !important;
+        box-sizing: border-box !important;
+        gap: 15px !important;
+    }
+
+    .flight-header-section {
+        flex-wrap: nowrap !important; /* Prevent header items from wrapping on mobile */
+        justify-content: space-between !important;
+        padding-bottom: 10px !important;
+        gap: 0 !important; /* No gap between header items, let flex distribute */
+    }
+
+    .flight-header-item {
+        flex: 1 1 33% !important; /* Try to give equal space to each of the 3 items */
+        min-width: 0 !important; /* Allow content to shrink within item */
+        padding: 0 5px !important; /* Add some padding internally */
+    }
+
+    /* Flight - Left aligned on mobile */
+    .flight-header-item:nth-child(1) {
+        align-items: flex-start !important;
+        text-align: left !important;
+    }
+
+    /* Tail Number - Center aligned on mobile */
+    .flight-header-item:nth-child(2) {
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    /* Aircraft - Right aligned on mobile */
+    .flight-header-item:nth-child(3) {
+        align-items: flex-end !important;
+        text-align: right !important;
+    }
+
+    .flight-header-label {
+        font-size: 0.65rem !important; /* Smaller label font */
+    }
+
+    .flight-number-text,
+    .aircraft-number,
+    .aircraft-type {
+        font-size: 0.9rem !important;
+    }
+
+    .airport-codes-section {
+        justify-content: space-between !important; /* Ensure codes are pushed to ends */
+        gap: 5px !important;
+        padding: 10px 0 !important;
+    }
+
+    .airport-code-large {
+        font-size: 1.6rem !important; /* Smaller airport codes */
+        letter-spacing: -0.5px !important;
+    }
+
+    .arrow-icon {
+        font-size: 1.6rem !important;
+    }
+
+    .flight-details-grid,
+    .scheduled-estimated-grid {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+        padding-top: 15px !important;
+    }
+
+    /* Departure Details - Left aligned on mobile */
+    .departure-details,
+    .departure-out-times {
+        flex: 1 !important;
+        min-width: 48% !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        gap: 5px !important;
+    }
+
+    /* Arrival Details - Right aligned on mobile */
+    .arrival-details,
+    .arrival-in-times {
+        flex: 1 !important;
+        min-width: 48% !important;
+        align-items: flex-end !important;
+        text-align: right !important;
+        gap: 5px !important;
+    }
+
+    .info-label {
+        font-size: 0.7rem !important;
+    }
+
+    .info-value,
+    .time-value {
+        font-size: 0.9rem !important;
+        white-space: nowrap !important; /* Ensure time values don't wrap */
+    }
+}
+
+/* Further adjustments for very small screens if needed (e.g., width < 320px) */
+@media (max-width: 375px) {
+    .flight-info-container {
+        padding: 10px !important;
+        gap: 10px !important;
+    }
+
+    .airport-code-large,
+    .arrow-icon {
+        font-size: 1.3rem !important; /* Even smaller font for very narrow screens */
+    }
+
+    .flight-header-label {
+        font-size: 0.6rem !important;
+    }
+
+    .flight-number-text,
+    .aircraft-number,
+    .aircraft-type {
+        font-size: 0.8rem !important;
+    }
+
+    .info-label {
+        font-size: 0.6rem !important;
+    }
+
+    .info-value,
+    .time-value {
+        font-size: 0.8rem !important;
+    }
+}
+
 
 
 

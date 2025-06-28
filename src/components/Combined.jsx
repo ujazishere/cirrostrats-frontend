@@ -152,12 +152,8 @@ const FlightCard = ({flightData, weather, NAS}) => {
       </div>
 
       {/* Flight Overview Section */}
-      <div className="flight-details-card">
-        <div className="flight-number">
-          <h2 className="flight-number-text">{flightData?.flightID}</h2>
-          <span className="aircraft-number">{flightData?.registration}</span>
-          <span className="aircraft-type">{flightData?.aircraftType}</span>
-        </div>
+      <div>
+
 
         {/* Using the new SummaryTable component */}
         <SummaryTable flightData={flightData} />
