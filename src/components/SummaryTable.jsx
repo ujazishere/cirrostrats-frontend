@@ -18,55 +18,80 @@ import React from 'react';
  * @param {Object} props.flightData - Flight information with departure and destination details
  */
 const SummaryTable = ({ flightData }) => {
+  // Helper function to check if a value exists and is not empty
+  const hasValue = (value) => {
+    return value && value.toString().trim() !== '' && value !== 'N/A';
+  };
+
   return (
     <div className="flight-info-container">
       {/* Top Header Section: Flight, Tail Number, Aircraft */}
       <div className="flight-header-section">
-        <div className="flight-header-item">
-          <span className="flight-header-label">Flight</span>
-          <h2 className="flight-number-text">{flightData?.flightID || 'N/A'}</h2>
-        </div>
-        <div className="flight-header-item">
-          <span className="flight-header-label">Tail Number</span>
-          <span className="aircraft-number">{flightData?.registration || 'N/A'}</span>
-        </div>
-        <div className="flight-header-item">
-          <span className="flight-header-label">Aircraft</span>
-          <span className="aircraft-type">{flightData?.aircraftType || 'N/A'}</span>
-        </div>
+        {hasValue(flightData?.flightID) && (
+          <div className="flight-header-item">
+            <span className="flight-header-label">Flight</span>
+            <h2 className="flight-number-text">{flightData.flightID}</h2>
+          </div>
+        )}
+        {hasValue(flightData?.registration) && (
+          <div className="flight-header-item">
+            <span className="flight-header-label">Tail Number</span>
+            <span className="aircraft-number">{flightData.registration}</span>
+          </div>
+        )}
+        {hasValue(flightData?.aircraftType) && (
+          <div className="flight-header-item">
+            <span className="flight-header-label">Aircraft</span>
+            <span className="aircraft-type">{flightData.aircraftType}</span>
+          </div>
+        )}
       </div>
 
       {/* Airport Codes with Arrow (Departure on left, Arrow in middle, Arrival on right) */}
-      <div className="airport-codes-section">
-        <div className="airport-code-large">{flightData?.departure || 'N/A'}</div>
-        <div className="arrow-icon">→</div>
-        <div className="airport-code-large">{flightData?.arrival || 'N/A'}</div>
-      </div>
+      {(hasValue(flightData?.departure) || hasValue(flightData?.arrival)) && (
+        <div className="airport-codes-section">
+          {hasValue(flightData?.departure) && (
+            <div className="airport-code-large">{flightData.departure}</div>
+          )}
+          <div className="arrow-icon">→</div>
+          {hasValue(flightData?.arrival) && (
+            <div className="airport-code-large">{flightData.arrival}</div>
+          )}
+        </div>
+      )}
 
       {/* Main Flight Details: Gates and Scheduled Local Times */}
       <div className="flight-details-grid">
         {/* Departure Details */}
         <div className="departure-details">
-          <div className="info-item">
-            <div className="info-label">Gate</div>
-            <div className="info-value">{flightData?.flightViewDepartureGate || 'N/A'}</div>
-          </div>
-          <div className="info-item">
-            <div className="info-label">Scheduled Local</div>
-            <div className="time-value">{flightData?.flightStatsScheduledDepartureTime || 'N/A'}</div>
-          </div>
+          {hasValue(flightData?.flightViewDepartureGate) && (
+            <div className="info-item">
+              <div className="info-label">Gate</div>
+              <div className="info-value">{flightData.flightViewDepartureGate}</div>
+            </div>
+          )}
+          {hasValue(flightData?.flightStatsScheduledDepartureTime) && (
+            <div className="info-item">
+              <div className="info-label">Scheduled Local</div>
+              <div className="time-value">{flightData.flightStatsScheduledDepartureTime}</div>
+            </div>
+          )}
         </div>
 
         {/* Arrival Details */}
         <div className="arrival-details">
-          <div className="info-item">
-            <div className="info-label">Gate</div>
-            <div className="info-value">{flightData?.flightViewArrivalGate || 'N/A'}</div>
-          </div>
-          <div className="info-item">
-            <div className="info-label">Scheduled Local</div>
-            <div className="time-value">{flightData?.flightStatsScheduledArrivalTime || 'N/A'}</div>
-          </div>
+          {hasValue(flightData?.flightViewArrivalGate) && (
+            <div className="info-item">
+              <div className="info-label">Gate</div>
+              <div className="info-value">{flightData.flightViewArrivalGate}</div>
+            </div>
+          )}
+          {hasValue(flightData?.flightStatsScheduledArrivalTime) && (
+            <div className="info-item">
+              <div className="info-label">Scheduled Local</div>
+              <div className="time-value">{flightData.flightStatsScheduledArrivalTime}</div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -74,26 +99,34 @@ const SummaryTable = ({ flightData }) => {
       <div className="scheduled-estimated-grid">
         {/* Departure Out Times */}
         <div className="departure-out-times">
-          <div className="info-item">
-            <div className="info-label">Scheduled Out</div>
-            <div className="info-value">{flightData?.flightAwareScheduledOut || 'N/A'}</div> {/* Renamed */}
-          </div>
-          <div className="info-item">
-            <div className="info-label">Estimated Out</div>
-            <div className="info-value">{flightData?.fa_estimated_out || 'N/A'}</div>
-          </div>
+          {hasValue(flightData?.flightAwareScheduledOut) && (
+            <div className="info-item">
+              <div className="info-label">Scheduled Out</div>
+              <div className="info-value">{flightData.flightAwareScheduledOut}</div>
+            </div>
+          )}
+          {hasValue(flightData?.fa_estimated_out) && (
+            <div className="info-item">
+              <div className="info-label">Estimated Out</div>
+              <div className="info-value">{flightData.fa_estimated_out}</div>
+            </div>
+          )}
         </div>
 
         {/* Arrival In Times */}
         <div className="arrival-in-times">
-          <div className="info-item">
-            <div className="info-label">Scheduled In</div>
-            <div className="info-value">{flightData?.flightAwareScheduledIn || 'N/A'}</div> {/* Renamed */}
-          </div>
-          <div className="info-item">
-            <div className="info-label">Estimated In</div>
-            <div className="info-value">{flightData?.fa_estimated_in || 'N/A'}</div>
-          </div>
+          {hasValue(flightData?.flightAwareScheduledIn) && (
+            <div className="info-item">
+              <div className="info-label">Scheduled In</div>
+              <div className="info-value">{flightData.flightAwareScheduledIn}</div>
+            </div>
+          )}
+          {hasValue(flightData?.fa_estimated_in) && (
+            <div className="info-item">
+              <div className="info-label">Estimated In</div>
+              <div className="info-value">{flightData.fa_estimated_in}</div>
+            </div>
+          )}
         </div>
       </div>
     </div>
