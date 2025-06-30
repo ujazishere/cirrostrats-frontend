@@ -46,7 +46,7 @@
     max-width: 800px !important; /* Slightly reduced max-width to make the table smaller */
     font-family: 'Inter', sans-serif !important;
     color: #333 !important;
-    display: flex !important;
+    display: flex ;
     flex-direction: column !important;
     gap: 20px !important; /* Space between major sections */
 }

@@ -72,6 +72,7 @@ const useInputHandlers = () => {
       navlinks: ".nav-links-container",
       clearrrr: ".route-tab-content",
       nas: ".nas-section",
+      flightInfoContainer: ".flight-info-container",
 
     };
 
@@ -110,6 +111,7 @@ const useInputHandlers = () => {
           navlinks: ".nav-links-container",
           clearrrr: ".route-tab-content",
           nas: ".nas-section",
+          flightInfoContainer: ".flight-info-container",
 
         };
 
