@@ -5,11 +5,29 @@
 <meta charset="UTF-8" />
 <link rel="icon" type="image/svg+xml" href="/vite.svg" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
 <!-- Cache Busting Meta Tags -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+
+<!-- Google tag (gtag.js) - Add your Measurement ID here -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FNDF88NB5Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-FNDF88NB5Z', {
+    // Enhanced measurement settings
+    send_page_view: true,
+    allow_google_signals: true,
+    allow_ad_personalization_signals: true,
+    // Track scroll depth
+    custom_map: {'custom_parameter_1': 'scroll_depth'},
+    // Enable enhanced ecommerce (if you have a store)
+    // enable_enhanced_ecommerce: true,
+  });
+</script>
 
 <link
 rel="stylesheet"
