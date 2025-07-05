@@ -92,6 +92,8 @@ const SummaryTable = ({ flightData, EDCT }) => {
           )}
         </div>
 
+        <EDCTSection edctData={EDCT} />
+
         {/* Airport Codes with Arrow (Departure on left, Arrow in middle, Arrival on right) */}
         {(hasValue(flightData?.departure) || hasValue(flightData?.arrival)) && (
           <div className="airport-codes-section">
@@ -176,8 +178,6 @@ const SummaryTable = ({ flightData, EDCT }) => {
         </div>
       </div>
 
-      {/* Render the new EDCT Section */}
-      <EDCTSection edctData={EDCT} />
     </>
   );
 };
