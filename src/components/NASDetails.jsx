@@ -68,7 +68,7 @@ const NASDetails = ({ nasResponse, title = "NAS Status" }) => {
         onClick={() => setIsExpanded(!isExpanded)}
         style={{ cursor: 'pointer' }}
       >
-        <h3 className="weather-tab-title">
+        <h3 className="nas-tab-title">
           {title}
           <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>
             {isExpanded ? '▼' : '▶'}

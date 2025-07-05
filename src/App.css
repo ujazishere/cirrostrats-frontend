@@ -1432,6 +1432,11 @@ body {
   margin: 0;
 }
 
+.nas-tab-title {
+  font-size: 18px;
+  margin: 0;
+}
+
 .clearance-tab-title {
   font-size: 18px;
   margin: 0;
@@ -1906,6 +1911,14 @@ footer {
   padding-bottom: 10px;
 }
 
+.nas-tab-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fa6767;
+  margin: 0;
+  padding-bottom: 10px;
+}
+
 .clearance-tab-title {
   font-size: 16px;
   font-weight: 600;
@@ -2092,6 +2105,10 @@ footer {
   }
   
   .weather-tab-title {
+    font-size: 14px;
+  }
+
+  .nas-tab-title {
     font-size: 14px;
   }
 
