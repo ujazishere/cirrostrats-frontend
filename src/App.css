@@ -915,6 +915,12 @@ body {
   box-sizing: border-box;
 }
 
+.clearance-body {
+  padding: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* Data content styling - IMPORTANT CHANGES HERE */
 .data-content {
   font-family: 'Roboto Mono', monospace;
@@ -928,6 +934,22 @@ body {
   max-width: 100%;
   display: block;
   text-align: left;
+}
+
+.clearance-content {
+  font-family: 'Roboto Mono', monospace;
+  line-height: 1.6;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 18px;
+  color: #222;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+  max-width: 100%;
+  display: block;
+  text-align: left;
+  padding: 0 2px;
+  border-radius: 2px;
 }
 
 /* Highlighted text styling */
@@ -952,6 +974,10 @@ body {
   }
   
   .card-body {
+    padding: 10px;
+  }
+
+  .clearance-body {
     padding: 10px;
   }
   
@@ -1406,6 +1432,11 @@ body {
   margin: 0;
 }
 
+.clearance-tab-title {
+  font-size: 18px;
+  margin: 0;
+}
+
 @media (max-width: 768px) {
   .weather-tab-button {
     padding: 12px 8px;
@@ -1537,6 +1568,10 @@ body {
 }
 
 .card-body {
+  padding: 1.5rem;
+}
+
+.clearance-body {
   padding: 1.5rem;
 }
 
@@ -1871,6 +1906,14 @@ footer {
   padding-bottom: 10px;
 }
 
+.clearance-tab-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  padding-bottom: 10px;
+}
+
 .no-weather-data {
   padding: 24px;
   text-align: center;
@@ -1887,6 +1930,13 @@ footer {
 }
 
 .route-display {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.clearance-display {
   background-color: #f8f9fa;
   border-radius: 6px;
   border: 1px solid #e0e0e0;
@@ -2042,6 +2092,10 @@ footer {
   }
   
   .weather-tab-title {
+    font-size: 14px;
+  }
+
+  .clearance-tab-title {
     font-size: 14px;
   }
 }

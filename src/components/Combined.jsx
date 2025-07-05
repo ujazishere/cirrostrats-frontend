@@ -150,11 +150,8 @@ const FlightCard = ({flightData, weather, NAS}) => {
         <Input userEmail="user@example.com" 
           isLoggedIn={true} />
       </div>
-
       {/* Flight Overview Section */}
       <div>
-
-
         {/* Using the new SummaryTable component */}
         <SummaryTable flightData={flightData} />
       </div>

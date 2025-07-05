@@ -146,15 +146,7 @@ const ClearanceSection = ({ flightData }) => {
     return null; // Don't render anything if no clearance data
   }
 
-  return (
-    <div className="flight-clearance-container"> {/* Changed class for potential distinct styling */}
-      <h3 className="clearance-title">Clearance</h3>
-      <div className="clearance-content">{flightData.clearance}</div>
-    </div>
-  );
 };
 
-// You can export ClearanceSection as a named export if you want to use it elsewhere
-// export { ClearanceSection };
 
 export default SummaryTable;
