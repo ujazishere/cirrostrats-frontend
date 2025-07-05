@@ -34,6 +34,9 @@ const Details = () => {
   const [loadingGateData, setLoadingGateData] = useState(false);
   const [gateError, setGateError] = useState(null);
 
+  // State for EDCT 
+  const [ EDCT, setEDCT ] = useState(null); // EDCT data state, if needed
+
   // Use the custom hook for airport data
   // Airport data fetching is handled by the useAirportData hook.
   const {
@@ -74,6 +77,7 @@ const Details = () => {
           setWeatherResponseFlight(res.data.weather || res.data);
           setNasResponseFlight(res.data.NAS || res.data);
           console.log(res.data.NAS);
+          setEDCT(res.data.EDCT || res.data);
           // If test data needs to provide airportWx or gateData, it should be set here too.
           // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
           setLoadingFlightData(false);
@@ -272,16 +276,16 @@ const Details = () => {
           <GateCard gateData={gateData} currentSearchValue={searchValue} />
         )}
 
+      
         {/* FlightCard for flightID lookups */}
         {flightData && isFlightSearch && (
           (contentFound = true),
           <FlightCard
             flightData={flightData}
-
             weather={weatherResponseFlight}
             NAS={nasResponseFlight}
-
             flightError={flightError} // Pass partial data error to FlightCard
+            EDCT={EDCT}
           />
         )}
       </>

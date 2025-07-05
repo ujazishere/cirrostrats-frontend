@@ -36,6 +36,121 @@
 
 
 
+/*
+ * CSS for the EDCT Details Section
+ */
+
+/* Container for the entire EDCT section */
+.edct-section {
+  margin-top: 2rem; /* Spacing from the summary table above */
+  padding: 1.5rem;
+  background-color: #f9fafb; /* A light background to distinguish it */
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+/* Title for the section */
+.edct-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Wrapper for the table structure */
+.edct-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Space between rows */
+}
+
+/* Styling for each row in the table */
+.edct-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+/* Styling for the header row */
+.edct-header {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #d1d5db;
+}
+
+/* Styling for the data rows */
+.edct-row:not(.edct-header) {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.edct-row:not(.edct-header):hover {
+  background-color: #f9fafb;
+}
+
+/* Styling for individual cells */
+.edct-cell {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.edct-header .edct-cell {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 768px) {
+  .edct-row {
+    grid-template-columns: 1fr; /* Stack columns vertically */
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .edct-header {
+    display: none; /* Hide the header on mobile */
+  }
+
+  .edct-cell {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed #e5e7eb;
+  }
+  
+  .edct-cell:last-child {
+    border-bottom: none;
+  }
+
+  /* Use data-label for pseudo-element headers */
+  .edct-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #374151;
+    margin-right: 1rem;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Base container styling for the entire table */
 .flight-info-container {
     background: white !important;

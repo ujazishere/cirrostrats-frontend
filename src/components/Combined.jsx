@@ -30,8 +30,9 @@ import GateCard from "./GateCard"; // Import the GateCard component from its new
  * @param {Object} props.flightData - Flight information
  * @param {Object} props.weather - Departure weather data
  * @param {Object} props.NAS - NAS data
+ * @param {Object} props.EDCT - NAS data
  */
-const FlightCard = ({flightData, weather, NAS}) => {
+const FlightCard = ({flightData, weather, NAS, EDCT}) => {
 
   // Reference for the search container
   const searchContainerRef = useRef(null);
@@ -153,7 +154,7 @@ const FlightCard = ({flightData, weather, NAS}) => {
       {/* Flight Overview Section */}
       <div>
         {/* Using the new SummaryTable component */}
-        <SummaryTable flightData={flightData} />
+        <SummaryTable flightData={flightData} EDCT = {EDCT} />
       </div>
       {/* TODO ismail: This is where Route and clearance belongs. Move it from tab to here. */}
       {/* Using the new TabFormat component instead of WeatherTabs */}
