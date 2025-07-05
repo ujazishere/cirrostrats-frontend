@@ -135,9 +135,11 @@ const Details = () => {
               flightViewGateInfo
             });
 
-            if (departure && arrival) {
-            }
-            
+            // TODO: VHP New data for EDCT
+            const {
+            EDCTRes
+            } = await flightService.getEDCT({flightID, origin: departure.slice(1), destination: arrival.slice(1)});
+
             // merging flight primary flight data.
             const combinedFlightData = {
               flightID: flightID,

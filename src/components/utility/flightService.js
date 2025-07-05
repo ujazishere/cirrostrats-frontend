@@ -79,6 +79,7 @@ const flightService = {
     let flightAwareRes = { data: {}, error: true };
 
     if (import.meta.env.VITE_APP_AVOID_FLIGHT_AWARE !== "true") {
+      // Note for dev guys using flightaware -- dont use it if you dont need.
       if (import.meta.env.VITE_ENV === "dev") {console.log('Getting flightaware data. Switch it off in .env if not needed')};    // let developer know flightaware fetch is on in dev mode.
       flightAwareRes = await axios.get(`${apiUrl}/flightAware/${flightID}`).catch(e => { 
         console.error("FlightAware Error:", e); 
@@ -88,6 +89,32 @@ const flightService = {
     return {ajms, flightAwareRes, flightStatsTZRes, flightViewGateInfo, }
   },
 
+  /**
+   * Fetches EDCT in parallel.
+   * 
+   * @param {string} flightID
+   * @param {string|null} origin
+   * @param {string|null} destination
+   * 
+   * @returns {Promise<Array>}
+   *  - list/array of edct items
+   *  -- filedDepartureTime, edct, controlElement, flightCancelled
+   */
+  getEDCT: async ({flightID, origin, destination}) => {
+    try {
+      // Execute both requests in parallel
+      const [EDCTRes] = await Promise.all([
+        axios.get(`${apiUrl}/EDCTLookup/${flightID}?origin=${origin}&destination=${destination}`).catch(() => null),
+      ]);
+
+      return {
+        EDCTRes
+      };
+    } catch (error) {
+      console.error("Error in getWeatherAndNAS:", error);
+      throw error;
+    }
+  },
 
   /**
    * Fetches weather and nas for airport in parallel.
