@@ -10,7 +10,7 @@
  *
  * Also includes a section for EDCT (Expect Departure Clearance Time) details.
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 /**
  * Displays comprehensive flight information and EDCT details.
@@ -24,12 +24,77 @@ const SummaryTable = ({ flightData, EDCT }) => {
     return value !== null && value !== undefined && value.toString().trim() !== '' && value !== 'N/A';
   };
 
+  // Function to calculate countdown from EDCT time to current UTC time
+  const getCountdown = (edctTime) => {
+    if (!hasValue(edctTime)) return '—';
+    
+    try {
+      // Parse the EDCT time (format: MM/DD/YYYY HH:MM)
+      const [datePart, timePart] = edctTime.split(' ');
+      const [month, day, year] = datePart.split('/');
+      const [hours, minutes] = timePart.split(':');
+      
+      // Create date object in UTC
+      const edctDate = new Date(Date.UTC(
+        parseInt(year),
+        parseInt(month) - 1, // Month is 0-indexed
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes)
+      ));
+      
+      const now = new Date();
+      const timeDiff = edctDate.getTime() - now.getTime();
+      
+      // Calculate time components (use absolute value for calculations)
+      const totalMinutes = Math.floor(Math.abs(timeDiff) / (1000 * 60));
+      const days = Math.floor(totalMinutes / (24 * 60));
+      const hrs = Math.floor((totalMinutes % (24 * 60)) / 60);
+      const mins = totalMinutes % 60;
+      
+      // Format the countdown with negative sign if expired
+      const isExpired = timeDiff <= 0;
+      const prefix = isExpired ? '-' : '';
+      
+      if (days > 0) {
+        return `${prefix}${days}d ${hrs}h ${mins}m`;
+      } else if (hrs > 0) {
+        return `${prefix}${hrs}h ${mins}m`;
+      } else {
+        return `${prefix}${mins}m`;
+      }
+    } catch (error) {
+      return edctTime; // Return original value if parsing fails
+    }
+  };
+
   // Component to render the EDCT table
   const EDCTSection = ({ edctData }) => {
+    const [countdown, setCountdown] = useState('');
+    
     // Don't render the section if there's no data, or it's not a non-empty array
     if (!edctData || !Array.isArray(edctData) || edctData.length === 0) {
       return null;
     }
+
+    // Only show the first EDCT object
+    const firstEdctItem = edctData[0];
+
+    // Update countdown every minute
+    useEffect(() => {
+      const updateCountdown = () => {
+        setCountdown(getCountdown(firstEdctItem.edct));
+      };
+      
+      // Initial update
+      updateCountdown();
+      
+      // Set up interval to update every minute
+      const interval = setInterval(updateCountdown, 60000);
+      
+      // Cleanup interval on unmount
+      return () => clearInterval(interval);
+    }, [firstEdctItem.edct]);
 
     return (
       <div className="edct-section">
@@ -43,23 +108,21 @@ const SummaryTable = ({ flightData, EDCT }) => {
             <div className="edct-cell">Flight Cancelled</div>
           </div>
 
-          {/* EDCT Table Body - Map through each EDCT record */}
-          {edctData.map((item, index) => (
-            <div className="edct-row" key={index}>
-              <div className="edct-cell" data-label="Filed Departure Time">
-                {hasValue(item.filedDepartureTime) ? item.filedDepartureTime : '—'}
-              </div>
-              <div className="edct-cell" data-label="EDCT">
-                {hasValue(item.edct) ? item.edct : '—'}
-              </div>
-              <div className="edct-cell" data-label="Control Element">
-                {hasValue(item.controlElement) ? item.controlElement : '—'}
-              </div>
-              <div className="edct-cell" data-label="Flight Cancelled">
-                {hasValue(item.flightCancelled) ? item.flightCancelled.toString() : '—'}
-              </div>
+          {/* EDCT Table Body - Show only the first EDCT record */}
+          <div className="edct-row">
+            <div className="edct-cell" data-label="Filed Departure Time">
+              {hasValue(firstEdctItem.filedDepartureTime) ? firstEdctItem.filedDepartureTime : '—'}
             </div>
-          ))}
+            <div className="edct-cell" data-label="EDCT">
+              {countdown}
+            </div>
+            <div className="edct-cell" data-label="Control Element">
+              {hasValue(firstEdctItem.controlElement) ? firstEdctItem.controlElement : '—'}
+            </div>
+            <div className="edct-cell" data-label="Flight Cancelled">
+              {hasValue(firstEdctItem.flightCancelled) ? firstEdctItem.flightCancelled.toString() : '—'}
+            </div>
+          </div>
         </div>
       </div>
     );
