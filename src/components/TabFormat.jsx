@@ -340,7 +340,7 @@ const TabFormat = ({
                 </h3>
               </div>
 
-              <NASDetails nasResponse={nasDepartureAlternateResponse} title=" NAS Status - Airport Closure" />
+              <NASDetails nasResponse={nasDepartureAlternateResponse} title=" NAS Status " />
               <AirportCard
                 weatherDetails={departure_alternate_weather}
                 showSearchBar={!hideChildSearchBars} />
@@ -356,7 +356,7 @@ const TabFormat = ({
                 </h3>
               </div>
               
-              <NASDetails nasResponse={nasDepartureResponse} title=" NAS Status - Airport Closure" />
+              <NASDetails nasResponse={nasDepartureResponse} title=" NAS Status " />
               <AirportCard
                 weatherDetails={dep_weather}
                 showSearchBar={!hideChildSearchBars} />
@@ -372,7 +372,7 @@ const TabFormat = ({
                 </h3>
               </div>
 
-              <NASDetails nasResponse={nasDestinationResponse} title=" NAS Status - Airport Closure" />
+              <NASDetails nasResponse={nasDestinationResponse} title=" NAS Status" />
               <AirportCard
                 weatherDetails={dest_weather}
                 showSearchBar={!hideChildSearchBars} />
@@ -391,7 +391,7 @@ const TabFormat = ({
                 </h3>
               </div>
 
-              <NASDetails nasResponse={nasDestinationAlternateResponse} title=" NAS Status - Airport Closure" className="red-text"/>
+              <NASDetails nasResponse={nasDestinationAlternateResponse} title=" NAS Status " className="red-text"/>
               <AirportCard
                 weatherDetails={arrival_alternate_weather}
                 showSearchBar={!hideChildSearchBars} />
