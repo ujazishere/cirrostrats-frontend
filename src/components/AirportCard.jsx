@@ -153,6 +153,15 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
         return '#6b7280'; // Default gray
     };
 
+    // Helper function to get NAS title
+    const getNASTitle = (nasResponse) => {
+        if (!nasResponse) return "NAS Status";
+        
+        // Get the first key from the NAS response
+        const firstKey = Object.keys(nasResponse)[0];
+        return firstKey || "NAS Status";
+    };
+
     // Calculate minutes ago for each data type
     const datisMinutesAgo = weatherDetails?.datis_ts ? calculateMinutesAgoHHMMZ(weatherDetails.datis_ts) : null;
     const metarMinutesAgo = weatherDetails?.metar_ts ? calculateMinutesAgoDDHHMMZ(weatherDetails.metar_ts) : null;
@@ -181,7 +190,7 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
                 </div>
             )}
 
-            <NASDetails nasResponse={nasResponseAirport} title=" NAS Status" />
+            <NASDetails nasResponse={nasResponseAirport} title={getNASTitle(nasResponseAirport)} />
 
             <div className="weather-cards">
                 {/* D-ATIS Card */}
