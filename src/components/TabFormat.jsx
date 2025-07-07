@@ -215,6 +215,15 @@ const TabFormat = ({
     });
   };
 
+  // Helper function to get NAS titles
+  const getNASTitle = (nasResponse) => {
+    if (!nasResponse) return "NAS Status";
+    
+    // Get the first key from the NAS response
+    const firstKey = Object.keys(nasResponse)[0];
+    return firstKey || "NAS Status";
+  };
+
   return (
     <div className="weather-container">
       {/* TODO: This route section should not be here since this file is dedicated for tab format*/}
@@ -340,7 +349,7 @@ const TabFormat = ({
                 </h3>
               </div>
 
-              <NASDetails nasResponse={nasDepartureAlternateResponse} title=" NAS Status " />
+              <NASDetails nasResponse={nasDepartureAlternateResponse} title={getNASTitle(nasDepartureAlternateResponse)} />
               <AirportCard
                 weatherDetails={departure_alternate_weather}
                 showSearchBar={!hideChildSearchBars} />
@@ -356,7 +365,7 @@ const TabFormat = ({
                 </h3>
               </div>
               
-              <NASDetails nasResponse={nasDepartureResponse} title=" NAS Status " />
+              <NASDetails nasResponse={nasDepartureResponse} title={getNASTitle(nasDepartureResponse)} />
               <AirportCard
                 weatherDetails={dep_weather}
                 showSearchBar={!hideChildSearchBars} />
@@ -372,7 +381,7 @@ const TabFormat = ({
                 </h3>
               </div>
 
-              <NASDetails nasResponse={nasDestinationResponse} title=" NAS Status" />
+              <NASDetails nasResponse={nasDestinationResponse} title={getNASTitle(nasDestinationResponse)} />
               <AirportCard
                 weatherDetails={dest_weather}
                 showSearchBar={!hideChildSearchBars} />
@@ -391,7 +400,7 @@ const TabFormat = ({
                 </h3>
               </div>
 
-              <NASDetails nasResponse={nasDestinationAlternateResponse} title=" NAS Status " className="red-text"/>
+              <NASDetails nasResponse={nasDestinationAlternateResponse} title={getNASTitle(nasDestinationAlternateResponse)} className="red-text"/>
               <AirportCard
                 weatherDetails={arrival_alternate_weather}
                 showSearchBar={!hideChildSearchBars} />

@@ -83,9 +83,6 @@ const NASDetails = ({ nasResponse, title = "NAS Status" }) => {
               <table key={index} className="another-table">
                 {/* Category header */}
                 <thead>
-                  <tr>
-                    <th colSpan="2">{key}</th>
-                  </tr>
                 </thead>
                 <tbody>
                   {/* Map through subcategories and their values */}
