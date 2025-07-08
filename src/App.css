@@ -36,9 +36,246 @@
 
 
 
-/*
- * CSS for the EDCT Details Section
- */
+/* UTC Clock - Sleek Glassmorphism Design */
+
+.utc-glass__container {
+  position: fixed;
+  right: 20px;
+  transform: translateY(-50%);
+  z-index: 1000;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.utc-glass__widget {
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.utc-glass__widget:hover {
+  background: rgba(40, 40, 40, 0.9);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transform: scale(1.02);
+}
+
+.utc-glass__widget:active {
+  transform: scale(0.98);
+}
+
+.utc-glass__widget--dragging {
+  cursor: grabbing;
+  transform: scale(1.05);
+  background: rgba(50, 50, 50, 0.95);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+/* Collapsed State */
+.utc-glass__widget--collapsed {
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+}
+
+.utc-glass__collapsed-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.utc-glass__clock-icon {
+  font-size: 18px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  line-height: 1;
+}
+
+.utc-glass__zulu-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1;
+}
+
+/* Expanded State */
+.utc-glass__widget--expanded {
+  width: 140px;
+  height: 70px;
+  border-radius: 18px;
+  padding: 0 18px;
+  justify-content: space-between;
+}
+
+.utc-glass__expanded-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.utc-glass__widget--expanded .utc-glass__clock-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.utc-glass__time-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.utc-glass__day {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  margin-bottom: 2px;
+}
+
+.utc-glass__time {
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1;
+}
+
+/* Smooth transitions for state changes */
+.utc-glass__widget {
+  transition: 
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+/* Enhanced glassmorphism effect */
+.utc-glass__widget::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Subtle inner glow */
+.utc-glass__widget::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  bottom: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+  border-radius: calc(inherit - 1px);
+  pointer-events: none;
+}
+
+/* Ensure content is above pseudo-elements */
+.utc-glass__collapsed-content,
+.utc-glass__expanded-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .utc-glass__container {
+    right: 15px;
+  }
+  
+  .utc-glass__widget--collapsed {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+  }
+  
+  .utc-glass__widget--expanded {
+    width: 130px;
+    height: 66px;
+    border-radius: 17px;
+  }
+  
+  .utc-glass__clock-icon {
+    font-size: 16px;
+  }
+  
+  .utc-glass__widget--expanded .utc-glass__clock-icon {
+    font-size: 18px;
+  }
+  
+  .utc-glass__zulu-text {
+    font-size: 7px;
+  }
+  
+  .utc-glass__day {
+    font-size: 13px;
+  }
+  
+  .utc-glass__time {
+    font-size: 15px;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .utc-glass__widget {
+    border-width: 0.5px;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .utc-glass__widget {
+    transition: none;
+  }
+  
+  .utc-glass__widget:hover {
+    transform: none;
+  }
+  
+  .utc-glass__widget--dragging {
+    transform: none;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /* Container for the entire EDCT section */
 .edct-section {

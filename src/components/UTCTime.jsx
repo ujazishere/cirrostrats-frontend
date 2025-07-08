@@ -1,7 +1,7 @@
 // UTCTime.jsx
-// This React component displays the current UTC time in a formatted string ("UTC: DD HH:MMZ")
-// and updates every minute to stay in sync with real time. It uses React hooks to manage
-// the time state and lifecycle effects. Now supports both mouse and touch events for mobile.
+// Redesigned React component with Sleek Glassmorphism design
+// Displays UTC time in DD on top, HHMMz below when expanded
+// Shows ZULU text and clock icon when collapsed
 import React, { useEffect, useState, useRef, useCallback } from "react";
 
 // Global flag to ensure only one instance exists
@@ -10,8 +10,9 @@ const COMPONENT_ID = 'utc-time-widget-singleton';
 
 // Define the UTCTime component
 const UTCTime = () => {
-  // State to hold the current date in UTC format
-  const [currentDate, setCurrentDate] = useState("");
+  // State to hold the current date parts
+  const [currentDay, setCurrentDay] = useState("");
+  const [currentTime, setCurrentTime] = useState("");
   // State to control if clock is visible
   const [isVisible, setIsVisible] = useState(false);
   // State to control vertical position
@@ -67,9 +68,10 @@ const UTCTime = () => {
       const day = String(date.getUTCDate()).padStart(2, "0"); // Get and pad UTC day
       const hour = String(date.getUTCHours()).padStart(2, "0"); // Get and pad UTC hour
       const minute = String(date.getUTCMinutes()).padStart(2, "0"); // Get and pad UTC minute
-      // Construct the formatted UTC time string
-      const currentDate = `UTC: ${day} ${hour}:${minute}Z`;
-      setCurrentDate(currentDate); // Update the state
+      
+      // Set the day and time separately
+      setCurrentDay(day);
+      setCurrentTime(`${hour}${minute}Z`);
     };
 
     updateFormattedDate(); // Initial call to set the time immediately
@@ -188,22 +190,34 @@ const UTCTime = () => {
     // Render the UTC time inside a container with unique ID
     <div 
       id={COMPONENT_ID}
-      className="utc__container" 
+      className="utc-glass__container" 
       style={{ top: `${position}%` }}
       ref={dragRef}
     >
       <button 
-        className={`utc__toggle-button ${isDragging ? 'utc__toggle-button--dragging' : ''}`}
+        className={`utc-glass__widget ${isVisible ? 'utc-glass__widget--expanded' : 'utc-glass__widget--collapsed'} ${isDragging ? 'utc-glass__widget--dragging' : ''}`}
         onClick={handleClick}
         onMouseDown={handlePointerDown}
         onTouchStart={handlePointerDown}
         aria-label="Toggle UTC Clock"
-        style={{ touchAction: 'none' }} // Prevent default touch behaviors
+        style={{ touchAction: 'none' }}
       >
-        <span className="utc__clock-icon">🕐</span>
-        <div className={`utc__time-display ${isVisible ? 'utc__time-display--visible' : ''}`}>
-          <span className="utc__time-text">{currentDate}</span>
-        </div>
+        {!isVisible ? (
+          // Collapsed state: Show ZULU text and clock icon
+          <div className="utc-glass__collapsed-content">
+            <div className="utc-glass__clock-icon">🕐</div>
+            <div className="utc-glass__zulu-text">ZULU</div>
+          </div>
+        ) : (
+          // Expanded state: Show day on top, time below
+          <div className="utc-glass__expanded-content">
+            <div className="utc-glass__clock-icon">🕐</div>
+            <div className="utc-glass__time-info">
+              <div className="utc-glass__day">{currentDay}</div>
+              <div className="utc-glass__time">{currentTime}</div>
+            </div>
+          </div>
+        )}
       </button>
     </div>
   );
