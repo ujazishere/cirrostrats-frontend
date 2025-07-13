@@ -144,6 +144,9 @@ const Details = () => {
             EDCTRes
             } = await flightService.getEDCT({flightID, origin: departure.slice(1), destination: arrival.slice(1)});
 
+            console.log("EDCTRes response data", EDCTRes.data);
+            setEDCT(EDCTRes.data);
+            
             // merging flight primary flight data.
             const combinedFlightData = {
               flightID: flightID,

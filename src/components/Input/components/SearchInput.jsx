@@ -66,7 +66,7 @@ export default function SearchInput({
                       <span className="search-icon-text">Search</span>
                     </div>
                   ),
-                  onKeyDown: handleKeyDown,
+                  // onKeyDown: handleKeyDown,
                   className: "search-input-field",
                 }}
               />

@@ -67,69 +67,91 @@ const SummaryTable = ({ flightData, EDCT }) => {
       return edctTime; // Return original value if parsing fails
     }
   };
-
-  // Component to render the EDCT table
-  const EDCTSection = ({ edctData }) => {
-    const [countdown, setCountdown] = useState('');
+  
+  // Component to render a single EDCT row with its own countdown logic
+  const EDCTRow = ({ edctItem }) => {
+    const [countdown, setCountdown] = useState(() => getCountdown(edctItem.edct));
     
-    // Don't render the section if there's no data, or it's not a non-empty array
-    if (!edctData || !Array.isArray(edctData) || edctData.length === 0) {
-      return null;
-    }
-
-    // Only show the first EDCT object
-    const firstEdctItem = edctData[0];
-
     // Update countdown every minute
     useEffect(() => {
       const updateCountdown = () => {
-        setCountdown(getCountdown(firstEdctItem.edct));
+        setCountdown(getCountdown(edctItem.edct));
       };
       
-      // Initial update
-      updateCountdown();
+      const intervalId = setInterval(updateCountdown, 60000);
       
-      // Set up interval to update every minute
-      const interval = setInterval(updateCountdown, 60000);
-      
-      // Cleanup interval on unmount
-      return () => clearInterval(interval);
-    }, [firstEdctItem.edct]);
+      return () => clearInterval(intervalId);
+    }, [edctItem.edct]);
 
     return (
-      <div className="edct-section">
-        <h3 className="edct-title">EDCT Details</h3>
-        <div className="edct-table">
-          {/* EDCT Table Header */}
-          <div className="edct-row edct-header">
-            <div className="edct-cell">Filed Departure Time</div>
-            <div className="edct-cell">EDCT</div>
-            <div className="edct-cell">Control Element</div>
-            <div className="edct-cell">Flight Cancelled</div>
-          </div>
-
-          {/* EDCT Table Body - Show only the first EDCT record */}
-          <div className="edct-row">
-            <div className="edct-cell" data-label="Filed Departure Time">
-              {hasValue(firstEdctItem.filedDepartureTime) ? firstEdctItem.filedDepartureTime : '—'}
-            </div>
-            <div className="edct-cell" data-label="EDCT">
-              {countdown}
-            </div>
-            <div className="edct-cell" data-label="Control Element">
-              {hasValue(firstEdctItem.controlElement) ? firstEdctItem.controlElement : '—'}
-            </div>
-            <div className="edct-cell" data-label="Flight Cancelled">
-              {hasValue(firstEdctItem.flightCancelled) ? firstEdctItem.flightCancelled.toString() : '—'}
-            </div>
-          </div>
+      <div className="edct-row">
+        <div className="edct-cell" data-label="Filed Departure Time">
+          {hasValue(edctItem.filedDepartureTime) ? edctItem.filedDepartureTime : '—'}Z
+        </div>
+        <div className="edct-cell" data-label="EDCT">
+          {edctItem.edct}Z
+        </div>
+        <div className="edct-cell" data-label="T-minus">
+          {countdown}
+        </div>
+        <div className="edct-cell" data-label="Control Element">
+          {hasValue(edctItem.controlElement) ? edctItem.controlElement : '—'}
+        </div>
+        <div className="edct-cell" data-label="Flight Cancelled">
+          {hasValue(edctItem.flightCancelled) ? edctItem.flightCancelled.toString() : '—'}
         </div>
       </div>
     );
   };
 
+
+  // Component to render the entire EDCT table
+  const EDCTSection = ({ edctData }) => {
+    // Hide section if there is no data
+    if (!edctData || !Array.isArray(edctData) || edctData.length === 0) {
+      return null;
+    }
+    
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+      <div className="edct-section">
+        <div 
+          onClick={() => setIsExpanded(!isExpanded)}
+          style={{ cursor: 'pointer' }}
+          className="edct-collapsible-header"
+        >
+          {/* ✅ UPDATED: Added style to change title color */}
+          <h3 className="edct-title" style={{ color: '#d0925e' }}>
+            EDCT
+            {/* ✅ UPDATED: Changed arrow color */}
+            <span style={{ marginLeft: '8px', fontSize: '0.9em', color: '#d0925e' }}>
+              {isExpanded ? '▼' : '▶'}
+            </span>
+          </h3>
+        </div>
+
+        {isExpanded && (
+          <div className="edct-table">
+            {/* EDCT Table Header */}
+            <div className="edct-row edct-header">
+              <div className="edct-cell">Filed Departure Time</div>
+              <div className="edct-cell">EDCT</div>
+              <div className="edct-cell">Control Element</div>
+              <div className="edct-cell">Flight Cancelled</div>
+            </div>
+
+            {/* Mapped data rows */}
+            {edctData.map((item, index) => (
+              <EDCTRow key={index} edctItem={item} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    // Use a React Fragment to return multiple top-level elements
     <>
       <div className="flight-info-container">
         {/* Top Header Section: Flight, Tail Number, Aircraft */}
@@ -137,7 +159,6 @@ const SummaryTable = ({ flightData, EDCT }) => {
           {hasValue(flightData?.flightID) && (
             <div className="flight-header-item">
               <span className="flight-header-label">Flight</span>
-              {/* This is the line that was causing the error, now removed: <h2 className="flight-number-text">{EDCT}</h2> */}
               <h2 className="flight-number-text">{flightData.flightID}</h2>
             </div>
           )}
@@ -157,7 +178,7 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
         <EDCTSection edctData={EDCT} />
 
-        {/* Airport Codes with Arrow (Departure on left, Arrow in middle, Arrival on right) */}
+        {/* Airport Codes with Arrow */}
         {(hasValue(flightData?.departure) || hasValue(flightData?.arrival)) && (
           <div className="airport-codes-section">
             {hasValue(flightData?.departure) && (
@@ -240,7 +261,6 @@ const SummaryTable = ({ flightData, EDCT }) => {
           </div>
         </div>
       </div>
-
     </>
   );
 };
