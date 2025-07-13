@@ -209,7 +209,10 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
                     </div>
                     <div className="card-body">
                         <div className="data-content">
-                            <p dangerouslySetInnerHTML={{ __html: datis }}></p>
+                            <p 
+                                style={{ lineHeight: '1.87083' }}
+                                dangerouslySetInnerHTML={{ __html: datis }}
+                            ></p>
                         </div>
                     </div>
                 </div>
@@ -230,7 +233,10 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
                     </div>
                     <div className="card-body">
                         <div className="data-content">
-                            <p dangerouslySetInnerHTML={{ __html: metar }}></p>
+                            <p 
+                                style={{ lineHeight: '1.87083' }}
+                                dangerouslySetInnerHTML={{ __html: metar }}
+                            ></p>
                         </div>
                     </div>
                 </div>
@@ -251,7 +257,10 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
                     </div>
                     <div className="card-body">
                         <div className="data-content">
-                            <p dangerouslySetInnerHTML={{ __html: taf }}></p>
+                            <p 
+                                style={{ lineHeight: '1.87083' }}
+                                dangerouslySetInnerHTML={{ __html: taf }}
+                            ></p>
                         </div>
                     </div>
                 </div>
