@@ -116,7 +116,7 @@ const TabFormat = ({
     swipeDuration: 300,
   });
 
-  // This single effect now handles both scrolling and resizing for robust sticky behavior.
+  // ✅ FIXED: This effect is updated to correctly handle sticky positioning.
   useEffect(() => {
     const tabsNavElement = tabsNavRef.current;
     if (!tabsNavElement) return;
@@ -129,35 +129,34 @@ const TabFormat = ({
 
     // Function to recalculate the tab navigation's top position
     const recalculatePosition = () => {
-      tabPositionRef.current = tabsNavElement.getBoundingClientRect().top + window.scrollY;
-      // After recalculating, immediately check if sticky state needs to change
-      handleScroll();
+      // Check if the element is still available before getting its position
+      if (tabsNavRef.current) {
+        tabPositionRef.current = tabsNavRef.current.getBoundingClientRect().top + window.scrollY;
+        handleScroll(); // Immediately check sticky state after recalculating
+      }
     };
 
-    // Set up the ResizeObserver to watch for layout changes
-    const observer = new ResizeObserver(() => {
-      // When a resize is detected (e.g., EDCT table expands), recalculate the position
-      recalculatePosition();
-    });
-
-    // Observe the main container that holds the collapsible content
-    const containerElement = containerRef.current;
-    if (containerElement) {
-      observer.observe(containerElement);
-    }
+    // Set up the ResizeObserver to watch for layout changes.
+    // By observing document.body, it can react to size changes anywhere on the page,
+    // such as the EDCT section expanding.
+    const observer = new ResizeObserver(recalculatePosition);
+    
+    const bodyElement = document.body;
+    observer.observe(bodyElement);
     
     // Add scroll listener
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Perform initial calculation
-    recalculatePosition();
+    // Perform initial calculation after a short delay.
+    // This fixes the race condition by allowing other components (like EDCT)
+    // to render and expand before we calculate the sticky position.
+    const timerId = setTimeout(recalculatePosition, 150);
     
     // Cleanup function
     return () => {
+      clearTimeout(timerId);
       window.removeEventListener('scroll', handleScroll);
-      if (containerElement) {
-        observer.unobserve(containerElement);
-      }
+      observer.unobserve(bodyElement); // Clean up the observer
     };
   }, []); // Empty dependency array ensures this runs only once to set up listeners.
 
