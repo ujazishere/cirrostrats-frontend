@@ -139,13 +139,15 @@ const Details = () => {
               flightViewGateInfo
             });
 
-            // TODO: VHP New data for EDCT
-            const {
-            EDCTRes
-            } = await flightService.getEDCT({flightID, origin: departure.slice(1), destination: arrival.slice(1)});
+            // EDCT data only if the .env calls for it.
+            if (import.meta.env.VITE_EDCT_FETCH === "1") {
+              if (import.meta.env.VITE_ENV === "dev") {console.log('Getting EDCT data. Switch it off in .env if not needed')};    // let developer know flightaware fetch is on in dev mode.
+              const {EDCTRes} = await flightService.getEDCT(
+                {flightID, origin: departure.slice(1), destination: arrival.slice(1)}
+              );
+              setEDCT(EDCTRes.data);
+            };
 
-            console.log("EDCTRes response data", EDCTRes.data);
-            setEDCT(EDCTRes.data);
             
             // merging flight primary flight data.
             const combinedFlightData = {
