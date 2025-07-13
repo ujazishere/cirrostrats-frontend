@@ -79,6 +79,7 @@ const TabFormat = ({
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
   const tabPositionRef = useRef(null);
+  const containerRef = useRef(null); // Ref for the main container to observe size changes
   const [isNasExpanded, setIsNasExpanded] = useState(true);
   const [isNasDestExpanded, setIsNasDestExpanded] = useState(true);
   // Add state for alternate NAS expansion - using same NAS data
@@ -115,32 +116,50 @@ const TabFormat = ({
     swipeDuration: 300,
   });
 
-  // Store the initial position of the tabs when component mounts
+  // This single effect now handles both scrolling and resizing for robust sticky behavior.
   useEffect(() => {
-    if (tabsNavRef.current) {
-      // Store the original top position of the tabs
-      tabPositionRef.current = tabsNavRef.current.getBoundingClientRect().top + window.scrollY;
-    }
-  }, []);
+    const tabsNavElement = tabsNavRef.current;
+    if (!tabsNavElement) return;
 
-  // Effect to handle the sticky behavior for tabs
-  useEffect(() => {
+    // Function to check scroll position and set sticky state
     const handleScroll = () => {
-      if (!tabsNavRef.current || tabPositionRef.current === null) return;
-      
-      // Check if we've scrolled past the original position of the tabs
+      if (tabPositionRef.current === null) return;
       setIsSticky(window.scrollY >= tabPositionRef.current);
     };
+
+    // Function to recalculate the tab navigation's top position
+    const recalculatePosition = () => {
+      tabPositionRef.current = tabsNavElement.getBoundingClientRect().top + window.scrollY;
+      // After recalculating, immediately check if sticky state needs to change
+      handleScroll();
+    };
+
+    // Set up the ResizeObserver to watch for layout changes
+    const observer = new ResizeObserver(() => {
+      // When a resize is detected (e.g., EDCT table expands), recalculate the position
+      recalculatePosition();
+    });
+
+    // Observe the main container that holds the collapsible content
+    const containerElement = containerRef.current;
+    if (containerElement) {
+      observer.observe(containerElement);
+    }
     
+    // Add scroll listener
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Initial check
-    handleScroll();
+    // Perform initial calculation
+    recalculatePosition();
     
+    // Cleanup function
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      if (containerElement) {
+        observer.unobserve(containerElement);
+      }
     };
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once to set up listeners.
 
   // Effect to ensure minimum content height so scroll behavior is consistent
   useEffect(() => {
@@ -225,7 +244,7 @@ const TabFormat = ({
   };
 
   return (
-    <div className="weather-container">
+    <div ref={containerRef} className="weather-container">
       {/* TODO: This route section should not be here since this file is dedicated for tab format*/}
       {/* Route section - now outside of tabs */}
       <div className="route-section">
