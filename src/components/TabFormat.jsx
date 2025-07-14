@@ -234,12 +234,9 @@ const TabFormat = ({
   };
 
   // Helper function to get NAS titles
-  const getNASTitle = (nasResponse) => {
-    if (!nasResponse) return "NAS Status";
-    
-    // Get the first key from the NAS response
-    const firstKey = Object.keys(nasResponse)[0];
-    return firstKey || "NAS Status";
+  // THIS IS THE FIX: This function now always returns "NAS Status".
+  const getNASTitle = () => {
+    return "NAS Status";
   };
 
   return (

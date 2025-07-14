@@ -1,16 +1,13 @@
 /**
  * NASDetails Component
- * 
- * A React component that displays National Airspace System (NAS) information in a tabular format.
+ * * A React component that displays National Airspace System (NAS) information in a tabular format.
  * Handles nested data structures and provides a clean display of airport/airspace information.
- * 
- * Features:
+ * * Features:
  * - Displays multiple categories of NAS data
  * - Handles nested objects with automatic JSON stringification
  * - Responsive table layout
  * - Graceful handling of empty data
- * 
- * @param {Object} props
+ * * @param {Object} props
  * @param {Object} props.nasResponse - Response object containing NAS data categories
  */
 
@@ -81,8 +78,12 @@ const NASDetails = ({ nasResponse, title = "NAS Status" }) => {
             {/* Map through top-level categories */}
             {Object.entries(nasResponse).map(([key, value], index) => (
               <table key={index} className="another-table">
-                {/* Category header */}
+                {/* Category header - THIS IS THE FIX */}
                 <thead>
+                  <tr>
+                    {/* The key is the dynamic heading like "Airport Closure" */}
+                    <th colSpan="2">{key}</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {/* Map through subcategories and their values */}
