@@ -34,9 +34,10 @@
   }
 }
 
-
-
-/* UTC Clock - Sleek Glassmorphism Design */
+.delay-table td,
+.delay-table th {
+  background-color: #EB5A3C !important;
+}
 
 .utc-glass__container {
   position: fixed;
@@ -267,16 +268,6 @@
 }
 
 
-
-
-
-
-
-
-
-
-
-
 /* Container for the entire EDCT section */
 .edct-section {
   margin-top: 2rem; /* Spacing from the summary table above */
@@ -374,19 +365,6 @@
     margin-right: 1rem;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* Base container styling for the entire table */
 .flight-info-container {
@@ -746,23 +724,6 @@
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Login Section Styles */
 .login-section {
   position: fixed;
@@ -899,30 +860,6 @@ body {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ClearanceTable.css */
 
 .clearance-table-container {
@@ -951,11 +888,6 @@ body {
   /* font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif; */
   left: 0 !important;
 }
-
-
-
-
-
  
 /* Navbar Styles */
 .navbar {
@@ -1083,17 +1015,6 @@ body {
 }
 
 
-
-
-
-
-
-
-
-/* HomePage.css */
-
-/* General styles */
-
 .bg-slate-50 {
   background-color: #f8fafc;
 }
@@ -1170,8 +1091,6 @@ body {
   padding: 1rem 0;
 }
 
-
-
 /* Responsive styles - ensure horizontal display on all screens */
 @media (max-width: 768px) {
 
@@ -1186,19 +1105,6 @@ body {
     font-size: 0.85rem; /* Slightly smaller on mobile */
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* airportCard.css */
 /* Main container */
@@ -1347,32 +1253,12 @@ body {
   padding: 0;
 }
 
-
-
-
-
-
-
 /* Only affects search containers within FlightCard */
 .combined-search{
   margin: 0px;
   padding: 0px;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-/* SearchInput.css */
-
-/* Container for centering the search bar */
 .search-container {
   padding: 1.5rem 0 !important;
   background-color: #f5f7fa !important;
@@ -1492,16 +1378,6 @@ body {
     max-width: 95% !important;
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 /* Add animation keyframes for shimmer effect */
@@ -1784,10 +1660,7 @@ body {
   margin: 0;
 }
 
-.nas-tab-title {
-  font-size: 18px;
-  margin: 0;
-}
+
 
 .clearance-tab-title {
   font-size: 18px;
@@ -1800,8 +1673,6 @@ body {
     font-size: 14px;
   }
 }
-
-
 
 .weather-tabs-content {
   position: relative;
@@ -1833,9 +1704,6 @@ body {
     transform: translateX(0);
   }
 }
-
-
-
 
 /* General styles */
 .min-h-screen {
@@ -1964,8 +1832,6 @@ body {
   font-size: 0.875rem;
   color: #64748b;
 }
-
-
 
 
 .notam-text {
@@ -2181,18 +2047,6 @@ footer {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* Weather Tabs Styling */
 .weather-tabs-container {
   background-color: #fff;
@@ -2264,7 +2118,7 @@ footer {
 }
 
 .nas-tab-title {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 600;
   color: #fa6767;
   margin: 0;
@@ -2461,7 +2315,7 @@ footer {
   }
 
   .nas-tab-title {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .clearance-tab-title {
@@ -4080,7 +3934,7 @@ table.another-table th,
 table.another-table td {
   padding: 10px;
   text-align: center;
-  background-color: #fa6767;
+  background-color: #D84040;
   border: 1px black
 }
 
