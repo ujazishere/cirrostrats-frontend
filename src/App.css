@@ -36,8 +36,10 @@
 
 .delay-table td,
 .delay-table th {
-  background-color: #EB5A3C !important;
+    background-color: #FFAD60 !important;
 }
+
+
 
 .utc-glass__container {
   position: fixed;
@@ -3934,12 +3936,12 @@ table.another-table th,
 table.another-table td {
   padding: 10px;
   text-align: center;
-  background-color: #D84040;
+  background-color: #FF6868;
   border: 1px black
 }
 
 table.another-table thead {
-  background-color: #fa6767;
+  background-color: #FF6868;
   color: #000000;
 }
 
