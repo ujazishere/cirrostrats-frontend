@@ -86,6 +86,9 @@ const flightService = {
         return { data: {}, error: true }; 
       });
     };
+
+    // TODO VHP: Compare deets of each data check for consisetency
+
     return {ajms, flightAwareRes, flightStatsTZRes, flightViewGateInfo, }
   },
 

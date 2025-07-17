@@ -19,6 +19,7 @@ import React, { useState, useEffect } from 'react';
  * @param {Array<Object>} props.EDCT - Array of EDCT information objects.
  */
 const SummaryTable = ({ flightData, EDCT }) => {
+  console.log('dlightD',flightData)
   // Helper function to check if a value exists and is not empty
   const hasValue = (value) => {
     return value !== null && value !== undefined && value.toString().trim() !== '' && value !== 'N/A';
@@ -195,10 +196,10 @@ const SummaryTable = ({ flightData, EDCT }) => {
         <div className="flight-details-grid">
           {/* Departure Details */}
           <div className="departure-details">
-            {hasValue(flightData?.flightViewDepartureGate) && (
+            {hasValue(flightData?.flightStatsOriginGate) && (
               <div className="info-item">
                 <div className="info-label">Gate</div>
-                <div className="info-value">{flightData.flightViewDepartureGate}</div>
+                <div className="info-value">{flightData.flightStatsOriginGate}</div>
               </div>
             )}
             {hasValue(flightData?.flightStatsScheduledDepartureTime) && (
@@ -211,10 +212,10 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
           {/* Arrival Details */}
           <div className="arrival-details">
-            {hasValue(flightData?.flightViewArrivalGate) && (
+            {hasValue(flightData?.flightStatsDestinationGate) && (
               <div className="info-item">
                 <div className="info-label">Gate</div>
-                <div className="info-value">{flightData.flightViewArrivalGate}</div>
+                <div className="info-value">{flightData.flightStatsDestinationGate}</div>
               </div>
             )}
             {hasValue(flightData?.flightStatsScheduledArrivalTime) && (

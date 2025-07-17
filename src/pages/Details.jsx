@@ -78,8 +78,8 @@ const Details = () => {
           setNasResponseFlight(res.data.NAS || res.data);
           console.log(res.data.NAS);
           setEDCT(res.data.EDCT || res.data);
-          // If test data needs to provide airportWx or gateData, it should be set here too.
-          // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
+          // If test data needs to provide gateData, it should be set here too.
+          // e.g., setGateData(res.data.gateData) // This would override the hook for test mode.
           setLoadingFlightData(false);
 
         } else if (searchValue?.type === "Terminal/Gate") {
