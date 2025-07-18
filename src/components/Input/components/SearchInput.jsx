@@ -63,7 +63,17 @@ export default function SearchInput({
                   ...params.InputProps,
                   endAdornment: (
                     <div className="search-icon-container">
-                      <span className="search-icon-text">Search</span>
+                      <button
+                        type="submit"
+                        className="search-icon-button"
+                        aria-label="Search"
+                        tabIndex={0}
+                        style={{ all: 'unset', cursor: 'pointer' }} // style as needed
+                        onClick={(e) => handleSubmit(e, inputValue, userEmail)}
+                        >
+                        <span className="search-icon-text">Search</span>
+                      </button>
+
                     </div>
                   ),
                   // onKeyDown: handleKeyDown,
