@@ -35,24 +35,13 @@
 }
 
 
+
+
 .departure-gate-container {
-
-
-
   max-width: 1200px !important;
-
-
   margin: 0 auto !important;
-
-
   padding: 20px !important;
-
-
 }
-
-
-
-
 
 .departure-board-container {
   display: flex !important;

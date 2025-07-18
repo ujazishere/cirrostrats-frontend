@@ -180,19 +180,8 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
   // --- End: Tab logic ---
 
   // Other existing hooks and refs (search functionality)
-  const searchContainerRef = useRef(null);
   const location = useLocation();
   const [currentSearch, setCurrentSearch] = useState('');
-
-  useEffect(() => {
-    if (searchContainerRef.current) {
-      searchContainerRef.current.style.cssText = 'margin-top: -70px !important; margin-bottom: -40px !important;';
-      const parentElement = searchContainerRef.current.parentElement;
-      if (parentElement && parentElement.classList.contains('details')) {
-        parentElement.style.paddingTop = '0';
-      }
-    }
-  }, []);
 
   if (tabs.length === 0) {
     return <div>Loading...</div>; // Or a loading spinner
@@ -200,49 +189,68 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
 
   return (
     <div className="details">
-      {/* Search Input remains at the top */}
-      <div className="combined-search" ref={searchContainerRef}>
+      {/* CSS for animations and search container styling */}
+      <style>
+        {`
+          .flight-card-content.slide-left-exit { animation: slideLeftExit 0.25s forwards; }
+          .flight-card-content.slide-left-enter { animation: slideLeftEnter 0.3s forwards; }
+          .flight-card-content.slide-right-exit { animation: slideRightExit 0.25s forwards; }
+          .flight-card-content.slide-right-enter { animation: slideRightEnter 0.3s forwards; }
+          
+          @keyframes slideLeftExit {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-15%); opacity: 0; }
+          }
+          @keyframes slideLeftEnter {
+            from { transform: translateX(15%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+          @keyframes slideRightExit {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(15%); opacity: 0; }
+          }
+          @keyframes slideRightEnter {
+            from { transform: translateX(-15%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+          
+          .no-data-panel {
+            padding: 40px 20px;
+            text-align: center;
+            color: #6c757d;
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+          }
+          
+          /* Fixed search container styling - applied immediately */
+          .combined-search {
+            margin-top: -70px !important;
+            margin-bottom: -40px !important;
+          }
+          
+          /* Remove padding from parent details element when it contains the search */
+          .details {
+            padding-top: 0 !important;
+          }
+
+          /* Ensure TabFormat component itself has rounded corners */
+          .flight-card-content [class*="tab"] {
+            border-radius: 5px;
+          }
+            
+
+        `}
+      </style>
+
+      {/* Search Input remains at the top with fixed styling */}
+      <div className="combined-search">
         <Input userEmail="user@example.com" isLoggedIn={true} />
       </div>
 
       <div className="date-tabs-container" {...handlers}>
-        {/* CSS for animations */}
-        <style>
-          {`
-            .flight-card-content.slide-left-exit { animation: slideLeftExit 0.25s forwards; }
-            .flight-card-content.slide-left-enter { animation: slideLeftEnter 0.3s forwards; }
-            .flight-card-content.slide-right-exit { animation: slideRightExit 0.25s forwards; }
-            .flight-card-content.slide-right-enter { animation: slideRightEnter 0.3s forwards; }
-            
-            @keyframes slideLeftExit {
-              from { transform: translateX(0); opacity: 1; }
-              to { transform: translateX(-15%); opacity: 0; }
-            }
-            @keyframes slideLeftEnter {
-              from { transform: translateX(15%); opacity: 0; }
-              to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideRightExit {
-              from { transform: translateX(0); opacity: 1; }
-              to { transform: translateX(15%); opacity: 0; }
-            }
-            @keyframes slideRightEnter {
-              from { transform: translateX(-15%); opacity: 0; }
-              to { transform: translateX(0); opacity: 1; }
-            }
-            .no-data-panel {
-              padding: 40px 20px;
-              text-align: center;
-              color: #6c757d;
-              min-height: 50vh;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 1.1rem;
-            }
-          `}
-        </style>
-        
         {/* Date Tabs Navigation */}
         <div 
           ref={tabsNavRef}
