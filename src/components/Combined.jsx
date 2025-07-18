@@ -50,12 +50,13 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      const tabId = date.toISOString().split('T')[0]; // e.g., '2025-07-18'
+      const tabId = date.toISOString().split('T')[0]; // e.g., '2025-07-19'
+      
+      // MODIFIED: Removed 'weekday' option to display only month and day.
       const tabLabel = new Intl.DateTimeFormat('en-US', { 
-        weekday: 'short', 
         month: 'short', 
         day: 'numeric' 
-      }).format(date); // e.g., 'Fri, Jul 18'
+      }).format(date); // e.g., 'Jul 19'
 
       generatedTabs.push({ id: tabId, label: tabLabel });
     }
