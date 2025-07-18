@@ -34,12 +34,168 @@
   }
 }
 
+
+.departure-gate-container {
+
+
+
+  max-width: 1200px !important;
+
+
+  margin: 0 auto !important;
+
+
+  padding: 20px !important;
+
+
+}
+
+
+
+
+
+.departure-board-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+
+.departure-board-header {
+  background: #24292f !important;
+  color: white !important;
+  border-radius: 12px !important;
+  padding: 20px 24px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 20px !important;
+  margin-bottom: 4px !important;
+  margin-top: -50px !important;
+}
+
+.departure-header-column {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.departure-flights-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.departure-flight-row {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  padding: 24px !important;
+  transition: all 0.3s ease !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 20px !important;
+  align-items: center !important;
+}
+
+.departure-flight-row:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.departure-flight-column {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.departure-column-label {
+  font-size: 12px !important;
+  color: #7f8c8d !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+
+.departure-column-data {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+}
+
+.departure-data-none {
+  color: #95a5a6 !important;
+  font-style: italic !important;
+}
+
+.departure-scheduled-time {
+  color: #27ae60 !important;
+}
+
+.departure-actual-time {
+  color: #e74c3c !important;
+}
+
+.departure-actual-time.departure-data-none {
+  color: #95a5a6 !important;
+  font-style: italic !important;
+}
+
+@media (max-width: 768px) {
+  .departure-gate-container {
+    padding: 16px !important;
+  }
+
+  .departure-board-header,
+  .departure-flight-row {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .departure-flight-row {
+    padding: 20px !important;
+  }
+
+  .departure-board-container {
+    gap: 12px !important;
+  }
+
+  .departure-flights-wrapper {
+    gap: 12px !important;
+  }
+}
+
+.departure-board-container {
+  margin-top: 20px !important;
+}
+
+.combined-search + .departure-board-container {
+  margin-top: 60px !important;
+}
+
+.departure-gate-container .departure-table,
+.departure-gate-container table {
+  display: none !important;
+}
+
+.departure-gate-container * {
+  box-sizing: border-box !important;
+}
+
+.departure-gate-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.departure-gate-container {
+  background-color: #f5f7fa !important;
+  min-height: 100vh !important;
+}
+
 .delay-table td,
 .delay-table th {
     background-color: #FFAD60 !important;
 }
-
-
 
 .utc-glass__container {
   position: fixed;
@@ -2336,87 +2492,11 @@ footer {
 
 
 
-.gate-card {
-  width: 100%;
-  background: #fff;
-  overflow: hidden;
-  margin: 0 auto;
-  max-width: 800px;
-  background-color: #2D333B;
-  margin-bottom: 100px;
-  border-radius: 15px;
-  box-shadow: 0 0 0 2px #474350;
-  padding: 0;
-}
 
-.departure-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  margin: 0;
-  background-color: #2D333B;
-  border-radius: 15px;
-  overflow: hidden;
-}
 
-.departure-table th {
-  padding: 10px 20px;
-  text-align: left;
-  background-color: #2D333B;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: normal;
-}
 
-.departure-table td {
-  padding: 10px 20px;
-  text-align: left;
-  font-size: 16px;
-}
 
-.dark-row {
-  color: #ffffff;
-  background-color: #2D333B;
-}
 
-.light-row {
-  background-color: #ffffff;
-  color: black;
-}
-
-/* Dark mode styles */
-.dark-mode .gate-card {
-  background-color: #22272E;
-  box-shadow: 0 0 0 2px #ADBAC7;
-}
-
-.dark-mode .departure-table {
-  background-color: #22272E;
-}
-
-.dark-mode .departure-table th {
-  background-color: #2D333B;
-  color: #ADBAC7;
-}
-
-.dark-mode .dark-row {
-  color: #ADBAC7;
-  background-color: #2D333B;
-}
-
-.dark-mode .light-row {
-  color: #22272E;
-  background-color: #ffffff;
-}
-
-/* Media queries */
-@media only screen and (max-width: 400px) {
-  .departure-table th,
-  .departure-table td {
-    padding: 8px 12px;
-    font-size: 14px;
-  }
-}
 
 
 
@@ -3336,7 +3416,6 @@ form {
   margin-bottom: 0.9em;
 }
 
-.detail__gate,
 .detail__depature__time,
 .detail__arrival__time {
   margin-bottom: 0.8em;
@@ -3344,9 +3423,7 @@ form {
 }
 
 
-.detail__gate__title {
-  font-size: 1rem;
-}
+
 .detail__depature__local,
 .detail__arrival__local,
 .detail__depature__utc,
@@ -3688,231 +3765,15 @@ body.utc-dragging {
 
 
 
-/* table*/
-.table__container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  width: 100%;
-  margin-top: 2em;
-  
-}
-.table__title {
-  font-size: 2rem;
-  margin: 0.5em 0;
-  font-weight: bold;
-}
-.table {
-  width: 90%;
-  border-collapse: collapse;
-  margin: 0 auto;
-  margin-top: 1em;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 0 0 2px #474350;
-  color: #ffffff;
-  background: #2d333b;
-  
-}
-
-.table__header {
-  background-color: #2d333b;
-  color: white;
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-.table__header th {
-  padding: 0.5em;
-  text-align: left;
-}
-
-.table tr:nth-child(odd) td {
-  background-color: #ffffff;
-  color: black;
-  padding: 0.8em;
-  text-align: left;
-}
-.table tr:nth-child(even) td {
-  text-align: left;
-  color: #ffffff;
-  padding: 0.8em;
-}
 
 
 
-.comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.comparison-table th,
-.comparison-table td {
-  border: none;
-}
-
-.comparison-table th:first-child,
-.comparison-table td:first-child {
-  border-left: 1px solid black;
-}
-
-.comparison-table th:last-child,
-.comparison-table td:last-child {
-  border-right: 1px solid black;
-}
-
-.comparison-table tr:first-child th,
-.comparison-table tr:last-child td {
-  border-bottom: 1px solid black;
-}
-
-.comparison-table tr:last-child th:first-child,
-.comparison-table tr:last-child td:first-child {
-  border-bottom-left-radius: 10px;
-}
-
-.comparison-table tr:last-child th:last-child,
-.comparison-table tr:last-child td:last-child {
-  border-bottom-right-radius: 10px;
-}
 
 
-.comparison-table tr:not(:first-child) th,
-.comparison-table tr:not(:last-child) td {
-  border-top: 1px solid black;
-}
-
-table.comparison-table {
-  margin: 20px auto;
-  width: 100%;
-  background-color: #2D333B;
-  text-align: center;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 0 0 0px #000000;
-  color: inherit;
-  text-decoration: inherit;
-}
-
-table.comparison-table th,
-table.comparison-table td {
-  padding: 10px;
-  text-align: center;
-  border-color: rgb(0, 0, 0);
-  border-top: 1px solid rgb(0, 0, 0);
-  border-bottom: 1px solid rgb(0, 0, 0);
-}
-
-table.comparison-table th {
-  background-color: #2D333B;
-  color: #ffffff;
-  width: 20%;
-}
-
-table.comparison-table td {
-  background-color: #ffffff;
-  color: #24292E;
-  width: 15%;
-}
-
-table.comparison-table thead {
-  background-color: #2D333B;
-  color: #ffffff;
-}
-
-table.comparison-table th:first-child,
-table.comparison-table td:first-child {
-  font-weight: bold;
-}
-
-.dark-mode table.comparison-table thead th {
-  background-color: #2D333B;
-  color: #ADBAC7;
-}
-
-.dark-mode table.comparison-table {
-  background-color: #2D333B !important;
-  box-shadow: 0 0 0 1px #ffffff;
-  color: #ADBAC7;
-}
-
-.dark-mode table.comparison-table th,
-.dark-mode table.comparison-table td {
-  background-color: #22272E;
-  color: #ADBAC7;
-  border-color: white;
-  border-top: 1px solid white;
-  border-bottom: 1px solid white;
-}
-
-.dark-mode table.comparison-table th:first-child,
-.dark-mode table.comparison-table td:first-child {
-  border-left: 1px solid black;
-}
-
-.dark-mode table.comparison-table th:last-child,
-.dark-mode table.comparison-table td:last-child {
-  border-right: 1px solid black;
-}
 
 
-.route {
-  margin: 20px auto;
-  width: 100%;
-  background-color: #ffffff;
-  text-align: center;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 0 0 1px #000000;
-  border: 1px;
-  border-collapse: collapse; 
-}
 
-.route a {
-  font-size: smaller;
-  margin-left: 10px;
-  color: rgb(158, 156, 155); 
-}
 
-.dark-mode .route {
-  background-color: #22272E;
-  color: #ADBAC7;
-  box-shadow: 0 0 0 1px #ffffff;
-}
-
-.route th {
-  padding: 10px 5px; 
-  text-align: center;
-  background-color: #2D333B;
-  color: #ADBAC7;
-  border-radius: 10px;
-}
-
-.dark-mode .route th {
-  background-color: #2D333B;
-  color: #ADBAC7;
-  border-bottom: 1px solid white;
-}
-
-.route td {
-  padding: 10px;
-  text-align: center;
-}
-
-.route tr:first-child {
-  border-radius: 10px 10px 0 0;
-}
-
-.route tr:last-child {
-  border-radius: 0 0 10px 10px;
-}
-
-.dark-mode table.another-table {
-  box-shadow: 0 0 0 1px #ffffff;
-  border-color: #ffffff;
-  border-collapse: collapse;
-}
 
 .dark-mode table.another-table th,
 .dark-mode table.another-table td {

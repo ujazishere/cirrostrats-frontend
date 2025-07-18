@@ -73,6 +73,8 @@ const useInputHandlers = () => {
       clearrrr: ".route-tab-content",
       nas: ".nas-section",
       flightInfoContainer: ".flight-info-container",
+      datetab: ".date-tabs-container",
+      gateCardContainer: ".departure-gate-container", 
 
     };
 
@@ -112,6 +114,8 @@ const useInputHandlers = () => {
           clearrrr: ".route-tab-content",
           nas: ".nas-section",
           flightInfoContainer: ".flight-info-container",
+          datetab: ".date-tabs-container",
+          gateCardContainer: ".departure-gate-container", 
 
         };
 

@@ -2,9 +2,8 @@
  * Component to display departure information for a specific gate
  * Shows flight status, scheduled and actual departure times
  */
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import Input from "../components/Input/Index"; // Ensure this path is correct
-
 
 /**
  * Component to display departure information for a specific gate
@@ -13,22 +12,6 @@ import Input from "../components/Input/Index"; // Ensure this path is correct
  * @param {boolean} props.showSearchBar - Whether to show the search bar (default true)
  */
 const GateCard = ({ gateData, showSearchBar = true }) => {
-  // Reference for the search container
-  const searchContainerRef = useRef(null);
-  
-  // Apply the same styling as in combined.jsx
-  useEffect(() => {
-    // Apply custom styling to the search container specifically for this page
-    if (searchContainerRef.current) {
-      // Use stronger CSS approach for the top margin
-      searchContainerRef.current.style.cssText = 'margin-top: -70px !important; margin-bottom: -40px;';
-      // Also adjust the parent element if needed
-      const parentElement = searchContainerRef.current.parentElement;
-      if (parentElement && parentElement.classList.contains('gate-card-container')) {
-        parentElement.style.paddingTop = '0';
-      }
-    }
-  }, []);
 
   const formatDateTime = (dateString) => {
     if (!dateString || dateString === 'None') return 'None';
@@ -80,34 +63,50 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
   };
 
   return (
-    <div className="gate-card-container">
-      {/* Search Input Component at the top with the same styling as combined.jsx | DO NOT DELETE THIS CODE */}
-       {showSearchBar && ( 
-        <div className="combined-search" ref={searchContainerRef}>
-         <Input userEmail="user@example.com" isLoggedIn={true} />
+    // Wrap with a React Fragment <> to return multiple elements
+    <>
+      {/* ✅ FIXED: Search bar is now outside and above the main content container */}
+      {showSearchBar && (
+        <div className="combined-search">
+          <Input userEmail="user@example.com" isLoggedIn={true} />
         </div>
-    )}
-      <div className="gate-card">
-        <table className="departure-table">
-          <thead>
-            <tr>
-              <th>Flight</th>
-              <th>Scheduled</th>
-              <th>Actual</th>
-            </tr>
-          </thead>
-          <tbody>
+      )}
+      
+      <div className="departure-gate-container">
+        <div className="departure-board-container">
+          <div className="departure-board-header">
+            <div className="departure-header-column">Flight</div>
+            <div className="departure-header-column">Scheduled</div>
+            <div className="departure-header-column">Actual</div>
+          </div>
+          
+          <div className="departure-flights-wrapper">
             {getFlightData().map((flight, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'dark-row' : 'light-row'}>
-                <td>{flight.flightNumber}</td>
-                <td>{formatDateTime(flight.scheduled)}</td>
-                <td>{formatDateTime(flight.actual)}</td>
-              </tr>
+              <div key={index} className="departure-flight-row">
+                <div className="departure-flight-column">
+                  <div className="departure-column-label">Flight</div>
+                  <div className={`departure-column-data ${flight.flightNumber === 'None' ? 'departure-data-none' : ''}`}>
+                    {flight.flightNumber}
+                  </div>
+                </div>
+                <div className="departure-flight-column">
+                  <div className="departure-column-label">Scheduled</div>
+                  <div className="departure-column-data departure-scheduled-time">
+                    {formatDateTime(flight.scheduled)}
+                  </div>
+                </div>
+                <div className="departure-flight-column">
+                  <div className="departure-column-label">Actual</div>
+                  <div className={`departure-column-data departure-actual-time ${formatDateTime(flight.actual) === 'None' ? 'departure-data-none' : ''}`}>
+                    {formatDateTime(flight.actual)}
+                  </div>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
