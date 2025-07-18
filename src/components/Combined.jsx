@@ -3,7 +3,7 @@
  * - FlightCard: Main component displaying comprehensive flight details including departure/arrival info
  * * Key features:
  * - Responsive design with mobile-specific scroll behavior
- * - Date-based tab navigation (Today, Tomorrow, etc.) with smooth swipe animations
+ * - Date-based tab navigation (Today, Tomorrow, etc.)
  * - Real-time flight status display
  * - Integration with NAS (National Airspace System) data
  * - Route visualization support via SkyVector
@@ -12,7 +12,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from "react-router-dom";
-import { useSwipeable } from 'react-swipeable';
+// REMOVED: useSwipeable import as it's no longer needed for date tabs.
 import NASDetails from "./NASDetails";
 import Input from "../components/Input/Index";
 import RoutePanel from "./RoutePanel";
@@ -23,23 +23,23 @@ import GateCard from "./GateCard";
 /**
  * Main component for displaying comprehensive flight information
  * This component now features a top-level date-based tab navigation.
- * * @param {Object} props
+ * @param {Object} props
  * @param {Object} props.flightData - Flight information
  * @param {Object} props.weather - Departure and arrival weather data
  * @param {Object} props.NAS - National Airspace System data
  * @param {Object} props.EDCT - Expected Departure Clearance Time data
  */
 const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
-  // --- Start: Tab logic replicated from TabFormat.js ---
+  // --- Start: Tab logic ---
 
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState('');
-  const [isSticky, setIsSticky] = useState(false);
+  // REMOVED: isSticky state is no longer needed.
   const [isAnimating, setIsAnimating] = useState(false);
 
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
-  const tabPositionRef = useRef(null);
+  // REMOVED: tabPositionRef is no longer needed.
 
   // Effect to generate date-based tabs on component mount
   useEffect(() => {
@@ -67,62 +67,9 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
     }
   }, []);
 
-  // Swipe handlers for changing tabs
-  const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (isAnimating) return;
-      const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-      if (currentIndex < tabs.length - 1) {
-        changeTab(tabs[currentIndex + 1].id, 'left');
-      }
-    },
-    onSwipedRight: () => {
-      if (isAnimating) return;
-      const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-      if (currentIndex > 0) {
-        changeTab(tabs[currentIndex - 1].id, 'right');
-      }
-    },
-    trackTouch: true,
-    trackMouse: false,
-    preventDefaultTouchmoveEvent: false,
-    delta: 50,
-  });
+  // REMOVED: The useSwipeable hook and its handlers have been removed to disable swiping on date tabs.
 
-  // Effect for handling the sticky tab navigation bar
-  useEffect(() => {
-    const tabsNavElement = tabsNavRef.current;
-    if (!tabsNavElement) return;
-
-    const handleScroll = () => {
-      if (tabPositionRef.current === null) return;
-      setIsSticky(window.scrollY >= tabPositionRef.current);
-    };
-
-    const recalculatePosition = () => {
-      if (tabsNavRef.current) {
-        // Calculate the absolute top position of the tab bar relative to the document
-        tabPositionRef.current = tabsNavRef.current.getBoundingClientRect().top + window.scrollY;
-        handleScroll();
-      }
-    };
-    
-    // Use a ResizeObserver to react to layout changes (e.g., expandable sections)
-    const observer = new ResizeObserver(recalculatePosition);
-    const bodyElement = document.body;
-    observer.observe(bodyElement);
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Initial calculation after a delay to ensure the page has rendered
-    const timerId = setTimeout(recalculatePosition, 150);
-    
-    return () => {
-      clearTimeout(timerId);
-      window.removeEventListener('scroll', handleScroll);
-      observer.unobserve(bodyElement);
-    };
-  }, []); // Empty dependency array runs this setup once.
+  // REMOVED: The useEffect for handling the sticky tab navigation bar has been removed.
 
   // Core function to change tabs with animation
   const changeTab = (tabId, direction) => {
@@ -162,19 +109,13 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
   const handleTabChange = (tabId) => {
     if (isAnimating || tabId === activeTab) return;
     
-    const currentScrollY = window.scrollY;
     const currentIndex = tabs.findIndex(t => t.id === activeTab);
     const newIndex = tabs.findIndex(t => t.id === tabId);
     const direction = newIndex > currentIndex ? 'left' : 'right';
     
     changeTab(tabId, direction);
     
-    // Maintain scroll position if the header is sticky
-    requestAnimationFrame(() => {
-      if (isSticky) {
-        window.scrollTo(0, Math.max(tabPositionRef.current, currentScrollY));
-      }
-    });
+    // REMOVED: Logic to maintain scroll position for sticky header is no longer needed.
   };
   
   // --- End: Tab logic ---
@@ -240,8 +181,6 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
           .flight-card-content [class*="tab"] {
             border-radius: 5px;
           }
-            
-
         `}
       </style>
 
@@ -250,12 +189,13 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
         <Input userEmail="user@example.com" isLoggedIn={true} />
       </div>
 
-      <div className="date-tabs-container" {...handlers}>
+      {/* MODIFIED: Removed the swipe handlers from this container */}
+      <div className="date-tabs-container">
         {/* Date Tabs Navigation */}
+        {/* MODIFIED: Removed all sticky classes and conditional styles */}
         <div 
           ref={tabsNavRef}
-          className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`} // Using same class for styling
-          style={{ position: isSticky ? 'fixed' : 'relative', top: isSticky ? '0' : 'auto', width: '100%', zIndex: 1000 }}
+          className="weather-tabs-navigation"
         >
           {tabs.map(tab => (
             <button 
@@ -269,8 +209,7 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
           ))}
         </div>
 
-        {/* Placeholder to prevent content jump when tabs become sticky */}
-        {isSticky && <div className="tabs-placeholder" style={{ height: tabsNavRef.current?.offsetHeight || 0 }}></div>}
+        {/* REMOVED: Placeholder div for sticky tabs is no longer needed. */}
 
         {/* Tab Content Area */}
         <div 
