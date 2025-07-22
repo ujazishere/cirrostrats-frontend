@@ -9,181 +9,176 @@ This file manages UI interactions (click, submit, keyboard events)
 houses all input handlers.
 */
 const useInputHandlers = () => {
-  const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState("");
-  const [selectedValue, setSelectedValue] = useState(null);
-  const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
+    const [inputValue, setInputValue] = useState("");
+    const [selectedValue, setSelectedValue] = useState(null);
+    const [open, setOpen] = useState(false);
 
-  // const debouncedInputValue = useDebounce(inputValue, 300);
-  
-  const handleValue = (value) => {
-    setSelectedValue(value);
-  }
+    // const debouncedInputValue = useDebounce(inputValue, 300);
+    const handleValue = (value) => {
+        setSelectedValue(value);
+    }
 
-  const handleInputChange = (event, newInputValue, userEmail,) => {
-    // TODO:
-    // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
-    setInputValue(newInputValue);
-    // trackSearch(userEmail, newInputValue);
-  }
-  
-  const handleSubmit = (e, submitTerm, userEmail) => {
-    if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
-    let searchValue;
-    trackSearch(userEmail, submitTerm);
-    if (submitTerm) {
-      if (typeof submitTerm === 'string') {      // Raw serachterm submit. 
-        searchService.fetchRawQuery(submitTerm).then(rawReturn => {
-          if (rawReturn) {
-            searchValue = rawReturn
-            navigate("/details", { state: { searchValue }, userEmail });
-            setSelectedValue(submitTerm);
-          } else {
-          setSelectedValue(submitTerm.label);
-          searchValue = submitTerm
-          navigate("/details", { state: { searchValue }, userEmail });
-          };
-        });
-      } else {
-        // Dropdown selection submit. since they have the id, type and such built in.
-        searchValue = submitTerm
-        navigate("/details", { state: { searchValue }, userEmail });
-      };
-    } 
-  }
+    const handleInputChange = (event, newInputValue, userEmail,) => {
+        // TODO:
+        // Here the user should have their own most popular search terms
+        // displayed on the top in blue in the dropdown.
+        setInputValue(newInputValue);
+        // trackSearch(userEmail, newInputValue);
+    }
 
-  const handleFocus = () => {
-    // setIsExpanded(true);
-    // setOpen(searchTerm.length > 0);
-    setOpen(true);
-    const elements = {
-      navbar: ".navbar",
-      searchbar: ".searchbar-container",
-      title: ".hero-title",
-      googleButton: ".google-button",
-      featurecard: ".features-grid",
-      footer: ".footer",
-      gatecard: ".gate-card",
-      flightdetailscard: ".flight-details-card",
-      WeatherTabs: ".weather-tabs-container",
-      FeaturesSection: ".features-section",
-      AirportCard: ".weather-cards",
-      title2: ".hero-title-2",
-      navlinks: ".nav-links-container",
-      clearrrr: ".route-tab-content",
-      nas: ".nas-section",
-      flightInfoContainer: ".flight-info-container",
-      datetab: ".date-tabs-container",
-      gateCardContainer: ".departure-gate-container", 
-
-    };
-
-    Object.entries(elements).forEach(([key, selector]) => {
-      const element = document.querySelector(selector);
-      if (element) {
-        if (key === "searchbar") {
-          element.classList.add("expanded");
-        } else {
-          element.classList.add("hidden");
+    const handleSubmit = (e, submitTerm, userEmail) => {
+        if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
+        let searchValue;
+        trackSearch(userEmail, submitTerm);
+        if (submitTerm) {
+            if (typeof submitTerm === 'string') { // Raw serachterm submit.
+                searchService.fetchRawQuery(submitTerm).then(rawReturn => {
+                    if (rawReturn) {
+                        searchValue = rawReturn
+                        navigate("/details", { state: { searchValue }, userEmail });
+                        setSelectedValue(submitTerm);
+                    } else {
+                        setSelectedValue(submitTerm.label);
+                        searchValue = submitTerm
+                        navigate("/details", { state: { searchValue }, userEmail });
+                    };
+                });
+            } else {
+                // Dropdown selection submit. since they have the id, type and such built in.
+                searchValue = submitTerm
+                navigate("/details", { state: { searchValue }, userEmail });
+            };
         }
-      }
-    });
-  };
+    }
 
-  const handleBlur = (event) => {
-    // Small delay to allow click events on options to fire first
-    setTimeout(() => setOpen(false), 100);
-    if (!event.currentTarget.contains(event.relatedTarget)) {
-      setTimeout(() => {
-        // setIsExpanded(false);
+    const handleFocus = () => {
+        // setIsExpanded(true);
+        // setOpen(searchTerm.length > 0);
+        setOpen(true);
         const elements = {
-          navbar: ".navbar",
-          searchbar: ".searchbar-container",
-          title: ".hero-title",
-          googleButton: ".google-button",
-          featurecard: ".features-grid",
-          footer: ".footer",
-          gatecard: ".gate-card",
-          flightdetailscard: ".flight-details-card",
-          WeatherTabs: ".weather-tabs-container",
-          FeaturesSection: ".features-section",
-          data: ".data-content",
-          AirportCard: ".weather-cards",
-          title2: ".hero-title-2",
-          navlinks: ".nav-links-container",
-          clearrrr: ".route-tab-content",
-          nas: ".nas-section",
-          flightInfoContainer: ".flight-info-container",
-          datetab: ".date-tabs-container",
-          gateCardContainer: ".departure-gate-container", 
+            navbar: ".navbar",
+            searchbar: ".searchbar-container",
+            title: ".hero-title",
+            googleButton: ".google-button",
+            featurecard: ".features-grid",
+            footer: ".footer",
+            gatecard: ".gate-card",
+            flightdetailscard: ".flight-details-card",
+            WeatherTabs: ".weather-tabs-container",
+            FeaturesSection: ".features-section",
+            AirportCard: ".weather-cards",
+            title2: ".hero-title-2",
+            navlinks: ".nav-links-container",
+            clearrrr: ".route-tab-content",
+            nas: ".nas-section",
+            flightInfoContainer: ".flight-info-container",
+            datetab: ".date-tabs-container",
+            gateCardContainer: ".departure-gate-container",
 
         };
 
         Object.entries(elements).forEach(([key, selector]) => {
-          const element = document.querySelector(selector);
-          if (element) {
-            if (key === "searchbar") {
-              element.classList.remove("expanded");
-            } else {
-              element.classList.remove("hidden");
+            const element = document.querySelector(selector);
+            if (element) {
+                if (key === "searchbar") {
+                    element.classList.add("expanded");
+                } else {
+                    element.classList.add("hidden");
+                }
             }
-          }
         });
-      }, 300);
-    }
-  };
+    };
 
-  // // This will be called when the user presses the Tab key -- works with inlinePrediction
-  const handleKeyDown = (event) => {
-    if (event.key === "Tab" && inlinePrediction) {
-      event.preventDefault();
-      const newInputValue = inputValue + inlinePrediction;
-      setInputValue(newInputValue);
+    const handleBlur = (event) => {
+        // Small delay to allow click events on options to fire first
+        setTimeout(() => setOpen(false), 100);
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+            setTimeout(() => {
+                // setIsExpanded(false);
+                const elements = {
+                    navbar: ".navbar",
+                    searchbar: ".searchbar-container",
+                    title: ".hero-title",
+                    googleButton: ".google-button",
+                    featurecard: ".features-grid",
+                    footer: ".footer",
+                    gatecard: ".gate-card",
+                    flightdetailscard: ".flight-details-card",
+                    WeatherTabs: ".weather-tabs-container",
+                    FeaturesSection: ".features-section",
+                    data: ".data-content",
+                    AirportCard: ".weather-cards",
+                    title2: ".hero-title-2",
+                    navlinks: ".nav-links-container",
+                    clearrrr: ".route-tab-content",
+                    nas: ".nas-section",
+                    flightInfoContainer: ".flight-info-container",
+                    datetab: ".date-tabs-container",
+                    gateCardContainer: ".departure-gate-container",
 
-      const matchingSuggestion = filteredSuggestions.find(
-        (suggestion) => suggestion.label.toLowerCase() === newInputValue.toLowerCase()
-      );
+                };
 
-      if (matchingSuggestion) {
-        setSelectedValue(matchingSuggestion);
-      }
-    }
-  };
+                Object.entries(elements).forEach(([key, selector]) => {
+                    const element = document.querySelector(selector);
+                    if (element) {
+                        if (key === "searchbar") {
+                            element.classList.remove("expanded");
+                        } else {
+                            element.classList.remove("hidden");
+                        }
+                    }
+                });
+            }, 300);
+        }
+    };
 
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-    setSearchTerm(option?.label || "");
-    setOpen(false);
+    /**
+    * @description This handler is passed to the Autocomplete's TextField.
+    * The Autocomplete component automatically handles arrow key (Up/Down) navigation
+    * and selection (Enter key) for the dropdown options by default.
+    * We do not need to write custom logic for that behavior.
+    * This function is kept to demonstrate how you would handle other specific key events if needed.
+    */
+    const handleKeyDown = (event) => {
+        // The Material-UI Autocomplete component handles Up, Down, and Enter key presses internally.
+        // No custom logic is needed here for your required feature.
+    };
 
-    // Handle navigation based on selection type
-    if (option) {
-      if (option.type === "Airport") {
-        navigate(`/airport/${option.id}`);
-      } else if (option.type === "Flight") {
-        navigate(`/flight/${option.id}`);
-      } else if (option.type === "Gate") {
-        navigate(`/gate/${option.id}`);
-      }
-    }
-  };
+    const handleOptionSelect = (option) => {
+        setSelectedOption(option);
+        setSearchTerm(option?.label || "");
+        setOpen(false);
 
-  return {
-    open,
-    setOpen,
-    selectedValue,
-    setSelectedValue,
-    inputValue,
-    setInputValue,
-    // debouncedInputValue,
-    handleSubmit,
-    handleValue,
-    handleInputChange,
-    // handleSuggestionClick,
-    handleFocus,
-    handleBlur,
-    handleKeyDown,
-    handleOptionSelect,
-  };
+        // Handle navigation based on selection type
+        if (option) {
+            if (option.type === "Airport") {
+                navigate(`/airport/${option.id}`);
+            } else if (option.type === "Flight") {
+                navigate(`/flight/${option.id}`);
+            } else if (option.type === "Gate") {
+                navigate(`/gate/${option.id}`);
+            }
+        }
+    };
+
+    return {
+        open,
+        setOpen,
+        selectedValue,
+        setSelectedValue,
+        inputValue,
+        setInputValue,
+        // debouncedInputValue,
+        handleSubmit,
+        handleValue,
+        handleInputChange,
+        // handleSuggestionClick,
+        handleFocus,
+        handleBlur,
+        handleKeyDown,
+        handleOptionSelect,
+    };
 };
 
 export default useInputHandlers;

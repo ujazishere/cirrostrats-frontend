@@ -35,6 +35,16 @@
 }
 
 
+.search-option:hover {
+  background-color: #f0f4f8; 
+  cursor: pointer;
+}
+
+.search-option.Mui-focused {
+  background-color: #e3eefc; 
+  color: #1a1a1a; 
+  outline: none;
+}
 
 
 .departure-gate-container {
