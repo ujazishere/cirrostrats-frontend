@@ -23,7 +23,9 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
   const [isLoading, setIsLoading] = useState(false);
   
   // Debounce for backend queries (only when initial suggestions run out)
-  const debouncedInputValue = useDebounce(inputValue, 500);
+  const debouncedInputValue = useDebounce(inputValue, 240);
+  // Why 240ms? because human response/reaction time is around 200-250ms
+  // const debouncedInputValue = useDebounce(inputValue, 1000);
   
   // Track if initial suggestions have been loaded
   const initialLoadedRef = useRef(false);
@@ -104,14 +106,13 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
       
       if (rawData && rawData.length > 0) {
         const formatted = formatSuggestions(rawData);
-        
         setSuggestions(prev => {
           // Avoid duplicates
           // TODO: inspect this .id -- this will prevent me from feeding data to the sti outside of the id realm and may break the code. 
-          const existingIds = new Set([...prev.initial, ...prev.backend].map(s => s.id));
+          const existingIds = new Set([...prev.initial, ...prev.backend].map(s => s.stId));
           
           // Filters formatted (newly fetched suggestions) to exclude any items whose IDs already exist in existingIds.
-          const newSuggestions = formatted.filter(s => !existingIds.has(s.id));
+          const newSuggestions = formatted.filter(s => !existingIds.has(s.stId));
           
           return {
             ...prev,

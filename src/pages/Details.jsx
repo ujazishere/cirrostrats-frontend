@@ -85,7 +85,8 @@ const Details = () => {
         } else if (searchValue?.type === "Terminal/Gate") {
           setLoadingGateData(true);
           try {
-            const res = await axios.get(`${apiUrl}/gates/${searchValue.id}`);
+            const res = await axios.get(`${apiUrl}/gates/${searchValue.gate}`);
+            console.log("gate data", searchValue.gate, res.data);
             setGateData(res.data);
           } catch (e) {
             console.error("Gate Data Error:", e.response?.data || e.message);

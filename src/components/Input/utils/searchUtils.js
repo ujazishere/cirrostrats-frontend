@@ -3,7 +3,8 @@ export const formatSuggestions = (rawSuggestions) => {
   
   return rawSuggestions.map((item) => ({
     stId: item.stId,
-    id: item.id,
+    ...(item.id && { id: item.id }),            // gates dont have id so making id optional.
+    ...(item.gate && { gate: item.gate }),      // For gates
     ...(item.flightID && { flightID: item.flightID }),
     label: item.display
       ? (item.type === 'flight' && item.display.startsWith('GJS')
