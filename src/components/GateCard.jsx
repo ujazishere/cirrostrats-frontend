@@ -10,6 +10,18 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer); // Cleanup timer on component unmount
   }, []);
+  
+  // --- JSS-style objects to force styles ---
+  // Style for the search bar's container
+  const searchContainerStyle = {
+    marginBottom: '-3rem', marginTop: '-4rem', // Forcefully REMOVES any space BELOW this container
+  };
+
+  
+  // Style for the main content container
+  const gateContainerStyle = {
+    marginTop: '0' // Forcefully REMOVES any space ABOVE this container
+  };
 
   /**
    * Formats a date string into "Month Day HH:MM EST" format.
@@ -22,7 +34,6 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'Invalid Date';
 
-      // Options to get the date and time in the America/New_York timezone
       const dateOptions = { month: 'short', day: 'numeric', timeZone: 'America/New_York' };
       const timeOptions = {
         hour: '2-digit',
@@ -33,8 +44,7 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
       
       const formattedDate = date.toLocaleDateString('en-US', dateOptions);
       const formattedTime = date.toLocaleTimeString('en-US', timeOptions);
-
-      // Manually append "EST" as requested
+      
       return `${formattedDate} ${formattedTime} EST`;
     } catch (error) {
       console.error("Error formatting date:", error);
@@ -55,7 +65,7 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
       const dateB = b.Scheduled ? new Date(b.Scheduled).getTime() : 0;
       if (!dateA) return 1;
       if (!dateB) return -1;
-      return dateB - dateA; // Sort in descending order (latest first)
+      return dateB - dateA;
     });
   };
 
@@ -65,12 +75,14 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
   return (
     <div className="gate-card-wrapper">
       {showSearchBar && (
-        <div className="combined-search">
+        // Apply the inline style here
+        <div className="combined-search" style={searchContainerStyle}>
           <Input userEmail="user@example.com" isLoggedIn={true} />
         </div>
       )}
       
-      <div className="departure-gate-container">
+      {/* And apply the other inline style here */}
+      <div className="departure-gate-container" style={gateContainerStyle}>
         <h1 className="gate-heading">Gate {gateNumber}</h1>
 
         <div className="departure-board">
@@ -83,10 +95,7 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
             {sortedFlights.length > 0 ? (
               sortedFlights.map((flight, index) => {
                 const scheduledDate = flight.Scheduled ? new Date(flight.Scheduled) : null;
-                // Determine if the flight is in the past
                 const isPast = scheduledDate ? scheduledDate < currentTime : false;
-                
-                // Dynamically assign class based on flight status
                 const cardClassName = `flight-row-card ${isPast ? 'is-past' : 'is-future'}`;
 
                 return (

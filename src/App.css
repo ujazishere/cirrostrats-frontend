@@ -46,7 +46,7 @@
 
 .departure-gate-container {
   width: 100%;
-  margin-top: 2rem;
+  /* REMOVED: margin-top is now handled by an inline style in the component. */
 }
 
 /* --- Gate Heading --- */
@@ -124,32 +124,29 @@
 }
 
 /* --- Conditional Card Styles --- */
-
-/* Style for FUTURE/PRESENT flights */
 .flight-row-card.is-future {
-  background-color: #e6f4ea; /* A light, user-friendly green */
+  background-color: #e6f4ea;
   border: 1px solid #b8e0c3;
 }
 .is-future .data-column {
-  color: #1e4620; /* A dark, readable green for text */
+  color: #1e4620;
 }
 .is-future .flight-id {
-  color: #155724; /* Slightly stronger green for flight ID */
+  color: #155724;
 }
 .is-future .scheduled-time {
-  color: #007a33; /* A strong green for the time */
+  color: #007a33;
 }
 
-/* Style for PAST flights */
 .flight-row-card.is-past {
-  background-color: #fffbeb; /* Light yellow/orange background */
+  background-color: #fffbeb;
   border: 1px solid #fde68a;
 }
 .is-past .data-column {
-  color: #92400e; /* Dark amber color for text */
+  color: #92400e;
 }
 .is-past .scheduled-time {
-  color: #b45309; /* Slightly darker amber for time */
+  color: #b45309;
 }
 .is-past .flight-id {
   text-decoration: line-through;
@@ -173,21 +170,17 @@
     font-size: 1.75rem;
     margin-bottom: 2rem;
   }
-
-  .board-header, .flight-row-card {
+  .board-header,
+  .flight-row-card {
     padding: 0.75rem 1rem;
   }
-
   .data-column {
     font-size: 1rem;
   }
-  
   .scheduled-time {
-    white-space: nowrap; /* Prevent time from wrapping on small screens */
+    white-space: nowrap;
   }
-
 }
-
 
 
 
