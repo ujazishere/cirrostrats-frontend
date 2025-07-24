@@ -4,15 +4,22 @@ import GoogleButton from 'react-google-button';
 import axios from 'axios';
 import Input from "../components/Input/Index"; // Ensure this path is correct
 
-// Import your CSS file here
-// import './HomePage.css';
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [userEmail, setUserEmail] = useState("Anonymous");
-  const [hoveredLink, setHoveredLink] = useState(null);
+  
+  // State for the animated footer
+  const [footerTextIndex, setFooterTextIndex] = useState(0);
+  const [isFading, setIsFading] = useState(false);
+  const footerTexts = [
+    "Request a feature",
+    "Click here for support",
+    "Give us feedback",
+  ];
 
+  // Effect for checking stored login information
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
     const storedUserEmail = localStorage.getItem("userEmail");
@@ -21,18 +28,23 @@ const HomePage = () => {
       setUserEmail(storedUserEmail);
       setIsLoggedIn(true);
     }
-
-    // Add mobile styles to document head if needed
-    // const styleElement = document.createElement('style');
-    // styleElement.textContent = mobileStyles;
-    // document.head.appendChild(styleElement);
-
-    // return () => {
-    //   if (document.head.contains(styleElement)) {
-    //     document.head.removeChild(styleElement);
-    //   }
-    // };
   }, []);
+  
+  // Effect for the animated footer text cycle
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsFading(true); // Start fade-out
+
+      // After the fade-out animation (500ms), change the text and fade back in
+      setTimeout(() => {
+        setFooterTextIndex((prevIndex) => (prevIndex + 1) % footerTexts.length);
+        setIsFading(false); // Start fade-in
+      }, 500);
+
+    }, 5000); // Cycle every 5 seconds
+
+    return () => clearInterval(interval); // Cleanup on component unmount
+  }, [footerTexts.length]);
 
   const googleLogin = useGoogleLogin({
     scope: "openid profile email",
@@ -67,14 +79,6 @@ const HomePage = () => {
     localStorage.removeItem("userEmail");
   };
 
-  const handleLinkHover = (linkType) => {
-    setHoveredLink(linkType);
-  };
-
-  const handleLinkLeave = () => {
-    setHoveredLink(null);
-  };
-
   return (
     <div className="min-h-screen bg-slate-50">
       {/* FontAwesome CDN */}
@@ -83,12 +87,8 @@ const HomePage = () => {
       {/* Hero section */}
       <div className="hero-section">
         <div className="container">
-          <h1 className="hero-title">
-            Cirrostrats
-          </h1>
-          <h2 className="hero-title-2">
-            Unified Aviation Information Platform.
-          </h2>
+          <h1 className="hero-title">Cirrostrats</h1>
+          <h2 className="hero-title-2">Unified Aviation Information Platform.</h2>
 
           {/* Search input */}
           <Input userEmail={userEmail} isLoggedIn={isLoggedIn} />
@@ -108,16 +108,13 @@ const HomePage = () => {
         </div>
       </div>
       
-      {/* Login/Logout section - visible on all devices */}
+      {/* Login/Logout section */}
       <div className="login-section">
         <div className="login-container">
           {isLoggedIn ? (
             <div className="user-profile">
               <span className="user-email">{userEmail}</span>
-              <button 
-                onClick={handleLogout}
-                className="logout-button"
-              >
+              <button onClick={handleLogout} className="logout-button">
                 Logout
               </button>
             </div>
@@ -134,17 +131,14 @@ const HomePage = () => {
         </div>
       </div> 
 
-      {/* Footer - Single footer with email support link */}
+      {/* Footer - Animated */}
       <footer className="footer-support">
         <div className="footer-support-container">
-          <a 
-            href="mailto:publicuj@gmail.com"
-            className={`footer-support-link ${hoveredLink === 'email' ? 'hovered' : ''}`}
-            onMouseEnter={() => handleLinkHover('email')}
-            onMouseLeave={handleLinkLeave}
-          >
-            <i className={`fas fa-envelope footer-support-icon ${hoveredLink === 'email' ? 'hovered' : ''}`}></i>
-            Email for Support
+          <a href="mailto:publicuj@gmail.com" className="footer-support-link">
+            <i className="fas fa-envelope footer-support-icon"></i>
+            <span className={`footer-text ${isFading ? 'fade-out' : 'fade-in'}`}>
+              {footerTexts[footerTextIndex]}
+            </span>
           </a>
         </div>
       </footer> 

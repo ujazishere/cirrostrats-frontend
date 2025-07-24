@@ -34,6 +34,37 @@
   }
 }
 
+
+/* Animated Footer Styles */
+.footer-text {
+  margin-left: 8px; /* Adds space between the icon and the text */
+  display: inline-block; /* Ensures the span behaves correctly for animations */
+}
+
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Optional: To make the link look good */
+.footer-support-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit; /* Or specify a color */
+}
+
+
+
+
+
+
+
 .gate-card-wrapper {
   width: 100%;
   max-width: 800px;
