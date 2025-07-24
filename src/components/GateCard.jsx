@@ -14,13 +14,22 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
   // --- JSS-style objects to force styles ---
   // Style for the search bar's container
   const searchContainerStyle = {
-    marginBottom: '-3rem', marginTop: '-4rem', // Forcefully REMOVES any space BELOW this container
+    marginBottom: '-3rem', marginTop: '-4rem',
   };
 
-  
   // Style for the main content container
   const gateContainerStyle = {
-    marginTop: '0' // Forcefully REMOVES any space ABOVE this container
+    marginTop: '0'
+  };
+
+  /**
+   * Opens a Google search for the given flight ID in a new tab.
+   * @param {string} flightId - The flight ID to search for (e.g., "UA4511").
+   */
+  const handleFlightClick = (flightId) => {
+    if (!flightId) return; // Do nothing if flightId is not provided
+    const googleFlightsUrl = `https://www.google.com/search?q=${flightId}`;
+    window.open(googleFlightsUrl, '_blank', 'noopener,noreferrer');
   };
 
   /**
@@ -75,13 +84,11 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
   return (
     <div className="gate-card-wrapper">
       {showSearchBar && (
-        // Apply the inline style here
         <div className="combined-search" style={searchContainerStyle}>
           <Input userEmail="user@example.com" isLoggedIn={true} />
         </div>
       )}
       
-      {/* And apply the other inline style here */}
       <div className="departure-gate-container" style={gateContainerStyle}>
         <h1 className="gate-heading">Gate {gateNumber}</h1>
 
@@ -99,7 +106,13 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
                 const cardClassName = `flight-row-card ${isPast ? 'is-past' : 'is-future'}`;
 
                 return (
-                  <div key={index} className={cardClassName}>
+                  // ADDED onClick handler and cursor style here
+                  <div 
+                    key={index} 
+                    className={cardClassName}
+                    onClick={() => handleFlightClick(flight.FlightID)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className="data-column flight-id">
                       {flight.FlightID || 'N/A'}
                     </div>
