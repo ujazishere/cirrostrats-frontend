@@ -35,151 +35,127 @@
 }
 
 
-
-
-.departure-gate-container {
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 20px !important;
-}
-
-.departure-board-container {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 16px !important;
-}
-
-
-.departure-board-header {
-  background: #24292f !important;
-  color: white !important;
-  border-radius: 12px !important;
-  padding: 20px 24px !important;
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 20px !important;
-  margin-bottom: 4px !important;
-  margin-top: -50px !important;
-}
-
-.departure-header-column {
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-}
-
-.departure-flights-wrapper {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 16px !important;
-}
-
-.departure-flight-row {
-  background: white !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
-  padding: 24px !important;
-  transition: all 0.3s ease !important;
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 20px !important;
-  align-items: center !important;
-}
-
-.departure-flight-row:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-}
-
-.departure-flight-column {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
-}
-
-.departure-column-label {
-  font-size: 12px !important;
-  color: #7f8c8d !important;
-  font-weight: 500 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-}
-
-
-.departure-column-data {
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  color: #2c3e50 !important;
-}
-
-.departure-data-none {
-  color: #95a5a6 !important;
-  font-style: italic !important;
-}
-
-.departure-scheduled-time {
-  color: #27ae60 !important;
-}
-
-.departure-actual-time {
-  color: #e74c3c !important;
-}
-
-.departure-actual-time.departure-data-none {
-  color: #95a5a6 !important;
-  font-style: italic !important;
-}
-
-@media (max-width: 768px) {
-  .departure-gate-container {
-    padding: 16px !important;
-  }
-
-  .departure-board-header,
-  .departure-flight-row {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-
-  .departure-flight-row {
-    padding: 20px !important;
-  }
-
-  .departure-board-container {
-    gap: 12px !important;
-  }
-
-  .departure-flights-wrapper {
-    gap: 12px !important;
-  }
-}
-
-.departure-board-container {
-  margin-top: 20px !important;
-}
-
-.combined-search + .departure-board-container {
-  margin-top: 60px !important;
-}
-
-.departure-gate-container .departure-table,
-.departure-gate-container table {
-  display: none !important;
-}
-
-.departure-gate-container * {
-  box-sizing: border-box !important;
+.gate-card-wrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .departure-gate-container {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  width: 100%;
+  margin-top: 2rem;
 }
 
-.departure-gate-container {
-  background-color: #f5f7fa !important;
-  min-height: 100vh !important;
+/* --- Gate Heading --- */
+.gate-heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: #2c3e50; /* A deep, professional blue-gray */
+  margin: 0 0 2.5rem 0;
 }
+
+/* --- Departure Board --- */
+.departure-board {
+  width: 100%;
+}
+
+/* --- Board Header Card --- */
+.board-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  background-color: #2c3e50; /* Dark header background */
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+}
+
+.header-column {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+}
+
+.header-column:last-child {
+  text-align: center;
+}
+
+/* --- Board Body (List of Cards) --- */
+.board-body {
+  display: grid;
+  gap: 0.75rem; /* Space between the cards */
+}
+
+/* --- Individual Flight Row Card --- */
+.flight-row-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  border: 1px solid #e1e8ed;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flight-row-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.data-column {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #34495e;
+}
+
+.flight-id {
+  font-weight: 600;
+}
+
+.scheduled-time {
+  text-align: center;
+  color: #27ae60; /* A pleasant green for scheduled times */
+  font-family: 'Roboto Mono', monospace; /* Monospaced font for numerical data */
+}
+
+/* --- No Flights Message --- */
+.no-flights-card {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e1e8ed;
+  color: #7f8c8d;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 640px) {
+  .gate-heading {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .board-header, .flight-row-card {
+    padding: 0.75rem 1rem;
+  }
+
+  .data-column {
+    font-size: 1rem;
+  }
+}
+
+
+
 
 .delay-table td,
 .delay-table th {
