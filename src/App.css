@@ -34,7 +34,6 @@
   }
 }
 
-
 .gate-card-wrapper {
   width: 100%;
   max-width: 800px;
@@ -55,7 +54,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   text-align: center;
-  color: #2c3e50; /* A deep, professional blue-gray */
+  color: #2c3e50;
   margin: 0 0 2.5rem 0;
 }
 
@@ -69,7 +68,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  background-color: #2c3e50; /* Dark header background */
+  background-color: #2c3e50;
   color: #ffffff;
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
@@ -91,31 +90,28 @@
 /* --- Board Body (List of Cards) --- */
 .board-body {
   display: grid;
-  gap: 0.75rem; /* Space between the cards */
+  gap: 0.75rem;
 }
 
-/* --- Individual Flight Row Card --- */
+/* --- Base Flight Row Card Style --- */
 .flight-row-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   align-items: center;
-  background-color: #ffffff;
   padding: 1.25rem 1.5rem;
   border-radius: 10px;
-  border: 1px solid #e1e8ed;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
 }
 
 .flight-row-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .data-column {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #34495e;
 }
 
 .flight-id {
@@ -124,9 +120,42 @@
 
 .scheduled-time {
   text-align: center;
-  color: #27ae60; /* A pleasant green for scheduled times */
-  font-family: 'Roboto Mono', monospace; /* Monospaced font for numerical data */
+  font-family: 'Roboto Mono', monospace;
 }
+
+/* --- Conditional Card Styles --- */
+
+/* Style for FUTURE/PRESENT flights */
+.flight-row-card.is-future {
+  background-color: #e6f4ea; /* A light, user-friendly green */
+  border: 1px solid #b8e0c3;
+}
+.is-future .data-column {
+  color: #1e4620; /* A dark, readable green for text */
+}
+.is-future .flight-id {
+  color: #155724; /* Slightly stronger green for flight ID */
+}
+.is-future .scheduled-time {
+  color: #007a33; /* A strong green for the time */
+}
+
+/* Style for PAST flights */
+.flight-row-card.is-past {
+  background-color: #fffbeb; /* Light yellow/orange background */
+  border: 1px solid #fde68a;
+}
+.is-past .data-column {
+  color: #92400e; /* Dark amber color for text */
+}
+.is-past .scheduled-time {
+  color: #b45309; /* Slightly darker amber for time */
+}
+.is-past .flight-id {
+  text-decoration: line-through;
+  text-decoration-color: #d97706;
+}
+
 
 /* --- No Flights Message --- */
 .no-flights-card {
@@ -152,6 +181,11 @@
   .data-column {
     font-size: 1rem;
   }
+  
+  .scheduled-time {
+    white-space: nowrap; /* Prevent time from wrapping on small screens */
+  }
+
 }
 
 
