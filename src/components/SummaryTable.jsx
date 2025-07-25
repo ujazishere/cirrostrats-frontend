@@ -25,6 +25,18 @@ const SummaryTable = ({ flightData, EDCT }) => {
     return value !== null && value !== undefined && value.toString().trim() !== '' && value !== 'N/A';
   };
 
+  // NEW: Helper function to check if at least one value in a pair has data
+  // This determines whether a paired section should be displayed
+  const hasPairValue = (value1, value2) => {
+    return hasValue(value1) || hasValue(value2);
+  };
+
+  // NEW: Helper function to get display value for paired items
+  // Returns the actual value if it exists, otherwise returns '—' for missing data
+  const getPairDisplayValue = (value) => {
+    return hasValue(value) ? value : '—';
+  };
+
   // Function to calculate countdown from EDCT time to current UTC time
   const getCountdown = (edctTime) => {
     if (!hasValue(edctTime)) return '—';
@@ -179,84 +191,107 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
         <EDCTSection edctData={EDCT} />
 
-        {/* Airport Codes with Arrow */}
-        {(hasValue(flightData?.departure) || hasValue(flightData?.arrival)) && (
+        {/* Airport Codes with Arrow - UPDATED: Using paired visibility logic */}
+        {/* Show section only if at least one of departure or arrival has data */}
+        {hasPairValue(flightData?.departure, flightData?.arrival) && (
           <div className="airport-codes-section">
-            {hasValue(flightData?.departure) && (
-              <div className="airport-code-large">{flightData.departure}</div>
-            )}
+            {/* Always show departure div, display '—' if no data */}
+            <div className="airport-code-large">{getPairDisplayValue(flightData?.departure)}</div>
             <div className="arrow-icon">→</div>
-            {hasValue(flightData?.arrival) && (
-              <div className="airport-code-large">{flightData.arrival}</div>
-            )}
+            {/* Always show arrival div, display '—' if no data */}
+            <div className="airport-code-large">{getPairDisplayValue(flightData?.arrival)}</div>
           </div>
         )}
 
-        {/* Main Flight Details: Gates and Scheduled Local Times */}
+        {/* Main Flight Details: Gates and Scheduled Local Times - UPDATED: Using paired visibility logic */}
         <div className="flight-details-grid">
           {/* Departure Details */}
           <div className="departure-details">
-            {hasValue(flightData?.flightStatsOriginGate) && (
+            {/* Gate pair: flightStatsOriginGate and flightStatsDestinationGate */}
+            {/* Show gate info only if at least one gate has data */}
+            {hasPairValue(flightData?.flightStatsOriginGate, flightData?.flightStatsDestinationGate) && (
               <div className="info-item">
                 <div className="info-label">Gate</div>
-                <div className="info-value">{flightData.flightStatsOriginGate}</div>
+                {/* Always show value, display '—' if no data */}
+                <div className="info-value">{getPairDisplayValue(flightData?.flightStatsOriginGate)}</div>
               </div>
             )}
-            {hasValue(flightData?.flightStatsScheduledDepartureTime) && (
+            {/* Scheduled Local Time pair: flightStatsScheduledDepartureTime and flightStatsScheduledArrivalTime */}
+            {/* Show scheduled local time only if at least one time has data */}
+            {hasPairValue(flightData?.flightStatsScheduledDepartureTime, flightData?.flightStatsScheduledArrivalTime) && (
               <div className="info-item">
                 <div className="info-label">Scheduled Local</div>
-                <div className="time-value">{flightData.flightStatsScheduledDepartureTime}</div>
+                {/* Always show value, display '—' if no data */}
+                <div className="time-value">{getPairDisplayValue(flightData?.flightStatsScheduledDepartureTime)}</div>
               </div>
             )}
           </div>
 
           {/* Arrival Details */}
           <div className="arrival-details">
-            {hasValue(flightData?.flightStatsDestinationGate) && (
+            {/* Gate pair: flightStatsOriginGate and flightStatsDestinationGate */}
+            {/* Show gate info only if at least one gate has data */}
+            {hasPairValue(flightData?.flightStatsOriginGate, flightData?.flightStatsDestinationGate) && (
               <div className="info-item">
                 <div className="info-label">Gate</div>
-                <div className="info-value">{flightData.flightStatsDestinationGate}</div>
+                {/* Always show value, display '—' if no data */}
+                <div className="info-value">{getPairDisplayValue(flightData?.flightStatsDestinationGate)}</div>
               </div>
             )}
-            {hasValue(flightData?.flightStatsScheduledArrivalTime) && (
+            {/* Scheduled Local Time pair: flightStatsScheduledDepartureTime and flightStatsScheduledArrivalTime */}
+            {/* Show scheduled local time only if at least one time has data */}
+            {hasPairValue(flightData?.flightStatsScheduledDepartureTime, flightData?.flightStatsScheduledArrivalTime) && (
               <div className="info-item">
                 <div className="info-label">Scheduled Local</div>
-                <div className="time-value">{flightData.flightStatsScheduledArrivalTime}</div>
+                {/* Always show value, display '—' if no data */}
+                <div className="time-value">{getPairDisplayValue(flightData?.flightStatsScheduledArrivalTime)}</div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Scheduled/Estimated Times Section */}
+        {/* Scheduled/Estimated Times Section - UPDATED: Using paired visibility logic */}
         <div className="scheduled-estimated-grid">
           {/* Departure Out Times */}
           <div className="departure-out-times">
-            {hasValue(flightData?.flightAwareScheduledOut) && (
+            {/* Scheduled Out pair: flightAwareScheduledOut and flightAwareScheduledIn */}
+            {/* Show scheduled out/in only if at least one has data */}
+            {hasPairValue(flightData?.flightAwareScheduledOut, flightData?.flightAwareScheduledIn) && (
               <div className="info-item">
                 <div className="info-label">Scheduled Out</div>
-                <div className="info-value">{flightData.flightAwareScheduledOut}</div>
+                {/* Always show value, display '—' if no data */}
+                <div className="info-value">{getPairDisplayValue(flightData?.flightAwareScheduledOut)}</div>
               </div>
             )}
-            {hasValue(flightData?.fa_estimated_out) && (
+            {/* Estimated Out pair: fa_estimated_out and fa_estimated_in */}
+            {/* Show estimated out/in only if at least one has data */}
+            {hasPairValue(flightData?.fa_estimated_out, flightData?.fa_estimated_in) && (
               <div className="info-item">
                 <div className="info-label">Estimated Out</div>
-                <div className="info-value">{flightData.fa_estimated_out}</div>
+                {/* Always show value, display '—' if no data */}
+                <div className="info-value">{getPairDisplayValue(flightData?.fa_estimated_out)}</div>
               </div>
             )}
           </div>
 
           {/* Arrival In Times */}
           <div className="arrival-in-times">
-            {hasValue(flightData?.flightAwareScheduledIn) && (
+            {/* Scheduled In pair: flightAwareScheduledOut and flightAwareScheduledIn */}
+            {/* Show scheduled out/in only if at least one has data */}
+            {hasPairValue(flightData?.flightAwareScheduledOut, flightData?.flightAwareScheduledIn) && (
               <div className="info-item">
                 <div className="info-label">Scheduled In</div>
-                <div className="info-value">{flightData.flightAwareScheduledIn}</div>
+                {/* Always show value, display '—' if no data */}
+                <div className="info-value">{getPairDisplayValue(flightData?.flightAwareScheduledIn)}</div>
               </div>
             )}
-            {hasValue(flightData?.fa_estimated_in) && (
+            {/* Estimated In pair: fa_estimated_out and fa_estimated_in */}
+            {/* Show estimated out/in only if at least one has data */}
+            {hasPairValue(flightData?.fa_estimated_out, flightData?.fa_estimated_in) && (
               <div className="info-item">
                 <div className="info-label">Estimated In</div>
-                <div className="info-value">{flightData.fa_estimated_in}</div>
+                {/* Always show value, display '—' if no data */}
+                <div className="info-value">{getPairDisplayValue(flightData?.fa_estimated_in)}</div>
               </div>
             )}
           </div>
