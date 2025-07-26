@@ -3,6 +3,8 @@ import { useGoogleLogin } from '@react-oauth/google';
 import GoogleButton from 'react-google-button';
 import axios from 'axios';
 import Input from "../components/Input/Index"; // Ensure this path is correct
+import { db } from '../firebase.js';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 
 const HomePage = () => {
@@ -23,6 +25,7 @@ const HomePage = () => {
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
   const [feedbackType, setFeedbackType] = useState("General Feedback");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // To disable button on submit
 
   // Effect for checking stored login information
   useEffect(() => {
@@ -38,17 +41,13 @@ const HomePage = () => {
   // Effect for the animated footer text cycle
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsFading(true); // Start fade-out
-
-      // After the fade-out animation (500ms), change the text and fade back in
+      setIsFading(true);
       setTimeout(() => {
         setFooterTextIndex((prevIndex) => (prevIndex + 1) % footerTexts.length);
-        setIsFading(false); // Start fade-in
+        setIsFading(false);
       }, 500);
-
-    }, 5000); // Cycle every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup on component unmount
+    }, 5000);
+    return () => clearInterval(interval);
   }, [footerTexts.length]);
 
   const googleLogin = useGoogleLogin({
@@ -65,10 +64,10 @@ const HomePage = () => {
         const fullName = `${userData.given_name} ${userData.family_name}`;
         
         setUserInfo(userData);
-        setUserEmail(fullName); // Store full name instead of email
+        setUserEmail(fullName);
         setIsLoggedIn(true);
         localStorage.setItem("userInfo", JSON.stringify(userData));
-        localStorage.setItem("userEmail", fullName); // Store full name in localStorage
+        localStorage.setItem("userEmail", fullName);
       } catch (error) {
         console.error("Error fetching user info:", error);
       }
@@ -95,16 +94,33 @@ const HomePage = () => {
     setFeedbackType("General Feedback");
   };
 
-  const handleSubmitFeedback = () => {
-    // Here you can handle the feedback submission
-    // For now, we'll just create a mailto link with the feedback
-    const subject = encodeURIComponent(`Feedback: ${feedbackType}`);
-    const body = encodeURIComponent(`User: ${userEmail}\n\nFeedback Type: ${feedbackType}\n\nMessage:\n${feedbackMessage}`);
-    window.open(`mailto:publicuj@gmail.com?subject=${subject}&body=${body}`);
+  // ✨ --- UPDATED SUBMIT FUNCTION --- ✨
+  const handleSubmitFeedback = async () => {
+    if (!feedbackMessage.trim()) return; // Don't submit empty feedback
     
-    // Close the popup and reset form
-    handleCloseFeedback();
+    setIsSubmitting(true);
+
+    try {
+      // Create a new document in the "feedback" collection
+      await addDoc(collection(db, "feedback"), {
+        user: userEmail,
+        type: feedbackType,
+        message: feedbackMessage,
+        submittedAt: serverTimestamp(), // Adds a server-side timestamp
+        userAgent: navigator.userAgent, // Optional: useful for debugging
+      });
+
+      alert("Thank you! Your feedback has been submitted successfully.");
+      handleCloseFeedback(); // Close the popup
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      alert("Sorry, there was an error submitting your feedback. Please try again.");
+    } finally {
+      setIsSubmitting(false); // Re-enable the button
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -214,9 +230,9 @@ const HomePage = () => {
               <button 
                 onClick={handleSubmitFeedback} 
                 className="feedback-submit"
-                disabled={!feedbackMessage.trim()}
+                disabled={!feedbackMessage.trim() || isSubmitting}
               >
-                Submit Feedback
+                {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
               </button>
             </div>
           </div>
