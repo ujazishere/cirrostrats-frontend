@@ -19,6 +19,11 @@ const HomePage = () => {
     "Give us feedback",
   ];
 
+  // State for feedback popup
+  const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
+  const [feedbackType, setFeedbackType] = useState("General Feedback");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
   // Effect for checking stored login information
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
@@ -79,6 +84,28 @@ const HomePage = () => {
     localStorage.removeItem("userEmail");
   };
 
+  const handleFeedbackClick = (e) => {
+    e.preventDefault();
+    setShowFeedbackPopup(true);
+  };
+
+  const handleCloseFeedback = () => {
+    setShowFeedbackPopup(false);
+    setFeedbackMessage("");
+    setFeedbackType("General Feedback");
+  };
+
+  const handleSubmitFeedback = () => {
+    // Here you can handle the feedback submission
+    // For now, we'll just create a mailto link with the feedback
+    const subject = encodeURIComponent(`Feedback: ${feedbackType}`);
+    const body = encodeURIComponent(`User: ${userEmail}\n\nFeedback Type: ${feedbackType}\n\nMessage:\n${feedbackMessage}`);
+    window.open(`mailto:publicuj@gmail.com?subject=${subject}&body=${body}`);
+    
+    // Close the popup and reset form
+    handleCloseFeedback();
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* FontAwesome CDN */}
@@ -134,14 +161,67 @@ const HomePage = () => {
       {/* Footer - Animated */}
       <footer className="footer-support">
         <div className="footer-support-container">
-          <a href="mailto:publicuj@gmail.com" className="footer-support-link">
+          <a href="#" onClick={handleFeedbackClick} className="footer-support-link">
             <i className="fas fa-envelope footer-support-icon"></i>
             <span className={`footer-text ${isFading ? 'fade-out' : 'fade-in'}`}>
               {footerTexts[footerTextIndex]}
             </span>
           </a>
         </div>
-      </footer> 
+      </footer>
+
+      {/* Feedback Popup */}
+      {showFeedbackPopup && (
+        <div className="feedback-overlay">
+          <div className="feedback-popup">
+            <div className="feedback-header">
+              <h2 className="feedback-title">Send us your feedback</h2>
+              <button onClick={handleCloseFeedback} className="feedback-close">
+                ✕
+              </button>
+            </div>
+            
+            <div className="feedback-content">
+              <div className="feedback-field">
+                <label className="feedback-label">Type of feedback</label>
+                <select 
+                  value={feedbackType} 
+                  onChange={(e) => setFeedbackType(e.target.value)}
+                  className="feedback-select"
+                >
+                  <option value="General Feedback">General Feedback</option>
+                  <option value="Bug Report">Bug Report</option>
+                  <option value="Feature Request">Feature Request</option>
+                  <option value="Support">Support</option>
+                </select>
+              </div>
+
+              <div className="feedback-field">
+                <label className="feedback-label">Your message</label>
+                <textarea 
+                  value={feedbackMessage}
+                  onChange={(e) => setFeedbackMessage(e.target.value)}
+                  placeholder="Please describe your feedback, feature request, or issue in detail..."
+                  className="feedback-textarea"
+                />
+              </div>
+            </div>
+
+            <div className="feedback-actions">
+              <button onClick={handleCloseFeedback} className="feedback-cancel">
+                Cancel
+              </button>
+              <button 
+                onClick={handleSubmitFeedback} 
+                className="feedback-submit"
+                disabled={!feedbackMessage.trim()}
+              >
+                Submit Feedback
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

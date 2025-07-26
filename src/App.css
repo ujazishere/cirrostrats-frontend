@@ -35,6 +35,236 @@
 }
 
 
+/* Feedback Popup Styles */
+.feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.feedback-popup {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0 24px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.feedback-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.feedback-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-close:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.feedback-content {
+  padding: 0 24px 24px 24px;
+}
+
+.feedback-field {
+  margin-bottom: 24px;
+}
+
+.feedback-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.feedback-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #1f2937;
+  background-color: white;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.feedback-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.feedback-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #1f2937;
+  background-color: white;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedback-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.feedback-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 0 24px 24px 24px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 24px;
+}
+
+.feedback-cancel {
+  padding: 10px 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-cancel:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.feedback-submit {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background-color: #6b7280;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-submit:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+
+.feedback-submit:disabled {
+  background-color: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .feedback-popup {
+    margin: 16px;
+    width: calc(100% - 32px);
+  }
+  
+  .feedback-header {
+    padding: 16px 16px 0 16px;
+  }
+  
+  .feedback-content {
+    padding: 0 16px 16px 16px;
+  }
+  
+  .feedback-actions {
+    padding: 0 16px 16px 16px;
+    padding-top: 16px;
+  }
+  
+  .feedback-title {
+    font-size: 20px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
 /* Animated Footer Styles */
 .footer-text {
   margin-left: 8px; /* Adds space between the icon and the text */
