@@ -51,3 +51,13 @@ dcuf.bat
 # is local
 dcuf.sh
 mac_local.sh
+
+
+# test results
+/tests/integration/results
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
