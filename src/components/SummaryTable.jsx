@@ -19,7 +19,6 @@ import React, { useState, useEffect } from 'react';
  * @param {Array<Object>} props.EDCT - Array of EDCT information objects.
  */
 const SummaryTable = ({ flightData, EDCT }) => {
-  console.log('dlightD',flightData)
   // Helper function to check if a value exists and is not empty
   const hasValue = (value) => {
     return value !== null && value !== undefined && value.toString().trim() !== '' && value !== 'N/A';

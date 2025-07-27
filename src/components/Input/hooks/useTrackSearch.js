@@ -19,7 +19,7 @@ export const trackSearch = async (userEmail,submitTerm) => {
         timestamp,
       });
     } catch (error) {
-      console.error("Error sending search track to backend:", error.response.data, error.message);
+      console.error("Error sending search track to backend:", error.response?.data, error.message);
     }
 
   } else {

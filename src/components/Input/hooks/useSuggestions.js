@@ -1,25 +1,42 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import useDebounce from "./useDebounce";
-import { 
-  formatSuggestions, 
+import {
+  formatSuggestions,
   matchingSuggestions,
 } from "../utils/searchUtils";
 import searchService from "../api/searchservice";
 
+// Helper to get recent searches from local storage and filter out old ones
+const getRecentSearchesFromLocalStorage = () => {
+  const storedSearches = localStorage.getItem('recentSearches');
+  if (storedSearches) {
+    const twentyFourHoursAgo = new Date().getTime() - (24 * 60 * 60 * 1000); // Milliseconds in 24 hours
+    try {
+      const searches = JSON.parse(storedSearches);
+      // Filter out searches older than 24 hours and ensure they have a timestamp
+      return searches.filter(s => s.timestamp && s.timestamp > twentyFourHoursAgo);
+    } catch (e) {
+      console.error("Error parsing recent searches from localStorage:", e);
+      // If parsing fails, it indicates corrupted data; clear it and return empty
+      localStorage.removeItem('recentSearches');
+      return [];
+    }
+  }
+  return [];
+};
+
 /**
- * Enhanced search suggestions hook with proper caching and backspace handling
+ * Enhanced search suggestions hook with search history priority.
  */
 export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, dropOpen) {
   // Core suggestion state
   const [suggestions, setSuggestions] = useState({
-    initial: [],       // Popular suggestions loaded once (up to 500)
+    initial: [],       // Popular suggestions loaded once
     backend: [],       // Additional suggestions from backend searches
-    filtered: [],      // Currently displayed suggestions (max 5)
+    filtered: [],      // Currently displayed suggestions
     hasMore: true      // Whether more suggestions might be available
   });
 
-  // Cache for display history to handle backspace scenarios
-  const [displayCache, setDisplayCache] = useState(new Map());
   const [isLoading, setIsLoading] = useState(false);
   
   // Debounce for backend queries (only when initial suggestions run out)
@@ -29,23 +46,44 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
   
   // Track if initial suggestions have been loaded
   const initialLoadedRef = useRef(false);
-  const lastInputRef = useRef('');
+  const [localRecentSearches, setLocalRecentSearches] = useState([]);
+  const localRecentSearchesRef = useRef(localRecentSearches);
+  const lastFetchedQueryRef = useRef(''); // Track last fetched query to avoid duplicates
 
-  // Initial fetch of popular suggestions (called once)
   useEffect(() => {
-    if (!initialLoadedRef.current && userEmail) {
-      const fetchInitialSuggestions = async () => {
+    localRecentSearchesRef.current = localRecentSearches;
+  }, [localRecentSearches]);
+
+  const markSuggestionsAsRecent = useCallback((suggs) => {
+    if (!Array.isArray(suggs)) return [];
+    const currentRecentSearches = localRecentSearchesRef.current;
+    return suggs.map(s => {
+      const isRecent = currentRecentSearches.some(rs => {
+        if (s.id && rs.id) return s.id === rs.id;
+        return s.label.toLowerCase() === rs.label.toLowerCase();
+      });
+      return { ...s, isRecent };
+    });
+  }, []);
+
+  // Initial fetch of popular suggestions and local recent searches (called once)
+  useEffect(() => {
+    if (!initialLoadedRef.current) {
+      const fetchInitialData = async () => {
         try {
           setIsLoading(true);
+          const recent = getRecentSearchesFromLocalStorage();
+          setLocalRecentSearches(recent);
+
           const rawData = await searchService.fetchPopularSuggestions(userEmail, '');
           const formatted = formatSuggestions(rawData);
-          
+          const initialWithRecentStatus = markSuggestionsAsRecent(formatted);
+
           setSuggestions(prev => ({
             ...prev,
-            initial: formatted,
-            filtered: formatted.slice(0, 5)
+            initial: initialWithRecentStatus,
           }));
-          
+
           initialLoadedRef.current = true;
         } catch (error) {
           console.error("Failed to fetch initial suggestions:", error);
@@ -53,55 +91,33 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
           setIsLoading(false);
         }
       };
-
-      fetchInitialSuggestions();
+      fetchInitialData();
     }
-  }, [userEmail, formatSuggestions]);
+  }, [userEmail, markSuggestionsAsRecent]);
 
-  // Handle input changes and filtering
+  // Periodically refresh localRecentSearches from localStorage
   useEffect(() => {
-    // early return if dropdown not open or initial suggestions are not loaded.
-    if (!dropOpen || !initialLoadedRef.current) return;
+    const interval = setInterval(() => {
+      const refreshedRecent = getRecentSearchesFromLocalStorage();
+      if (JSON.stringify(refreshedRecent) !== JSON.stringify(localRecentSearchesRef.current)) {
+        setLocalRecentSearches(refreshedRecent);
+      }
+    }, 2000); // Check for new recent searches every 2 seconds
 
-    const currentInput = inputValue || '';
-    const lastInput = lastInputRef.current;
-    
-    // Determine if user is backspacing
-    const isBackspacing = currentInput.length < lastInput.length && 
-                         lastInput.startsWith(currentInput);
-    
-    // Get all available suggestions
-    const allSuggestions = [...suggestions.initial, ...suggestions.backend];
-    
-    if (isBackspacing && displayCache.has(currentInput)) {
-      // Use cached results for backspace
-      const cachedResults = displayCache.get(currentInput);
-      setSuggestions(prev => ({
-        ...prev,
-        filtered: cachedResults
-      }));
-    } else {
-      // Filter suggestions normally
-      const filtered = matchingSuggestions(allSuggestions, currentInput);
-      
-      setSuggestions(prev => ({
-        ...prev,
-        filtered
-      }));
-      
-      // Cache the results
-      setDisplayCache(prev => new Map(prev).set(currentInput, filtered));
-    }
-    
-    lastInputRef.current = currentInput;
-  }, [inputValue, dropOpen, suggestions.initial, suggestions.backend, matchingSuggestions, displayCache]);
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch additional suggestions when needed
   const fetchAdditionalSuggestions = useCallback(async (query) => {
     if (!query || query.length < 2) return;
     
+    // Avoid fetching the same query multiple times
+    if (lastFetchedQueryRef.current === query.toLowerCase()) return;
+    
     try {
       setIsLoading(true);
+      lastFetchedQueryRef.current = query.toLowerCase();
+      
       const rawData = await searchService.fetchPopularSuggestions(userEmail, query);
       
       if (rawData && rawData.length > 0) {
@@ -109,10 +125,18 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
         setSuggestions(prev => {
           // Avoid duplicates
           // TODO: inspect this .id -- this will prevent me from feeding data to the sti outside of the id realm and may break the code. 
-          const existingIds = new Set([...prev.initial, ...prev.backend].map(s => s.stId));
+          const existingIds = new Set([...prev.initial.map(s => s.stId), ...prev.backend.map(s => s.stId)].filter(Boolean)); 
           
           // Filters formatted (newly fetched suggestions) to exclude any items whose IDs already exist in existingIds.
-          const newSuggestions = formatted.filter(s => !existingIds.has(s.stId));
+          const newSuggestions = formatted
+            .filter(s => s.stId ? !existingIds.has(s.stId) : true) 
+            .map(s => ({ 
+              ...s,
+              isRecent: localRecentSearchesRef.current.some(rs => {
+                if (s.stId && rs.stId) return s.stId === rs.stId;
+                return s.label.toLowerCase() === rs.label.toLowerCase();
+              })
+            }));
           
           return {
             ...prev,
@@ -125,67 +149,72 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
     } finally {
       setIsLoading(false);
     }
-  }, [userEmail, formatSuggestions]);
-
-  // Trigger backend fetch when filtered suggestions are low and input is debounced
-  useEffect(() => {
-    if (!dropOpen || !debouncedInputValue) return;
-    
-    const shouldFetchMore = suggestions.filtered.length < 5 && 
-                           debouncedInputValue.length >= 2 &&
-                           suggestions.hasMore;
-    
-    if (shouldFetchMore) {
-      fetchAdditionalSuggestions(debouncedInputValue);
-    }
-  }, [debouncedInputValue, suggestions.filtered.length, dropOpen, fetchAdditionalSuggestions, suggestions.hasMore]);
-
-  // Parse query for complex searches (when all else fails)
-  const parseQuery = useCallback(async (query) => {
-    if (!query || query.length < 3) return;
-    
-    try {
-      setIsLoading(true);
-      // Implement your parse query logic here
-      // const results = await searchService.parseQuery(userEmail, query);
-      // Handle parse query results...
-    } catch (error) {
-      console.error("Parse query failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
   }, [userEmail]);
 
-  // Cleanup cache periodically to prevent memory leaks
+  // **NEW**: Trigger additional suggestions when user types
   useEffect(() => {
-    const cleanup = () => {
-      setDisplayCache(prev => {
-        const newCache = new Map();
-        // Keep only recent entries (last 10)
-        const entries = Array.from(prev.entries()).slice(-10);
-        entries.forEach(([key, value]) => newCache.set(key, value));
-        return newCache;
-      });
-    };
+    if (debouncedInputValue && 
+        debouncedInputValue.length >= 2 && 
+        dropOpen && 
+        initialLoadedRef.current) {
+      fetchAdditionalSuggestions(debouncedInputValue);
+    }
+  }, [debouncedInputValue, dropOpen, fetchAdditionalSuggestions]);
 
-    const interval = setInterval(cleanup, 60000); // Cleanup every minute
-    return () => clearInterval(interval);
-  }, []);
+  // Handle input changes to filter and prioritize recent searches
+  useEffect(() => {
+    if (!dropOpen || !initialLoadedRef.current) {
+      return;
+    }
+
+    const currentInput = (inputValue || "").toLowerCase();
+
+    // 1. Get user's recent searches, sorted with newest first. Mark for styling.
+    const recentSearchesWithFlag = localRecentSearches.map(s => ({ ...s, isRecent: true }));
+
+    // 2. Get all other suggestions (popular, backend).
+    const allOtherSuggestions = [...suggestions.initial, ...suggestions.backend];
+
+    // 3. Filter both lists based on the current input.
+    const filteredRecent = recentSearchesWithFlag.filter(s =>
+      s.label.toLowerCase().includes(currentInput)
+    );
+
+    const filteredOther = matchingSuggestions(allOtherSuggestions, inputValue);
+
+    // 4. Combine lists, prioritizing recent matches and ensuring no duplicates.
+    const combinedSuggestions = [...filteredRecent, ...filteredOther];
+    const uniqueSuggestions = [];
+    const seenLabels = new Set();
+
+    for (const suggestion of combinedSuggestions) {
+      const lowerLabel = suggestion.label.toLowerCase();
+      if (!seenLabels.has(lowerLabel)) {
+        seenLabels.add(lowerLabel);
+        uniqueSuggestions.push(suggestion);
+      }
+    }
+    
+    // 5. Update state with the final, ordered list, capped at a max number.
+    const MAX_DISPLAY_SUGGESTIONS = 10;
+    setSuggestions(prev => ({
+      ...prev,
+      filtered: uniqueSuggestions.slice(0, MAX_DISPLAY_SUGGESTIONS),
+    }));
+
+  }, [inputValue, dropOpen, localRecentSearches, suggestions.initial, suggestions.backend]);
 
   return {
     filteredSuggestions: suggestions.filtered,
     isLoading,
     hasMore: suggestions.hasMore,
-    // Additional utilities you might need
-    clearCache: () => setDisplayCache(new Map()),
+    fetchAdditionalSuggestions, // Expose for manual calls if needed
     refetch: () => {
       initialLoadedRef.current = false;
-      setSuggestions({
-        initial: [],
-        backend: [],
-        filtered: [],
-        hasMore: true
-      });
+      lastFetchedQueryRef.current = ''; // Reset last fetched query
+      setSuggestions({ initial: [], backend: [], filtered: [], hasMore: true });
+      setLocalRecentSearches([]);
+      localStorage.removeItem('recentSearches');
     }
   };
 }

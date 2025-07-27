@@ -10,9 +10,9 @@ import useInputHandlers from "../hooks/useInputHandlers";
 /**
  * @function SearchInput
  * @description Renders the search input UI (e.g., Autocomplete).
- *  Receives props from the parent (Input/index.jsx).
- *  Renders the Autocomplete component.
- *  Passes user interactions (e.g., typing, selecting) back to the parent via callback props.
+ * Receives props from the parent (Input/index.jsx).
+ * Renders the Autocomplete component.
+ * Passes user interactions (e.g., typing, selecting) back to the parent via callback props.
   */ 
 export default function SearchInput({ 
   userEmail,
@@ -31,6 +31,7 @@ export default function SearchInput({
     handleKeyDown,
   } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed to all others.
 
+  // filteredSuggestions will now include an 'isRecent' boolean flag
   const { filteredSuggestions } = useSearchSuggestions(userEmail, null, inputValue, dropOpen);
 
   return (
@@ -82,13 +83,23 @@ export default function SearchInput({
               />
             </div>
           )}
-          // the renderOption function is being used to highlight matching parts of the option's label based on the user's input.
+          // The renderOption function is being used to highlight matching parts of the option's label based on the user's input.
+          // Now, it will also conditionally apply styling for recent searches.
           renderOption={(props, option, { inputValue }) => {
             const matches = match(option.label, inputValue, { insideWords: true });
             const parts = parse(option.label, matches);
             return (
               <li {...props} className="search-option">
-                <div>
+                {/* Apply conditional style here based on option.isRecent */}
+                <div 
+                  style={{ 
+                    color: option.isRecent ? 'purple' : 'inherit', // Change to purple if recent
+                    // For a blur effect, use filter property. Note: blur might affect readability.
+                    // filter: option.isRecent ? 'blur(0.4px)' : 'none', 
+                    // To ensure text is not blurred, you might apply blur to a pseudo-element or background
+                    // but for text, color is generally preferred for this use case.
+                  }}
+                >
                   {parts.map((part, index) => (
                     <span
                       key={index}

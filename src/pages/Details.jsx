@@ -76,7 +76,6 @@ const Details = () => {
           setFlightData(res.data.flightData || res.data);
           setWeatherResponseFlight(res.data.weather || res.data);
           setNasResponseFlight(res.data.NAS || res.data);
-          console.log(res.data.NAS);
           setEDCT(res.data.EDCT || res.data);
           // If test data needs to provide gateData, it should be set here too.
           // e.g., setGateData(res.data.gateData) // This would override the hook for test mode.
