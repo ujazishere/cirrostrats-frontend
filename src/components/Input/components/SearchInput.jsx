@@ -32,7 +32,42 @@ export default function SearchInput({
   } = useInputHandlers();     // useInputHandlers.handleInputChange has the initial search value that gets passed to all others.
 
   // filteredSuggestions will now include an 'isRecent' boolean flag
-  const { filteredSuggestions } = useSearchSuggestions(userEmail, null, inputValue, dropOpen);
+  // We now also get a function to refresh the recent searches instantly
+  const { filteredSuggestions, refreshRecentSearches } = useSearchSuggestions(userEmail, null, inputValue, dropOpen);
+
+  /**
+   * @function handleRemoveRecent
+   * @description Removes a single recent search item from localStorage and refreshes the suggestions list.
+   * @param {Event} e - The click event.
+   * @param {object} itemToRemove - The suggestion object to remove.
+   */
+
+    const handleRemoveRecent = (e, itemToRemove) => {
+    e.stopPropagation(); // Prevents the Autocomplete's onChange from firing.
+
+    let recentSearches = [];
+    try {
+      recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+    } catch (error) {
+      console.error("Error parsing recent searches from localStorage:", error);
+      return; // Exit if stored data is corrupt
+    }
+
+    // Filter out the item to be removed.
+    // It matches based on ID if available, otherwise by a case-insensitive label match.
+    const updatedSearches = recentSearches.filter(item => {
+      if (itemToRemove.id && item.id) {
+        return item.id !== itemToRemove.id;
+      }
+      return item.label.toLowerCase() !== itemToRemove.label.toLowerCase();
+    });
+
+    // Save the updated array back to localStorage.
+    localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
+
+    // Instantly trigger a refresh of the suggestions from the hook.
+    refreshRecentSearches();
+  };
 
   return (
     <div className="search-container">
@@ -89,17 +124,19 @@ export default function SearchInput({
             const matches = match(option.label, inputValue, { insideWords: true });
             const parts = parse(option.label, matches);
             return (
-              <li {...props} className="search-option">
+              <li {...props} className="search-option" style = {{ justifyContent: 'flex-start' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                {/* Text content (left side) */}
                 {/* Apply conditional style here based on option.isRecent */}
                 <div 
                   style={{ 
-                    color: option.isRecent ? 'purple' : 'inherit', // Change to purple if recent
+                    color: option.isRecent ? 'purple' : 'inherit', textAlign: 'left', // Change to purple if recent
                     // For a blur effect, use filter property. Note: blur might affect readability.
                     // filter: option.isRecent ? 'blur(0.4px)' : 'none', 
                     // To ensure text is not blurred, you might apply blur to a pseudo-element or background
                     // but for text, color is generally preferred for this use case.
                   }}
-                >
+                  >
                   {parts.map((part, index) => (
                     <span
                       key={index}
@@ -110,10 +147,32 @@ export default function SearchInput({
                       {part.text}
                     </span>
                   ))}
+                  </div>
+
+
+                  {option.isRecent && (
+                    <button
+                      type="button" // **FIX: Prevents page refresh on click**
+                      onClick={(e) => handleRemoveRecent(e, option)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        marginLeft: '8px',
+                        color: '#999',
+                        lineHeight: '1',
+                        fontSize: '16px'
+                      }}
+                      aria-label={`Remove ${option.label} from recent searches`}
+                    >
+                      &times;
+                    </button>
+                  )}
                 </div>
               </li>
             );
-          }}
+          }}  
           filterOptions={(x) => x}
           disableClearable
           forcePopupIcon={false}

@@ -6,18 +6,23 @@ import {
 } from "../utils/searchUtils";
 import searchService from "../api/searchservice";
 
-// Helper to get recent searches from local storage and filter out old ones
+/**
+ * @function getRecentSearchesFromLocalStorage
+ * @description A helper function to safely retrieve and validate recent searches from localStorage.
+ * It ensures that the data is not corrupted and filters out any searches older than 24 hours.
+ * @returns {Array} An array of recent search objects.
+ */
 const getRecentSearchesFromLocalStorage = () => {
   const storedSearches = localStorage.getItem('recentSearches');
   if (storedSearches) {
     const twentyFourHoursAgo = new Date().getTime() - (24 * 60 * 60 * 1000); // Milliseconds in 24 hours
     try {
       const searches = JSON.parse(storedSearches);
-      // Filter out searches older than 24 hours and ensure they have a timestamp
+      // Filter out any searches that are older than 24 hours to keep the list fresh.
       return searches.filter(s => s.timestamp && s.timestamp > twentyFourHoursAgo);
     } catch (e) {
       console.error("Error parsing recent searches from localStorage:", e);
-      // If parsing fails, it indicates corrupted data; clear it and return empty
+      // If parsing fails, the data is likely corrupted. Clear it to prevent further errors.
       localStorage.removeItem('recentSearches');
       return [];
     }
@@ -26,62 +31,54 @@ const getRecentSearchesFromLocalStorage = () => {
 };
 
 /**
- * Enhanced search suggestions hook with search history priority.
+ * @function useSearchSuggestions
+ * @description An enhanced search suggestions hook that fetches popular and backend suggestions,
+ * correctly prioritizes the user's recent search history, and handles dynamic updates.
  */
 export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, dropOpen) {
-  // Core suggestion state
+  // Core state to hold all types of suggestions.
   const [suggestions, setSuggestions] = useState({
-    initial: [],       // Popular suggestions loaded once
-    backend: [],       // Additional suggestions from backend searches
-    filtered: [],      // Currently displayed suggestions
-    hasMore: true      // Whether more suggestions might be available
+    initial: [],       // Popular suggestions loaded once on mount.
+    backend: [],       // Additional suggestions fetched as the user types.
+    filtered: [],      // The final, de-duplicated list shown to the user.
+    hasMore: true      // A flag for future use (e.g., infinite scroll).
   });
 
   const [isLoading, setIsLoading] = useState(false);
   
-  // Debounce for backend queries (only when initial suggestions run out)
+  // Debounces the input value to prevent firing off a network request on every keystroke.
+  // Why 240ms? Human reaction time is typically around 200-250ms, so this feels responsive.
   const debouncedInputValue = useDebounce(inputValue, 240);
-  // Why 240ms? because human response/reaction time is around 200-250ms
-  // const debouncedInputValue = useDebounce(inputValue, 1000);
   
-  // Track if initial suggestions have been loaded
+  // Refs to track the loading state and avoid redundant fetches.
   const initialLoadedRef = useRef(false);
+  const lastFetchedQueryRef = useRef('');
+
+  // State to hold the user's recent searches, synced with localStorage.
   const [localRecentSearches, setLocalRecentSearches] = useState([]);
-  const localRecentSearchesRef = useRef(localRecentSearches);
-  const lastFetchedQueryRef = useRef(''); // Track last fetched query to avoid duplicates
 
-  useEffect(() => {
-    localRecentSearchesRef.current = localRecentSearches;
-  }, [localRecentSearches]);
+  // --- HOOKS ---
 
-  const markSuggestionsAsRecent = useCallback((suggs) => {
-    if (!Array.isArray(suggs)) return [];
-    const currentRecentSearches = localRecentSearchesRef.current;
-    return suggs.map(s => {
-      const isRecent = currentRecentSearches.some(rs => {
-        if (s.id && rs.id) return s.id === rs.id;
-        return s.label.toLowerCase() === rs.label.toLowerCase();
-      });
-      return { ...s, isRecent };
-    });
-  }, []);
-
-  // Initial fetch of popular suggestions and local recent searches (called once)
+  // Effect 1: Initial Data Fetch (runs only once).
+  // Fetches the initial "popular" suggestions and the user's recent searches from storage.
   useEffect(() => {
     if (!initialLoadedRef.current) {
       const fetchInitialData = async () => {
         try {
           setIsLoading(true);
-          const recent = getRecentSearchesFromLocalStorage();
-          setLocalRecentSearches(recent);
+          // Step 1: Get recent searches from localStorage on initial load.
+          setLocalRecentSearches(getRecentSearchesFromLocalStorage());
 
+          // Step 2: Fetch the general list of popular suggestions from the backend.
           const rawData = await searchService.fetchPopularSuggestions(userEmail, '');
           const formatted = formatSuggestions(rawData);
-          const initialWithRecentStatus = markSuggestionsAsRecent(formatted);
 
+          // Step 3: Store the raw popular suggestions.
+          // FIX: The 'isRecent' flag is NOT applied here. It will be added dynamically in the filtering
+          // logic to ensure the UI is always in sync with the latest recent searches.
           setSuggestions(prev => ({
             ...prev,
-            initial: initialWithRecentStatus,
+            initial: formatted,
           }));
 
           initialLoadedRef.current = true;
@@ -93,25 +90,28 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
       };
       fetchInitialData();
     }
-  }, [userEmail, markSuggestionsAsRecent]);
+  }, [userEmail]); // Dependency on userEmail to refetch if the user changes.
 
-  // Periodically refresh localRecentSearches from localStorage
+  // Effect 2: Periodic Sync with localStorage.
+  // This keeps the component's recent searches in sync if they are changed in another browser tab.
   useEffect(() => {
     const interval = setInterval(() => {
       const refreshedRecent = getRecentSearchesFromLocalStorage();
-      if (JSON.stringify(refreshedRecent) !== JSON.stringify(localRecentSearchesRef.current)) {
+      // Only update state if the data has actually changed to avoid unnecessary re-renders.
+      if (JSON.stringify(refreshedRecent) !== JSON.stringify(localRecentSearches)) {
         setLocalRecentSearches(refreshedRecent);
       }
-    }, 2000); // Check for new recent searches every 2 seconds
+    }, 2000); // Checks for changes every 2 seconds.
 
+    // Cleanup function to clear the interval when the component unmounts.
     return () => clearInterval(interval);
-  }, []);
+  }, [localRecentSearches]); // Depends on localRecentSearches to avoid a stale closure.
 
-  // Fetch additional suggestions when needed
+  // Function to fetch more suggestions from the backend based on user input.
   const fetchAdditionalSuggestions = useCallback(async (query) => {
     if (!query || query.length < 2) return;
     
-    // Avoid fetching the same query multiple times
+    // Avoid fetching the same query multiple times in a row.
     if (lastFetchedQueryRef.current === query.toLowerCase()) return;
     
     try {
@@ -123,20 +123,12 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
       if (rawData && rawData.length > 0) {
         const formatted = formatSuggestions(rawData);
         setSuggestions(prev => {
-          // Avoid duplicates
-          // TODO: inspect this .id -- this will prevent me from feeding data to the sti outside of the id realm and may break the code. 
-          const existingIds = new Set([...prev.initial.map(s => s.stId), ...prev.backend.map(s => s.stId)].filter(Boolean)); 
+          // TODO: inspect this .id -- this will prevent me from feeding data to the sti outside of the id realm and may break the code.
+          const existingIds = new Set([...prev.initial.map(s => s.stId), ...prev.backend.map(s => s.stId)].filter(Boolean));
           
-          // Filters formatted (newly fetched suggestions) to exclude any items whose IDs already exist in existingIds.
+          // Filters newly fetched suggestions to exclude any items whose IDs already exist.
           const newSuggestions = formatted
-            .filter(s => s.stId ? !existingIds.has(s.stId) : true) 
-            .map(s => ({ 
-              ...s,
-              isRecent: localRecentSearchesRef.current.some(rs => {
-                if (s.stId && rs.stId) return s.stId === rs.stId;
-                return s.label.toLowerCase() === rs.label.toLowerCase();
-              })
-            }));
+            .filter(s => s.stId ? !existingIds.has(s.stId) : true);
           
           return {
             ...prev,
@@ -151,7 +143,8 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
     }
   }, [userEmail]);
 
-  // **NEW**: Trigger additional suggestions when user types
+  // Effect 3: Trigger for Additional Suggestions.
+  // Calls the fetch function when the debounced input value changes.
   useEffect(() => {
     if (debouncedInputValue && 
         debouncedInputValue.length >= 2 && 
@@ -161,7 +154,8 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
     }
   }, [debouncedInputValue, dropOpen, fetchAdditionalSuggestions]);
 
-  // Handle input changes to filter and prioritize recent searches
+  // Effect 4: Main Filtering and Sorting Logic (The Core of the Hook).
+  // This runs every time the input value or recent searches change, creating the final list to display.
   useEffect(() => {
     if (!dropOpen || !initialLoadedRef.current) {
       return;
@@ -169,52 +163,63 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
 
     const currentInput = (inputValue || "").toLowerCase();
 
-    // 1. Get user's recent searches, sorted with newest first. Mark for styling.
-    const recentSearchesWithFlag = localRecentSearches.map(s => ({ ...s, isRecent: true }));
-
-    // 2. Get all other suggestions (popular, backend).
-    const allOtherSuggestions = [...suggestions.initial, ...suggestions.backend];
-
-    // 3. Filter both lists based on the current input.
-    const filteredRecent = recentSearchesWithFlag.filter(s =>
+    // Step 1: Prepare the list of recent searches. These are *always* marked as recent.
+    const recentItems = localRecentSearches.map(s => ({ ...s, isRecent: true }));
+    const filteredRecent = recentItems.filter(s =>
       s.label.toLowerCase().includes(currentInput)
     );
 
-    const filteredOther = matchingSuggestions(allOtherSuggestions, inputValue);
+    // Step 2: Prepare all other suggestions (initial popular + backend fetched).
+    const otherItems = [...suggestions.initial, ...suggestions.backend];
 
-    // 4. Combine lists, prioritizing recent matches and ensuring no duplicates.
-    const combinedSuggestions = [...filteredRecent, ...filteredOther];
-    const uniqueSuggestions = [];
-    const seenLabels = new Set();
+    // Step 3: Create a Set of recent labels for efficient de-duplication. Using a Set is much faster than array.includes().
+    const recentLabels = new Set(recentItems.map(item => item.label.toLowerCase()));
 
-    for (const suggestion of combinedSuggestions) {
-      const lowerLabel = suggestion.label.toLowerCase();
-      if (!seenLabels.has(lowerLabel)) {
-        seenLabels.add(lowerLabel);
-        uniqueSuggestions.push(suggestion);
-      }
-    }
-    
-    // 5. Update state with the final, ordered list, capped at a max number.
-    const MAX_DISPLAY_SUGGESTIONS = 10;
-    setSuggestions(prev => ({
-      ...prev,
-      filtered: uniqueSuggestions.slice(0, MAX_DISPLAY_SUGGESTIONS),
-    }));
+    // Step 4: Filter the "other" items to exclude any that are already in the recent list.
+    // This is the key fix: it prevents an item from appearing twice (e.g., once as purple/recent, once as normal).
+    const uniqueOtherItems = otherItems.filter(item => !recentLabels.has(item.label.toLowerCase()));
+    const filteredOther = uniqueOtherItems.filter(s =>
+      s.label.toLowerCase().includes(currentInput)
+  );
 
-  }, [inputValue, dropOpen, localRecentSearches, suggestions.initial, suggestions.backend]);
 
+  // 3. Apply the dynamic count rule.
+      const MAX_TOTAL_SUGGESTIONS = 5;
+  // The number of other suggestions to show is 5 minus the number of recent ones shown.
+      const numOtherToShow = MAX_TOTAL_SUGGESTIONS - filteredRecent.length;
+  
+  // 4. Combine the lists according to the new rule.
+      const finalSuggestions = [
+        ...filteredRecent, // Include all matching recent items.
+        ...filteredOther.slice(0, numOtherToShow) // Add the calculated number of other items.
+      ];
+
+  // 5. Update the state with the final, correctly sized list.
+      setSuggestions(prev => ({
+        ...prev,
+        filtered: finalSuggestions,
+      }));
+
+}, [inputValue, dropOpen, localRecentSearches, suggestions.initial, suggestions.backend]);
+
+  // --- RETURNED VALUES ---
   return {
     filteredSuggestions: suggestions.filtered,
     isLoading,
     hasMore: suggestions.hasMore,
-    fetchAdditionalSuggestions, // Expose for manual calls if needed
+    fetchAdditionalSuggestions, // Expose for manual calls if needed.
+    // Expose a function to allow other components to instantly refresh recent searches from localStorage.
+    // This is used after a user deletes a recent search item.
+    refreshRecentSearches: () => {
+      setLocalRecentSearches(getRecentSearchesFromLocalStorage());
+    },
+    // A function to completely reset the hook's state and clear storage.
     refetch: () => {
       initialLoadedRef.current = false;
-      lastFetchedQueryRef.current = ''; // Reset last fetched query
+      lastFetchedQueryRef.current = '';
       setSuggestions({ initial: [], backend: [], filtered: [], hasMore: true });
-      setLocalRecentSearches([]);
       localStorage.removeItem('recentSearches');
+      setLocalRecentSearches([]);
     }
   };
 }

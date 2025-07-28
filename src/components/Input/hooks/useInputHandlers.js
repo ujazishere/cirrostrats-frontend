@@ -29,6 +29,12 @@ const useInputHandlers = () => {
   
   const handleSubmit = (e, submitTerm, userEmail) => {
     if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
+    // --- FIX: PREVENT BLANK SEARCH FROM BEING SAVED ---
+    // If submitTerm is falsy, a string with only whitespace, or an object without a label, do not proceed.
+    if (!submitTerm || (typeof submitTerm === 'string' && !submitTerm.trim()) || (typeof submitTerm === 'object' && !submitTerm?.label)) {
+      return; // Exit the function early
+    }
+    
     let searchValue;
     trackSearch(userEmail, submitTerm); // This will still send to backend if VITE_TRACK_SEARCH is true
 
@@ -47,7 +53,7 @@ const useInputHandlers = () => {
     let termToStore = {};
     if (typeof submitTerm === 'string') {
       // For raw string searches, store just the label
-      termToStore = { label: submitTerm };
+      termToStore = { label: submitTerm.trim () };
     } else if (submitTerm && submitTerm.label) {
       // For structured dropdown selections, store id, label, and type
       termToStore = {
