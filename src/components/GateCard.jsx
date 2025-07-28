@@ -21,6 +21,13 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
   const gateContainerStyle = {
     marginTop: '0'
   };
+  
+  // --- NEW: Style object for delayed flights ---
+  // This style will be applied to the entire flight row if it's delayed.
+  const delayedFlightStyle = {
+    backgroundColor: '#fff3cd', // An "acceptable yellow" background.
+    color: '#856404',          // A matching dark font color for readability.
+  };
 
   /**
    * Opens a Google search for the given flight ID in a new tab.
@@ -101,23 +108,50 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
           <div className="board-body">
             {sortedFlights.length > 0 ? (
               sortedFlights.map((flight, index) => {
-                const scheduledDate = flight.Scheduled ? new Date(flight.Scheduled) : null;
-                const isPast = scheduledDate ? scheduledDate < currentTime : false;
-                const cardClassName = `flight-row-card ${isPast ? 'is-past' : 'is-future'}`;
+                // --- STRIKE-THROUGH LOGIC ---
+                // The `is-past` class applies a strike-through if the flight has a 'departure' key.
+                const hasDeparted = flight.hasOwnProperty('departure');
+                const cardClassName = `flight-row-card ${hasDeparted ? 'is-past' : 'is-future'}`;
+
+                // --- LOGIC TO CHECK FOR FLIGHT DELAY ---
+                let isDelayed = false;
+                if (flight.Scheduled && flight.Estimated && typeof flight.Estimated === 'string') {
+                  try {
+                    const scheduledDateTime = new Date(flight.Scheduled);
+                    const [estHours, estMinutes] = flight.Estimated.split(':').map(Number);
+                    const estimatedDateTime = new Date(scheduledDateTime.getTime());
+                    estimatedDateTime.setHours(estHours, estMinutes, 0, 0);
+                    const differenceInMs = estimatedDateTime.getTime() - scheduledDateTime.getTime();
+                    const differenceInMinutes = differenceInMs / (1000 * 60);
+
+                    if (differenceInMinutes > 5) {
+                      isDelayed = true;
+                    }
+                  } catch (error) {
+                    console.error("Error parsing flight times for delay calculation:", error);
+                    isDelayed = false;
+                  }
+                }
 
                 return (
-                  // ADDED onClick handler and cursor style here
                   <div 
                     key={index} 
                     className={cardClassName}
                     onClick={() => handleFlightClick(flight.FlightID)}
-                    style={{ cursor: 'pointer' }}
+                    // --- NEW: CONDITIONAL STYLING ---
+                    // The style object combines the default cursor with the delayed styles if isDelayed is true.
+                    style={{
+                      cursor: 'pointer',
+                      ...(isDelayed && delayedFlightStyle) // Spread operator adds styles for delayed flights
+                    }}
                   >
                     <div className="data-column flight-id">
                       {flight.FlightID || 'N/A'}
                     </div>
                     <div className="data-column scheduled-time">
                       {formatDateTime(flight.Scheduled)}
+                      {/* The "(Delayed)" text is kept for clarity, reinforcing the visual style change. */}
+                      {isDelayed && <div className="delayed-text">(Delayed)</div>}
                     </div>
                   </div>
                 );
