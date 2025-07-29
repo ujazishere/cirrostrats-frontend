@@ -110,7 +110,7 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
               sortedFlights.map((flight, index) => {
                 // --- STRIKE-THROUGH LOGIC ---
                 // The `is-past` class applies a strike-through if the flight has a 'departure' key.
-                const hasDeparted = flight.hasOwnProperty('departure');
+                const hasDeparted = flight.hasOwnProperty('Departed');
                 const cardClassName = `flight-row-card ${hasDeparted ? 'is-past' : 'is-future'}`;
 
                 // --- LOGIC TO CHECK FOR FLIGHT DELAY ---
@@ -151,7 +151,7 @@ const GateCard = ({ gateData, showSearchBar = true }) => {
                     <div className="data-column scheduled-time">
                       {formatDateTime(flight.Scheduled)}
                       {/* The "(Delayed)" text is kept for clarity, reinforcing the visual style change. */}
-                      {isDelayed && <div className="delayed-text">(Delayed)</div>}
+                      {isDelayed && <div className="delayed-text">Now @ {flight.Estimated}</div>}
                     </div>
                   </div>
                 );
