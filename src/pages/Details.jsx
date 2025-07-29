@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import UTCTime from "../components/UTCTime";
-import NASDetails from "../components/NASDetails";
-import Input from "../components/Input/Index"; // Ensure this path is correct
 import AirportCard from "../components/AirportCard"
 import { FlightCard, GateCard } from "../components/Combined";
 import { LoadingFlightCard } from "../components/Skeleton";
@@ -69,6 +67,8 @@ const Details = () => {
 
     const fetchData = async () => {
       try {
+        // TODO: This could possibly be moved nexto to the flight deets.
+        
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true" && searchValue?.type === "flight") {
           setLoadingFlightData(true);
           const res = await axios.get(`${apiUrl}/testDataReturns`);
@@ -77,13 +77,13 @@ const Details = () => {
           setWeatherResponseFlight(res.data.weather || res.data);
           setNasResponseFlight(res.data.NAS || res.data);
           setEDCT(res.data.EDCT || res.data);
-          // If test data needs to provide gateData, it should be set here too.
-          // e.g., setGateData(res.data.gateData) // This would override the hook for test mode.
           setLoadingFlightData(false);
-
+          
         } else if (searchValue?.type === "Terminal/Gate") {
           setLoadingGateData(true);
           try {
+            // If test data needs to provide gateData, it should be set here too.
+            // e.g., setGateData(res.data.gateData) // This would override the hook for test mode.
             const res = await axios.get(`${apiUrl}/gates/${searchValue.gate}`);
             console.log("gate data", searchValue.gate, res.data);
             setGateData(res.data);

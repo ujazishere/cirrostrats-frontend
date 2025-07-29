@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import axios from "axios";
 
 /**
  * Component for displaying flight route information with a refresh button.
@@ -6,9 +7,14 @@ import React, { useState, useCallback, useEffect } from 'react';
  * @param {Object} props.flightData - Flight details containing route information.
  * @param {Function} props.onRefresh - A function to be called to refetch the flight data.
  */
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const RoutePanel = ({ flightData, onRefresh }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [cooldownActive, setCooldownActive] = useState(false);
+  const [route, setRoute] = useState(flightData.fa_route || flightData.route);
+  const [skyVectorLink, setSkyVectorLink] = useState(flightData.fa_sv || flightData.faa_skyvector);
 
   // This ensures the timeout is cleared if the component is removed, preventing memory leaks.
   useEffect(() => {
@@ -34,7 +40,13 @@ const RoutePanel = ({ flightData, onRefresh }) => {
 
     try {
       // Call the refresh function passed from the parent component
-      await onRefresh();
+      // const response = await axios.get(`${apiUrl}/flightAware/${flightData.fa_ident_icao}`);
+      // setRoute(response.data.fa__route) if route
+      const response = await axios.get(`${apiUrl}/testDataReturns`);
+      console.log('latest',response.data.flightData.fa_ident_icao);
+      let nroute = 'NEWA ROUTER'
+      setRoute(nroute)
+      // await onRefresh();
     } catch (error) {
       console.error("Failed to refresh route data:", error);
       // If refresh fails, you might want to end the cooldown early
@@ -95,11 +107,11 @@ const RoutePanel = ({ flightData, onRefresh }) => {
       <div className="weather-tab-panel">
         <div className="route-tab-content">
           <h3 className="weather-tab-title">Route</h3>
-          {(flightData?.fa_route || flightData?.route) ? (
+          {route ? (
             <>
               <div className="route-display">
                 {/* Refresh Button */}
-                <button
+                {/* <button
                   className="refresh-route-btn"
                   onClick={handleRefresh}
                   disabled={cooldownActive || isRefreshing}
@@ -113,13 +125,13 @@ const RoutePanel = ({ flightData, onRefresh }) => {
                   >
                     <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
                   </svg>
-                </button>
+                </button> */}
 
                 <div className="card-body">
-                  <div className="data-content">{flightData.fa_route || flightData.route}</div>
-                  {(flightData?.fa_sv || flightData?.faa_skyvector) && (
+                  <div className="data-content">{route}</div>
+                  {skyVectorLink && (
                     <div className="route-actions">
-                      <a href={flightData.fa_sv || flightData.faa_skyvector} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
+                      <a href={skyVectorLink} target="_blank" rel="noopener noreferrer" className="sky-vector-link">
                         View on SkyVector
                       </a>
                     </div>

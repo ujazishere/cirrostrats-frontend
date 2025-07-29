@@ -44,8 +44,6 @@ const useInputHandlers = () => {
       console.error("Error parsing recent searches from localStorage:", error);
       recentSearches = []; // Reset if there's an issue with stored data
     }
-    console.log('recentSearches', recentSearches);
-    console.log('submitTerm', submitTerm);
     let termToStore = {};
     if (typeof submitTerm === 'string') {
       // For raw string searches, store just the label
@@ -106,7 +104,6 @@ const useInputHandlers = () => {
         });
       } else {
         // Dropdown selection submit. since they have the id, type and such built in.
-        console.log("submitTerm", submitTerm);
         searchValue = submitTerm
         navigate("/details", { state: { searchValue }, userEmail });
         setSelectedValue(submitTerm); // Set selected value for dropdown item
