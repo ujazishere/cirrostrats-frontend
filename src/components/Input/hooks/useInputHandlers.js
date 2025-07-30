@@ -27,95 +27,140 @@ const useInputHandlers = () => {
     // trackSearch(userEmail, newInputValue); // Keep this line if you want to track keystrokes
   }
   
-  const handleSubmit = (e, submitTerm, userEmail) => {
-    if (e) e.preventDefault(); // Prevents default form submission behavior (which was triggering print dialog)
-    // --- FIX: PREVENT BLANK SEARCH FROM BEING SAVED ---
-    // If submitTerm is falsy, a string with only whitespace, or an object without a label, do not proceed.
-    if (!submitTerm || (typeof submitTerm === 'string' && !submitTerm.trim()) || (typeof submitTerm === 'object' && !submitTerm?.label)) {
-      return; // Exit the function early
-    }
-    
-    let searchValue;
-    trackSearch(userEmail, submitTerm); // This will still send to backend if VITE_TRACK_SEARCH is true
-
+/**
+ * @function saveSearchToLocalStorage
+ * @description Takes a search term object, sanitizes it, and saves it to a capped list of recent searches in the browser's localStorage.
+ * @param {object} term - The search term object to be saved. Should have at least a 'label' property.
+ */
+const saveSearchToLocalStorage = (term) => {
     // --- NEW LOCAL STORAGE LOGIC ---
-    const currentTime = new Date().getTime(); // Current timestamp in milliseconds
-    const MAX_RECENT_SEARCHES = 2; // Maximum number of recent searches to store
+    // Get the current time as a numerical timestamp. This is used to track how old searches are.
+    const currentTime = new Date().getTime();
+    // Define the maximum number of recent searches to keep in storage.
+    const MAX_RECENT_SEARCHES = 2;
 
+    // Initialize an empty array to hold the list of recent searches.
     let recentSearches = [];
     try {
-      // Safely parse existing searches, default to empty array if not found or invalid
-      recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        // Attempt to retrieve and parse the existing list of searches from localStorage.
+        // If 'recentSearches' doesn't exist in storage, it defaults to an empty array string '[]'.
+        recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
     } catch (error) {
-      console.error("Error parsing recent searches from localStorage:", error);
-      recentSearches = []; // Reset if there's an issue with stored data
-    }
-    let termToStore = {};
-    if (typeof submitTerm === 'string') {
-      // For raw string searches, store just the label
-      termToStore = { label: submitTerm.trim () };
-    } else if (submitTerm && submitTerm.label) {
-      // For structured dropdown selections, store id, label, and type
-      termToStore = {
-        ...(submitTerm.stId && { stId: submitTerm.stId }),
-        ...(submitTerm.id && { id: submitTerm.id }),
-        ...(submitTerm.gate && { gate: submitTerm.gate }),
-        ...(submitTerm.flightID && { flightID: submitTerm.flightID }),
-        label: submitTerm.label,
-        type: submitTerm.type
-      };
-    } else {
-        // Fallback for unexpected submitTerm formats
-        console.warn("Unexpected submitTerm format:", submitTerm);
-        return; // Do not store if format is unrecognized
+        // If the data in localStorage is corrupted and cannot be parsed, log the error and reset to an empty array.
+        console.error("Error parsing recent searches from localStorage:", error);
+        recentSearches = [];
     }
 
-    // Filter out the exact same search (case-insensitive label match, or ID match if available)
+    // Prepare a clean object 'termToStore' that will be saved.
+    let termToStore = {};
+    // Ensure the provided 'term' is a valid object with a 'label' before proceeding.
+    if (term && term.label) {
+        // Construct the object using only the properties we need.
+        // The spread syntax conditionally adds properties only if they exist on the source 'term' object.
+        termToStore = {
+            ...(term.stId && { stId: term.stId }),
+            ...(term.id && { id: term.id }),
+            ...(term.gate && { gate: term.gate }),
+            ...(term.flightID && { flightID: term.flightID }),
+            label: term.label,
+            type: term.type
+        };
+    } else {
+        // If the term is invalid, log a warning and exit the function to avoid saving bad data.
+        console.warn("Unexpected term format for storage:", term);
+        return;
+    }
+
+    // Filter out any duplicates from the existing list before adding the new term.
     recentSearches = recentSearches.filter(item => {
+        // Priority 1: If both the new term and an existing item have an 'id', compare them.
         if (termToStore.id && item.id) {
             return item.id !== termToStore.id;
         }
-        return item.label.toLowerCase() !== termToStore.label.toLowerCase();
+        // Priority 2: If IDs aren't available, compare their labels in a case-insensitive way.
+        if (item.label && termToStore.label) {
+            return item.label.toLowerCase() !== termToStore.label.toLowerCase();
+        }
+        // If a comparison can't be made, keep the item by default.
+        return true;
     });
 
-    // Add the new search to the beginning of the array with a timestamp
+    // Add the new, cleaned search term to the beginning of the array.
     recentSearches.unshift({ ...termToStore, timestamp: currentTime });
 
-    // Keep only the latest N searches
+    // If the list now exceeds the maximum allowed size, trim it.
     if (recentSearches.length > MAX_RECENT_SEARCHES) {
-      recentSearches = recentSearches.slice(0, MAX_RECENT_SEARCHES);
+        // .slice(0, MAX_RECENT_SEARCHES) creates a new array containing only the first N items.
+        recentSearches = recentSearches.slice(0, MAX_RECENT_SEARCHES);
     }
 
-    // Save the updated array back to localStorage
+    // Save the final, updated array back to localStorage. It must be converted to a JSON string.
     localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
     // --- END NEW LOCAL STORAGE LOGIC ---
+};
 
-    if (submitTerm) {
-      if (typeof submitTerm === 'string') {      // Raw serachterm submit. 
-        searchService.fetchRawQuery(submitTerm).then(rawReturn => {
-          if (rawReturn) {
-            searchValue = rawReturn
-            navigate("/details", { state: { searchValue }, userEmail });
-            setSelectedValue(submitTerm);
-          } else {
-            // This else block seems to handle a case where rawReturn is null/undefined
-            // and then attempts to use submitTerm as an object, which is incorrect if it's a string.
-            // If rawReturn is null, it typically means no direct match, and you might navigate with the original search string.
-            // Corrected: If no rawReturn, navigate with the original string.
-            setSelectedValue(submitTerm); // Set value to the submitted string
-            searchValue = submitTerm;
 
-            navigate("/details", { state: { searchValue }, userEmail });
-          };
-        });
-      } else {
-        // Dropdown selection submit. since they have the id, type and such built in.
-        searchValue = submitTerm
-        navigate("/details", { state: { searchValue }, userEmail });
-        setSelectedValue(submitTerm); // Set selected value for dropdown item
-      };
-    } 
-  }
+/**
+ * @function handleSubmit
+ * @description Handles the search submission event. It intelligently determines whether the user
+ * selected an item from the dropdown or submitted a raw text query.
+ * @param {Event} e - The form submission or click event.
+ * @param {object|string} submitTerm - The term being searched. Can be a full object from the dropdown or a raw string.
+ * @param {string} userEmail - The email of the current user for tracking purposes.
+ * @param {Array<object>} suggestions - The list of suggestion objects currently displayed in the dropdown.
+ */
+const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
+    // Prevent the default browser action for the event (e.g., page reload on form submit).
+    if (e) e.preventDefault();
+    // Guard clause: Exit if the search term is empty, null, or just whitespace.
+    if (!submitTerm || (typeof submitTerm === 'string' && !submitTerm.trim()) || (typeof submitTerm === 'object' && !submitTerm?.label)) {
+        return;
+    }
+
+    // Call a tracking function to log the search event for analytics.
+    trackSearch(userEmail, submitTerm);
+
+    // Check if the submitted term is a structured object (meaning it was selected from the dropdown).
+    if (typeof submitTerm === 'object' && submitTerm.label) {
+        // --- Case 1: A dropdown item was explicitly selected ---
+        // The term is already in the correct format.
+        saveSearchToLocalStorage(submitTerm);
+        // Navigate to the details page, passing the search object in the route's state.
+        navigate("/details", { state: { searchValue: submitTerm }, userEmail });
+        // Update the Autocomplete component's value to reflect the selection.
+        setSelectedValue(submitTerm);
+
+    } else if (typeof submitTerm === 'string') {
+        // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
+        const trimmedSubmitTerm = submitTerm.trim();
+
+        // NEW LOGIC: Check if there are any suggestions currently visible in the dropdown.
+        // The most common user intent is to select the top-most suggestion when submitting a raw query.
+        const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
+
+        if (topSuggestion) {
+            // If a top suggestion exists, use it as the definitive search term. This is the main fix.
+            // This ensures that if a user types "ewr" and "EWR - Newark..." is the top result, we save the full result.
+            saveSearchToLocalStorage(topSuggestion);
+            navigate("/details", { state: { searchValue: topSuggestion }, userEmail });
+            setSelectedValue(topSuggestion);
+        } else {
+            // Fallback: If no suggestions were visible (e.g., the search was too fast or yielded no results),
+            // we revert to calling the API to try and resolve the raw query.
+            searchService.fetchRawQuery(trimmedSubmitTerm).then(rawReturn => {
+                // Determine the final term: use the API result if valid, otherwise create a basic object from the raw text.
+                const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
+                // Save the result (either from the API or the raw text) to local storage.
+                saveSearchToLocalStorage(finalTerm);
+                // The value passed to the details page is either the full object or the raw string.
+                const searchValue = rawReturn || trimmedSubmitTerm;
+                navigate("/details", { state: { searchValue }, userEmail });
+                // Update the input display with the final term.
+                setSelectedValue(finalTerm);
+            });
+        }
+    }
+}
 
   const handleFocus = () => {
     // setIsExpanded(true);

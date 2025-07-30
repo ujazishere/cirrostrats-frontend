@@ -82,7 +82,7 @@ export default function SearchInput({
           // This function is called whenever the input text changes in the search bar.
           onInputChange={(event, newInputValue) => {handleInputChange(event, newInputValue, userEmail)}}
           // This function is called when a dropdown suggestion is selected
-          onChange={(e, submitTerm) => {handleSubmit(e, submitTerm, userEmail)}}
+          onChange={(e, submitTerm) => {handleSubmit(e, submitTerm, userEmail, filteredSuggestions)}}
 
           className="search-autocomplete"
           getOptionLabel={(option) => option.label || ""}
@@ -105,7 +105,7 @@ export default function SearchInput({
                         aria-label="Search"
                         tabIndex={0}
                         style={{ all: 'unset', cursor: 'pointer' }} // style as needed
-                        onClick={(e) => handleSubmit(e, inputValue, userEmail)}
+                        onClick={(e) => handleSubmit(e, inputValue, userEmail, filteredSuggestions)} // Call the handleSubmit function on click
                         >
                         <span className="search-icon-text">Search</span>
                       </button>
