@@ -77,7 +77,15 @@ const SearchTimeline = ({ rawData }) => {
                 marginBottom: '3px'
               }}>
                 <span style={{ fontWeight: '600', color: '#1e40af' }}>
-                  {item.fid_st ? `Flight: ${item.fid_st}` : item.airport_st ? `Airport: ${item.airport_st}` : item.rst ? `Raw: ${item.rst}` : 'Unknown'}
+                {item.fid_st 
+                  ? `Flight: ${item.fid_st}` 
+                  : item.airport_st 
+                    ? `Airport: ${item.airport_st}` 
+                    : item.rst 
+                      ? `Raw: ${item.rst}` 
+                      : item['Terminal/Gate'] 
+                        ? `Terminal/Gate: ${item['Terminal/Gate']}` 
+                        : 'Unknown'}
                 </span>
               </div>
 
