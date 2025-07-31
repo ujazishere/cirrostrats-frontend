@@ -106,6 +106,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
             cd base/cirrostrats-frontend &&
             git pull origin dev &&
-            docker compose up -d frontend --build &&
+            # docker compose up -d frontend --build &&
             docker system prune -af
           '

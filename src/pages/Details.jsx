@@ -85,7 +85,6 @@ const Details = () => {
             // If test data needs to provide gateData, it should be set here too.
             // e.g., setGateData(res.data.gateData) // This would override the hook for test mode.
             const res = await axios.get(`${apiUrl}/gates/${searchValue.gate}`);
-            console.log("gate data", searchValue.gate, res.data);
             setGateData(res.data);
           } catch (e) {
             console.error("Gate Data Error:", e.response?.data || e.message);
