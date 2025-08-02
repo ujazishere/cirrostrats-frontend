@@ -32,6 +32,8 @@ import GateCard from "./GateCard";
 const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
   // --- Start: Tab logic ---
 
+  // COMMENTED OUT: Date tab functionality - uncomment to re-enable
+  /*
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState('');
   // REMOVED: isSticky state is no longer needed.
@@ -118,6 +120,7 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
     
     // REMOVED: Logic to maintain scroll position for sticky header is no longer needed.
   };
+  */
   
   // --- End: Tab logic ---
 
@@ -125,9 +128,12 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
   const location = useLocation();
   const [currentSearch, setCurrentSearch] = useState('');
 
+  // COMMENTED OUT: Loading check for tabs - uncomment when re-enabling tabs
+  /*
   if (tabs.length === 0) {
     return <div>Loading...</div>; // Or a loading spinner
   }
+  */
 
   return (
     <div className="details">
@@ -190,10 +196,9 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
         <Input userEmail="user@example.com" isLoggedIn={true} />
       </div>
 
-      {/* MODIFIED: Removed the swipe handlers from this container */}
+      {/* COMMENTED OUT: Date tabs container - uncomment to re-enable */}
+      {/* 
       <div className="date-tabs-container">
-        {/* Date Tabs Navigation */}
-        {/* MODIFIED: Removed all sticky classes and conditional styles */}
         <div 
           ref={tabsNavRef}
           className="weather-tabs-navigation"
@@ -210,36 +215,44 @@ const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
           ))}
         </div>
 
-        {/* REMOVED: Placeholder div for sticky tabs is no longer needed. */}
-
-        {/* Tab Content Area */}
         <div 
           ref={contentRef}
           className="flight-card-content"
         >
-          {/* Today's Tab Content */}
           {activeTab === tabs[0].id && (
             <div>
-              {/* Summary Table for today's flight */}
               <SummaryTable flightData={flightData} EDCT={EDCT} />
               
-              {/* Weather & NAS Tabs for Departure/Destination */}
               <TabFormat 
                 flightData={flightData} 
                 weather={weather}
                 NAS={NAS}
-                hideChildSearchBars={true} // Prop to hide search bars in the nested component
+                hideChildSearchBars={true}
               />
             </div>
           )}
 
-          {/* Content for Future Dates */}
           {activeTab !== tabs[0].id && (
             <div className="no-data-panel">
               <p>Flight data is not available for this date.</p>
             </div>
           )}
         </div>
+      </div>
+      */}
+
+      {/* TEMPORARY: Direct content display while date tabs are disabled */}
+      <div className="flight-card-content">
+        {/* Summary Table for today's flight */}
+        <SummaryTable flightData={flightData} EDCT={EDCT} />
+        
+        {/* Weather & NAS Tabs for Departure/Destination */}
+        <TabFormat 
+          flightData={flightData} 
+          weather={weather}
+          NAS={NAS}
+          hideChildSearchBars={true} // Prop to hide search bars in the nested component
+        />
       </div>
     </div>
   );
