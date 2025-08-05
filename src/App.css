@@ -34,6 +34,14 @@
   }
 }
 
+
+.date-group-header {
+ background-color: #f7fafc !important;
+ border: none !important;
+}
+
+
+
 .feedback-overlay {
   position: fixed;
   top: 0;
@@ -1446,6 +1454,8 @@ body {
   margin-top: 1rem;
   display: flex;
   justify-content: center;
+  pointer-events: none;
+  cursor: default;
 }
 
 .nav-links {
