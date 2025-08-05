@@ -8,6 +8,10 @@ const Source = () => {
     { url: "https://www.flightview.com", label: "Flight View" },
     { url: "https://www.airport-ewr.com", label: "Airport EWR" },
     { url: "https://www.flightstats.com", label: "Flight Stats" },
+    { url: "https://nasstatus.faa.gov/", label: "NAS Stats" },
+    { url: "https://datis.clowd.io/", label: "Datis Stats" },
+    { url: "https://www.flightaware.com", label: "Flight Details" },
+    { url: "https://www.aviationstack.com", label: "" },
   ];
 
   return (
