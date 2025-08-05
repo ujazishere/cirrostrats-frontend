@@ -103,7 +103,8 @@ const RoutePanel = ({ flightData, onRefresh }) => {
           }
         }
       `}</style>
-
+      {/* TODO ismail:  This naming 'weather-tab-panel' is inappropriate for route panel.
+      Same name is used in weather tabs. So change it all to `tab-panel`? */}
       <div className="weather-tab-panel">
         <div className="route-tab-content">
           <h3 className="weather-tab-title">Route</h3>

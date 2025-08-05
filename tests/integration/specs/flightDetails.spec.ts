@@ -8,6 +8,7 @@ test("Details : Flight : Raw : UA4433", async ({ page }) => {
     navigationMethod: "raw",
     query: "GJS4433",
   });
+  // Commented out because of the new tab feature -- TODO: ismail account for no tab 
   // await expect(page.locator(".flight-card-content > div")).toBeVisible({
   //  timeout: 10000, // Higher timeout because flights can take a while to load
   //}); 
@@ -17,6 +18,8 @@ test("Details : Flight : Raw : UA4433", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Departure" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Destination" })).toBeVisible();
+  // TODO test: account for route -- route from flightaware with fall back to jms - caution if fallback warning/`test fail` if fallback fails too.
+  //       account for NAS related flight. -- check nas airports
   await expect(page.getByRole("heading", { name: "D-ATIS" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "TAF" })).toBeVisible();

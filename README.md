@@ -29,7 +29,7 @@
       VITE_ENV=dev
       VITE_APP_AVOID_FLIGHT_AWARE=true
       
-      # EDCT fetches(DO NOT USE IN DEV TO AVOID UNNECESSARY PROCESSING):
+      # EDCT fetches(DO NOT USE IN DEV TO AVOID UNNECESSARY PROCESSING) - 1 equals true . Comment it out to avoid EDCT fetch:
       # VITE_EDCT_FETCH=1
 
       # Test backend data

@@ -2,7 +2,7 @@ name: Test & Deploy to Amazon ECS
 
 on:
   push:
-    branches: ["dev"]
+    branches: ["isolated-test"]
   workflow_dispatch:
     inputs:
       run_tests_only:
@@ -105,7 +105,7 @@ jobs:
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
             cd base/cirrostrats-frontend &&
-            git pull origin dev &&
+            git pull origin isolated-test &&
             # In case you wanted to rebuild - but this causes crash on lightweight instances hence commented out.
             # docker compose up -d frontend --build &&
             docker system prune -af
