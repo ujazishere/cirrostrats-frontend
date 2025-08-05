@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/HomePage.js
+
+// By using Suspense and lazy, we can split our code into smaller chunks.
+// This is a key strategy for improving initial page load speed.
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+
 import { useGoogleLogin } from '@react-oauth/google';
 import GoogleButton from 'react-google-button';
 import axios from 'axios';
@@ -6,13 +11,20 @@ import Input from "../components/Input/Index"; // Ensure this path is correct
 import { db } from '../firebase.js';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
+// ✨ LAZY LOADING FOR PERFORMANCE
+// We are lazily importing the FeedbackPopup component.
+// This means the code for the popup is in a separate file ('chunk').
+// It will only be downloaded from the server when a user actually clicks the feedback link,
+// which reduces the initial JavaScript bundle size and makes the page load faster.
+const FeedbackPopup = lazy(() => import('./FeedbackPopup.jsx'));
 
 const HomePage = () => {
+  // State for login and user information
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [userEmail, setUserEmail] = useState("Anonymous");
   
-  // State for the animated footer
+  // State for the animated footer text
   const [footerTextIndex, setFooterTextIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
   const footerTexts = [
@@ -21,13 +33,13 @@ const HomePage = () => {
     "Give us feedback",
   ];
 
-  // State for feedback popup
+  // State for feedback popup functionality
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
   const [feedbackType, setFeedbackType] = useState("General Feedback");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); // To disable button on submit
 
-  // Effect for checking stored login information
+  // Effect for checking stored login information on initial load
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
     const storedUserEmail = localStorage.getItem("userEmail");
@@ -38,7 +50,8 @@ const HomePage = () => {
     }
   }, []);
   
-  // Effect for the animated footer text cycle
+  // Effect for the animated footer text cycle. This runs after initial render
+  // and does not impact the initial load time.
   useEffect(() => {
     const interval = setInterval(() => {
       setIsFading(true);
@@ -94,37 +107,42 @@ const HomePage = () => {
     setFeedbackType("General Feedback");
   };
 
-  // ✨ --- UPDATED SUBMIT FUNCTION --- ✨
   const handleSubmitFeedback = async () => {
-    if (!feedbackMessage.trim()) return; // Don't submit empty feedback
+    if (!feedbackMessage.trim()) return;
     
     setIsSubmitting(true);
 
     try {
-      // Create a new document in the "feedback" collection
       await addDoc(collection(db, "feedback"), {
         user: userEmail,
         type: feedbackType,
         message: feedbackMessage,
-        submittedAt: serverTimestamp(), // Adds a server-side timestamp
-        userAgent: navigator.userAgent, // Optional: useful for debugging
+        submittedAt: serverTimestamp(),
+        userAgent: navigator.userAgent,
       });
 
       alert("Thank you! Your feedback has been submitted successfully.");
-      handleCloseFeedback(); // Close the popup
+      handleCloseFeedback();
 
     } catch (error) {
       console.error("Error adding document: ", error);
       alert("Sorry, there was an error submitting your feedback. Please try again.");
     } finally {
-      setIsSubmitting(false); // Re-enable the button
+      setIsSubmitting(false);
     }
   };
 
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* FontAwesome CDN */}
+      {/* 🚀 PERFORMANCE OPTIMIZATION NOTE:
+          This <link> tag loads the entire Font Awesome CSS library. This is a "render-blocking"
+          resource, meaning the browser must download and parse it before showing the page.
+          
+          A better approach is to use a library like '@fortawesome/react-fontawesome'
+          to import only the specific icons you need (e.g., the envelope icon).
+          This would remove this network request and reduce your bundle size.
+      */}
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
       
       {/* Hero section */}
@@ -186,58 +204,24 @@ const HomePage = () => {
         </div>
       </footer>
 
-      {/* Feedback Popup */}
-      {showFeedbackPopup && (
-        <div className="feedback-overlay">
-          <div className="feedback-popup">
-            <div className="feedback-header">
-              <h2 className="feedback-title">Send us your feedback</h2>
-              <button onClick={handleCloseFeedback} className="feedback-close">
-                ✕
-              </button>
-            </div>
-            
-            <div className="feedback-content">
-              <div className="feedback-field">
-                <label className="feedback-label">Type of feedback</label>
-                <select 
-                  value={feedbackType} 
-                  onChange={(e) => setFeedbackType(e.target.value)}
-                  className="feedback-select"
-                >
-                  <option value="General Feedback">General Feedback</option>
-                  <option value="Bug Report">Bug Report</option>
-                  <option value="Feature Request">Feature Request</option>
-                  <option value="Support">Support</option>
-                </select>
-              </div>
-
-              <div className="feedback-field">
-                <label className="feedback-label">Your message</label>
-                <textarea 
-                  value={feedbackMessage}
-                  onChange={(e) => setFeedbackMessage(e.target.value)}
-                  placeholder="Please describe your feedback, feature request, or issue in detail..."
-                  className="feedback-textarea"
-                />
-              </div>
-            </div>
-
-            <div className="feedback-actions">
-              <button onClick={handleCloseFeedback} className="feedback-cancel">
-                Cancel
-              </button>
-              <button 
-                onClick={handleSubmitFeedback} 
-                className="feedback-submit"
-                disabled={!feedbackMessage.trim() || isSubmitting}
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ✨ RENDERING THE LAZY COMPONENT
+          The <Suspense> component is required by React to handle lazy loading.
+          It will show the 'fallback' UI (in this case, nothing) while it waits for
+          the FeedbackPopup component's code to be downloaded and ready.
+      */}
+      <Suspense fallback={null}>
+        {showFeedbackPopup && (
+          <FeedbackPopup
+            onClose={handleCloseFeedback}
+            onSubmit={handleSubmitFeedback}
+            feedbackType={feedbackType}
+            setFeedbackType={setFeedbackType}
+            feedbackMessage={feedbackMessage}
+            setFeedbackMessage={setFeedbackMessage}
+            isSubmitting={isSubmitting}
+          />
+        )}
+      </Suspense>
     </div>
   );
 };
