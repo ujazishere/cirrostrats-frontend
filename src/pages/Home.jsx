@@ -6,7 +6,6 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 
 // --- GOOGLE LOGIN DISABLED ---
 // The following imports are commented out to disable Google Login.
-// To re-enable, uncomment these lines.
 // import { useGoogleLogin } from '@react-oauth/google';
 // import GoogleButton from 'react-google-button';
 // import axios from 'axios';
@@ -18,9 +17,6 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // ✨ LAZY LOADING FOR PERFORMANCE
 // We are lazily importing the FeedbackPopup component.
-// This means the code for the popup is in a separate file ('chunk').
-// It will only be downloaded from the server when a user actually clicks the feedback link,
-// which reduces the initial JavaScript bundle size and makes the page load faster.
 const FeedbackPopup = lazy(() => import('./FeedbackPopup.jsx'));
 
 const HomePage = () => {
@@ -55,8 +51,7 @@ const HomePage = () => {
     }
   }, []);
   
-  // Effect for the animated footer text cycle. This runs after initial render
-  // and does not impact the initial load time.
+  // Effect for the animated footer text cycle
   useEffect(() => {
     const interval = setInterval(() => {
       setIsFading(true);
@@ -70,8 +65,7 @@ const HomePage = () => {
 
 
   // --- GOOGLE LOGIN DISABLED ---
-  // The 'googleLogin' function and its related logic are commented out.
-  // To re-enable, uncomment this entire block.
+  // The 'googleLogin' function and its related logic remain commented out.
   /*
   const googleLogin = useGoogleLogin({
     scope: "openid profile email",
@@ -83,14 +77,11 @@ const HomePage = () => {
           { headers: { Authorization: `Bearer ${access_token}` } }
         );
         const userData = userInfoResponse.data;
-        const email = userData.email;
-        const fullName = `${userData.given_name} ${userData.family_name}`;
-        
         setUserInfo(userData);
-        setUserEmail(fullName);
+        setUserEmail(`${userData.given_name} ${userData.family_name}`);
         setIsLoggedIn(true);
         localStorage.setItem("userInfo", JSON.stringify(userData));
-        localStorage.setItem("userEmail", fullName);
+        localStorage.setItem("userEmail", `${userData.given_name} ${userData.family_name}`);
       } catch (error) {
         console.error("Error fetching user info:", error);
       }
@@ -148,12 +139,8 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* 🚀 PERFORMANCE OPTIMIZATION NOTE:
-          This <link> tag loads the entire Font Awesome CSS library. This is a "render-blocking"
-          resource, meaning the browser must download and parse it before showing the page.
-          
-          A better approach is to use a library like '@fortawesome/react-fontawesome'
-          to import only the specific icons you need (e.g., the envelope icon).
-          This would remove this network request and reduce your bundle size.
+          Consider using a library like '@fortawesome/react-fontawesome' 
+          to import only the icons you need, rather than loading the entire library.
       */}
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
       
@@ -192,15 +179,28 @@ const HomePage = () => {
               </button>
             </div>
           ) : (
-            // --- GOOGLE LOGIN DISABLED ---
-            // The Google Login button is commented out below.
-            // To re-enable, remove the surrounding {/* and */} markers.
-            // You will also need to uncomment the related imports and logic above.
-            /*
-            <GoogleButton onClick={() => googleLogin()} />
-            */
-            // --- END ---
-            null // Render nothing if not logged in and button is disabled
+            // --- BUTTON UPDATED HERE ---
+            // Added target="_blank" to open the link in a new tab.
+            // Added rel="noopener noreferrer" for security.
+            <a
+              href="https://cirrostrats.us/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-block',
+                padding: '10px 16px',
+                backgroundColor: '#24292f',
+                color: 'white',
+                borderRadius: '3px',
+                textDecoration: 'none',
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
+            >
+              Revert Back To Legacy
+            </a>
+            // --- END OF BUTTON ---
           )}
         </div>
       </div>
@@ -224,11 +224,7 @@ const HomePage = () => {
         </div>
       </footer>
 
-      {/* ✨ RENDERING THE LAZY COMPONENT
-          The <Suspense> component is required by React to handle lazy loading.
-          It will show the 'fallback' UI (in this case, nothing) while it waits for
-          the FeedbackPopup component's code to be downloaded and ready.
-      */}
+      {/* Suspense for Lazy Loaded Component */}
       <Suspense fallback={null}>
         {showFeedbackPopup && (
           <FeedbackPopup
