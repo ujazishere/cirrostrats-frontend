@@ -1,5 +1,6 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom"; // Uncomment when using in your project
+import '../components/CSS/Source.css';
 
 const Source = () => {
   // List of sources for data
@@ -8,26 +9,72 @@ const Source = () => {
     { url: "https://www.flightview.com", label: "Flight View" },
     { url: "https://www.airport-ewr.com", label: "Airport EWR" },
     { url: "https://www.flightstats.com", label: "Flight Stats" },
+    { url: "https://nasstatus.faa.gov/", label: "NAS Stats" },
+    { url: "https://datis.clowd.io/", label: "Datis Stats" },
+    { url: "https://www.flightaware.com", label: "Flight Details" },
+    { url: "https://www.aviationstack.com", label: "Aviation Stack" },
   ];
 
   return (
-    <div className="source">
-      <h2 className="source__title">Source for all the data</h2>
-
-      {/* Dynamic generation of links */}
-      <div className="links">
-        {sources.map((source, index) => (
-          <div key={index} className="source__link">
-            <NavLink
-              to={source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="source__link"
-            >
-              {source.url}
-            </NavLink>
+    <div className="source-container">
+      <div className="source">
+        <div className="source-header">
+          <h1 className="source__title">Data Sources</h1>
+          <div className="source__divider"></div>
+          <p className="source__subtitle">
+            We aggregate data from trusted aviation sources to provide you with accurate and up-to-date information
+          </p>
+        </div>
+        
+        <div className="source-content">
+          <div className="links-grid">
+            {sources.map((source, index) => (
+              <div key={index} className="source-card">
+                <div className="source-card__header">
+                  <h3 className="source-card__title">
+                    {source.label || "Aviation Data"}
+                  </h3>
+                </div>
+                <div className="source-card__content">
+                  <p className="source-card__url">{source.url}</p>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="source-card__link"
+                  >
+                    <span>Visit Source</span>
+                    <svg 
+                      className="source-card__icon" 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <path d="M7 17L17 7"></path>
+                      <path d="M7 7h10v10"></path>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+          
+          <div className="source-footer">
+            <div className="source-info">
+              <h3 className="source-info__title">Data Reliability</h3>
+              <p className="source-info__text">
+                All data sources are monitored for accuracy. 
+                We ensure that pilots have access to the most current aviation information 
+                available from trusted sources.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

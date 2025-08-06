@@ -131,6 +131,7 @@ const Navbar = () => {
           </li>
 
           {/* Guide Link */}
+          {/*
           <li className="navbar__list__item">
             <NavLink
               to="guide"
@@ -141,7 +142,8 @@ const Navbar = () => {
             >
               Guide
             </NavLink>
-          </li>
+          </li> 
+          */}
 
           {/* Live Map External Link */}
           <li className="navbar__list__item">
