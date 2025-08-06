@@ -27,7 +27,6 @@ test("Homepage : Hamburger Menu Options Visible", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Our Story" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Contact Us" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Source" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Guide" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Live Map" })).toBeVisible();
 });
 
@@ -54,28 +53,35 @@ test("Homepage : Hamburger Menu: Source", async ({ page }) => {
   await page.goto("/");
   await page.locator(HAMBURGER_MENU_LOCATOR).click();
   await page.getByRole("link", { name: "Source" }).click();
-  await expect(
-    page.getByRole("link", { name: "https://www.aviationweather.gov" })
-  ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "https://www.flightview.com" })
-  ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "https://www.airport-ewr.com" })
-  ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "https://www.flightstats.com" })
-  ).toBeVisible();
+  await page.getByRole('heading', { name: 'Aviation Weather' }).click();
+  await page.getByText('Aviation Weatherhttps://www.').click();
+  await page.getByText('https://www.aviationweather.').click();
+  await page.getByText('Flight Viewhttps://www.').click();
+  await page.getByRole('heading', { name: 'Flight View' }).click();
+  await page.getByText('https://www.flightview.com').click();
+  await page.getByText('Airport EWRhttps://www.').click();
+  await page.getByText('https://www.airport-ewr.com').click();
+  await page.getByText('Flight Statshttps://www.').click();
+  await page.getByText('https://www.flightstats.com').click();
+  await page.getByText('NAS Statshttps://nasstatus.').click();
+  await page.getByText('https://nasstatus.faa.gov/').click();
+  await page.getByText('Datis Statshttps://datis.').click();
+  await page.getByText('https://datis.clowd.io/').click();
+  await page.getByText('Flight Detailshttps://www.').click();
+  await page.getByText('https://www.flightaware.com').click();
+  await page.getByText('Aviation Stackhttps://www.').click();
+  await page.getByText('https://www.aviationstack.com').click();
 });
 
-test("Homepage : Hamburger Menu: Guide", async ({ page }) => {
-  await page.goto("/");
-  await page.locator(HAMBURGER_MENU_LOCATOR).click();
-  await page.getByRole("link", { name: "Guide" }).click();
-  await expect(page.locator(".guide__container")).toBeVisible();
-  // Expect at least 500 characters of text
-  await expect(page.locator(".guide__container")).toContainText(/^.{500,}/);
-});
+// Guide page removed.
+// test("Homepage : Hamburger Menu: Guide", async ({ page }) => {
+//   await page.goto("/");
+//   await page.locator(HAMBURGER_MENU_LOCATOR).click();
+//   await page.getByRole("link", { name: "Guide" }).click();
+//   await expect(page.locator(".guide__container")).toBeVisible();
+//   // Expect at least 500 characters of text
+//   await expect(page.locator(".guide__container")).toContainText(/^.{500,}/);
+// });
 
 test("Homepage : Hamburger Menu: Live Map", async ({ page }) => {
   await page.goto("/");
