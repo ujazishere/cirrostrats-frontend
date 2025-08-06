@@ -83,6 +83,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
 }
 
 /* Label */
@@ -128,6 +129,7 @@
   background-size: 1em;
   padding-right: 3rem;
   cursor: pointer;
+  width: 100% !important;
 }
 
 .form-textarea {
