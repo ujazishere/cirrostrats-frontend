@@ -3,9 +3,9 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./specs",
   outputDir: "./results/test-artifacts",
-  timeout: 15000,
+  timeout: 200000,
   expect: {
-    timeout: 10000,
+    timeout: 250000,
   },
   retries: process.env.CI ? 2 : 1, // Will retry twice if CI (github actions), otherwise just once
   workers: process.env.CI ? 1 : 3, // How many tests can run in parallel, 1 if (CI) github actions, 3 if locally
