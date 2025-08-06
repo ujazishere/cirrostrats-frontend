@@ -8,8 +8,19 @@ export const formatSuggestions = (rawSuggestions) => {
     ...(item.airport && { airport: item.airport }),      // For gates
     ...(item.flightID && { flightID: item.flightID }),
     label: item.display
-      ? (item.type === 'flight' && item.display.startsWith('GJS')
-          ? `UA${item.display.slice(3)} (${item.display})`
+      ? (
+        item.type === 'flight'
+          ? (
+            item.display.startsWith('GJS')
+              ? `UA${item.display.slice(3)} (${item.display})`
+              : item.display.startsWith('DAL')
+                ? `DL${item.display.slice(3)} (${item.display})`
+                : item.display.startsWith('AAL')
+                  ? `AA${item.display.slice(3)} (${item.display})`
+                  : item.display.startsWith('UAL')
+                    ? `UA${item.display.slice(3)} (${item.display})`
+                    : item.display
+          )
           : item.display)
       : `${item.code} - ${item.name}`,
     type: item.type
