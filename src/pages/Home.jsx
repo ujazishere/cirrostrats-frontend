@@ -4,9 +4,14 @@
 // This is a key strategy for improving initial page load speed.
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 
-import { useGoogleLogin } from '@react-oauth/google';
-import GoogleButton from 'react-google-button';
-import axios from 'axios';
+// --- GOOGLE LOGIN DISABLED ---
+// The following imports are commented out to disable Google Login.
+// To re-enable, uncomment these lines.
+// import { useGoogleLogin } from '@react-oauth/google';
+// import GoogleButton from 'react-google-button';
+// import axios from 'axios';
+// --- END ---
+
 import Input from "../components/Input/Index"; // Ensure this path is correct
 import { db } from '../firebase.js';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -63,6 +68,11 @@ const HomePage = () => {
     return () => clearInterval(interval);
   }, [footerTexts.length]);
 
+
+  // --- GOOGLE LOGIN DISABLED ---
+  // The 'googleLogin' function and its related logic are commented out.
+  // To re-enable, uncomment this entire block.
+  /*
   const googleLogin = useGoogleLogin({
     scope: "openid profile email",
     onSuccess: async (tokenResponse) => {
@@ -87,6 +97,8 @@ const HomePage = () => {
     },
     onError: (errorResponse) => console.error("Google Login Error:", errorResponse),
   });
+  */
+  // --- END ---
 
   const handleLogout = () => {
     setIsLoggedIn(false);
@@ -180,7 +192,15 @@ const HomePage = () => {
               </button>
             </div>
           ) : (
+            // --- GOOGLE LOGIN DISABLED ---
+            // The Google Login button is commented out below.
+            // To re-enable, remove the surrounding {/* and */} markers.
+            // You will also need to uncomment the related imports and logic above.
+            /*
             <GoogleButton onClick={() => googleLogin()} />
+            */
+            // --- END ---
+            null // Render nothing if not logged in and button is disabled
           )}
         </div>
       </div>
