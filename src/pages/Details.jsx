@@ -112,7 +112,7 @@ const useFlightData = (searchValue) => {
         // Step 4: Conditionally fetch EDCT data based on an environment flag. This allows turning the feature on/off easily.
         if (import.meta.env.VITE_EDCT_FETCH === "1" && departure && arrival) {
             // Log in development mode to remind developers this potentially costly fetch is active.
-            if (import.meta.env.VITE_ENV === "dev") {console.log('Getting EDCT data. Switch it off in .env if not needed')};
+            if (import.meta.env.VITE_ENV === "dev") {console.warn('Getting EDCT data. Switch it off in .env if not needed')};
             const { EDCTRes } = await flightService.getEDCT({ flightID, origin: departure.slice(1), destination: arrival.slice(1) });
             edctData = EDCTRes.data; // Store the result.
         }

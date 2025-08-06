@@ -101,7 +101,6 @@ const saveSearchToLocalStorage = (term) => {
 
     // Save the final, updated array back to localStorage. It must be converted to a JSON string.
     localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-    console.log('recentSearches', recentSearches);
     // --- END NEW LOCAL STORAGE LOGIC ---
 };
 
@@ -117,7 +116,6 @@ const saveSearchToLocalStorage = (term) => {
  */
 const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     // Prevent the default browser action for the event (e.g., page reload on form submit).
-    console.log('st',submitTerm);
     if (e) e.preventDefault();
     // Guard clause: Exit if the search term is empty, null, or just whitespace.
     if (!submitTerm || (typeof submitTerm === 'string' && !submitTerm.trim()) || (typeof submitTerm === 'object' && !submitTerm?.label)) {
@@ -138,7 +136,6 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
         setSelectedValue(submitTerm);
 
     } else if (typeof submitTerm === 'string') {
-        console.log('raw string');
         // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
         const trimmedSubmitTerm = submitTerm.trim();      // trimming leading and trailing white spaces
 
@@ -163,7 +160,6 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
                 // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
                     // May have to account for this in the search interface.
                     // The 
-                console.log('rawR', rawReturn);
                 // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
                 // Save the result (either from the API or the raw text) to local storage.
                 saveSearchToLocalStorage(rawReturn);

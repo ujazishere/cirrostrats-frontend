@@ -14,7 +14,6 @@ const useAirportData = (searchValue, apiUrl) => {
     if (searchValue?.type !== "airport") {
       return;
     }
-    console.log('airport tye', searchValue);
     // Reset states for a new airport search
     setAirportWx(null);
     setNasResponseAirport(null);
