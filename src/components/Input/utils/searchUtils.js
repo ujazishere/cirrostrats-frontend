@@ -19,6 +19,8 @@ export const formatSuggestions = (rawSuggestions) => {
                   ? `AA${item.display.slice(3)} (${item.display})`
                   : item.display.startsWith('UAL')
                     ? `UA${item.display.slice(3)} (${item.display})`
+                    : item.display.startsWith('UCA')
+                      ? `UA${item.display.slice(3)} (${item.display})`
                     : item.display
           )
           : item.display)
