@@ -54,12 +54,17 @@ const saveSearchToLocalStorage = (term) => {
     // Prepare a clean object 'termToStore' that will be saved.
     let termToStore = {};
     // Ensure the provided 'term' is a valid object with a 'label' before proceeding.
-    if (term && term.label) {
+    if (typeof term === 'string') {
+      termToStore = {
+        label: term,
+        type: 'raw_string' // You can specify a type for raw strings
+      };
+    } else if (term && term.label) {
         // Construct the object using only the properties we need.
         // The spread syntax conditionally adds properties only if they exist on the source 'term' object.
         termToStore = {
             ...(term.stId && { stId: term.stId }),
-            ...(term.id && { id: term.id }),
+            ...(term.r_id && { r_id: term.r_id }),
             ...(term.gate && { gate: term.gate }),
             ...(term.flightID && { flightID: term.flightID }),
             label: term.label,
@@ -74,8 +79,8 @@ const saveSearchToLocalStorage = (term) => {
     // Filter out any duplicates from the existing list before adding the new term.
     recentSearches = recentSearches.filter(item => {
         // Priority 1: If both the new term and an existing item have an 'id', compare them.
-        if (termToStore.id && item.id) {
-            return item.id !== termToStore.id;
+        if (termToStore.stId && item.stId) {
+            return item.stId !== termToStore.stId;
         }
         // Priority 2: If IDs aren't available, compare their labels in a case-insensitive way.
         if (item.label && termToStore.label) {
@@ -96,6 +101,7 @@ const saveSearchToLocalStorage = (term) => {
 
     // Save the final, updated array back to localStorage. It must be converted to a JSON string.
     localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    console.log('recentSearches', recentSearches);
     // --- END NEW LOCAL STORAGE LOGIC ---
 };
 
@@ -111,6 +117,7 @@ const saveSearchToLocalStorage = (term) => {
  */
 const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     // Prevent the default browser action for the event (e.g., page reload on form submit).
+    console.log('st',submitTerm);
     if (e) e.preventDefault();
     // Guard clause: Exit if the search term is empty, null, or just whitespace.
     if (!submitTerm || (typeof submitTerm === 'string' && !submitTerm.trim()) || (typeof submitTerm === 'object' && !submitTerm?.label)) {
@@ -131,11 +138,13 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
         setSelectedValue(submitTerm);
 
     } else if (typeof submitTerm === 'string') {
+        console.log('raw string');
         // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
-        const trimmedSubmitTerm = submitTerm.trim();
+        const trimmedSubmitTerm = submitTerm.trim();      // trimming leading and trailing white spaces
 
         // NEW LOGIC: Check if there are any suggestions currently visible in the dropdown.
         // The most common user intent is to select the top-most suggestion when submitting a raw query.
+        // TODO uj: this should account for airport exact match or prepended with k, for flights it shouldn't
         const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
 
         if (topSuggestion) {
@@ -149,9 +158,18 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
             // we revert to calling the API to try and resolve the raw query.
             searchService.fetchRawQuery(trimmedSubmitTerm).then(rawReturn => {
                 // Determine the final term: use the API result if valid, otherwise create a basic object from the raw text.
-                const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
+
+
+                // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
+                    // May have to account for this in the search interface.
+                    // The 
+                console.log('rawR', rawReturn);
+                // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
                 // Save the result (either from the API or the raw text) to local storage.
-                saveSearchToLocalStorage(finalTerm);
+                saveSearchToLocalStorage(rawReturn);
+
+
+
                 // The value passed to the details page is either the full object or the raw string.
                 const searchValue = rawReturn || trimmedSubmitTerm;
                 navigate("/details", { state: { searchValue }, userEmail });
@@ -271,11 +289,11 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     // Handle navigation based on selection type
     if (option) {
       if (option.type === "Airport") {
-        navigate(`/airport/${option.id}`);
+        navigate(`/airport/${option.r_id}`);
       } else if (option.type === "Flight") {
-        navigate(`/flight/${option.id}`);
+        navigate(`/flight/${option.r_id}`);
       } else if (option.type === "Gate") {
-        navigate(`/gate/${option.id}`);
+        navigate(`/gate/${option.r_id}`);
       }
     }
   };

@@ -14,7 +14,7 @@ const useAirportData = (searchValue, apiUrl) => {
     if (searchValue?.type !== "airport") {
       return;
     }
-
+    console.log('airport tye', searchValue);
     // Reset states for a new airport search
     setAirportWx(null);
     setNasResponseAirport(null);
@@ -43,8 +43,8 @@ const useAirportData = (searchValue, apiUrl) => {
         let mdbAirportWeather = null
         let rawAirportCode = null
         // Get instant airport weather from database if availbale - could be old data
-        if (searchValue.id) {
-          mdbAirportId = searchValue.id
+        if (searchValue.r_id) {
+          mdbAirportId = searchValue.r_id
           setLoadingWeather(true)
           mdbAirportWeather = await axios.get(`${apiUrl}/mdbAirportWeather/${mdbAirportId}`)
           .catch(e => { 
@@ -68,10 +68,10 @@ const useAirportData = (searchValue, apiUrl) => {
           } else {
             console.error('Impossible error -- mdb data for weather not found')
           }
-        } else if (searchValue.airport){
-          rawAirportCode = searchValue.airport
+        } else if (searchValue.label){
+          rawAirportCode = searchValue.label
           setLoadingWeather(true)
-          ICAOformattedAirportCode = searchValue.airport
+          ICAOformattedAirportCode = searchValue.label
         }
         
         // Fetch Live data w ICAO airport code -- Use either mdb code or raw code through searchValue.airport - ICAO format accounted and pre-processed for.

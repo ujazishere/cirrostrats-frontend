@@ -2,11 +2,11 @@ import { test, expect } from "@playwright/test";
 import { navigateToDetailsPage } from "../utils/details";
 
 // A simple test for the skeleton of the flight page, not verifying any content
-test("Details : Flight : Raw : UA4433", async ({ page }) => {
+test("Details : Flight : Raw : UA414", async ({ page }) => {
   await navigateToDetailsPage({
     page,
     navigationMethod: "raw",
-    query: "GJS4433",
+    query: "UA414",
   });
   // Commented out because of the new tab feature -- TODO: ismail account for no tab 
   // await expect(page.locator(".flight-card-content > div")).toBeVisible({

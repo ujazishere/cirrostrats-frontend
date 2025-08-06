@@ -56,8 +56,8 @@ export default function SearchInput({
     // Filter out the item to be removed.
     // It matches based on ID if available, otherwise by a case-insensitive label match.
     const updatedSearches = recentSearches.filter(item => {
-      if (itemToRemove.id && item.id) {
-        return item.id !== itemToRemove.id;
+      if (itemToRemove.stId && item.stId) {
+        return item.stId !== itemToRemove.stId;
       }
       return item.label.toLowerCase() !== itemToRemove.label.toLowerCase();
     });
