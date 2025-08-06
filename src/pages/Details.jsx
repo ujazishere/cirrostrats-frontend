@@ -81,7 +81,7 @@ const useFlightData = (searchValue) => {
       try {
         // Step 1: Fetch primary flight data from various sources using our flight service.
         const {
-          ajms, flightAwareRes, flightViewGateInfo, flightStatsTZRes
+          ajms, flightAwareRes, flightStatsTZRes
         } = await flightService.getPrimaryFlightData(flightID);
 
         // If core data sources fail, we can't build a complete picture. Set an error and exit.
@@ -93,7 +93,7 @@ const useFlightData = (searchValue) => {
         // Step 2: Extract airport identifiers (departure, arrival, alternates) from the aggregated primary data.
         const {
           departure, arrival, departureAlternate, arrivalAlternate
-        } = flightService.getAirports({ ajms, flightAwareRes, flightStatsTZRes, flightViewGateInfo });
+        } = flightService.getAirports({ ajms, flightAwareRes, flightStatsTZRes});
         
         // Step 3: Merge all the fetched data into a single, comprehensive object for the flight.
         const combinedFlightData = {
@@ -105,7 +105,6 @@ const useFlightData = (searchValue) => {
           ...ajms.data,
           ...flightAwareRes.data,
           ...flightStatsTZRes.data,
-          ...flightViewGateInfo.data,
         };
 
         let edctData = null; // Initialize EDCT data as null.

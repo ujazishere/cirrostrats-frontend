@@ -6,12 +6,11 @@ const Source = () => {
   // List of sources for data
   const sources = [
     { url: "https://www.aviationweather.gov", label: "Aviation Weather" },
-    { url: "https://www.flightview.com", label: "Flight View" },
     { url: "https://www.airport-ewr.com", label: "Airport EWR" },
     { url: "https://www.flightstats.com", label: "Flight Stats" },
     { url: "https://nasstatus.faa.gov/", label: "NAS Stats" },
     { url: "https://datis.clowd.io/", label: "Datis Stats" },
-    { url: "https://www.flightaware.com", label: "Flight Details" },
+    { url: "https://www.flightaware.com", label: "Flight Aware" },
     { url: "https://www.aviationstack.com", label: "Aviation Stack" },
   ];
 
@@ -68,9 +67,7 @@ const Source = () => {
             <div className="source-info">
               <h3 className="source-info__title">Data Reliability</h3>
               <p className="source-info__text">
-                All data sources are monitored for accuracy. 
-                We ensure that pilots have access to the most current aviation information 
-                available from trusted sources.
+                We utilize and monitor multiple data sources, but their accuracy can vary. Pilots should access aviation information with caution and verify critical data through multiple sources.
               </p>
             </div>
           </div>

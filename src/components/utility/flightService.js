@@ -7,13 +7,12 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const flightService = {
   /**
    * Extracts airports from multiple flight data sources.
-   * Priority: AJMS > FlightAware > FlightStats > FlightView.
+   * Priority: AJMS > FlightAware > FlightStats.
    * 
    * @param {Object} sources - Aggregated data from various providers.
    * @param {Object} sources.ajms - Data from AJMS API.
    * @param {Object} sources.flightAwareRes - Data from FlightAware API.
    * @param {Object} sources.flightStatsTZRes - Data from FlightStats API.
-   * @param {Object} sources.flightViewGateInfo - Data from FlightView API.
    * 
    * @returns {Object} airports - Identified airport data:
    *  - {string|null} departure
@@ -23,7 +22,7 @@ const flightService = {
    * 
    * @note Inconsistencies between sources are possible due to data timing, icao/iata, weather, or vendor coverage.
    */
-  getAirports: ({ ajms, flightAwareRes, flightStatsTZRes, flightViewGateInfo }) => {
+  getAirports: ({ ajms, flightAwareRes, flightStatsTZRes}) => {
     let departure = null;
     let arrival = null;
     let departureAlternate = null;
@@ -45,10 +44,8 @@ const flightService = {
 
     if (!departure || !arrival) {
       departure = flightStatsTZRes?.data?.flightStatsOrigin || 
-                  flightViewGateInfo?.data?.flightViewDeparture || 
                   departure;
       arrival = flightStatsTZRes?.data?.flightStatsDestination || 
-                flightViewGateInfo?.data?.flightViewDestination || 
                 arrival;
     }
 
@@ -66,14 +63,12 @@ const flightService = {
    *  - ajms
    *  - flightAwareRes
    *  - flightStatsTZRes
-   *  - flightViewGateInfo
    */
   getPrimaryFlightData: async (flightID) => {
 
-    const [ajms, flightStatsTZRes, flightViewGateInfo ] = await Promise.all([
+    const [ajms, flightStatsTZRes] = await Promise.all([
     axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {}, error: true }; }),
     axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {}, error: true }; }),
-    axios.get(`${apiUrl}/flightViewGateInfo/${flightID}`).catch(e => { console.error("FlightViewGateInfo Error:", e); return { data: {}, error: true }; }),
     ]);
 
     let flightAwareRes = { data: {}, error: true };
@@ -89,7 +84,7 @@ const flightService = {
 
     // TODO VHP: Compare deets of each data check for consisetency
 
-    return {ajms, flightAwareRes, flightStatsTZRes, flightViewGateInfo, }
+    return {ajms, flightAwareRes, flightStatsTZRes }
   },
 
   /**

@@ -57,8 +57,6 @@ test("Homepage : Hamburger Menu: Source", async ({ page }) => {
   await page.getByText('Aviation Weatherhttps://www.').click();
   await page.getByText('https://www.aviationweather.').click();
   await page.getByText('Flight Viewhttps://www.').click();
-  await page.getByRole('heading', { name: 'Flight View' }).click();
-  await page.getByText('https://www.flightview.com').click();
   await page.getByText('Airport EWRhttps://www.').click();
   await page.getByText('https://www.airport-ewr.com').click();
   await page.getByText('Flight Statshttps://www.').click();
@@ -67,7 +65,6 @@ test("Homepage : Hamburger Menu: Source", async ({ page }) => {
   await page.getByText('https://nasstatus.faa.gov/').click();
   await page.getByText('Datis Statshttps://datis.').click();
   await page.getByText('https://datis.clowd.io/').click();
-  await page.getByText('Flight Detailshttps://www.').click();
   await page.getByText('https://www.flightaware.com').click();
   await page.getByText('Aviation Stackhttps://www.').click();
   await page.getByText('https://www.aviationstack.com').click();
