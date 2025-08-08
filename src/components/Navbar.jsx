@@ -145,15 +145,17 @@ const Navbar = () => {
           </li> 
           */}
 
-          {/* Live Map External Link */}
+          {/* Live Map Link */}
           <li className="navbar__list__item">
-            <a
-              href="https://cirrostrats.us/live_map"
-              className="navbar__list__item__link"
+            <NavLink
+              to="livemap"
+              className={({ isActive }) => 
+                isActive ? "active" : "navbar__list__item__link"
+              }
               onClick={closeSidebar}
             >
               Live Map
-            </a>
+            </NavLink>
           </li>
         </ul>
       </nav>
