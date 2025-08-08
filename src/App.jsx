@@ -13,6 +13,7 @@ import Table from "./components/Table";
 import UTCTime from "./components/UTCTime";
 import "./WeatherInfo.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import LiveMap from "./pages/LiveMap";
 // import Input from './components/Input'; // Adjusted import path
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/table" element={<Table />} />
           <Route path="/searches" element={<SearchesPage />} />
           <Route path="/st" element={<SearchesTimeline />} />
+          <Route path="/livemap" element={<LiveMap />} />
 
         </Routes>
       </div>
