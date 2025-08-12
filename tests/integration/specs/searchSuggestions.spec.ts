@@ -23,17 +23,22 @@ function shouldHave5Options({ query }: { query: string }) {
 function shouldHaveSpecificResult({
   query,
   expectedOption,
+  expectedCount,
 }: {
   query: string;
   expectedOption: string;
+  expectedCount?: number;
 }) {
-  return async ({ page }: { page: Page }) => {
+return async ({ page }: { page: Page }) => {
     await page.goto("/");
     await page.getByRole("combobox").click();
     await page.getByRole("combobox").fill(query);
     await expect(
-      page.getByRole("option", { name: expectedOption })
-    ).toBeVisible();
+        page.getByRole("option", { name: expectedOption })
+      ).toBeVisible();
+    if (expectedCount !== undefined) {
+      await expect(page.getByRole("option")).toHaveCount(expectedCount);
+    }
   };
 }
 
@@ -52,6 +57,23 @@ test(
   shouldHave5Options({ query: "DAL4" })
 );
 
+test(
+  "Search Suggestions : 5 Options : RPA4",
+  shouldHave5Options({ query: "RPA4" })
+);
+
+test(
+  "Search Suggestions : 5 Options : SWA8",
+  shouldHave5Options({ query: "SWA8" })
+);
+
+test(
+  "Search Suggestions : 5 Options : JBU4",
+  shouldHave5Options({ query: "JBU4" })
+);
+
+
+
 // TODO test: Add n number , americal aal, account for DL, AA, AAL, etc
 //            Account for recent search to show up on top as well -- probably wont work with multiple workers.
 
@@ -60,6 +82,7 @@ test(
   shouldHaveSpecificResult({
     query: "JFK",
     expectedOption: "JFK - John F Kennedy International Airport",
+    expectedCount: 1,
   })
 );
 
@@ -68,6 +91,7 @@ test(
   shouldHaveSpecificResult({
     query: "BOS",
     expectedOption: "BOS - General Edward Lawrence Logan International Airport",
+    expectedCount: 2,
   })
 );
 
@@ -76,6 +100,7 @@ test(
   shouldHaveSpecificResult({
     query: "EWR",
     expectedOption: "EWR - C101 Departures",
+    expectedCount: 5,
   })
 );
 
@@ -84,5 +109,6 @@ test(
   shouldHaveSpecificResult({
     query: "C82",
     expectedOption: "EWR - C82 Departures",
+    expectedCount: 1,
   })
 );
