@@ -9,7 +9,13 @@ function shouldHave5Options({ query }: { query: string }) {
   return async ({ page }: { page: Page }) => {
     await page.goto("/");
     await page.getByRole("combobox").click();
+    await page.waitForLoadState('networkidle');
     await page.getByRole("combobox").fill(query);
+    // wait after passing query to prevent race condition.
+    await page.waitForFunction(() => 
+      document.querySelectorAll('[role="option"]').length > 0, 
+      { timeout: 10000 }
+    );
     await expect(page.getByRole("option")).toHaveCount(5);
   };
 }
@@ -32,7 +38,13 @@ function shouldHaveSpecificResult({
 return async ({ page }: { page: Page }) => {
     await page.goto("/");
     await page.getByRole("combobox").click();
+    await page.waitForLoadState('networkidle');
     await page.getByRole("combobox").fill(query);
+     // wait after passing query to prevent race condition.
+    await page.waitForFunction(() => 
+      document.querySelectorAll('[role="option"]').length > 0, 
+      { timeout: 10000 }
+    );
     await expect(
         page.getByRole("option", { name: expectedOption })
       ).toBeVisible();
@@ -95,6 +107,8 @@ test(
   })
 );
 
+
+// TODO test: there is a dupicate of this test in gatedetails.spec.ts address in next cycle
 test(
   "Search Suggestions : Specific Result : Gate EWR - C101",
   shouldHaveSpecificResult({

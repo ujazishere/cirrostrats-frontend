@@ -2,24 +2,26 @@ import { test, expect } from "@playwright/test";
 
 const HAMBURGER_MENU_LOCATOR = ".navbar__hamburger";
 
-test("Homepage : Title, Subtitle, Search Bar, Sign In Button", async ({
-  page,
-}) => {
-  await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "Cirrostrats" })
-  ).toBeVisible();
-  await expect(page.locator("h2")).toContainText(
-    "Unified Aviation Information Platform."
-  );
-  await expect(page.locator(".MuiInputBase-root")).toBeVisible();
-  await expect(
-    page
-      .locator("div")
-      .filter({ hasText: /^Sign in with Google$/ })
-      .nth(1)
-  ).toBeVisible();
-});
+// This is commented out as sign in button is removed temporarily.
+
+// test("Homepage : Title, Subtitle, Search Bar, Sign In Button", async ({
+//   page,
+// }) => {
+//   await page.goto("/");
+//   await expect(
+//     page.getByRole("heading", { name: "Cirrostrats" })
+//   ).toBeVisible();
+//   await expect(page.locator("h2")).toContainText(
+//     "Unified Aviation Information Platform."
+//   );
+//   await expect(page.locator(".MuiInputBase-root")).toBeVisible();
+//   await expect(
+//     page
+//       .locator("div")
+//       .filter({ hasText: /^Sign in with Google$/ })
+//       .nth(1)
+//   ).toBeVisible();
+// });
 
 test("Homepage : Hamburger Menu Options Visible", async ({ page }) => {
   await page.goto("/");
@@ -43,10 +45,12 @@ test("Homepage : Hamburger Menu: Contact Us", async ({ page }) => {
   await page.goto("/");
   await page.locator(HAMBURGER_MENU_LOCATOR).click();
   await page.getByRole("link", { name: "Contact Us" }).click();
-  await expect(page.getByRole("textbox", { name: "Name:" })).toBeVisible();
-  await expect(page.getByRole("textbox", { name: "Email:" })).toBeVisible();
-  await expect(page.getByRole("textbox", { name: "Message:" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Submit" })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Name *" })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Email *" })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Inquiry Type" })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Message *" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Send Message" })).toBeVisible();
+
 });
 
 test("Homepage : Hamburger Menu: Source", async ({ page }) => {
@@ -56,7 +60,6 @@ test("Homepage : Hamburger Menu: Source", async ({ page }) => {
   await page.getByRole('heading', { name: 'Aviation Weather' }).click();
   await page.getByText('Aviation Weatherhttps://www.').click();
   await page.getByText('https://www.aviationweather.').click();
-  await page.getByText('Flight Viewhttps://www.').click();
   await page.getByText('Airport EWRhttps://www.').click();
   await page.getByText('https://www.airport-ewr.com').click();
   await page.getByText('Flight Statshttps://www.').click();
