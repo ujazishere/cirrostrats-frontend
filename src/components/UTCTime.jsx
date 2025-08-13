@@ -4,9 +4,12 @@
 // Shows ZULU text and clock icon when collapsed
 import React, { useEffect, useState, useRef, useCallback } from "react";
 
-// Global flag to ensure only one instance exists
-let instanceExists = false;
-const COMPONENT_ID = 'utc-time-widget-singleton';
+// NOTE: We are adding a simple, global flag on the window object.
+// This is a lightweight and effective way to ensure that across the entire
+// application, only one instance of this component can ever be active.
+const GLOBAL_INSTANCE_FLAG = '__UTC_TIME_WIDGET_INSTANCE_EXISTS__';
+
+const COMPONENT_ID = 'utc-time-widget';
 
 // Define the UTCTime component
 const UTCTime = () => {
@@ -25,63 +28,65 @@ const UTCTime = () => {
   const [isDragging, setIsDragging] = useState(false);
   // State to track if drag actually happened
   const [hasDragged, setHasDragged] = useState(false);
-  // State to control if component should render
-  const [shouldRender, setShouldRender] = useState(false);
+
+  // ADDITION: This new state determines if this specific instance is the "primary" one.
+  const [isPrimaryInstance, setIsPrimaryInstance] = useState(false);
   
   // Ref for the draggable element
   const dragRef = useRef(null);
   // Ref to track initial pointer position (mouse or touch)
   const dragStartRef = useRef({ x: 0, y: 0 });
 
-  // Check if instance already exists and handle singleton logic
+  // This is the "safety net" effect. It runs once when the component mounts.
   useEffect(() => {
-    // Check if DOM element already exists
-    const existingElement = document.getElementById(COMPONENT_ID);
-    
-    if (existingElement && !instanceExists) {
-      // Remove existing DOM element
-      existingElement.remove();
-    }
-    
-    if (!instanceExists) {
-      instanceExists = true;
-      setShouldRender(true);
+    // If the global flag is already set, it means another instance is active.
+    // This instance will do nothing.
+    if (window[GLOBAL_INSTANCE_FLAG]) {
+      return;
     }
 
-    // Cleanup on unmount
+    // If the flag is not set, this is the first and only instance.
+    // Set the global flag to true.
+    window[GLOBAL_INSTANCE_FLAG] = true;
+    // Mark this instance as the primary one so it will render.
+    setIsPrimaryInstance(true);
+
+    // The cleanup function will run when the primary instance is unmounted
+    // (e.g., the user closes the web app).
     return () => {
-      instanceExists = false;
+      window[GLOBAL_INSTANCE_FLAG] = false;
     };
-  }, []);
+  }, []); // Empty array ensures this runs only on mount.
+
 
   // Save position to sessionStorage
   useEffect(() => {
+    // Only the primary instance should save its position.
+    if (!isPrimaryInstance) return;
     sessionStorage.setItem('utc-clock-position', position.toString());
-  }, [position]);
+  }, [position, isPrimaryInstance]);
 
+  // Update the time
   useEffect(() => {
-    if (!shouldRender) return;
+    // Only the primary instance should run the timer logic.
+    if (!isPrimaryInstance) return;
 
-    // Function to format the current UTC time
     const updateFormattedDate = () => {
-      const date = new Date(); // Create a new date object
-      const day = String(date.getUTCDate()).padStart(2, "0"); // Get and pad UTC day
-      const hour = String(date.getUTCHours()).padStart(2, "0"); // Get and pad UTC hour
-      const minute = String(date.getUTCMinutes()).padStart(2, "0"); // Get and pad UTC minute
+      const date = new Date();
+      const day = String(date.getUTCDate()).padStart(2, "0");
+      const hour = String(date.getUTCHours()).padStart(2, "0");
+      const minute = String(date.getUTCMinutes()).padStart(2, "0");
       
-      // Set the day and time separately
       setCurrentDay(day);
       setCurrentTime(`${hour}${minute}Z`);
     };
 
-    updateFormattedDate(); // Initial call to set the time immediately
-    // Set up an interval to update the time every minute
+    updateFormattedDate();
     const intervalId = setInterval(updateFormattedDate, 60000);
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [shouldRender]); // Depend on shouldRender
+  }, [isPrimaryInstance]);
 
-  // Helper function to get pointer coordinates (works for both mouse and touch)
+  // The drag-and-drop logic remains the same.
   const getPointerCoords = (e) => {
     if (e.touches && e.touches.length > 0) {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -89,30 +94,19 @@ const UTCTime = () => {
     return { x: e.clientX, y: e.clientY };
   };
 
-  // Handle drag functionality (works for both mouse and touch)
   const handlePointerMove = useCallback((e) => {
     if (!isDragging) return;
-    
     const coords = getPointerCoords(e);
-    
-    // Check if pointer has moved enough to be considered a drag
     const deltaX = Math.abs(coords.x - dragStartRef.current.x);
     const deltaY = Math.abs(coords.y - dragStartRef.current.y);
-    
-    if (deltaX > 3 || deltaY > 3) {
-      setHasDragged(true);
-    }
-    
+    if (deltaX > 3 || deltaY > 3) setHasDragged(true);
     const windowHeight = window.innerHeight;
     const elementHeight = dragRef.current?.offsetHeight || 50;
     const pointerY = coords.y;
-    
-    // Calculate percentage position, constrained between margins
     const minY = elementHeight / 2;
     const maxY = windowHeight - elementHeight / 2;
     const constrainedY = Math.max(minY, Math.min(maxY, pointerY));
     const percentage = (constrainedY / windowHeight) * 100;
-    
     setPosition(percentage);
   }, [isDragging]);
 
@@ -122,29 +116,20 @@ const UTCTime = () => {
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
       document.body.style.touchAction = '';
-      
-      // Small delay to prevent immediate click after drag
-      setTimeout(() => {
-        setHasDragged(false);
-      }, 100);
+      setTimeout(() => setHasDragged(false), 100);
     }
   }, [isDragging]);
 
   useEffect(() => {
-    if (!shouldRender) return;
-
     if (isDragging) {
       document.body.style.userSelect = 'none';
       document.body.style.cursor = 'grabbing';
-      document.body.style.touchAction = 'none'; // Prevent scrolling on mobile
-      
-      // Add both mouse and touch event listeners
+      document.body.style.touchAction = 'none';
       document.addEventListener('mousemove', handlePointerMove);
       document.addEventListener('mouseup', handlePointerUp);
       document.addEventListener('touchmove', handlePointerMove, { passive: false });
       document.addEventListener('touchend', handlePointerUp);
       document.addEventListener('touchcancel', handlePointerUp);
-      
       return () => {
         document.removeEventListener('mousemove', handlePointerMove);
         document.removeEventListener('mouseup', handlePointerUp);
@@ -153,41 +138,30 @@ const UTCTime = () => {
         document.removeEventListener('touchcancel', handlePointerUp);
       };
     }
-  }, [isDragging, handlePointerMove, handlePointerUp, shouldRender]);
+  }, [isDragging, handlePointerMove, handlePointerUp]);
 
   const handlePointerDown = (e) => {
-    if (!shouldRender) return;
-    
     e.preventDefault();
     e.stopPropagation();
-    
     const coords = getPointerCoords(e);
-    
-    // Store initial pointer position
     dragStartRef.current = { x: coords.x, y: coords.y };
     setHasDragged(false);
     setIsDragging(true);
   };
 
   const handleClick = (e) => {
-    if (!shouldRender) return;
-    
     e.preventDefault();
     e.stopPropagation();
-    
-    // Only toggle if we haven't dragged
-    if (!hasDragged && !isDragging) {
-      setIsVisible(!isVisible);
-    }
+    if (!hasDragged && !isDragging) setIsVisible(!isVisible);
   };
 
-  // Don't render if this isn't the singleton instance
-  if (!shouldRender) {
+  // This is the final gate. If this is not the primary instance, render nothing.
+  if (!isPrimaryInstance) {
     return null;
   }
 
+  // If this IS the primary instance, render the clock.
   return (
-    // Render the UTC time inside a container with unique ID
     <div 
       id={COMPONENT_ID}
       className="utc-glass__container" 
@@ -203,13 +177,11 @@ const UTCTime = () => {
         style={{ touchAction: 'none' }}
       >
         {!isVisible ? (
-          // Collapsed state: Show ZULU text and clock icon
           <div className="utc-glass__collapsed-content">
             <div className="utc-glass__clock-icon">🕐</div>
             <div className="utc-glass__zulu-text">ZULU</div>
           </div>
         ) : (
-          // Expanded state: Show day on top, time below
           <div className="utc-glass__expanded-content">
             <div className="utc-glass__clock-icon">🕐</div>
             <div className="utc-glass__time-info">
