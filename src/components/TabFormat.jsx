@@ -59,9 +59,14 @@ const TabFormat = ({
   const [activeTab, setActiveTab] = useState(getDefaultTab());
   // Re-introducing isSticky state to manage the sticky header behavior.
   const [isSticky, setIsSticky] = useState(false);
+  // **NEW STATE**: Added state to track the stickiness of the sub-header (`weather-tab-header`).
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
+  // **NEW REF**: This ref will dynamically point to the `weather-tab-header` of the currently active tab.
+  // This is crucial because the header element changes when the user switches tabs.
+  const activeHeaderRef = useRef(null);
   
   const [isNasExpanded, setIsNasExpanded] = useState(true);
   const [isNasDestExpanded, setIsNasDestExpanded] = useState(true);
@@ -97,43 +102,49 @@ const TabFormat = ({
     swipeDuration: 300,
   });
 
-  // This useEffect hook handles the logic for making the tab navigation sticky on scroll.
+  // This useEffect hook handles the logic for making BOTH the tab navigation and the tab header sticky on scroll.
   // It's designed to be robust and smooth across all devices.
   useEffect(() => {
     const tabsNav = tabsNavRef.current;
     // We exit early if the tab navigation element isn't rendered yet.
     if (!tabsNav) return;
-
+  
     // We calculate the exact vertical position where the tab navigation should become sticky.
     // This is its initial distance from the top of the document, calculated once after the component mounts.
-    // getBoundingClientRect().top gives the position relative to the viewport.
-    // window.scrollY gives the number of pixels the document is currently scrolled vertically.
-    // Adding them together gives the element's absolute position from the top of the document.
     const stickyPoint = tabsNav.getBoundingClientRect().top + window.scrollY;
-
+  
     // This function will be called every time the user scrolls.
     const handleScroll = () => {
-      // We check if the user has scrolled past our calculated sticky point.
-      if (window.scrollY >= stickyPoint) {
-        // If we've scrolled past the point, we make the header sticky.
-        // React's state setters are optimized to prevent re-renders if the state doesn't change.
-        setIsSticky(true);
+      // **MODIFIED LOGIC**: This handler now manages two sticky elements.
+      const activeHeader = activeHeaderRef.current; // Get the currently rendered sub-header.
+      
+      // 1. Logic for the main tab navigation stickiness.
+      const shouldTabsBeSticky = window.scrollY >= stickyPoint;
+      setIsSticky(shouldTabsBeSticky);
+  
+      // 2. Logic for the sub-header stickiness.
+      // The sub-header should only become sticky if the main tab navigation is already sticky.
+      if (shouldTabsBeSticky && activeHeader) {
+        // The sub-header becomes sticky when its top edge is about to scroll underneath the main sticky navigation.
+        // We check if its position relative to the viewport is less than or equal to the height of the main sticky nav.
+        const shouldHeaderBeSticky = activeHeader.getBoundingClientRect().top <= tabsNav.offsetHeight;
+        setIsHeaderSticky(shouldHeaderBeSticky);
       } else {
-        // If we're above the point, we un-stick the header.
-        setIsSticky(false);
+        // If the main navigation is not sticky, the sub-header must also not be sticky.
+        setIsHeaderSticky(false);
       }
     };
-
+  
     // We add the scroll event listener to the window to detect scroll events.
     window.addEventListener('scroll', handleScroll, { passive: true });
-
+  
     // The cleanup function is crucial. It removes the event listener when the component unmounts,
     // preventing memory leaks and errors.
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []); // The empty dependency array `[]` is key. It ensures this effect runs only ONCE,
-         // right after the component mounts. This is the correct pattern for setting up this kind of event listener.
+           // right after the component mounts. This is the correct pattern for setting up this kind of event listener.
 
   // Simple tab change function with direction-based animation
   const changeTab = (tab, direction = null) => {
@@ -163,7 +174,7 @@ const TabFormat = ({
         } else {
           setIsAnimating(false);
         }
-      }, 50);
+      }, 250);
     }, 250);
   };
 
@@ -204,6 +215,19 @@ const TabFormat = ({
               background-color: #ffffff; /* A solid background is needed when it's sticky. */
               box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds a subtle shadow for depth. */
               margin: 0; /* Reset margin when sticky */
+            }
+
+            /* **NEW CSS**: This class is applied to the active tab's header when it becomes sticky. */
+            .weather-tab-header.sticky-header {
+              position: fixed;
+              left: 0;
+              width: 100%;
+              /* A lower z-index than the main nav ensures it sticks *under* it. */
+              z-index: 999;
+              background-color: #ffffff;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+              padding-top: 0.5rem;
+              padding-bottom: 0.5rem;
             }
 
             /* Animation keyframes for tab transitions */
@@ -275,10 +299,19 @@ const TabFormat = ({
         >
           {activeTab === 'alt-departure' && hasAltDepWeather && (
             <div className="weather-tab-panel">
-              <div className="weather-tab-header">
-                <h3 className="weather-tab-title" style={{ color: '#856404' }}>Departure Alternate</h3>
-                <h3 className="weather-tab-title" style={{ color: '#856404' }}>{flightData?.departureAlternate}</h3>
+              {/* **MODIFIED HEADER**: Applying ref, dynamic classes, and styles for sticky behavior. */}
+              <div 
+                ref={activeHeaderRef}
+                className={`weather-tab-header ${isHeaderSticky ? 'sticky-header' : ''}`}
+                style={isHeaderSticky ? { top: `${tabsNavRef.current?.offsetHeight}px`, ...{ color: '#856404' } } : { color: '#856404' }}
+              >
+                <h3 className="weather-tab-title">Departure Alternate</h3>
+                <h3 className="weather-tab-title">{flightData?.departureAlternate}</h3>
               </div>
+              {/* **NEW PLACEHOLDER**: Prevents content jump when the sub-header becomes sticky. */}
+              {isHeaderSticky && activeHeaderRef.current && (
+                <div style={{ height: `${activeHeaderRef.current.offsetHeight}px` }} />
+              )}
               <NASDetails nasResponse={nasDepartureAlternateResponse} title={getNASTitle(nasDepartureAlternateResponse)} />
               <AirportCard weatherDetails={departure_alternate_weather} showSearchBar={!hideChildSearchBars} />
             </div>
@@ -286,9 +319,18 @@ const TabFormat = ({
 
           {activeTab === 'departure' && (
             <div className="weather-tab-panel">
-              <div className="weather-tab-header">
+              {/* **MODIFIED HEADER**: Applying ref, dynamic classes, and styles for sticky behavior. */}
+              <div
+                ref={activeHeaderRef}
+                className={`weather-tab-header ${isHeaderSticky ? 'sticky-header' : ''}`}
+                style={isHeaderSticky ? { top: `${tabsNavRef.current?.offsetHeight}px` } : {}}
+              >
                 <h3 className="weather-tab-title">{flightData?.departure}</h3>
               </div>
+              {/* **NEW PLACEHOLDER**: Prevents content jump when the sub-header becomes sticky. */}
+              {isHeaderSticky && activeHeaderRef.current && (
+                <div style={{ height: `${activeHeaderRef.current.offsetHeight}px` }} />
+              )}
               <NASDetails nasResponse={nasDepartureResponse} title={getNASTitle(nasDepartureResponse)} />
               <AirportCard weatherDetails={dep_weather} showSearchBar={!hideChildSearchBars} />
             </div>
@@ -296,9 +338,18 @@ const TabFormat = ({
 
           {activeTab === 'destination' && (
             <div className="weather-tab-panel">
-              <div className="weather-tab-header">
+              {/* **MODIFIED HEADER**: Applying ref, dynamic classes, and styles for sticky behavior. */}
+              <div
+                ref={activeHeaderRef}
+                className={`weather-tab-header ${isHeaderSticky ? 'sticky-header' : ''}`}
+                style={isHeaderSticky ? { top: `${tabsNavRef.current?.offsetHeight}px` } : {}}
+              >
                 <h3 className="weather-tab-title">{flightData?.arrival}</h3>
               </div>
+              {/* **NEW PLACEHOLDER**: Prevents content jump when the sub-header becomes sticky. */}
+              {isHeaderSticky && activeHeaderRef.current && (
+                <div style={{ height: `${activeHeaderRef.current.offsetHeight}px` }} />
+              )}
               <NASDetails nasResponse={nasDestinationResponse} title={getNASTitle(nasDestinationResponse)} />
               <AirportCard weatherDetails={dest_weather} showSearchBar={!hideChildSearchBars} />
             </div>
@@ -306,10 +357,19 @@ const TabFormat = ({
 
           {activeTab === 'alt-destination' && hasAltDestWeather && (
             <div className="weather-tab-panel">
-              <div className="weather-tab-header">
-                <h3 className="weather-tab-title" style={{ color: '#856404' }}>Arrival Alternate</h3>
-                <h3 className="weather-tab-title" style={{ color: '#856404' }}>{flightData?.arrivalAlternate}</h3>
+              {/* **MODIFIED HEADER**: Applying ref, dynamic classes, and styles for sticky behavior. */}
+              <div
+                ref={activeHeaderRef}
+                className={`weather-tab-header ${isHeaderSticky ? 'sticky-header' : ''}`}
+                style={isHeaderSticky ? { top: `${tabsNavRef.current?.offsetHeight}px`, ...{ color: '#856404' } } : { color: '#856404' }}
+              >
+                <h3 className="weather-tab-title">Arrival Alternate</h3>
+                <h3 className="weather-tab-title">{flightData?.arrivalAlternate}</h3>
               </div>
+              {/* **NEW PLACEHOLDER**: Prevents content jump when the sub-header becomes sticky. */}
+              {isHeaderSticky && activeHeaderRef.current && (
+                <div style={{ height: `${activeHeaderRef.current.offsetHeight}px` }} />
+              )}
               <NASDetails nasResponse={nasDestinationAlternateResponse} title={getNASTitle(nasDestinationAlternateResponse)} className="red-text"/>
               <AirportCard weatherDetails={arrival_alternate_weather} showSearchBar={!hideChildSearchBars} />
             </div>
