@@ -21,7 +21,7 @@ const useInputHandlers = () => {
   }
 
   const handleInputChange = (event, newInputValue, userEmail,) => {
-    // TODO:
+    // TODO extended:
     // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
     setInputValue(newInputValue);
     // trackSearch(userEmail, newInputValue); // Keep this line if you want to track keystrokes
@@ -141,7 +141,8 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
 
         // NEW LOGIC: Check if there are any suggestions currently visible in the dropdown.
         // The most common user intent is to select the top-most suggestion when submitting a raw query.
-        // TODO uj: this should account for airport exact match or prepended with k, for flights it shouldn't
+        // TODO uj: this should account for airport exact match or prepended with k, for flights it shouldn't.
+          // for flights it should account for exact digit match, else send to raw(direct) query.
         const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
 
         if (topSuggestion) {
@@ -159,7 +160,6 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
 
                 // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
                     // May have to account for this in the search interface.
-                    // The 
                 // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
                 // Save the result (either from the API or the raw text) to local storage.
                 saveSearchToLocalStorage(rawReturn);
@@ -301,11 +301,9 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     setSelectedValue,
     inputValue,
     setInputValue,
-    // debouncedInputValue,
     handleSubmit,
     handleValue,
     handleInputChange,
-    // handleSuggestionClick,
     handleFocus,
     handleBlur,
     handleKeyDown,

@@ -3,7 +3,7 @@
  * - FlightCard: Main component displaying comprehensive flight details including departure/arrival info
  * * Key features:
  * - Responsive design with mobile-specific scroll behavior
- * - Date-based tab navigation (Today, Tomorrow, etc.)
+ * - Date-based tab navigation (Today, Tomorrow, etc.) - Temporarily disabled.
  * - Real-time flight status display
  * - Integration with NAS (National Airspace System) data
  * - Route visualization support via SkyVector

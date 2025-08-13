@@ -17,7 +17,9 @@ import useInputHandlers from "../hooks/useInputHandlers";
 export default function SearchInput({ 
   userEmail,
 }) {
+
   const inputRef = useRef(null);
+
   // returns the input handlers that will be passed to the Autocomplete component
   const {
     open: dropOpen,

@@ -123,7 +123,7 @@ export default function useSearchSuggestions(userEmail, isLoggedIn, inputValue, 
       if (rawData && rawData.length > 0) {
         const formatted = formatSuggestions(rawData);
         setSuggestions(prev => {
-          // TODO: inspect this .id -- this will prevent me from feeding data to the sti outside of the id realm and may break the code.
+          // TODO: inspect this .id and the syntax -- this will prevent me from feeding data to the sti outside of the id realm and may break the code.
           const existingIds = new Set([...prev.initial.map(s => s.stId), ...prev.backend.map(s => s.stId)].filter(Boolean));
           
           // Filters newly fetched suggestions to exclude any items whose IDs already exist.

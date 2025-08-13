@@ -9,7 +9,6 @@ const flightService = {
    * Extracts airports from multiple flight data sources.
    * Priority: AJMS > FlightAware > FlightStats.
    * 
-   * @param {Object} sources - Aggregated data from various providers.
    * @param {Object} sources.ajms - Data from AJMS API.
    * @param {Object} sources.flightAwareRes - Data from FlightAware API.
    * @param {Object} sources.flightStatsTZRes - Data from FlightStats API.
@@ -29,7 +28,9 @@ const flightService = {
     let arrivalAlternate = null;
 
     // TODO VHP Test: compare departure and arrival from different sources for absolute verification! 
-    // Anomaly may exist between sources and arrival/departure alternate may not be accurate depending on weather conditions -- mismatch possible.
+      // If jms availbale return and show that first. use others to verify accuracy.
+      // Anomaly may exist between sources and arrival/departure alternate may not be accurate depending on weather conditions -- mismatch possible.
+      // Especially when one flight number has multiple flights back and forth.
     if (ajms?.data) {
       departure = ajms.data.departure || null;
       arrival = ajms.data.arrival || null;
@@ -66,6 +67,8 @@ const flightService = {
    */
   getPrimaryFlightData: async (flightID) => {
 
+    // # TODO: To fetch test jms - need to completely redesign ajms response architecture since current setup is inefficient
+      // Current setup requests ajms from bakend which is inefficient but secure since it abstracts away ajms through backend.
     const [ajms, flightStatsTZRes] = await Promise.all([
     axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {}, error: true }; }),
     axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {}, error: true }; }),
@@ -81,8 +84,6 @@ const flightService = {
         return { data: {}, error: true }; 
       });
     };
-
-    // TODO VHP: Compare deets of each data check for consisetency
 
     return {ajms, flightAwareRes, flightStatsTZRes }
   },

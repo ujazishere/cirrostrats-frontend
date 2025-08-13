@@ -3,9 +3,10 @@ import Input from "./Input/Index"; // Ensure this path is correct
 import NASDetails from "./NASDetails";
 
 /**
- * Component to display weather information including D-ATIS, METAR, and TAF
+ * Component to display weather and NAS information. Includes D-ATIS, METAR, TAF and NAS Status.
  * @param {Object} props
  * @param {Object} props.weatherDetails - Weather data object
+ * @param {Object} props.nasResponseAirport - NAS data for the airport
  * @param {boolean} props.showSearchBar - Whether to show the search bar (default: true)
  */
 const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true }) => {
@@ -155,6 +156,7 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
 
     // Helper function to get NAS title
     // THIS IS THE FIX: This function now always returns "NAS Status".
+    // TODO Ismail: Is this necessary to have this tiny function just for title? Can we pass the title text as a prop instead?
     const getNASTitle = () => {
         return "NAS Status";
     };

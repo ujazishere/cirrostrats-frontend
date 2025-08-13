@@ -24,7 +24,7 @@ function App() {
         <UTCTime />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/guide" element={<Guide />} />
+          <Route path="/homepage" element={<Home />} />
           <Route path="/story" element={<Story />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/source" element={<Source />} />

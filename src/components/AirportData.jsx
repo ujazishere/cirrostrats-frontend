@@ -92,7 +92,6 @@ const useAirportData = (searchValue, apiUrl) => {
           ]);
 
           if (nasRes.data){
-            // TODO: Need to show this component in the weather card.
             setNasResponseAirport(nasRes.data);
             setLoadingNAS(false);
           } 

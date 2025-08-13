@@ -156,7 +156,7 @@ const HomePage = () => {
           {/* Navigation links moved directly below search bar */}
           <div className="nav-links-container">
             <div className="nav-links">
-              <span className="nav-link">Weather Reports</span>
+              <span className="nav-link">Weather</span>
               <span className="nav-separator">•</span>
               <span className="nav-link">Flight Details</span>
               <span className="nav-separator">•</span>

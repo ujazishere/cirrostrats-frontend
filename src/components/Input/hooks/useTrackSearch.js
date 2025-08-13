@@ -25,5 +25,3 @@ export const trackSearch = async (userEmail,submitTerm) => {
   } else {
   }
 };
-
-// return { trackSearch };

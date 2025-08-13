@@ -1,7 +1,7 @@
 export const formatSuggestions = (rawSuggestions) => {
   if (!rawSuggestions || !Array.isArray(rawSuggestions)) return [];
   
-  // TODO: search duplicate bugg - `search query stid bug`  -- Investigate in backend and add unique id to backend's source collection instead of just sic stId?
+  // TODO: search duplicate bug - `search query stid bug`  -- Investigate in backend and add unique id to backend's source collection instead of just sic stId?
   return rawSuggestions.map((item) => ({
     stId: item.stId,
     ...(item.r_id && { r_id: item.r_id }),            // gates dont have id so making id optional.
@@ -31,6 +31,7 @@ export const formatSuggestions = (rawSuggestions) => {
 };
 
 export const matchingSuggestions = (suggestionPool, query) => {
+  // TODO VHP: Matching suggestions to include fuzz find matching based on added properties to the search items from backnend sic.
   if (!query) return suggestionPool.slice(0, 5);
   if (!suggestionPool || !Array.isArray(suggestionPool)) return [];
   

@@ -77,6 +77,7 @@ const SearchTimeline = ({ rawData }) => {
                 marginBottom: '3px'
               }}>
                 <span style={{ fontWeight: '600', color: '#1e40af' }}>
+                {/* TODO: Also account for other fields - extended suggestions fetch are not accounted for - SWA, JBU and such*/}
                 {item.fid_st 
                   ? `Flight: ${item.fid_st}` 
                   : item.airport_st 

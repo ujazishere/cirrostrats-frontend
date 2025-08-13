@@ -91,6 +91,19 @@ const Navbar = () => {
         ref={sidebarRef}
       >
         <ul className="navbar__list">
+          {/* Homepage Link */}
+          <li className="navbar__list__item">
+            <NavLink
+              to="homepage"
+              className={({ isActive }) => 
+                isActive ? "active" : "navbar__list__item__link"
+              }
+              onClick={closeSidebar}
+            >
+              Home
+            </NavLink>
+          </li>
+
           {/* Our Story Link */}
           <li className="navbar__list__item">
             <NavLink
@@ -129,21 +142,6 @@ const Navbar = () => {
               Source
             </NavLink>
           </li>
-
-          {/* Guide Link */}
-          {/*
-          <li className="navbar__list__item">
-            <NavLink
-              to="guide"
-              className={({ isActive }) => 
-                isActive ? "active" : "navbar__list__item__link"
-              }
-              onClick={closeSidebar}
-            >
-              Guide
-            </NavLink>
-          </li> 
-          */}
 
           {/* Live Map Link */}
           <li className="navbar__list__item">

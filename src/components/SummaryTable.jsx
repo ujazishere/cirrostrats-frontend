@@ -119,6 +119,8 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
   // Component to render the entire EDCT table
   const EDCTSection = ({ edctData }) => {
+    // TODO ismail: Make this section fetch and update edct state after the base flight data has been loaded to 
+        // improve performance so whatever data is available is atleast displayed rightaway and new edct fetch happens in the background.
     // Hide section if there is no data
     if (!edctData || !Array.isArray(edctData) || edctData.length === 0) {
       return null;

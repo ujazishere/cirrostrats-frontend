@@ -20,6 +20,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 // Note: In a real-world, large-scale application, this would also be in its own file (e.g., hooks/useFlightData.js) for better separation of concerns.
 // This hook is responsible for all logic related to fetching flight, weather, NAS, and EDCT data.
 // =================================================================================
+// TODO: Abstract the logic for fetching flight data into a separate service module just like we have airportData.jsx.
 const useFlightData = (searchValue) => {
   // We manage all related states within a single object. This simplifies state updates and reduces re-renders.
   const [flightState, setFlightState] = useState({
