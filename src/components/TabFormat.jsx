@@ -57,11 +57,11 @@ const TabFormat = ({
   };
 
   const [activeTab, setActiveTab] = useState(getDefaultTab());
-  // REMOVED: isSticky state is no longer needed.
+  // Re-introducing isSticky state to manage the sticky header behavior.
+  const [isSticky, setIsSticky] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const tabsNavRef = useRef(null);
   const contentRef = useRef(null);
-  // REMOVED: tabPositionRef and containerRef are no longer needed for sticky logic.
   
   const [isNasExpanded, setIsNasExpanded] = useState(true);
   const [isNasDestExpanded, setIsNasDestExpanded] = useState(true);
@@ -97,9 +97,43 @@ const TabFormat = ({
     swipeDuration: 300,
   });
 
-  // REMOVED: The useEffect for handling scroll and ResizeObserver for sticky tabs has been removed.
-  
-  // REMOVED: The useEffect to set a minimum content height is no longer necessary without the sticky header.
+  // This useEffect hook handles the logic for making the tab navigation sticky on scroll.
+  // It's designed to be robust and smooth across all devices.
+  useEffect(() => {
+    const tabsNav = tabsNavRef.current;
+    // We exit early if the tab navigation element isn't rendered yet.
+    if (!tabsNav) return;
+
+    // We calculate the exact vertical position where the tab navigation should become sticky.
+    // This is its initial distance from the top of the document, calculated once after the component mounts.
+    // getBoundingClientRect().top gives the position relative to the viewport.
+    // window.scrollY gives the number of pixels the document is currently scrolled vertically.
+    // Adding them together gives the element's absolute position from the top of the document.
+    const stickyPoint = tabsNav.getBoundingClientRect().top + window.scrollY;
+
+    // This function will be called every time the user scrolls.
+    const handleScroll = () => {
+      // We check if the user has scrolled past our calculated sticky point.
+      if (window.scrollY >= stickyPoint) {
+        // If we've scrolled past the point, we make the header sticky.
+        // React's state setters are optimized to prevent re-renders if the state doesn't change.
+        setIsSticky(true);
+      } else {
+        // If we're above the point, we un-stick the header.
+        setIsSticky(false);
+      }
+    };
+
+    // We add the scroll event listener to the window to detect scroll events.
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // The cleanup function is crucial. It removes the event listener when the component unmounts,
+    // preventing memory leaks and errors.
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []); // The empty dependency array `[]` is key. It ensures this effect runs only ONCE,
+         // right after the component mounts. This is the correct pattern for setting up this kind of event listener.
 
   // Simple tab change function with direction-based animation
   const changeTab = (tab, direction = null) => {
@@ -142,8 +176,6 @@ const TabFormat = ({
     const direction = newIndex > currentIndex ? 'left' : 'right';
     
     changeTab(tab, direction);
-    
-    // REMOVED: Logic for maintaining scroll position with sticky tabs is gone.
   };
 
   // Helper function to get NAS titles
@@ -152,7 +184,7 @@ const TabFormat = ({
   };
 
   return (
-    // MODIFIED: Removed ref={containerRef} as it's no longer needed
+    // The container no longer needs a ref for the sticky logic.
     <div className="weather-container">
       {/* TODO ismail: This route section should not be here since this file is dedicated for tab format*/}
       <div className="route-section">
@@ -162,6 +194,19 @@ const TabFormat = ({
       <div className="weather-tabs-container" {...handlers}>
         <style>
           {`
+            /* This CSS class is applied to the tab navigation when it becomes sticky. */
+            .weather-tabs-navigation.sticky {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              z-index: 1000; /* High z-index to ensure it stays on top of other content. */
+              background-color: #ffffff; /* A solid background is needed when it's sticky. */
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds a subtle shadow for depth. */
+              margin: 0; /* Reset margin when sticky */
+            }
+
+            /* Animation keyframes for tab transitions */
             .slide-left-exit { animation: slideLeftExit 0.25s forwards; }
             .slide-left-enter { animation: slideLeftEnter 0.3s forwards; }
             .slide-right-exit { animation: slideRightExit 0.25s forwards; }
@@ -177,10 +222,10 @@ const TabFormat = ({
           `}
         </style>
         
-        {/* MODIFIED: Tabs navigation no longer has sticky classes or styles */}
+        {/* The tab navigation bar. It gets the 'sticky' class conditionally. */}
         <div 
           ref={tabsNavRef}
-          className="weather-tabs-navigation"
+          className={`weather-tabs-navigation ${isSticky ? 'sticky' : ''}`}
         >
           {hasAltDepWeather && (
             <button 
@@ -218,7 +263,11 @@ const TabFormat = ({
           )}
         </div>
 
-        {/* REMOVED: Placeholder div for sticky tabs is no longer needed. */}
+        {/* This placeholder div prevents the content from jumping up when the navigation becomes sticky. */}
+        {/* It only renders when isSticky is true and takes up the exact height of the navigation bar. */}
+        {isSticky && tabsNavRef.current && (
+          <div style={{ height: `${tabsNavRef.current.offsetHeight}px` }} />
+        )}
 
         <div 
           ref={contentRef}
