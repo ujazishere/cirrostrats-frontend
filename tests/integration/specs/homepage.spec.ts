@@ -26,6 +26,7 @@ const HAMBURGER_MENU_LOCATOR = ".navbar__hamburger";
 test("Homepage : Hamburger Menu Options Visible", async ({ page }) => {
   await page.goto("/");
   await page.locator(HAMBURGER_MENU_LOCATOR).click();
+  await expect(page.getByRole("link", { name: "Home" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Our Story" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Contact Us" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Source" })).toBeVisible();
@@ -88,5 +89,6 @@ test("Homepage : Hamburger Menu: Live Map", async ({ page }) => {
   await page.locator(HAMBURGER_MENU_LOCATOR).click();
   await page.getByRole("link", { name: "Live Map" }).click();
   await expect(page.locator("img").first()).toBeVisible();
-  await expect(page.getByText("UTC")).toBeVisible();
+  // await expect(page.getByText("UTC")).toBeVisible();
+  await expect(page.getByRole('img', { name: 'NWS Weather Radar Loop' })).toBeVisible();
 });
