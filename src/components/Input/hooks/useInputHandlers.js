@@ -21,7 +21,7 @@ const useInputHandlers = () => {
   }
 
   const handleInputChange = (event, newInputValue, userEmail,) => {
-    // TODO extended:
+    // TODO:
     // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
     setInputValue(newInputValue);
     // trackSearch(userEmail, newInputValue); // Keep this line if you want to track keystrokes
@@ -77,30 +77,28 @@ const saveSearchToLocalStorage = (term) => {
     }
 
     // Filter out any duplicates from the existing list before adding the new term.
-    recentSearches = recentSearches.filter(item => {
-        // Priority 1: If both the new term and an existing item have an 'id', compare them.
-        if (termToStore.stId && item.stId) {
-            return item.stId !== termToStore.stId;
-        }
-        // Priority 2: If IDs aren't available, compare their labels in a case-insensitive way.
-        if (item.label && termToStore.label) {
-            return item.label.toLowerCase() !== termToStore.label.toLowerCase();
-        }
-        // If a comparison can't be made, keep the item by default.
-        return true;
+    const updatedSearches = recentSearches.filter(item => { // The variable `updatedSearches` is created here
+      if (termToStore.stId && item.stId) {
+        return item.stId !== termToStore.stId;
+      }
+      if (item.label && termToStore.label) {
+        return item.label.toLowerCase() !== termToStore.label.toLowerCase();
+      }
+      return true;
     });
 
     // Add the new, cleaned search term to the beginning of the array.
-    recentSearches.unshift({ ...termToStore, timestamp: currentTime });
+    // We use the filtered array `updatedSearches` to proceed.
+    const finalSearches = [{ ...termToStore, timestamp: currentTime }, ...updatedSearches];
 
     // If the list now exceeds the maximum allowed size, trim it.
-    if (recentSearches.length > MAX_RECENT_SEARCHES) {
-        // .slice(0, MAX_RECENT_SEARCHES) creates a new array containing only the first N items.
-        recentSearches = recentSearches.slice(0, MAX_RECENT_SEARCHES);
+    if (finalSearches.length > MAX_RECENT_SEARCHES) {
+        finalSearches.length = MAX_RECENT_SEARCHES; // More efficient than slice for trimming the end
     }
 
-    // Save the final, updated array back to localStorage. It must be converted to a JSON string.
-    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    // **FIX:** The bug was here. The code was trying to save a variable that was out of scope.
+    // It has been corrected to save the final, processed array `finalSearches`.
+    localStorage.setItem('recentSearches', JSON.stringify(finalSearches));
     // --- END NEW LOCAL STORAGE LOGIC ---
 };
 
@@ -139,37 +137,31 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
         // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
         const trimmedSubmitTerm = submitTerm.trim();      // trimming leading and trailing white spaces
 
-        // NEW LOGIC: Check if there are any suggestions currently visible in the dropdown.
-        // The most common user intent is to select the top-most suggestion when submitting a raw query.
-        // TODO uj: this should account for airport exact match or prepended with k, for flights it shouldn't.
-          // for flights it should account for exact digit match, else send to raw(direct) query.
-        const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
+        // Logic from the previous fix: Differentiate between an exact match and a true raw query.
+        const exactMatchSuggestion = suggestions.find(
+            s => s.label.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+        );
 
-        if (topSuggestion) {
-            // If a top suggestion exists, use it as the definitive search term. This is the main fix.
-            // This ensures that if a user types "ewr" and "EWR - Newark..." is the top result, we save the full result.
-            saveSearchToLocalStorage(topSuggestion);
-            navigate("/details", { state: { searchValue: topSuggestion }, userEmail });
-            setSelectedValue(topSuggestion);
+        if (exactMatchSuggestion) {
+            // SCENARIO 1: The typed text exactly matches a suggestion.
+            // Treat it as if the user selected that item from the list.
+            saveSearchToLocalStorage(exactMatchSuggestion);
+            navigate("/details", { state: { searchValue: exactMatchSuggestion }, userEmail });
+            setSelectedValue(exactMatchSuggestion);
         } else {
-            // Fallback: If no suggestions were visible (e.g., the search was too fast or yielded no results),
-            // we revert to calling the API to try and resolve the raw query.
+            // SCENARIO 2: The typed text is a true "raw query" (e.g., "UA1").
+            // Call the API to resolve the raw query string.
             searchService.fetchRawQuery(trimmedSubmitTerm).then(rawReturn => {
                 // Determine the final term: use the API result if valid, otherwise create a basic object from the raw text.
-
-
                 // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
-                    // May have to account for this in the search interface.
-                // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
-                // Save the result (either from the API or the raw text) to local storage.
                 saveSearchToLocalStorage(rawReturn);
-
-
 
                 // The value passed to the details page is either the full object or the raw string.
                 const searchValue = rawReturn || trimmedSubmitTerm;
                 navigate("/details", { state: { searchValue }, userEmail });
+                
                 // Update the input display with the final term.
+                const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
                 setSelectedValue(finalTerm);
             });
         }
@@ -301,9 +293,11 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     setSelectedValue,
     inputValue,
     setInputValue,
+    // debouncedInputValue,
     handleSubmit,
     handleValue,
     handleInputChange,
+    // handleSuggestionClick,
     handleFocus,
     handleBlur,
     handleKeyDown,
