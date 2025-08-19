@@ -217,15 +217,20 @@ const TabFormat = ({
               margin: 0; /* Reset margin when sticky */
             }
 
+            .weather-tab-header {
+            /* ...other styles... */
+            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            }
+
+
             /* **NEW CSS**: This class is applied to the active tab's header when it becomes sticky. */
             .weather-tab-header.sticky-header {
               position: fixed;
               left: 0;
               width: 100%;
               /* A lower z-index than the main nav ensures it sticks *under* it. */
-              z-index: 999;
+              z-index: 999999;
               background-color: #ffffff;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.05);
               padding-top: 0.5rem;
               padding-bottom: 0.5rem;
             }
