@@ -100,45 +100,54 @@ const TabFormat = ({
     swipeDuration: 300,
   });
 
-  // This useEffect hook handles the logic for making BOTH the tab navigation and the tab header sticky on scroll.
-  // It's designed to be robust and smooth across all devices.
+  // this code sniptted is designed to make the tab sticky even when the EDCT table is expanded.
+
   useEffect(() => {
     const tabsNav = tabsNavRef.current;
-    // We exit early if the tab navigation element isn't rendered yet.
     if (!tabsNav) return;
-  
-    // We calculate the exact vertical position where the tab navigation should become sticky.
-    // This is its initial distance from the top of the document, calculated once after the component mounts.
-    const stickyPoint = tabsNav.getBoundingClientRect().top + window.scrollY;
-  
-    // This function will be called every time the user scrolls.
+
+    // A function to calculate and set the sticky point.
+    // We'll call this whenever the layout might have changed.
+    const calculateStickyPoint = () => {
+      if (tabsNav) {
+        return tabsNav.getBoundingClientRect().top + window.scrollY;
+      }
+      return 0;
+    };
+
+    let stickyPoint = calculateStickyPoint();
+
     const handleScroll = () => {
-      const shouldTabsBeSticky = window.scrollY >= stickyPoint;
-      setIsSticky(shouldTabsBeSticky);
-  
-      // 2. Logic for the sub-header stickiness.
-      // The sub-header should only become sticky if the main tab navigation is already sticky.
-      if (shouldTabsBeSticky && activeHeader) {
-        // The sub-header becomes sticky when its top edge is about to scroll underneath the main sticky navigation.
-        // We check if its position relative to the viewport is less than or equal to the height of the main sticky nav.
-        const shouldHeaderBeSticky = activeHeader.getBoundingClientRect().top <= tabsNav.offsetHeight;
-        setIsHeaderSticky(shouldHeaderBeSticky);
+      // Use the 'stickyPoint' variable from the outer scope.
+      if (window.scrollY >= stickyPoint) {
+        setIsSticky(true);
       } else {
-        // If the main navigation is not sticky, the sub-header must also not be sticky.
-        setIsHeaderSticky(false);
+        setIsSticky(false);
       }
     };
-  
-    // We add the scroll event listener to the window to detect scroll events.
+
+    // ✅ NEW: Set up the ResizeObserver to watch for layout shifts.
+    const observer = new ResizeObserver(() => {
+      // When the body resizes (due to content loading, etc.),
+      // recalculate the sticky point.
+      stickyPoint = calculateStickyPoint();
+      // Also, immediately check the scroll position against the new point.
+      handleScroll();
+    });
+
+    // Start observing the main document body for any size changes.
+    observer.observe(document.body);
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-  
-    // The cleanup function is crucial. It removes the event listener when the component unmounts,
-    // preventing memory leaks and errors.
+
+    // Cleanup function: essential to prevent memory leaks.
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      // Stop observing when the component unmounts.
+      observer.unobserve(document.body);
     };
-  }, []); // The empty dependency array `[]` is key. It ensures this effect runs only ONCE,
-           // right after the component mounts. This is the correct pattern for setting up this kind of event listener.
+  }, []); 
+
 
   // Simple tab change function with direction-based animation
   const changeTab = (tab, direction = null) => {
