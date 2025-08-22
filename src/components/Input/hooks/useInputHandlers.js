@@ -129,6 +129,7 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     if (typeof submitTerm === 'object' && submitTerm.label) {
         // --- Case 1: A dropdown item was explicitly selected ---
         // The term is already in the correct format.
+        console.log("Submitting selected term:", submitTerm);
         saveSearchToLocalStorage(submitTerm);
         // Navigate to the details page, passing the search object in the route's state.
         navigate("/details", { state: { searchValue: submitTerm }, userEmail });
@@ -136,6 +137,7 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
         setSelectedValue(submitTerm);
 
     } else if (typeof submitTerm === 'string') {
+        console.log("Submitting raw string term:", submitTerm);
         // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
         const trimmedSubmitTerm = submitTerm.trim();      // trimming leading and trailing white spaces
 

@@ -1,6 +1,6 @@
 export const formatSuggestions = (rawSuggestions) => {
   if (!rawSuggestions || !Array.isArray(rawSuggestions)) return [];
-  
+  // console.log("Raw backend suggestions:", rawSuggestions.slice(0, 5));
   // TODO: search duplicate bug - `search query stid bug`  -- Investigate in backend and add unique id to backend's source collection instead of just sic stId?
   return rawSuggestions.map((item) => ({
     stId: item.stId,
@@ -8,6 +8,7 @@ export const formatSuggestions = (rawSuggestions) => {
     ...(item.gate && { gate: item.gate }),      // For gates
     ...(item.airport && { airport: item.airport }),      // For gates
     ...(item.flightID && { flightID: item.flightID }),
+    // fuzz_find_search_text: item.fuzz_find_search_text,   // Trying to get fuzz find from backend to mathc and use instead of label.
     label: item.display
       ? (
         item.type === 'flight'
