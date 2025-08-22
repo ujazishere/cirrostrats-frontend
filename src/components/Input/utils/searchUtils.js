@@ -8,6 +8,7 @@ export const formatSuggestions = (rawSuggestions) => {
     ...(item.gate && { gate: item.gate }),      // For gates
     ...(item.airport && { airport: item.airport }),      // For gates
     ...(item.flightID && { flightID: item.flightID }),
+    display: item.display,
     label: item.display
       ? (
         item.type === 'flight'

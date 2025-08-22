@@ -143,14 +143,25 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
         // The most common user intent is to select the top-most suggestion when submitting a raw query.
         // TODO uj: this should account for airport exact match or prepended with k, for flights it shouldn't.
           // for flights it should account for exact digit match, else send to raw(direct) query.
-        const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
+        // const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
+        // Check if the top suggestion matches the submit term exactly for digits (for flights)
 
-        if (topSuggestion) {
-            // If a top suggestion exists, use it as the definitive search term. This is the main fix.
-            // This ensures that if a user types "ewr" and "EWR - Newark..." is the top result, we save the full result.
-            saveSearchToLocalStorage(topSuggestion);
-            navigate("/details", { state: { searchValue: topSuggestion }, userEmail });
-            setSelectedValue(topSuggestion);
+        const exactDigitMatch = suggestions.find(suggestion => {
+            // Assuming suggestion.type determines whether it's a flight or not
+            if (suggestion.type === 'flight') {
+                const digits = suggestion.display.replace(/\D/g, ''); // Extract digits from the suggestion display
+                console.log("Checking for exact digit match in flight suggestions:", suggestion);
+                console.log("Digits extracted from suggestion:", digits);
+                return digits === trimmedSubmitTerm;
+            }
+            return false;
+        });
+
+        if (exactDigitMatch) {
+            // If an exact digit match is found, use it as the definitive search term
+            saveSearchToLocalStorage(exactDigitMatch);
+            navigate("/details", { state: { searchValue: exactDigitMatch }, userEmail });
+            setSelectedValue(exactDigitMatch);
         } else {
             // Fallback: If no suggestions were visible (e.g., the search was too fast or yielded no results),
             // we revert to calling the API to try and resolve the raw query.
