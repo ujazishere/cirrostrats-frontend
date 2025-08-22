@@ -24,3 +24,6 @@ test("Details : Flight : Raw : UA414", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "TAF" })).toBeVisible();
 });
+
+// ua1 and anything that is prepended with `UA` will work becaus of the regex processing in the backend.
+// TODO: add test for 414, ua1, 1 raw click 1, 

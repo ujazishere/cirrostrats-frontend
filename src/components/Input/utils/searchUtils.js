@@ -9,6 +9,7 @@ export const formatSuggestions = (rawSuggestions) => {
     ...(item.airport && { airport: item.airport }),      // For gates
     ...(item.flightID && { flightID: item.flightID }),
     // fuzz_find_search_text: item.fuzz_find_search_text,   // Trying to get fuzz find from backend to mathc and use instead of label.
+    display: item.display,
     label: item.display
       ? (
         item.type === 'flight'
