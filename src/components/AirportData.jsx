@@ -1,3 +1,4 @@
+import flightService from '../components/utility/flightService'; // A service module with helper functions for flight data retrieval.
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -20,6 +21,9 @@ const useAirportData = (searchValue, apiUrl) => {
     setAirportError(null);
 
     const fetchAirportData = async () => {
+      // TODO test: Impletement this notification api for absolute errors.
+      // console.log('notification api here');
+      // await flightService.postNotifications(`This is a test notification: ${searchValue.label || searchValue.r_id}`);
       try {
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
           const res = await axios.get(`${apiUrl}/testDataReturns?airportLookup=KBOS`);

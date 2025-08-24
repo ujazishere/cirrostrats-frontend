@@ -175,6 +175,18 @@ const flightService = {
       return null;
     }
   },
+
+  // TODO: Obviously This doesnt belong here -- move to notification api folder.
+    //  Move all api to api folder other than flightservice.
+  postNotifications: async (message) => {
+    try {
+      await axios.post(`${apiUrl}/sendTelegramNotification?message=${encodeURIComponent(message)}`)
+      return true;
+    } catch (error) {
+      console.error("Notification API Error:", error);
+      return null;
+    }
+  },
 };
 
 export default flightService

@@ -87,6 +87,9 @@ const useFlightData = (searchValue) => {
 
         // If core data sources fail, we can't build a complete picture. Set an error and exit.
         if (ajms.error && flightAwareRes.error) {
+          // TODO test: Impletement this notification api for absolute errors.
+          // console.log('post notification api here');
+          // await flightService.postNotifications(`This is a test notification: ${searchValue}`);
           setFlightState({ loading: false, data: null, weather: null, nas: null, edct: null, error: `Could not retrieve data for flight ${flightID}.` });
           return;
         }
