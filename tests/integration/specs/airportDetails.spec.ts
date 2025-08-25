@@ -128,6 +128,9 @@ function shouldHaveMetarFormatAfterClicking({
   };
 }
 
+// TODO ismail:there are 4 tests per airprot for ewr and bos. can we merge to have
+    // two - raw and click? each of them have two tests - ones checking metar format and 
+    // other checking weather cards. Merge them to check both instead of having separate tests?
 test(
   "Details : Airport : Click : Weather Cards : EWR",
   shouldHaveWeatherCards({
@@ -142,51 +145,6 @@ test(
   shouldHaveWeatherCards({
     navigationMethod: "raw",
     query: "KEWR",
-  })
-);
-
-test(
-  "Details : Airport : Click : Weather Cards : BOS",
-  shouldHaveWeatherCards({
-    navigationMethod: "click",
-    query: "BOS",
-    clickedOption: "BOS - General Edward Lawrence Logan International Airport",
-  })
-);
-
-test(
-  "Details : Airport : Raw : Weather Cards : BOS",
-  shouldHaveWeatherCards({
-    navigationMethod: "raw",
-    query: "KBOS",
-  })
-);
-
-// TODO: UNV raw search fails. -- checked and it searched the airport but keeps on loading - seems like a timeout issue 
-// test(
-//   "Details : Airport : Raw : Weather Cards : UNV",
-//   shouldHaveWeatherCards({
-//     navigationMethod: "raw",
-//     query: "UNV",
-//   })
-// );
-
-
-// TODO: This test is failing because of duplicates in search suggestions. Fix at source in `search query stid bug` for unique id
-// test(
-//   "Details : Airport : Click : Weather Cards : DEN",
-//   shouldHaveWeatherCards({
-//     navigationMethod: "click",
-//     query: "DEN",
-//     clickedOption: "DEN - Denver International Airport",
-//   })
-// ); 
-
-test(
-  "Details : Airport : Raw : Weather Cards : DEN",
-  shouldHaveWeatherCards({
-    navigationMethod: "raw",
-    query: "KDEN",
   })
 );
 
@@ -210,6 +168,23 @@ test(
 );
 
 test(
+  "Details : Airport : Click : Weather Cards : BOS",
+  shouldHaveWeatherCards({
+    navigationMethod: "click",
+    query: "BOS",
+    clickedOption: "BOS - General Edward Lawrence Logan International Airport",
+  })
+);
+
+test(
+  "Details : Airport : Raw : Weather Cards : BOS",
+  shouldHaveWeatherCards({
+    navigationMethod: "raw",
+    query: "KBOS",
+  })
+);
+
+test(
   "Details : Airport : Click : Validate METAR : BOS",
   shouldHaveMetarFormatAfterClicking({
     navigationMethod: "click",
@@ -228,4 +203,32 @@ test(
   })
 );
 
+// TODO: This test was previously failing because it wouldnt select the availanble
+    // from dropdown regardless of being a raw submit. But works fine now. Watch it for consistency.
+test(
+  "Details : Airport : Raw : Weather Cards : UNV",
+  shouldHaveWeatherCards({
+    navigationMethod: "raw",
+    query: "UNV",
+  })
+);
+
+
+// TODO: This test is failing because of duplicates in search suggestions. Fix at source in `search query stid bug` for unique id
+// test(
+//   "Details : Airport : Click : Weather Cards : DEN",
+//   shouldHaveWeatherCards({
+//     navigationMethod: "click",
+//     query: "DEN",
+//     clickedOption: "DEN - Denver International Airport",
+//   })
+// ); 
+
+test(
+  "Details : Airport : Raw : Weather Cards : DEN",
+  shouldHaveWeatherCards({
+    navigationMethod: "raw",
+    query: "KDEN",
+  })
+);
 
