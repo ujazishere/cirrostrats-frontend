@@ -84,10 +84,22 @@ test(
   shouldHave5Options({ query: "JBU4" })
 );
 
+test(
+  "Search Suggestions : 5 Options : DL1",
+  shouldHave5Options({ query: "DL1" })
+);
 
+test(
+  "Search Suggestions : 5 Options : AA10",
+  shouldHave5Options({ query: "AA10" })
+);
 
-// TODO test: Add n number , americal aal, account for DL, AA, AAL, etc
-//            Account for recent search to show up on top as well -- probably wont work with multiple workers.
+test(
+  "Search Suggestions : 5 Options : AAL10",
+  shouldHave5Options({ query: "AAL10" })
+);
+
+// Account for recent search to show up on top as well -- probably wont work with multiple workers.
 
 test(
   "Search Suggestions : Specific Result : JFK",
@@ -108,7 +120,7 @@ test(
 );
 
 
-// TODO test: there is a dupicate of this test in gatedetails.spec.ts address in next cycle
+// TODO test: there is a dupicate of this test in gatedetails.spec.ts address in next cycle - this is not a duplication from gate details, this file just checkes if the item shows in search result and in the gate details spec page it clicks on that search result to check the components
 test(
   "Search Suggestions : Specific Result : Gate EWR - C101",
   shouldHaveSpecificResult({
