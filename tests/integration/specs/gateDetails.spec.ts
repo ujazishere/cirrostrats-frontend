@@ -18,4 +18,17 @@ test("Details : Gate : Click : C101", async ({ page }) => {
 });
 
 
-// TODO: add test for C101 raw submit
+// Commenting this test out because the raw search query for gates is currently broken once that is fixed just comment this back and it should work.
+// test("Details : Gate : Raw : C102", async ({ page }) => {
+//   await navigateToDetailsPage({
+//     page,
+//     navigationMethod: "raw",
+//     query: "C102",
+//   });
+
+//   await expect(page.getByRole("heading", { name: "Gate C102" })).toBeVisible();
+//   await expect(page.getByText("Flight")).toBeVisible();
+//   await expect(page.getByText("Scheduled")).toBeVisible();
+//   await expect(page.locator("div.flight-row-card").first()).toBeVisible();
+// });
+
