@@ -225,7 +225,7 @@ function shouldHaveDAtisFormatAfterClicking({
       has: page.getByRole("heading", { name: "D-ATIS" }),
     });
 
-    // ✅ Updated regex based on actual ATIS format from ORD, BOS, EWR
+    // Updated regex based on actual ATIS format from ORD, BOS, EWR
     // Matches: "<AIRPORT> ATIS INFO <Letter> <DDHHZ>."
     const basicDAtisRegex = new RegExp(`^${airportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z(?:\\s+SPECIAL)?\\.`)
 
@@ -235,6 +235,9 @@ function shouldHaveDAtisFormatAfterClicking({
 }
 
 
+// TODO ismail:there are 4 tests per airprot for ewr and bos. can we merge to have
+    // two - raw and click? each of them have two tests - ones checking metar format and 
+    // other checking weather cards. Merge them to check both instead of having separate tests?
 test(
   "Details : Airport : Click : Weather Cards : EWR",
   shouldHaveWeatherCards({
@@ -299,7 +302,7 @@ test(
 );
 
 // -----------------------------------------------------------------------------
-// METAR Format Validation Tests
+// METAR Format Validation Tests - suggestion click and raw.
 // -----------------------------------------------------------------------------
 
 test(
@@ -320,6 +323,7 @@ test(
     airportCode: "EWR",
   })
 );
+
 
 test(
   "Details : Airport : Click : Validate METAR : BOS",

@@ -29,22 +29,30 @@ test("Details : Flight : Raw : UA414", async ({ page }) => {
 });
 
 // New test for the query "414" - commented it out because 414 shows an error in test but works fine in local environment
-// test("Details : Flight : Raw : 414", async ({ page }) => {
-//   await navigateToDetailsPage({
-//     page,
-//     navigationMethod: "raw",
-//     query: "414",
-//   });
-//   await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
-//   await expect(
-//     page.getByRole("link", { name: "View on SkyVector" })
-//   ).toBeVisible();
-//   await expect(page.getByRole("button", { name: "Departure" })).toBeVisible();
-//   await expect(page.getByRole("button", { name: "Destination" })).toBeVisible();
-//   await expect(page.getByRole("heading", { name: "D-ATIS" })).toBeVisible();
-//   await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
-//   await expect(page.getByRole("heading", { name: "TAF" })).toBeVisible();
-// });
+test("Details : Flight : Raw : 414", async ({ page }) => {
+  await navigateToDetailsPage({
+    page,
+    navigationMethod: "raw",
+    query: "414",
+  });
+  await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "View on SkyVector" })
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Departure" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Destination" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "D-ATIS" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "TAF" })).toBeVisible();
+  // subsequent search for
+  await navigateToDetailsPage({
+    page,
+    navigationMethod: "raw",
+    query: "414",
+  });
+  // TODO ismail This section fails - subsequent search for 414 does not work due to match in suggestions not accounting for local storage?
+  await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
+});
 
 // New test for the query "ua1"
 test("Details : Flight : Raw : UA1", async ({ page }) => {

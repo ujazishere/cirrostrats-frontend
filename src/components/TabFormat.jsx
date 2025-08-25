@@ -198,7 +198,7 @@ const arrival_alternate_weather = weather?.arrivalAlternateWeatherLive ?? null;
   return (
     // The container no longer needs a ref for the sticky logic.
     <div className="weather-container">
-      {/* TODO ismail: This route section should not be here since this file is dedicated for tab format*/}
+      {/* TODO ismail LP: This route section should not be here since this file is dedicated for tab format*/}
       <div className="route-section">
         <RoutePanel flightData={flightData} />
       </div>
