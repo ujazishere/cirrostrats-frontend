@@ -12,7 +12,7 @@ It's a custom hook, so we can reuse all this logic in other components if we nee
 const useInputHandlers = () => {
   // navigate is from react-router-dom, used to programmatically change pages
   const navigate = useNavigate();
-  
+
   // --- STATE MANAGEMENT ---
   // inputValue is what the user is currently typing in teh search box
   const [inputValue, setInputValue] = useState("");
@@ -28,24 +28,24 @@ const useInputHandlers = () => {
   // Simple handler to update the selected value state.
   const handleValue = (value) => {
     setSelectedValue(value);
-  }
+  };
 
   // This function runs every time the user types something in the input field.
-  const handleInputChange = (event, newInputValue, userEmail,) => {
-    // TODO:
+  const handleInputChange = (event, newInputValue, userEmail) => {
+    // TODO extended:
     // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
     setInputValue(newInputValue);
     // We could track every keystroke for analytics, but it's a bit much.
     // trackSearch(userEmail, newInputValue); // Keep this line if you want to track keystrokes
-  }
-  
-/**
- * @function saveSearchToLocalStorage
- * @description Takes a search term object, sanitizes it, and saves it to a capped list of recent searches in the browser's localStorage.
- * This helps us show "Recent Searches" to the user.
- * @param {object} term - The search term object to be saved. Should have at least a 'label' property.
- */
-const saveSearchToLocalStorage = (term) => {
+  };
+
+  /**
+   * @function saveSearchToLocalStorage
+   * @description Takes a search term object, sanitizes it, and saves it to a capped list of recent searches in the browser's localStorage.
+   * This helps us show "Recent Searches" to the user.
+   * @param {object} term - The search term object to be saved. Should have at least a 'label' property.
+   */
+  const saveSearchToLocalStorage = (term) => {
     // --- NEW LOCAL STORAGE LOGIC ---
     // Get the current time as a numerical timestamp. This is used to track how old searches are.
     const currentTime = new Date().getTime();
@@ -55,206 +55,320 @@ const saveSearchToLocalStorage = (term) => {
     // Initialize an empty array to hold the list of recent searches.
     let recentSearches = [];
     try {
-        // Attempt to retrieve and parse the existing list of searches from localStorage.
-        // If 'recentSearches' doesn't exist in storage, it defaults to an empty array string '[]'.
-        // The '||' operator is a nice fallback here.
-        recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+      // Attempt to retrieve and parse the existing list of searches from localStorage.
+      // If 'recentSearches' doesn't exist in storage, it defaults to an empty array string '[]'.
+      // The '||' operator is a nice fallback here.
+      recentSearches = JSON.parse(
+        localStorage.getItem("recentSearches") || "[]"
+      );
     } catch (error) {
-        // If the data in localStorage is corrupted (maybe the user edited it?), it could crash the app.
-        // This catch block prevents that and just resets it.
-        // If the data in localStorage is corrupted and cannot be parsed, log the error and reset to an empty array.
-        console.error("Error parsing recent searches from localStorage:", error);
-        recentSearches = [];
+      // If the data in localStorage is corrupted (maybe the user edited it?), it could crash the app.
+      // This catch block prevents that and just resets it.
+      // If the data in localStorage is corrupted and cannot be parsed, log the error and reset to an empty array.
+      console.error("Error parsing recent searches from localStorage:", error);
+      recentSearches = [];
     }
 
     // Prepare a clean object 'termToStore' that will be saved.
     // We do this to avoid saving extra junk into local storage that we dont need.
     let termToStore = {};
     // Ensure the provided 'term' is a valid object with a 'label' before proceeding.
-    if (typeof term === 'string') {
+    if (typeof term === "string") {
       // Sometimes we just get a raw string, so we make an object out of it.
       termToStore = {
         label: term,
-        type: 'raw_string' // You can specify a type for raw strings
+        type: "raw_string", // You can specify a type for raw strings
       };
     } else if (term && term.label) {
-        // Construct the object using only the properties we need.
-        // The spread syntax conditionally adds properties only if they exist on the source 'term' object.
-        termToStore = {
-            ...(term.stId && { stId: term.stId }),
-            ...(term.r_id && { r_id: term.r_id }),
-            ...(term.gate && { gate: term.gate }),
-            ...(term.flightID && { flightID: term.flightID }),
-            label: term.label,
-            type: term.type
-        };
+      // Construct the object using only the properties we need.
+      // The spread syntax conditionally adds properties only if they exist on the source 'term' object.
+      termToStore = {
+        ...(term.stId && { stId: term.stId }),
+        ...(term.r_id && { r_id: term.r_id }),
+        ...(term.gate && { gate: term.gate }),
+        ...(term.flightID && { flightID: term.flightID }),
+        label: term.label,
+        type: term.type,
+      };
     } else {
-        // If the term is invalid, log a warning and exit the function to avoid saving bad data.
-        console.warn("Unexpected term format for storage:", term);
-        return;
+      // If the term is invalid, log a warning and exit the function to avoid saving bad data.
+      console.warn("Unexpected term format for storage:", term);
+      return;
     }
 
     // Filter out any duplicates from the existing list before adding the new term.
     // We don't want the same search showing up multiple times.
-    recentSearches = recentSearches.filter(item => {
-        // Priority 1: If both the new term and an existing item have an 'id', compare them. This is the most reliable check.
-        if (termToStore.stId && item.stId) {
-            return item.stId !== termToStore.stId;
-        }
-        // Priority 2: If IDs aren't available, compare their labels in a case-insensitive way.
-        if (item.label && termToStore.label) {
-            return item.label.toLowerCase() !== termToStore.label.toLowerCase();
-        }
-        // If a comparison can't be made, keep the item by default.
-        return true;
+    recentSearches = recentSearches.filter((item) => {
+      // Priority 1: If both the new term and an existing item have an 'id', compare them. This is the most reliable check.
+      if (termToStore.stId && item.stId) {
+        return item.stId !== termToStore.stId;
+      }
+      // Priority 2: If IDs aren't available, compare their labels in a case-insensitive way.
+      if (item.label && termToStore.label) {
+        return item.label.toLowerCase() !== termToStore.label.toLowerCase();
+      }
+      // If a comparison can't be made, keep the item by default.
+      return true;
     });
 
     // Add the new, cleaned search term to the beginning of the array.
-    // We use the filtered array `updatedSearches` to proceed.
-    const finalSearches = [{ ...termToStore, timestamp: currentTime }];
+    recentSearches.unshift({ ...termToStore, timestamp: currentTime });
 
     // If the list now exceeds the maximum allowed size, trim it.
-    if (finalSearches.length > MAX_RECENT_SEARCHES) {
-        finalSearches.length = MAX_RECENT_SEARCHES; // More efficient than slice for trimming the end
+    if (recentSearches.length > MAX_RECENT_SEARCHES) {
+      // .slice(0, MAX_RECENT_SEARCHES) creates a new array containing only the first N items.
+      recentSearches = recentSearches.slice(0, MAX_RECENT_SEARCHES);
     }
 
-    // **FIX:** The bug was here. The code was trying to save a variable that was out of scope.
-    // It has been corrected to save the final, processed array `finalSearches`.
-    localStorage.setItem('recentSearches', JSON.stringify(finalSearches));
+    // Save the final, updated array back to localStorage. It must be converted to a JSON string.
+    localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
     // --- END NEW LOCAL STORAGE LOGIC ---
-};
+  };
 
-
-/**
- * @function handleSubmit
- * @description Handles the search submission event. It intelligently determines whether the user
- * selected an item from the dropdown or submitted a raw text query by pressing Enter.
- * @param {Event} e - The form submission or click event.
- * @param {object|string} submitTerm - The term being searched. Can be a full object from the dropdown or a raw string.
- * @param {string} userEmail - The email of the current user for tracking purposes.
- * @param {Array<object>} suggestions - The list of suggestion objects currently displayed in the dropdown.
- */
-const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
+  /**
+   * @function handleSubmit
+   * @description Handles the search submission event. It intelligently determines whether the user
+   * selected an item from the dropdown or submitted a raw text query by pressing Enter.
+   * @param {Event} e - The form submission or click event.
+   * @param {object|string} submitTerm - The term being searched. Can be a full object from the dropdown or a raw string.
+   * @param {string} userEmail - The email of the current user for tracking purposes.
+   * @param {Array<object>} suggestions - The list of suggestion objects currently displayed in the dropdown.
+   */
+  const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     // Prevent the default browser action for the event (e.g., page reload on form submit).
     if (e) e.preventDefault();
     // Guard clause: Exit if the search term is empty, null, or just whitespace. No point in searching for nothing.
-    if (!submitTerm || (typeof submitTerm === 'string' && !submitTerm.trim()) || (typeof submitTerm === 'object' && !submitTerm?.label)) {
-        return;
+    if (
+      !submitTerm ||
+      (typeof submitTerm === "string" && !submitTerm.trim()) ||
+      (typeof submitTerm === "object" && !submitTerm?.label)
+    ) {
+      return;
     }
 
     // Call a tracking function to log the search event for analytics.
     trackSearch(userEmail, submitTerm);
 
     // Check if the submitted term is a structured object (meaning it was selected from the dropdown).
-    if (typeof submitTerm === 'object' && submitTerm.label) {
-        // --- Case 1: A dropdown item was explicitly selected ---
-        // The term is already in the correct format.
-        saveSearchToLocalStorage(submitTerm);
-        // Navigate to the details page, passing the search object in the route's state.
-        navigate("/details", { state: { searchValue: submitTerm }, userEmail });
-        // Update the Autocomplete component's value to reflect the selection.
-        setSelectedValue(submitTerm);
+    if (typeof submitTerm === "object" && submitTerm.label) {
+      // --- Case 1: A dropdown item was explicitly selected ---
+      // The term is already in the correct format, this is the easy path.
+      // console.log("Submitting selected term:", submitTerm);
+      saveSearchToLocalStorage(submitTerm);
+      // Navigate to the details page, passing the search object in the route's state.
+      navigate("/details", { state: { searchValue: submitTerm }, userEmail });
+      // Update the Autocomplete component's value to reflect the selection.
+      setSelectedValue(submitTerm);
+    } else if (typeof submitTerm === "string") {
+      // This is the tricky part, when user just types something and hits enter
+      // console.log("Submitting raw string term:", submitTerm);
+      // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
+      const trimmedSubmitTerm = submitTerm.trim(); // trimming leading and trailing white spaces
 
-    } else if (typeof submitTerm === 'string') {
-        // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
-        const trimmedSubmitTerm = submitTerm.trim();      // trimming leading and trailing white spaces
+      // previously we were checking if the first suggestion matched the submit term. Not doing it anymore.
+      // const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
 
-        // Logic from the previous fix: Differentiate between an exact match and a true raw query.
-        const exactMatchSuggestion = suggestions.find(
-            s => s.label.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+      // NEW IMPROVED LOGIC: Check if there's an exact match in ANY of the current suggestions
+      // This now handles airports, gates, and flights properly. Much smarter.
+      const exactMatch = suggestions.find((suggestion) => {
+        // Check for exact label match (case-insensitive) - works for all types
+        if (
+          suggestion.label &&
+          suggestion.label.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+        ) {
+          return true;
+        }
+
+        // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
+        if (suggestion.type === "flight" || suggestion.type === "Flight") {
+          const digits = suggestion.display
+            ? suggestion.display.replace(/\D/g, "")
+            : "";
+          // console.log(
+          //   "Checking flight digit match:",
+          //   digits,
+          //   "vs",
+          //   trimmedSubmitTerm
+          // );
+          return digits === trimmedSubmitTerm;
+        }
+
+        // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
+        if (suggestion.type === "Airport" || suggestion.type === "airport") {
+          const airportIdentifier = suggestion.label.split(" - ")[0];
+          // console.log(
+          //   "Checking airport identifier match:",
+          //   airportIdentifier,
+          //   "vs",
+          //   trimmedSubmitTerm
+          // );
+          return (
+            airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+          );
+        }
+
+        // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
+        if (suggestion.type === "Gate" || suggestion.type === "gate") {
+          const gateIdentifier = suggestion.label
+            .split(" - ")[1]
+            ?.split(" ")[0]; // Extract gate number
+          // console.log(
+          //   "Checking gate identifier match:",
+          //   gateIdentifier,
+          //   "vs",
+          //   trimmedSubmitTerm
+          // );
+          return (
+            gateIdentifier &&
+            gateIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+          );
+        }
+
+        return false;
+      });
+
+      if (exactMatch) {
+        // If an exact match is found in suggestions, use it as the definitive search term. Hooray!
+        // console.log("Found exact match in suggestions:", exactMatch);
+        saveSearchToLocalStorage(exactMatch);
+        navigate("/details", { state: { searchValue: exactMatch }, userEmail });
+        setSelectedValue(exactMatch);
+      } else {
+        // NEW: Check if it could be a partial airport name match (e.g., "Newark" matches "EWR - Newark Liberty...")
+        const airportNameMatch = suggestions.find(
+          (suggestion) =>
+            (suggestion.type === "Airport" || suggestion.type === "airport") &&
+            suggestion.label
+              .toLowerCase()
+              .includes(trimmedSubmitTerm.toLowerCase())
         );
 
-        // NEW IMPROVED LOGIC: Check if there's an exact match in ANY of the current suggestions
-        // This now handles airports, gates, and flights properly. Much smarter.
-        const exactMatch = suggestions.find(suggestion => {
-            // Check for exact label match (case-insensitive) - works for all types
-            if (suggestion.label && suggestion.label.toLowerCase() === trimmedSubmitTerm.toLowerCase()) {
-                return true;
-            }
-            
-            // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
-            if (suggestion.type === 'flight' || suggestion.type === 'Flight') {
-                const digits = suggestion.display ? suggestion.display.replace(/\D/g, '') : '';
-                // console.log("Checking flight digit match:", digits, "vs", trimmedSubmitTerm);
-                return digits === trimmedSubmitTerm;
-            }
-            
-            // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
-            if (suggestion.type === 'Airport' || suggestion.type === 'airport') {
-                const airportIdentifier = suggestion.label.split(' - ')[0];
-                // console.log("Checking airport identifier match:", airportIdentifier, "vs", trimmedSubmitTerm);
-                return airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase();
-            }
-            
-            // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
-            if (suggestion.type === 'Gate' || suggestion.type === 'gate') {
-                const gateIdentifier = suggestion.label.split(' - ')[1]?.split(' ')[0]; // Extract gate number
-                // console.log("Checking gate identifier match:", gateIdentifier, "vs", trimmedSubmitTerm);
-                return gateIdentifier && gateIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase();
-            }
-            
-            return false;
-        });
-
-        if (exactMatch) {
-            // If an exact match is found in suggestions, use it as the definitive search term. Hooray!
-            console.log("Found exact match in suggestions:", exactMatch);
-            saveSearchToLocalStorage(exactMatch);
-            navigate("/details", { state: { searchValue: exactMatch }, userEmail });
-            setSelectedValue(exactMatch);
+        if (airportNameMatch) {
+          // Found an airport that contains the search term in its name
+          // console.log("Found airport name match:", airportNameMatch);
+          saveSearchToLocalStorage(airportNameMatch);
+          navigate("/details", {
+            state: { searchValue: airportNameMatch },
+            userEmail,
+          });
+          setSelectedValue(airportNameMatch);
         } else {
-            // NEW: Check if it could be a partial airport name match (e.g., "Newark" matches "EWR - Newark Liberty...")
-            const airportNameMatch = suggestions.find(suggestion => 
-                (suggestion.type === 'Airport' || suggestion.type === 'airport') && 
-                suggestion.label.toLowerCase().includes(trimmedSubmitTerm.toLowerCase())
+          // --- START: FIX FOR RACE CONDITION ---
+          // Before falling back to the API, check localStorage for a recent successful match.
+          // This prevents failures when the user re-searches something faster than suggestions can load.
+          let recentMatch = null;
+          try {
+            const recentSearches = JSON.parse(
+              localStorage.getItem("recentSearches") || "[]"
             );
-            
-            if (airportNameMatch) {
-                // Found an airport that contains the search term in its name
-                console.log("Found airport name match:", airportNameMatch);
-                saveSearchToLocalStorage(airportNameMatch);
-                navigate("/details", { state: { searchValue: airportNameMatch }, userEmail });
-                setSelectedValue(airportNameMatch);
-            } else {
-                // Fallback: If no suggestions were visible or matched (e.g., the search was too fast or yielded no results),
-                // we revert to calling the API to try and resolve the raw query. This is our last hope.
-                // console.log("No matches in suggestions, calling fetchRawQuery for:", trimmedSubmitTerm);
-                searchService.fetchRawQuery(trimmedSubmitTerm).then(rawReturn => {
-                    // Determine the final term: use the API result if valid, otherwise create a basic object from the raw text.
+            // Find a recent search that could be a flight number match
+            recentMatch = recentSearches.find((item) => {
+              if (item.type === "flight" || item.type === "Flight") {
+                // Extract just the digits from the stored flight label or a display property if it exists
+                const flightIdentifier = item.display || item.label;
+                const digits = flightIdentifier.replace(/\D/g, "");
+                return digits === trimmedSubmitTerm;
+              }
+              return false;
+            });
+          } catch (error) {
+            console.error(
+              "Could not check recent searches from localStorage:",
+              error
+            );
+          }
 
-                    // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
-                        // May have to account for this in the search interface.
-                    // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
-                    // Save the result (either from the API or the raw text) to local storage.
-                    
-                    if (rawReturn) {
-                        // The API gave us something useful
-                        // console.log("fetchRawQuery returned:", rawReturn);
-                        saveSearchToLocalStorage(rawReturn);
-                        // The value passed to the details page is the API response
-                        navigate("/details", { state: { searchValue: rawReturn }, userEmail });
-                        setSelectedValue(rawReturn);
-                    } else {
-                        // If API returns null/undefined, create a fallback term so the app doesn't break
-                        // console.log("fetchRawQuery returned null, using fallback term");
-                        const fallbackTerm = { label: trimmedSubmitTerm, type: 'unknown' };
-                        saveSearchToLocalStorage(fallbackTerm);
-                        navigate("/details", { state: { searchValue: fallbackTerm }, userEmail });
-                        setSelectedValue(fallbackTerm);
-                    }
-                }).catch(error => {
-                    // Handle API errors gracefully instead of letting them break the user experience
-                    console.error("Error fetching raw query data:", error);
-                    // Create a fallback term and proceed with navigation, so the user isnt stuck.
-                    const fallbackTerm = { label: trimmedSubmitTerm, type: 'unknown' };
-                    saveSearchToLocalStorage(fallbackTerm);
-                    navigate("/details", { state: { searchValue: fallbackTerm }, userEmail });
-                    setSelectedValue(fallbackTerm);
-                });
+          if (recentMatch) {
+            // If we found a match in recent history, use that! This is our successful path.
+            // console.log("Found exact match in localStorage:", recentMatch);
+            saveSearchToLocalStorage(recentMatch); // This also bumps it to the top of the recents list
+            navigate("/details", {
+              state: { searchValue: recentMatch },
+              userEmail,
+            });
+            setSelectedValue(recentMatch);
+          } else {
+            // --- END: FIX FOR RACE CONDITION ---
+
+            // Fallback: If no suggestions were visible or matched (e.g., the search was too fast or yielded no results),
+            // we revert to calling the API to try and resolve the raw query. This is our last hope.
+
+            // ⭐ START OF THE FIX ⭐
+            // Check if the search term is a number-only string
+            const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
+            let finalQuery = trimmedSubmitTerm;
+
+            // If it's a number, assume it's a flight number and prepend a common carrier code
+            // This is the core fix to prevent the API from failing on raw numbers like '414'
+            if (isNumeric) {
+              // For the sake of this fix, we'll assume a common carrier like 'UA'
+              // In a production environment, you might want a more robust way to handle this
+              // based on context or user history.
+              finalQuery = `UA${trimmedSubmitTerm}`;
+              // console.log(
+              //   `Pre-processing numeric flight query. Sending '${finalQuery}' to API.`
+              // );
             }
+            // ⭐ END OF THE FIX ⭐
+
+            // console.log(
+            //   "No matches in suggestions or localStorage, calling fetchRawQuery for:",
+            //   finalQuery
+            // );
+            searchService
+              .fetchRawQuery(finalQuery)
+              .then((rawReturn) => {
+                // Determine the final term: use the API result if valid, otherwise create a basic object from the raw text.
+
+                // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
+                // May have to account for this in the search interface.
+                // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
+                // Save the result (either from the API or the raw text) to local storage.
+                if (rawReturn) {
+                  // The API gave us something useful
+                  // console.log("fetchRawQuery returned:", rawReturn);
+                  saveSearchToLocalStorage(rawReturn); // The value passed to the details page is the API response
+                  navigate("/details", {
+                    state: { searchValue: rawReturn },
+                    userEmail,
+                  });
+                  setSelectedValue(rawReturn);
+                } else {
+                  // If API returns null/undefined, create a fallback term so the app doesn't break
+                  // console.log(
+                  //   "fetchRawQuery returned null, using fallback term"
+                  // );
+                  const fallbackTerm = {
+                    label: trimmedSubmitTerm,
+                    type: "unknown",
+                  };
+                  saveSearchToLocalStorage(fallbackTerm);
+                  navigate("/details", {
+                    state: { searchValue: fallbackTerm },
+                    userEmail,
+                  });
+                  setSelectedValue(fallbackTerm);
+                }
+              })
+              .catch((error) => {
+                // Handle API errors gracefully instead of letting them break the user experience
+                console.error("Error fetching raw query data:", error); // Create a fallback term and proceed with navigation, so the user isnt stuck.
+                const fallbackTerm = {
+                  label: trimmedSubmitTerm,
+                  type: "unknown",
+                };
+                saveSearchToLocalStorage(fallbackTerm);
+                navigate("/details", {
+                  state: { searchValue: fallbackTerm },
+                  userEmail,
+                });
+                setSelectedValue(fallbackTerm);
+              });
+          }
         }
+      }
     }
-}
+  };
 
   // This handles what happens when the user clicks INTO the search bar
   const handleFocus = () => {
@@ -283,8 +397,7 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
       nas: ".nas-section",
       flightInfoContainer: ".flight-info-container",
       datetab: ".date-tabs-container",
-      gateCardContainer: ".departure-gate-container", 
-
+      gateCardContainer: ".departure-gate-container",
     };
 
     // Loop through all the elements and add the correct CSS class
@@ -305,7 +418,7 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     // Small delay to allow click events on options to fire first
     // Without this, the dropdown would disappear before a click is registered.
     setTimeout(() => setOpen(false), 100);
-    
+
     // This condition checks if the new focused element is outside the search component.
     // It prevents the blur effect from happening if you're just clicking around inside the component (like on the dropdown).
     if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -330,9 +443,9 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
           nas: ".nas-section",
           flightInfoContainer: ".flight-info-container",
           datetab: ".date-tabs-container",
-          gateCardContainer: ".departure-gate-container", 
+          gateCardContainer: ".departure-gate-container",
         };
-        
+
         // Basically the reverse of handleFocus, we remove the classes to bring the UI back to normal.
         Object.entries(elements).forEach(([key, selector]) => {
           const element = document.querySelector(selector);
@@ -358,11 +471,9 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     //   event.preventDefault();
     //   const newInputValue = inputValue + inlinePrediction;
     //   setInputValue(newInputValue);
-
     //   const matchingSuggestion = filteredSuggestions.find(
     //     (suggestion) => suggestion.label.toLowerCase() === newInputValue.toLowerCase()
     //   );
-
     //   if (matchingSuggestion) {
     //     setSelectedValue(matchingSuggestion);
     //   }
@@ -397,11 +508,9 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     setSelectedValue,
     inputValue,
     setInputValue,
-    // debouncedInputValue,
     handleSubmit,
     handleValue,
     handleInputChange,
-    // handleSuggestionClick,
     handleFocus,
     handleBlur,
     handleKeyDown,
