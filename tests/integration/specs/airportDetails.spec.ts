@@ -319,7 +319,7 @@ test(
   "Details : Airport : Raw : Validate METAR : EWR",
   shouldHaveMetarFormatAfterClicking({
     navigationMethod: "raw",
-    query: "KEWR",
+    query: "EWR",
     airportCode: "EWR",
   })
 );

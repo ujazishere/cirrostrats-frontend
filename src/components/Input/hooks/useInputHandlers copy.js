@@ -214,7 +214,7 @@ const useInputHandlers = () => {
     if (typeof submitTerm === "object" && submitTerm.label) {
       // --- Case 1: A dropdown item was explicitly selected ---
       // The term is already in the correct format, this is the easy path.
-      // console.log("Submitting selected term:", submitTerm);
+      console.log("Submitting selected term:", submitTerm);
       saveSearchToLocalStorage(submitTerm);
       // Navigate to the details page, passing the search object in the route's state.
       navigate("/details", { state: { searchValue: submitTerm }, userEmail });
@@ -222,7 +222,7 @@ const useInputHandlers = () => {
       setSelectedValue(submitTerm);
     } else if (typeof submitTerm === "string") {
       // This is the tricky part, when user just types something and hits enter
-      // console.log("Submitting raw string term:", submitTerm);
+      console.log("Submitting raw string term:", submitTerm);
       // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
       const trimmedSubmitTerm = submitTerm.trim(); // trimming leading and trailing white spaces
 
@@ -245,24 +245,24 @@ const useInputHandlers = () => {
           const digits = suggestion.display
             ? suggestion.display.replace(/\D/g, "")
             : "";
-          // console.log(
-          //   "Checking flight digit match:",
-          //   digits,
-          //   "vs",
-          //   trimmedSubmitTerm
-          // );
+          console.log(
+            "Checking flight digit match:",
+            digits,
+            "vs",
+            trimmedSubmitTerm
+          );
           return digits === trimmedSubmitTerm;
         }
 
         // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
         if (suggestion.type === "Airport" || suggestion.type === "airport") {
           const airportIdentifier = suggestion.label.split(" - ")[0];
-          // console.log(
-          //   "Checking airport identifier match:",
-          //   airportIdentifier,
-          //   "vs",
-          //   trimmedSubmitTerm
-          // );
+          console.log(
+            "Checking airport identifier match:",
+            airportIdentifier,
+            "vs",
+            trimmedSubmitTerm
+          );
           return (
             airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
           );
@@ -273,12 +273,12 @@ const useInputHandlers = () => {
           const gateIdentifier = suggestion.label
             .split(" - ")[1]
             ?.split(" ")[0]; // Extract gate number
-          // console.log(
-          //   "Checking gate identifier match:",
-          //   gateIdentifier,
-          //   "vs",
-          //   trimmedSubmitTerm
-          // );
+          console.log(
+            "Checking gate identifier match:",
+            gateIdentifier,
+            "vs",
+            trimmedSubmitTerm
+          );
           return (
             gateIdentifier &&
             gateIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
@@ -290,13 +290,13 @@ const useInputHandlers = () => {
 
       if (exactMatch) {
         // If an exact match is found in suggestions, use it as the definitive search term. Hooray!
-        // console.log("Found exact match in suggestions:", exactMatch);
+        console.log("Found exact match in suggestions:", exactMatch);
         saveSearchToLocalStorage(exactMatch);
         navigate("/details", { state: { searchValue: exactMatch }, userEmail });
         setSelectedValue(exactMatch);
       } else {
         // NEW: Check if it could be a partial airport name match (e.g., "Newark" matches "EWR - Newark Liberty...")
-        const airportNameMatches = suggestions.filter(
+        const airportNameMatches = suggestions.find(
           (suggestion) =>
             (suggestion.type === "Airport" || suggestion.type === "airport") &&
             suggestion.label
@@ -304,7 +304,7 @@ const useInputHandlers = () => {
               .includes(trimmedSubmitTerm.toLowerCase())
         );
 
-                // NEW FEATURE: Check if there are multiple airport matches for the same city/name
+        // NEW FEATURE: Check if there are multiple airport matches for the same city/name
         if (airportNameMatches.length > 1) {
           console.log("Multiple airport matches found for city:", trimmedSubmitTerm, airportNameMatches);
           
@@ -323,8 +323,8 @@ const useInputHandlers = () => {
           // Do not navigate - force user to select from dropdown
           return;
         } else if (airportNameMatches.length === 1) {
-          // Found an airport that contains the search term in its name
-          console.log("Found airport name match:", airportNameMatches[0]);
+          // Found exactly one airport that contains the search term in its name
+          console.log("Found single airport name match:", airportNameMatches[0]);
           saveSearchToLocalStorage(airportNameMatches[0]);
           navigate("/details", {
             state: { searchValue: airportNameMatches[0] },
@@ -359,7 +359,7 @@ const useInputHandlers = () => {
 
           if (recentMatch) {
             // If we found a match in recent history, use that! This is our successful path.
-            // console.log("Found exact match in localStorage:", recentMatch);
+            console.log("Found exact match in localStorage:", recentMatch);
             saveSearchToLocalStorage(recentMatch); // This also bumps it to the top of the recents list
             navigate("/details", {
               state: { searchValue: recentMatch },
@@ -383,15 +383,15 @@ const useInputHandlers = () => {
               // In a production environment, you might want a more robust way to handle this
               // based on context or user history.
               finalQuery = `UA${trimmedSubmitTerm}`;
-              // console.log(
-              //   `Pre-processing numeric flight query. Sending '${finalQuery}' to API.`
-              // );
+              console.log(
+                `Pre-processing numeric flight query. Sending '${finalQuery}' to API.`
+              );
             }
 
-            // console.log(
-            //   "No matches in suggestions or localStorage, calling fetchRawQuery for:",
-            //   finalQuery
-            // );
+            console.log(
+              "No matches in suggestions or localStorage, calling fetchRawQuery for:",
+              finalQuery
+            );
             searchService
               .fetchRawQuery(finalQuery)
               .then((rawReturn) => {
@@ -403,7 +403,7 @@ const useInputHandlers = () => {
                 // Save the result (either from the API or the raw text) to local storage.
                 if (rawReturn) {
                   // The API gave us something useful
-                  // console.log("fetchRawQuery returned:", rawReturn);
+                  console.log("fetchRawQuery returned:", rawReturn);
                   saveSearchToLocalStorage(rawReturn); // The value passed to the details page is the API response
                   navigate("/details", {
                     state: { searchValue: rawReturn },
@@ -412,9 +412,9 @@ const useInputHandlers = () => {
                   setSelectedValue(rawReturn);
                 } else {
                   // If API returns null/undefined, create a fallback term so the app doesn't break
-                  // console.log(
-                  //   "fetchRawQuery returned null, using fallback term"
-                  // );
+                  console.log(
+                    "fetchRawQuery returned null, using fallback term"
+                  );
                   const fallbackTerm = {
                     label: trimmedSubmitTerm,
                     type: "unknown",
