@@ -63,17 +63,9 @@
 @media (max-width: 768px) {
   .multiple-airports-message {
     position: absolute;
-    top: -15px;   /* move it 50px above the parent */
+    top: -30px;   
   }
 }
-
-
-
-
-
-
-
-
 
 
 .date-group-header {
