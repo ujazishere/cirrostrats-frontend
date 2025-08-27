@@ -50,23 +50,20 @@
 .multiple-airports-message {
   display: none;
   position: absolute;
-  bottom: 300%;
+  bottom: 280%;
   left: 0;
   right: 0;
-  background-color: #fff3cd;
-  border: 1px solid #ffeaa7;
   border-radius: 4px;
   padding: 8px 12px;
   font-size: 14px;
-  color: #856404;
+  color: #000000;
   z-index: 100000000000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 @media (max-width: 768px) {
   .multiple-airports-message {
-    top: 400%;
-    bottom: unset;
+    position: absolute;
+    top: -15px;   /* move it 50px above the parent */
   }
 }
 
