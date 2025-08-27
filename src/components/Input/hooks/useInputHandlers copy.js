@@ -296,7 +296,7 @@ const useInputHandlers = () => {
         setSelectedValue(exactMatch);
       } else {
         // NEW: Check if it could be a partial airport name match (e.g., "Newark" matches "EWR - Newark Liberty...")
-        const airportNameMatches = suggestions.filter(
+        const airportNameMatches = suggestions.find(
           (suggestion) =>
             (suggestion.type === "Airport" || suggestion.type === "airport") &&
             suggestion.label
@@ -304,7 +304,7 @@ const useInputHandlers = () => {
               .includes(trimmedSubmitTerm.toLowerCase())
         );
 
-                // NEW FEATURE: Check if there are multiple airport matches for the same city/name
+        // NEW FEATURE: Check if there are multiple airport matches for the same city/name
         if (airportNameMatches.length > 1) {
           console.log("Multiple airport matches found for city:", trimmedSubmitTerm, airportNameMatches);
           
@@ -323,8 +323,8 @@ const useInputHandlers = () => {
           // Do not navigate - force user to select from dropdown
           return;
         } else if (airportNameMatches.length === 1) {
-          // Found an airport that contains the search term in its name
-          console.log("Found airport name match:", airportNameMatches[0]);
+          // Found exactly one airport that contains the search term in its name
+          console.log("Found single airport name match:", airportNameMatches[0]);
           saveSearchToLocalStorage(airportNameMatches[0]);
           navigate("/details", {
             state: { searchValue: airportNameMatches[0] },

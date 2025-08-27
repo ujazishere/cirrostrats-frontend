@@ -34,6 +34,51 @@
   }
 }
 
+
+/* Shake animation for search bar when multiple airports are found */
+.shake-animation {
+  animation: shake 0.6s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+/* Message styling for multiple airports notification */
+.multiple-airports-message {
+  display: none;
+  position: absolute;
+  bottom: 300%;
+  left: 0;
+  right: 0;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #856404;
+  z-index: 100000000000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+  .multiple-airports-message {
+    top: 400%;
+    bottom: unset;
+  }
+}
+
+
+
+
+
+
+
+
+
+
 .date-group-header {
  background-color: #f7fafc !important;
  border: none !important;

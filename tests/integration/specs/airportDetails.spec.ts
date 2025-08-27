@@ -144,7 +144,7 @@ test(
   "Details : Airport : Raw : Weather Cards : EWR",
   shouldHaveWeatherCards({
     navigationMethod: "raw",
-    query: "KEWR",
+    query: "EWR",
   })
 );
 
@@ -162,7 +162,7 @@ test(
   "Details : Airport : Raw : Validate METAR : EWR",
   shouldHaveMetarFormatAfterClicking({
     navigationMethod: "raw",
-    query: "KEWR",
+    query: "EWR",
     airportCode: "EWR",
   })
 );
@@ -180,7 +180,7 @@ test(
   "Details : Airport : Raw : Weather Cards : BOS",
   shouldHaveWeatherCards({
     navigationMethod: "raw",
-    query: "KBOS",
+    query: "BOS",
   })
 );
 
