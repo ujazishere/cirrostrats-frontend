@@ -21,6 +21,30 @@ const apiUrl = import.meta.env.VITE_API_URL;
 // This hook is responsible for all logic related to fetching flight, weather, NAS, and EDCT data.
 // =================================================================================
 // TODO: Abstract the logic for fetching flight data into a separate service module just like we have airportData.jsx.
+
+function normalizeAjms(ajms) {
+  // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
+    // *** Error prone such that it may return jumbled data from various dates. 
+    // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
+  const result = {};
+
+  for (const [key, val] of Object.entries(ajms)) {
+    if (val && typeof val === "object" && "value" in val) {
+      // case: { timestamp, value }
+      result[key] = val.value;
+    } else if (typeof val === "string") {
+      // case: plain string
+      result[key] = val;
+    } else {
+      // everything else
+      result[key] = null;
+    }
+  }
+
+  return { data: result }; // keep .data wrapper
+  // return result;
+}
+
 const useFlightData = (searchValue) => {
   // We manage all related states within a single object. This simplifies state updates and reduces re-renders.
   const [flightState, setFlightState] = useState({
@@ -82,9 +106,15 @@ const useFlightData = (searchValue) => {
       try {
         // Step 1: Fetch primary flight data from various sources using our flight service.
         const {
-          ajms, flightAwareRes, flightStatsTZRes
+          rawAJMS, flightAwareRes, flightStatsTZRes
         } = await flightService.getPrimaryFlightData(flightID);
-
+        // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
+                // *** Error prone such that it may return jumbled data from various dates. 
+                // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
+                // Fix JMS data structure issues at source trace it back from /ajms route's caution note
+        // Normalize AJMS data to ensure consistent structure.
+        const ajms = normalizeAjms(rawAJMS.data || {});
+        
         // If core data sources fail, we can't build a complete picture. Set an error and exit.
         if (ajms.error && flightAwareRes.error) {
           // TODO test: Impletement this notification api for absolute errors.

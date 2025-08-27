@@ -8,6 +8,11 @@ export const formatSuggestions = (rawSuggestions) => {
     ...(item.gate && { gate: item.gate }),      // For gates
     ...(item.airport && { airport: item.airport }),      // For gates
     ...(item.flightID && { flightID: item.flightID }),
+    // fuzz_find_search_text: item.fuzz_find_search_text,   // Trying to get fuzz find from backend to mathc and use instead of label.
+    // TODO serach matching: 
+      // account for fuzzfund - label vs display -- show display on frontend but use label for search matching? since it may have fuzz find labels in array?
+      // fuzzfind on airports - Some airports dont show up - need to account for large airport file with icao and iata codes names and location.
+    display: item.display,
     label: item.display
       ? (
         item.type === 'flight'

@@ -69,7 +69,7 @@ const flightService = {
 
     // # TODO: To fetch test jms - need to completely redesign ajms response architecture since current setup is inefficient
       // Current setup requests ajms from bakend which is inefficient but secure since it abstracts away ajms through backend.
-    const [ajms, flightStatsTZRes] = await Promise.all([
+    const [rawAJMS, flightStatsTZRes] = await Promise.all([
     axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {}, error: true }; }),
     axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {}, error: true }; }),
     ]);
@@ -85,7 +85,7 @@ const flightService = {
       });
     };
 
-    return {ajms, flightAwareRes, flightStatsTZRes }
+    return {rawAJMS, flightAwareRes, flightStatsTZRes }
   },
 
   /**

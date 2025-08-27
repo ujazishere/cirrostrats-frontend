@@ -13,6 +13,8 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const RoutePanel = ({ flightData, onRefresh }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [cooldownActive, setCooldownActive] = useState(false);
+  // TODO: Routes needs to be compared for inconsistencies and conflict resolution should be handled by user:
+        // Hey we found a route conflict between faa route and fllightaware - which one is accurate?
   const [route, setRoute] = useState(flightData.fa_route || flightData.route);
   const [skyVectorLink, setSkyVectorLink] = useState(flightData.fa_sv || flightData.faa_skyvector);
 
