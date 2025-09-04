@@ -10,7 +10,6 @@ import SearchesPage from "./pages/Searches";
 import SearchesTimeline from "./pages/SearchesTimeline";
 import Table from "./components/Table";
 import UTCTime from "./components/UTCTime";
-import "./WeatherInfo.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import LiveMap from "./pages/LiveMap";
 // import Input from './components/Input'; // Adjusted import path
