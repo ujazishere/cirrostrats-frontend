@@ -97,43 +97,54 @@ const TabFormat = ({
     swipeDuration: 300,
   });
 
-  // This useEffect hook handles the logic for making the tab navigation sticky on scroll.
-  // It's designed to be robust and smooth across all devices.
+  // this code sniptted is designed to make the tab sticky even when the EDCT table is expanded.
   useEffect(() => {
     const tabsNav = tabsNavRef.current;
-    // We exit early if the tab navigation element isn't rendered yet.
     if (!tabsNav) return;
 
-    // We calculate the exact vertical position where the tab navigation should become sticky.
-    // This is its initial distance from the top of the document, calculated once after the component mounts.
-    // getBoundingClientRect().top gives the position relative to the viewport.
-    // window.scrollY gives the number of pixels the document is currently scrolled vertically.
-    // Adding them together gives the element's absolute position from the top of the document.
-    const stickyPoint = tabsNav.getBoundingClientRect().top + window.scrollY;
+    // A function to calculate and set the sticky point.
+    // We'll call this whenever the layout might have changed.
+    const calculateStickyPoint = () => {
+      if (tabsNav) {
+        return tabsNav.getBoundingClientRect().top + window.scrollY;
+      }
+      return 0;
+    };
 
-    // This function will be called every time the user scrolls.
+    let stickyPoint = calculateStickyPoint();
+
     const handleScroll = () => {
-      // We check if the user has scrolled past our calculated sticky point.
+      // Use the 'stickyPoint' variable from the outer scope.
       if (window.scrollY >= stickyPoint) {
-        // If we've scrolled past the point, we make the header sticky.
-        // React's state setters are optimized to prevent re-renders if the state doesn't change.
         setIsSticky(true);
       } else {
-        // If we're above the point, we un-stick the header.
         setIsSticky(false);
       }
     };
 
-    // We add the scroll event listener to the window to detect scroll events.
+    // ✅ NEW: Set up the ResizeObserver to watch for layout shifts.
+    const observer = new ResizeObserver(() => {
+      // When the body resizes (due to content loading, expanding tables, etc.),
+      // recalculate the sticky point.
+      stickyPoint = calculateStickyPoint();
+      // Also, immediately check the scroll position against the new point.
+      handleScroll();
+    });
+
+    // Start observing the main document body for any size changes.
+    observer.observe(document.body);
+
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // The cleanup function is crucial. It removes the event listener when the component unmounts,
-    // preventing memory leaks and errors.
+    // Cleanup function: essential to prevent memory leaks.
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      // Stop observing when the component unmounts.
+      observer.unobserve(document.body);
     };
-  }, []); // The empty dependency array `[]` is key. It ensures this effect runs only ONCE,
-         // right after the component mounts. This is the correct pattern for setting up this kind of event listener.
+  }, []);
+
+
 
   // Simple tab change function with direction-based animation
   const changeTab = (tab, direction = null) => {
