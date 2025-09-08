@@ -1,0 +1,69 @@
+.
+├── dcuf.sh
+├── Dockerfile.frontend
+├── example.js
+├── index.html
+├── logo.png
+├── public
+│   └── favicon.png
+├── src
+│   ├── App.css
+│   ├── App.jsx
+│   ├── components
+│   │   ├── AirportCard.jsx
+│   │   ├── AirportData.jsx
+│   │   ├── Combined.jsx
+│   │   ├── CSS
+│   │   │   ├── Contact.css
+│   │   │   ├── Source.css
+│   │   │   ├── Story.css
+│   │   │   └── WeatherInfo.css
+│   │   ├── FlightData.jsx
+│   │   ├── GateCard.jsx
+│   │   ├── GateData.jsx
+│   │   ├── Input
+│   │   │   ├── api
+│   │   │   │   └── searchservice.js
+│   │   │   ├── components
+│   │   │   │   └── SearchInput.jsx
+│   │   │   ├── hooks
+│   │   │   │   ├── useDebounce.js
+│   │   │   │   ├── useInputHandlers copy.js
+│   │   │   │   ├── useInputHandlers.js
+│   │   │   │   ├── useSuggestions.js
+│   │   │   │   └── useTrackSearch.js
+│   │   │   ├── Index.jsx
+│   │   │   └── utils
+│   │   │       └── searchUtils.js
+│   │   ├── NASDetails.jsx
+│   │   ├── Navbar.jsx
+│   │   ├── RoutePanel.jsx
+│   │   ├── Skeleton.jsx
+│   │   ├── SummaryTable.jsx
+│   │   ├── TabFormat.jsx
+│   │   ├── Table.jsx
+│   │   ├── UTCTime.jsx
+│   │   └── utility
+│   │       ├── flightService.js
+│   │       ├── SearchGraph.jsx
+│   │       └── SearchTimeline.jsx
+│   ├── favicon.png
+│   ├── firebase.js
+│   ├── index.css
+│   ├── main.jsx
+│   └── pages
+│       ├── Contact.jsx
+│       ├── Details.jsx
+│       ├── FeedbackPopup.jsx
+│       ├── Home.css
+│       ├── Home.jsx
+│       ├── LiveMap.jsx
+│       ├── Searches.jsx
+│       ├── SearchesTimeline.jsx
+│       ├── Source.jsx
+│       └── Story.jsx
+├── structure.txt
+├── TODO-Frontend.txt
+└── vite.config.js
+
+12 directories, 55 files

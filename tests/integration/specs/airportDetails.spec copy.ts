@@ -121,120 +121,12 @@ function shouldHaveMetarFormatAfterClicking({
     });
 
     // Validate that the METAR starts with the airport code (K followed by 3 letters) and time format (6 digits followed by Z)
-    const basicMETARRegex = new RegExp(
-      `^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`
-    );
+    const basicMETARRegex = new RegExp(`^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`);
     // This will look like /^KEWR\s+\d{6}Z/
 
     await expect(metarCard.locator("p")).toContainText(basicMETARRegex);
   };
 }
-
-/**
- * Test that the TAF weather data on an airport details page follows the proper format
- * Validates that TAF starts with "TAF" + airport code + timestamp in DDHHMMZ format
- */
-function shouldHaveTafFormatAfterClicking({
-  navigationMethod,
-  query,
-  airportCode,
-  clickedOption,
-}:
-  | {
-      navigationMethod: "click";
-      query: string;
-      airportCode: string;
-      clickedOption: string;
-    }
-  | {
-      navigationMethod: "raw";
-      query: string;
-      airportCode: string;
-      clickedOption?: never;
-    }) {
-  return async ({ page }: { page: Page }) => {
-    if (navigationMethod === "click") {
-      await navigateToDetailsPage({
-        page,
-        navigationMethod,
-        query,
-        clickedOption,
-      });
-    } else {
-      await navigateToDetailsPage({
-        page,
-        navigationMethod,
-        query,
-      });
-    }
-
-    const tafCard = page.locator(".weather-card").filter({
-      has: page.getByRole("heading", { name: "TAF" }),
-    });
-
-    // Validate that the TAF starts with "TAF" + airport code and timestamp in DDHHMMZ format
-    const basicTAFRegex = new RegExp(`^TAF\\s+K${airportCode}\\s+\\d{6}Z`);
-
-    await expect(tafCard.locator("p")).toContainText(basicTAFRegex);
-  };
-}
-
-/**
- * Test that the D-ATIS (ATIS) weather data on an airport details page follows the proper format
- * NOTE: Actual ATIS format from real airports looks like:
- *   "EWR ATIS INFO S 0651Z."
- *   "BOS ATIS INFO J 0654Z."
- *   "ORD ATIS INFO R 0651Z."
- * So the regex must match: "<AIRPORT> ATIS INFO <Letter> <DDHHZ>."
- */
-function shouldHaveDAtisFormatAfterClicking({
-  navigationMethod,
-  query,
-  airportCode,
-  clickedOption,
-}:
-  | {
-      navigationMethod: "click";
-      query: string;
-      airportCode: string;
-      clickedOption: string;
-    }
-  | {
-      navigationMethod: "raw";
-      query: string;
-      airportCode: string;
-      clickedOption?: never;
-    }) {
-  return async ({ page }: { page: Page }) => {
-    if (navigationMethod === "click") {
-      await navigateToDetailsPage({
-        page,
-        navigationMethod,
-        query,
-        clickedOption,
-      });
-    } else {
-      await navigateToDetailsPage({
-        page,
-        navigationMethod,
-        query,
-      });
-    }
-
-    const dAtisCard = page.locator(".weather-card").filter({
-      has: page.getByRole("heading", { name: "D-ATIS" }),
-    });
-
-    // ✅ Updated regex based on actual ATIS format from ORD, BOS, EWR
-    // Matches: "<AIRPORT> ATIS INFO <Letter> <DDHHZ>."
-    const basicDAtisRegex = new RegExp(
-      `^${airportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z\\.`
-    );
-
-    await expect(dAtisCard.locator("p")).toContainText(basicDAtisRegex);
-  };
-}
-
 
 test(
   "Details : Airport : Click : Weather Cards : EWR",
@@ -258,8 +150,7 @@ test(
   shouldHaveWeatherCards({
     navigationMethod: "click",
     query: "BOS",
-    clickedOption:
-      "BOS - General Edward Lawrence Logan International Airport",
+    clickedOption: "BOS - General Edward Lawrence Logan International Airport",
   })
 );
 
@@ -279,7 +170,7 @@ test(
 //     query: "DEN",
 //     clickedOption: "DEN - Denver International Airport",
 //   })
-// );
+// ); 
 
 test(
   "Details : Airport : Raw : Weather Cards : DEN",
@@ -288,10 +179,6 @@ test(
     query: "KDEN",
   })
 );
-
-// -----------------------------------------------------------------------------
-// METAR Format Validation Tests
-// -----------------------------------------------------------------------------
 
 test(
   "Details : Airport : Click : Validate METAR : EWR",
@@ -318,8 +205,7 @@ test(
     navigationMethod: "click",
     query: "BOS",
     airportCode: "BOS",
-    clickedOption:
-      "BOS - General Edward Lawrence Logan International Airport",
+    clickedOption: "BOS - General Edward Lawrence Logan International Airport",
   })
 );
 
@@ -332,46 +218,4 @@ test(
   })
 );
 
-// -----------------------------------------------------------------------------
-// NEW: TAF Format Validation Tests
-// -----------------------------------------------------------------------------
 
-test(
-  "Details : Airport : Raw : Validate TAF : EWR",
-  shouldHaveTafFormatAfterClicking({
-    navigationMethod: "raw",
-    query: "KEWR",
-    airportCode: "EWR",
-  })
-);
-
-test(
-  "Details : Airport : Raw : Validate TAF : BOS",
-  shouldHaveTafFormatAfterClicking({
-    navigationMethod: "raw",
-    query: "KBOS",
-    airportCode: "BOS",
-  })
-);
-
-// -----------------------------------------------------------------------------
-// NEW: D-ATIS Format Validation Tests
-// -----------------------------------------------------------------------------
-
-test(
-  "Details : Airport : Raw : Validate D-ATIS : EWR",
-  shouldHaveDAtisFormatAfterClicking({
-    navigationMethod: "raw",
-    query: "KEWR",
-    airportCode: "EWR",
-  })
-);
-
-test(
-  "Details : Airport : Raw : Validate D-ATIS : BOS",
-  shouldHaveDAtisFormatAfterClicking({
-    navigationMethod: "raw",
-    query: "KBOS",
-    airportCode: "BOS",
-  })
-);
