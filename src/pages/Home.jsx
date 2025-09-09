@@ -14,6 +14,7 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Input from "../components/Input/Index"; // Ensure this path is correct
 import { db } from '../firebase.js';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import flightService from '../components/utility/flightService.js';
 
 // ✨ LAZY LOADING FOR PERFORMANCE
 // We are lazily importing the FeedbackPopup component.
@@ -116,6 +117,7 @@ const HomePage = () => {
     setIsSubmitting(true);
 
     try {
+      // Step 1: Add the feedback to Firebase (existing functionality)
       await addDoc(collection(db, "feedback"), {
         user: userEmail,
         type: feedbackType,
@@ -123,6 +125,26 @@ const HomePage = () => {
         submittedAt: serverTimestamp(),
         userAgent: navigator.userAgent,
       });
+
+      // --- MODIFICATION STARTS HERE ---
+
+      // Step 2: Create a formatted message for the Telegram bot
+    const telegramMessage = `
+New Feedback Received! 📬
+------------------------
+👤 User: ${userEmail}
+📝 Type: ${feedbackType}
+💬 Message: ${feedbackMessage}
+    `;
+
+    // --- MODIFICATION IS HERE ---
+    // We call the notification service and add a .catch() to log any
+    // potential errors silently, without affecting the user.
+try {
+  await flightService.postNotifications("test");
+} catch (error) {
+  console.error("Telegram notification failed:", error);
+}
 
       alert("Thank you! Your feedback has been submitted successfully.");
       handleCloseFeedback();
