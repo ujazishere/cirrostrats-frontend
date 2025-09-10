@@ -141,7 +141,7 @@ New Feedback Received! 📬
     // We call the notification service and add a .catch() to log any
     // potential errors silently, without affecting the user.
 try {
-  await flightService.postNotifications("test");
+  await flightService.postNotifications(telegramMessage);
 } catch (error) {
   console.error("Telegram notification failed:", error);
 }
