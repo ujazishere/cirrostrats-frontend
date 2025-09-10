@@ -227,9 +227,8 @@ function shouldHaveDAtisFormatAfterClicking({
 
     // ✅ Updated regex based on actual ATIS format from ORD, BOS, EWR
     // Matches: "<AIRPORT> ATIS INFO <Letter> <DDHHZ>."
-    const basicDAtisRegex = new RegExp(
-      `^${airportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z\\.`
-    );
+    const basicDAtisRegex = new RegExp(`^${airportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z(?:\\s+SPECIAL)?\\.`)
+
 
     await expect(dAtisCard.locator("p")).toContainText(basicDAtisRegex);
   };
