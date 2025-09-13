@@ -1,5 +1,7 @@
+// Imports necessary hooks from React and the navigation function from react-router-dom.
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+// Imports other custom hooks and services used within this hook.
 import useDebounce from "./useDebounce"; // Keep this import even if commented out in return
 import { trackSearch } from "./useTrackSearch";
 import searchService from "../api/searchservice";
@@ -8,21 +10,29 @@ import searchService from "../api/searchservice";
 This file manages UI interactions (click, submit, keyboard events)
 houses all input handlers.
 */
+// Defines the custom hook that encapsulates all logic for handling search input interactions.
 const useInputHandlers = () => {
+  // Initializes the navigate function from react-router-dom for programmatic navigation.
   const navigate = useNavigate();
+  // State to hold the current text value of the search input field.
   const [inputValue, setInputValue] = useState("");
+  // State to hold the complete object of a suggestion selected from the dropdown.
   const [selectedValue, setSelectedValue] = useState(null);
+  // State to control whether the suggestions dropdown is visible or not.
   const [open, setOpen] = useState(false);
 
   // const debouncedInputValue = useDebounce(inputValue, 300); // Keep this line
 
+  // A handler function to directly set the selected value state.
   const handleValue = (value) => {
     setSelectedValue(value);
   }
 
+  // This function is triggered every time the user types in the search field.
   const handleInputChange = (event, newInputValue, userEmail,) => {
     // TODO extended:
     // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
+    // Updates the state with the new text from the input.
     setInputValue(newInputValue);
     // trackSearch(userEmail, newInputValue); // Keep this line if you want to track keystrokes
   }
@@ -143,6 +153,7 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
         // The most common user intent is to select the top-most suggestion when submitting a raw query.
         // TODO uj: this should account for airport exact match or prepended with k, for flights it shouldn't.
           // for flights it should account for exact digit match, else send to raw(direct) query.
+        // Retrieves the first suggestion from the list, if available.
         const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
 
         if (topSuggestion) {
@@ -176,10 +187,13 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     }
 }
 
+  // This function is called when the search input gains focus.
   const handleFocus = () => {
     // setIsExpanded(true);
     // setOpen(searchTerm.length > 0);
+    // It opens the suggestions dropdown.
     setOpen(true);
+    // This object maps friendly names to CSS selectors for various elements on the page.
     const elements = {
       navbar: ".navbar",
       searchbar: ".searchbar-container",
@@ -202,8 +216,11 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
 
     };
 
+    // Iterates through the elements object to apply CSS classes for the "expanded" search view.
     Object.entries(elements).forEach(([key, selector]) => {
+      // Finds the DOM element corresponding to the selector.
       const element = document.querySelector(selector);
+      // If the element exists, a class is added to either expand it (the searchbar) or hide it.
       if (element) {
         if (key === "searchbar") {
           element.classList.add("expanded");
@@ -214,12 +231,16 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     });
   };
 
+  // This function is called when the search input loses focus.
   const handleBlur = (event) => {
     // Small delay to allow click events on options to fire first
     setTimeout(() => setOpen(false), 100);
+    // This condition checks if the focus has moved to an element outside of the search component.
     if (!event.currentTarget.contains(event.relatedTarget)) {
+      // A further delay ensures a smooth visual transition.
       setTimeout(() => {
         // setIsExpanded(false);
+        // Defines the same set of page elements as in handleFocus.
         const elements = {
           navbar: ".navbar",
           searchbar: ".searchbar-container",
@@ -243,6 +264,7 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
 
         };
 
+        // Iterates through the elements to remove the classes added on focus, returning the UI to its default state.
         Object.entries(elements).forEach(([key, selector]) => {
           const element = document.querySelector(selector);
           if (element) {
@@ -277,12 +299,15 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     // }
   };
 
+  // This function handles navigation when a specific option type is selected.
   const handleOptionSelect = (option) => {
     // setSelectedOption(option); // This variable is not defined in this scope
     // setSearchTerm(option?.label || ""); // This variable is not defined in this scope
+    // Closes the suggestions dropdown upon selection.
     setOpen(false);
 
     // Handle navigation based on selection type
+    // If an option was selected, it navigates to a specific route based on the option's type.
     if (option) {
       if (option.type === "Airport") {
         navigate(`/airport/${option.r_id}`);
@@ -294,6 +319,8 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
     }
   };
 
+  // The hook returns an object containing all the state values and handlers.
+  // This allows the component using the hook to access and control the input's behavior.
   return {
     open,
     setOpen,
@@ -311,4 +338,5 @@ const handleSubmit = (e, submitTerm, userEmail, suggestions = []) => {
   };
 };
 
+// Exports the hook for use in other parts of the application.
 export default useInputHandlers;
