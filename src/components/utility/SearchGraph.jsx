@@ -129,8 +129,19 @@ const SearchGraph = ({ rawData }) => {
                     
                     <div className="flex-grow">
                       <div className="flex items-center gap-2 mb-1">
+                        {/* This section is for displaying location icon based on the type -  */}
+                        {/* {item.isAirport ? (
+                          <MapPin size={16} className="text-blue-600" />
+                        ) : (
+                          <div className="w-4 h-4 bg-green-600 rounded text-white text-xs flex items-center justify-center font-bold">
+                            F
+                          </div>
+                        )} */}
                         <h3 className="font-semibold text-gray-800">{item.name}</h3>
                       </div>
+                      <p className="text-sm text-gray-600">
+                        {/* {item.count} record{item.count !== 1 ? 's' : ''} */}     
+                      </p>
                     </div>
                   </div>
 
@@ -138,6 +149,7 @@ const SearchGraph = ({ rawData }) => {
                     {/* Badge showing the count for this specific search term. */}
                     {/* This UI element is often called a "badge" or "pill". */}
                     <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                      {/* Total Searches of an item - length of timestamps */}
                       {item.count}
                     </span>
                   </div>
