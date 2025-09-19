@@ -4,13 +4,18 @@ import App from "./App.jsx";
 import "./index.css";
 import { BrowserRouter as Router } from "react-router-dom";
 
-<link rel="icon" type="image/png" href="/src/favicon.png" />
-
+const isProd = process.env.NODE_ENV === "production";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+  isProd ? (
+    <React.StrictMode>
+      <Router>
+        <App />
+      </Router>
+    </React.StrictMode>
+  ) : (
     <Router>
       <App />
     </Router>
-  </React.StrictMode>
+  )
 );

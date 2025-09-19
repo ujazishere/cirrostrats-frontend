@@ -11,17 +11,18 @@ const TabFormat = ({
   hideChildSearchBars = false // Add this prop to control search bars
 }) => {
   // Weather for Airports
-  const dep_weather = weather.departureWeatherLive;
-  const dest_weather = weather.arrivalWeatherLive;
-  const departure_alternate_weather = weather.departureAlternateWeatherLive
-  const arrival_alternate_weather = weather.arrivalAlternateWeatherLive
+const dep_weather = weather?.departureWeatherLive ?? null;
+const dest_weather = weather?.arrivalWeatherLive ?? null;
+const departure_alternate_weather = weather?.departureAlternateWeatherLive ?? null;
+const arrival_alternate_weather = weather?.arrivalAlternateWeatherLive ?? null;
+
   // TODO: priority should be mdb and if live is available then live.
 
   // NAS for airports
-  const nasDepartureResponse = NAS.departureNAS;
-  const nasDestinationResponse = NAS.arrivalNAS;
-  const nasDepartureAlternateResponse = NAS.departureAlternateNAS;
-  const nasDestinationAlternateResponse = NAS.arrivalAlternateNAS;
+  const nasDepartureResponse = NAS?.departureNAS ?? null;
+  const nasDestinationResponse = NAS?.arrivalNAS ?? null;
+  const nasDepartureAlternateResponse = NAS?.departureAlternateNAS ?? null;
+  const nasDestinationAlternateResponse = NAS?.arrivalAlternateNAS ?? null;
 
 
   // Helper function to check if weather data is available and meaningful
