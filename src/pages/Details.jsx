@@ -301,7 +301,11 @@ const Details = () => {
                         NAS={nasResponseFlight}
                         EDCT={EDCT}
                     />
-                ) : null; // Render nothing if data is not yet available (or failed silently).
+                ) : (
+                    <div className="no-data-message">
+                      <p>No flight data could be found for this search.</p>
+                    </div>
+                );
 
             case "airport":
                 // Render the AirportCard only if `airportWx` data is available.
@@ -310,13 +314,21 @@ const Details = () => {
                         weatherDetails={airportWx}
                         nasResponseAirport={nasResponseAirport}
                     />
-                ) : null;
+                ) : (
+                    <div className="no-data-message">
+                      <p>No weather or airport data is available.</p>
+                    </div>
+                );
 
             case "Terminal/Gate":
                 // Render the GateCard only if `gateData` is available.
                 return gateData ? (
                     <GateCard gateData={gateData} currentSearchValue={searchValue} />
-                ) : null;
+                ) : (
+                    <div className="no-data-message">
+                      <p>No departure information is available for this gate.</p>
+                    </div>
+                );
 
             // A default case is good practice for unhandled search types.
             default:
@@ -325,7 +337,11 @@ const Details = () => {
     }
     
     // Fallback message if there's no data to display after all checks.
-    return <p>No results found. Please try a new search.</p>;
+    return (
+      <div className="no-data-message">
+        <p>No results found. Please try a new search.</p>
+      </div>
+    );
   };
 
   // =================================================================================
@@ -335,6 +351,16 @@ const Details = () => {
   return (
     // The main container div for the details page.
     <div className="details">
+      {/* ++ FIX: ADD THIS STYLE BLOCK ++ */}
+      <style>{`
+        .no-data-message {
+          text-align: center;
+          color: #6c757d; /* A muted text color */
+          padding: 5rem 1rem;
+          font-size: 1.1rem;
+        }
+      `}</style>
+      
       {/* The UTC time component is always displayed. */}
       <UTCTime />
       {/* Conditionally render the main content.
