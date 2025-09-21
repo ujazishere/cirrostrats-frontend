@@ -56,8 +56,9 @@ const useAirportData = (searchValue, apiUrl) => {
           });
           // Process the airport weather data if it exists
           if (mdbAirportWeather.data){
-            setAirportWx(mdbAirportWeather.data);
-            setLoadingWeather(false);
+            // FIX: We no longer set state here immediately. We wait to compare it with live data.
+            // setAirportWx(mdbAirportWeather.data); 
+            // setLoadingWeather(false);
             // Assign code for live weather fetching.
             mdbAirportCode = mdbAirportWeather.data.code
             // Format the airport code for the API calls
@@ -100,27 +101,39 @@ const useAirportData = (searchValue, apiUrl) => {
             setLoadingNAS(false);
           } 
         
-          // Set the weather data, 
-          // prioritizing live data if it exists and differs from mdb. Is a must!
-          if ((liveAirportWeather.data && mdbAirportWeather &&
+          // --- FIX: REVISED LOGIC TO HANDLE POTENTIALLY EMPTY WEATHER DATA ---
+          const liveData = liveAirportWeather.data;
+          const mdbData = mdbAirportWeather?.data;
+          
+          // Helper to check for meaningful weather data (must not be an empty object and should have a METAR).
+          const isMeaningful = (weatherObj) => weatherObj && Object.keys(weatherObj).length > 0 && weatherObj.metar;
 
-            // If live data is different from mdb data
-            JSON.stringify(liveAirportWeather.data) !== JSON.stringify(mdbAirportWeather.data)) || rawAirportCode){
-
-              setAirportWx(liveAirportWeather.data)
-              setLoadingWeather(false);
-
-              // axios post for fastAPI to store the new data
-              if (mdbAirportId){
-                // send code to get new data!! Caution to my futureself -- dont send html injected weather straight to the db.
-                //  Let backend fetch new live weather raw data and store that raw data in the db.
-                if (mdbAirportId){ ICAOformattedAirportCode = null }
-                await axios.post(`${apiUrl}/storeLiveWeather?mdbId=${mdbAirportId}&rawCode=${ICAOformattedAirportCode}`)
+          // Priority 1: Use live data if it's meaningful.
+          if (isMeaningful(liveData)) {
+            setAirportWx(liveData);
+            
+            // If live data is different from MDB data, trigger a backend update.
+            if (mdbAirportId && JSON.stringify(liveData) !== JSON.stringify(mdbData)) {
+              await axios.post(`${apiUrl}/storeLiveWeather?mdbId=${mdbAirportId}&rawCode=${ICAOformattedAirportCode}`)
                 .catch(e => { 
                   console.error("Error sending airport code/mdbID to backend for fresh data fetch and store:", e);
                 });
-              };
-            };
+            }
+          } 
+          // Priority 2: Fallback to database data if it's meaningful and live data was not.
+          else if (isMeaningful(mdbData)) {
+            setAirportWx(mdbData);
+          } 
+          // Priority 3: If no data from any source is meaningful, set state to null.
+          else {
+            setAirportWx(null);
+          }
+          // Finally, set loading to false.
+          setLoadingWeather(false);
+        } else {
+            // FIX: If there's no airport code to search with, ensure state is null.
+            setAirportWx(null);
+            setLoadingWeather(false);
         }
       }} catch (e) {
         console.error("Error in fetchAirportData:", e);

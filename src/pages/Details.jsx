@@ -141,6 +141,28 @@ const useFlightData = (searchValue) => {
           ...flightStatsTZRes.data,
         };
 
+        // --- FIX: VALIDATE DATA BEFORE PROCEEDING TO FURTHER FETCHES ---
+        // A flight is considered to have no real data if we couldn't find its
+        // departure/arrival airports AND we received no specific data from our primary sources.
+        const isDataEffectivelyEmpty =
+          !combinedFlightData.departure &&
+          !combinedFlightData.arrival &&
+          Object.keys(flightAwareRes.data || {}).length === 0 &&
+          Object.keys(ajms.data || {}).length === 0;
+
+        // If the initial data is empty, stop here and set the state to null.
+        if (isDataEffectivelyEmpty) {
+          setFlightState({
+            loading: false,
+            data: null, // Set data to null to trigger the "no data" message
+            weather: null,
+            nas: null,
+            edct: null,
+            error: null,
+          });
+          return; // Exit the function early
+        }
+
         let edctData = null; // Initialize EDCT data as null.
         // Step 4: Conditionally fetch EDCT data based on an environment flag. This allows turning the feature on/off easily.
         if (import.meta.env.VITE_EDCT_FETCH === "1" && departure && arrival) {
@@ -293,7 +315,7 @@ const Details = () => {
             // These two cases both result in showing the FlightCard.
             case "flight":
             case "N-Number":
-                // Render the FlightCard only if `flightData` is available (truthy).
+                // Render the FlightCard only if `flightData` is available (truthy and not null).
                 return flightData ? (
                     <FlightCard
                         flightData={flightData}
@@ -308,8 +330,8 @@ const Details = () => {
                 );
 
             case "airport":
-                // Render the AirportCard only if `airportWx` data is available.
-                return airportWx ? (
+                // FIX: Check if airportWx is a non-empty object. An empty object {} is truthy.
+                return airportWx && Object.keys(airportWx).length > 0 ? (
                     <AirportCard
                         weatherDetails={airportWx}
                         nasResponseAirport={nasResponseAirport}
@@ -321,8 +343,8 @@ const Details = () => {
                 );
 
             case "Terminal/Gate":
-                // Render the GateCard only if `gateData` is available.
-                return gateData ? (
+                // FIX: Check if gateData is a non-empty array. An empty array [] is truthy.
+                return gateData && gateData.length > 0 ? (
                     <GateCard gateData={gateData} currentSearchValue={searchValue} />
                 ) : (
                     <div className="no-data-message">
