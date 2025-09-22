@@ -14,6 +14,8 @@ import "./WeatherInfo.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import LiveMap from "./pages/LiveMap";
 // import Input from './components/Input'; // Adjusted import path
+import SearchAnalyticsDashboard from "./components/SearchAnalyticsDashboard";
+
 
 function App() {
   return (
@@ -32,6 +34,7 @@ function App() {
           <Route path="/searches" element={<SearchesPage />} />
           <Route path="/st" element={<SearchesTimeline />} />
           <Route path="/livemap" element={<LiveMap />} />
+          <Route path="/analytics" element={<SearchAnalyticsDashboard />} />
 
         </Routes>
       </div>
