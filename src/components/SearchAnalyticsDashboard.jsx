@@ -18,8 +18,10 @@ const SearchAnalyticsDashboard = () => {
   useEffect(() => {
     const fetchSearchData = async () => {
       try {
+        console.log('Fetching from timeline endpoint:', `${apiUrl}/searches/timeline`);
+        
         // Using axios with additional configuration for CORS
-        const response = await axios.get(`${apiUrl}/searches/all`, {
+        const response = await axios.get(`${apiUrl}/searches/timeline`, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -28,6 +30,7 @@ const SearchAnalyticsDashboard = () => {
           withCredentials: false // Explicitly set to false for cross-origin requests
         });
 
+        console.log('Timeline API response:', response.data);
         const processedData = processSearchData(response.data);
         setSearchData(processedData);
         setError(null);
@@ -70,42 +73,61 @@ const SearchAnalyticsDashboard = () => {
     return () => clearInterval(intervalId);
   }, [loading, apiUrl]); // Added apiUrl to dependency array
 
-  // Process raw search data into time-series format
+  // Process raw search data from timeline API format
   const processSearchData = (rawData) => {
+    console.log('Processing timeline data:', rawData);
     const timeSeriesData = {};
+    
     if (!Array.isArray(rawData)) {
       console.error("Expected rawData to be an array, but got:", typeof rawData);
-      return [];
+      return generateMockData();
     }
 
+    // Process the actual timeline API format: [{ field_name: "value", timestamp: "2025-08-06T21:32:38.072000" }]
     rawData.forEach(item => {
-      const searchTerm = Object.keys(item)[0];
-      const timestamps = Object.values(item)[0];
-      if (Array.isArray(timestamps)) {
-        timestamps.forEach(timestamp => {
-          const date = new Date(timestamp);
-          const timeKey = getTimeKey(date, 'hour');
-          if (!timeSeriesData[timeKey]) {
-            timeSeriesData[timeKey] = {
-              time: timeKey,
-              timestamp: date.getTime(),
-              searches: 0,
-              searchTerms: new Set()
-            };
-          }
-          timeSeriesData[timeKey].searches += 1;
-          timeSeriesData[timeKey].searchTerms.add(searchTerm);
-        });
+      if (!item.timestamp) {
+        console.warn('Item missing timestamp:', item);
+        return;
       }
+
+      // Extract search terms (everything except timestamp and _id)
+      const searchTermKeys = Object.keys(item).filter(key => key !== 'timestamp' && key !== '_id');
+      
+      searchTermKeys.forEach(termKey => {
+        const searchTerm = item[termKey];
+        const date = new Date(item.timestamp);
+        
+        if (isNaN(date.getTime())) {
+          console.warn('Invalid timestamp:', item.timestamp);
+          return;
+        }
+
+        const timeKey = getTimeKey(date, 'hour');
+        
+        if (!timeSeriesData[timeKey]) {
+          timeSeriesData[timeKey] = {
+            time: timeKey,
+            timestamp: date.getTime(),
+            searches: 0,
+            searchTerms: new Set()
+          };
+        }
+        
+        timeSeriesData[timeKey].searches += 1;
+        timeSeriesData[timeKey].searchTerms.add(searchTerm);
+      });
     });
 
-    return Object.values(timeSeriesData)
+    const processed = Object.values(timeSeriesData)
       .map(item => ({
         ...item,
         uniqueTerms: item.searchTerms.size,
         searchTerms: Array.from(item.searchTerms)
       }))
       .sort((a, b) => a.timestamp - b.timestamp);
+
+    console.log('Processed timeline data points:', processed.length);
+    return processed.length > 0 ? processed : generateMockData();
   };
 
   // Generate mock data in case of initial fetch failure
@@ -169,80 +191,120 @@ const SearchAnalyticsDashboard = () => {
     }
   };
 
-  // Load Chart.js dynamically
+  // Load Chart.js dynamically with better error handling
   useEffect(() => {
     if (window.Chart) return;
+    
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
     script.async = true;
+    
+    script.onload = () => {
+      console.log('Chart.js loaded successfully');
+    };
+    
+    script.onerror = () => {
+      console.error('Failed to load Chart.js');
+      setError('Failed to load Chart.js library');
+    };
+    
     document.head.appendChild(script);
-    script.onload = () => console.log('Chart.js loaded');
-    script.onerror = () => console.error('Failed to load Chart.js');
+    
+    return () => {
+      // Cleanup on unmount
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
   }, []);
 
-  // Create or update chart
+  // Create or update chart with better error handling
   useEffect(() => {
-    if (!filteredData.length || typeof window.Chart === 'undefined' || !canvasRef.current) return;
+    // Wait for all dependencies to be ready
+    if (!filteredData.length || typeof window.Chart === 'undefined' || !canvasRef.current) {
+      console.log('Chart dependencies not ready:', {
+        hasData: filteredData.length > 0,
+        hasChart: typeof window.Chart !== 'undefined',
+        hasCanvas: !!canvasRef.current
+      });
+      return;
+    }
 
+    // Destroy existing chart
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
 
-    const ctx = canvasRef.current.getContext('2d');
-    const chartData = {
-      labels: filteredData.map(item => formatLabel(item.timestamp)),
-      datasets: [
-        {
-          label: 'Total Searches',
-          data: filteredData.map(item => item.searches),
-          borderColor: '#3b82f6',
-          backgroundColor: chartType === 'bar' ? '#3b82f6' : 'rgba(59, 130, 246, 0.1)',
-          borderWidth: 2,
-          fill: chartType === 'line',
-          tension: 0.4
-        },
-        {
-          label: 'Unique Terms',
-          data: filteredData.map(item => item.uniqueTerms),
-          borderColor: '#10b981',
-          backgroundColor: chartType === 'bar' ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
-          borderWidth: 2,
-          fill: chartType === 'line',
-          tension: 0.4
-        }
-      ]
-    };
+    try {
+      const ctx = canvasRef.current.getContext('2d');
+      const chartData = {
+        labels: filteredData.map(item => formatLabel(item.timestamp)),
+        datasets: [
+          {
+            label: 'Total Searches',
+            data: filteredData.map(item => item.searches),
+            borderColor: '#3b82f6',
+            backgroundColor: chartType === 'bar' ? '#3b82f6' : 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            fill: chartType === 'line',
+            tension: 0.4
+          },
+          {
+            label: 'Unique Terms',
+            data: filteredData.map(item => item.uniqueTerms),
+            borderColor: '#10b981',
+            backgroundColor: chartType === 'bar' ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
+            borderWidth: 2,
+            fill: chartType === 'line',
+            tension: 0.4
+          }
+        ]
+      };
 
-    const config = {
-      type: chartType,
-      data: chartData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        scales: {
-          x: { display: true, title: { display: true, text: 'Time' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-          y: { display: true, title: { display: true, text: 'Count' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } }
-        },
-        plugins: {
-          tooltip: {
-            callbacks: {
-              title: (context) => new Date(filteredData[context[0].dataIndex].timestamp).toLocaleString(),
-              afterBody: (context) => {
-                const data = filteredData[context[0].dataIndex];
-                if (data.searchTerms && data.searchTerms.length > 0) {
-                  return ['', 'Popular searches:', ...data.searchTerms.slice(0, 3)];
-                }
-                return [];
-              }
+      const config = {
+        type: chartType,
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { 
+              display: true, 
+              title: { display: true, text: 'Time' }, 
+              grid: { color: 'rgba(0, 0, 0, 0.05)' } 
+            },
+            y: { 
+              display: true, 
+              title: { display: true, text: 'Count' }, 
+              grid: { color: 'rgba(0, 0, 0, 0.05)' } 
             }
           },
-          legend: { display: true, position: 'top' }
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: (context) => new Date(filteredData[context[0].dataIndex].timestamp).toLocaleString(),
+                afterBody: (context) => {
+                  const data = filteredData[context[0].dataIndex];
+                  if (data.searchTerms && data.searchTerms.length > 0) {
+                    return ['', 'Popular searches:', ...data.searchTerms.slice(0, 3)];
+                  }
+                  return [];
+                }
+              }
+            },
+            legend: { display: true, position: 'top' }
+          }
         }
-      }
-    };
+      };
 
-    chartInstance.current = new window.Chart(ctx, config);
+      chartInstance.current = new window.Chart(ctx, config);
+      console.log('Chart created successfully');
+    } catch (error) {
+      console.error('Error creating chart:', error);
+      setError('Error creating chart visualization');
+    }
+
     return () => {
       if (chartInstance.current) {
         chartInstance.current.destroy();
@@ -278,7 +340,7 @@ const SearchAnalyticsDashboard = () => {
 
         {error && (
           <div className="error-message">
-            <p>{error} - Showing mock data for demonstration</p>
+            <p>{error} - {searchData.length > 0 ? 'Showing available data' : 'Showing mock data for demonstration'}</p>
           </div>
         )}
 
