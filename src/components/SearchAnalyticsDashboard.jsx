@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Calendar, TrendingUp, Search } from 'lucide-react';
-import '../components/CSS/SearchAnalyticsDashboard.css';  
+import axios from 'axios';
+import '../components/CSS/SearchAnalyticsDashboard.css';
 
 const SearchAnalyticsDashboard = () => {
   const [searchData, setSearchData] = useState([]);
@@ -11,29 +12,50 @@ const SearchAnalyticsDashboard = () => {
   const canvasRef = useRef(null);
   const chartInstance = useRef(null);
 
-  // **FIX APPLIED HERE**: This useEffect hook now fetches data on a regular interval.
+  // Get API URL from environment variables with fallback
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://beta.cirrostrats.us/api';
+
   useEffect(() => {
     const fetchSearchData = async () => {
       try {
-        const response = await fetch('https://beta.cirrostrats.us/api/searches/all');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const rawData = await response.json();
-        
-        const processedData = processSearchData(rawData);
+        // Using axios with additional configuration for CORS
+        const response = await axios.get(`${apiUrl}/searches/all`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          timeout: 10000, // 10 second timeout
+          withCredentials: false // Explicitly set to false for cross-origin requests
+        });
+
+        const processedData = processSearchData(response.data);
         setSearchData(processedData);
         setError(null);
       } catch (err) {
+        // More detailed error handling
+        let errorMessage = 'Failed to fetch search data';
+        
+        if (err.code === 'ECONNABORTED') {
+          errorMessage = 'Request timed out';
+        } else if (err.response) {
+          // Server responded with error status
+          errorMessage = `Server error: ${err.response.status}`;
+        } else if (err.request) {
+          // Request was made but no response (likely CORS or network issue)
+          errorMessage = 'Network error - check CORS configuration';
+        }
+
         // We only set an error message if the initial fetch fails
         if (loading) {
-            setError('Failed to fetch search data');
+          setError(errorMessage);
+          // Use mock data as fallback
+          setSearchData(generateMockData());
         }
         console.error('Error fetching search data:', err);
       } finally {
         // This ensures the loading spinner only shows on the initial load
         if (loading) {
-            setLoading(false);
+          setLoading(false);
         }
       }
     };
@@ -46,27 +68,23 @@ const SearchAnalyticsDashboard = () => {
 
     // 3. The cleanup function clears the interval when the component is removed
     return () => clearInterval(intervalId);
-
-  }, [loading]); // Dependency array includes 'loading' to help manage the initial state
+  }, [loading, apiUrl]); // Added apiUrl to dependency array
 
   // Process raw search data into time-series format
   const processSearchData = (rawData) => {
     const timeSeriesData = {};
-    
     if (!Array.isArray(rawData)) {
-        console.error("Expected rawData to be an array, but got:", typeof rawData);
-        return [];
+      console.error("Expected rawData to be an array, but got:", typeof rawData);
+      return [];
     }
 
     rawData.forEach(item => {
       const searchTerm = Object.keys(item)[0];
       const timestamps = Object.values(item)[0];
-      
       if (Array.isArray(timestamps)) {
         timestamps.forEach(timestamp => {
           const date = new Date(timestamp);
           const timeKey = getTimeKey(date, 'hour');
-          
           if (!timeSeriesData[timeKey]) {
             timeSeriesData[timeKey] = {
               time: timeKey,
@@ -75,7 +93,6 @@ const SearchAnalyticsDashboard = () => {
               searchTerms: new Set()
             };
           }
-          
           timeSeriesData[timeKey].searches += 1;
           timeSeriesData[timeKey].searchTerms.add(searchTerm);
         });
@@ -121,10 +138,8 @@ const SearchAnalyticsDashboard = () => {
   // Filter data based on time range
   const filteredData = useMemo(() => {
     if (!searchData.length) return [];
-    
     const now = new Date();
     let cutoffTime;
-    
     switch (timeRange) {
       case '1h': cutoffTime = now.getTime() - (60 * 60 * 1000); break;
       case '6h': cutoffTime = now.getTime() - (6 * 60 * 60 * 1000); break;
@@ -133,7 +148,6 @@ const SearchAnalyticsDashboard = () => {
       case '30d': cutoffTime = now.getTime() - (30 * 24 * 60 * 60 * 1000); break;
       default: cutoffTime = 0;
     }
-    
     return searchData.filter(item => item.timestamp >= cutoffTime);
   }, [searchData, timeRange]);
 
@@ -165,7 +179,7 @@ const SearchAnalyticsDashboard = () => {
     script.onload = () => console.log('Chart.js loaded');
     script.onerror = () => console.error('Failed to load Chart.js');
   }, []);
-  
+
   // Create or update chart
   useEffect(() => {
     if (!filteredData.length || typeof window.Chart === 'undefined' || !canvasRef.current) return;
@@ -175,7 +189,6 @@ const SearchAnalyticsDashboard = () => {
     }
 
     const ctx = canvasRef.current.getContext('2d');
-    
     const chartData = {
       labels: filteredData.map(item => formatLabel(item.timestamp)),
       datasets: [
@@ -230,22 +243,19 @@ const SearchAnalyticsDashboard = () => {
     };
 
     chartInstance.current = new window.Chart(ctx, config);
-    
     return () => {
-        if (chartInstance.current) {
-            chartInstance.current.destroy();
-        }
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
     };
   }, [filteredData, chartType, timeRange]);
 
   // Calculate statistics
   const stats = useMemo(() => {
     if (!filteredData.length) return { total: 0, average: 0, peak: 0 };
-    
     const total = filteredData.reduce((sum, item) => sum + item.searches, 0);
     const average = Math.round(total / filteredData.length);
     const peak = Math.max(...filteredData.map(item => item.searches));
-    
     return { total, average, peak };
   }, [filteredData]);
 
@@ -280,7 +290,6 @@ const SearchAnalyticsDashboard = () => {
               <p className="stat-value">{stats.total.toLocaleString()}</p>
             </div>
           </div>
-          
           <div className="stat-card">
             <TrendingUp className="stat-icon-green" />
             <div className="stat-info">
@@ -288,7 +297,6 @@ const SearchAnalyticsDashboard = () => {
               <p className="stat-value">{stats.average}</p>
             </div>
           </div>
-          
           <div className="stat-card">
             <Calendar className="stat-icon-purple" />
             <div className="stat-info">
@@ -299,35 +307,35 @@ const SearchAnalyticsDashboard = () => {
         </div>
 
         <div className="card controls-container">
-            <div className="control-group">
-              <label>Time Range:</label>
-              <select 
-                value={timeRange} 
-                onChange={(e) => setTimeRange(e.target.value)}
-              >
-                <option value="1h">Last Hour</option>
-                <option value="6h">Last 6 Hours</option>
-                <option value="1d">Last 24 Hours</option>
-                <option value="7d">Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-                <option value="all">All Time</option>
-              </select>
-            </div>
+          <div className="control-group">
+            <label>Time Range:</label>
+            <select
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value)}
+            >
+              <option value="1h">Last Hour</option>
+              <option value="6h">Last 6 Hours</option>
+              <option value="1d">Last 24 Hours</option>
+              <option value="7d">Last 7 Days</option>
+              <option value="30d">Last 30 Days</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
 
-            <div className="control-group">
-              <label>Chart Type:</label>
-              <select 
-                value={chartType} 
-                onChange={(e) => setChartType(e.target.value)}
-              >
-                <option value="line">Line Chart</option>
-                <option value="bar">Bar Chart</option>
-              </select>
-            </div>
+          <div className="control-group">
+            <label>Chart Type:</label>
+            <select
+              value={chartType}
+              onChange={(e) => setChartType(e.target.value)}
+            >
+              <option value="line">Line Chart</option>
+              <option value="bar">Bar Chart</option>
+            </select>
+          </div>
 
-            <p className="data-points-info">
-                {filteredData.length} data points
-            </p>
+          <p className="data-points-info">
+            {filteredData.length} data points
+          </p>
         </div>
 
         <div className="card">
