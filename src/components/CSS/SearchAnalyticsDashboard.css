@@ -203,21 +203,24 @@ body {
 /* Table */
 .table-container {
     margin-top: 2rem;
+    overflow-x: auto; 
 }
 .table-wrapper {
     overflow-x: auto;
 }
 .data-table {
-    min-width: 100%;
+    width: 70%;
+    table-layout: fixed;  /* force equal-width columns */
     border-collapse: collapse;
 }
 .data-table thead {
     background-color: #f9fafb; /* gray-50 */
 }
 .data-table th, .data-table td {
-    padding: 1rem 1.5rem;
-    text-align: left;
-    white-space: nowrap;
+    padding: 0.5rem;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal;  /* allow wrapping instead of forcing scroll */
     border-bottom: 1px solid #e5e7eb; /* gray-200 */
 }
 .data-table th {
