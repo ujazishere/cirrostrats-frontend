@@ -16,38 +16,66 @@ const SearchAnalyticsDashboard = () => {
   // Get API URL from environment variables with fallback
   const apiUrl = import.meta.env.VITE_API_URL || 'https://beta.cirrostrats.us/api';
 
-  // Helper function to convert to GMT/Zulu time
-  const toGMT = (date) => {
-    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  // === Helper: robustly parse any incoming timestamp and treat it AS UTC ===
+  // Accepts Date / numeric ms / various ISO-like strings (with/without Z, microseconds, offsets).
+  const parseTimestampToUTC = (input) => {
+    if (input == null) return null;
+    if (input instanceof Date) return input;
+    if (typeof input === 'number') return new Date(input);
+
+    let s = String(input).trim();
+
+    // If there's a timezone offset or trailing Z, we will keep it.
+    const hasTZ = /[Zz]|[+\-]\d{2}:\d{2}$/.test(s);
+
+    // Truncate any fractional seconds beyond milliseconds (more than 3 digits)
+    s = s.replace(/(\.\d{3})\d+/, '$1');
+
+    // If fractional part has 1 or 2 digits, pad to 3 (milliseconds)
+    s = s.replace(/\.(\d{1,2})(?=$|[Zz]|[+\-]\d{2}:\d{2}$)/, (m, p1) => '.' + p1.padEnd(3, '0'));
+
+    // If no timezone info present (no Z and no offset), treat as UTC by appending Z
+    if (!hasTZ) {
+      s = s + 'Z';
+    }
+
+    const d = new Date(s);
+    // Fallback: if parsing still fails, try Date constructor directly (best-effort)
+    if (isNaN(d.getTime())) {
+      return new Date(input);
+    }
+    return d;
   };
 
-  // Helper function to format dates in GMT
-  const formatGMTDate = (date, format = 'full') => {
-    const gmtDate = toGMT(new Date(date));
-    
+  // Helper function to format dates in GMT/Zulu
+  const formatGMTDate = (dateInput, format = 'full') => {
+    const d = parseTimestampToUTC(dateInput);
+    if (!d) return '';
+
     if (format === 'table') {
       // Wed 24 1338Z format for table
       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const dayName = dayNames[gmtDate.getUTCDay()];
-      const day = gmtDate.getUTCDate();
-      const hours = gmtDate.getUTCHours().toString().padStart(2, '0');
-      const minutes = gmtDate.getUTCMinutes().toString().padStart(2, '0');
+      const dayName = dayNames[d.getUTCDay()];
+      const day = d.getUTCDate();
+      const hours = d.getUTCHours().toString().padStart(2, '0');
+      const minutes = d.getUTCMinutes().toString().padStart(2, '0');
       return `${dayName} ${day} ${hours}${minutes}Z`;
     }
-    
+
     if (format === 'day') {
-      // For chart labels - day only
-      return gmtDate.toISOString().split('T')[0];
+      // For chart labels - day only (YYYY-MM-DD)
+      // Use toISOString which is always UTC
+      return d.toISOString().split('T')[0];
     }
-    
-    return gmtDate.toISOString();
+
+    return d.toISOString();
   };
 
   useEffect(() => {
     const fetchSearchData = async () => {
       try {
         console.log('Fetching from timeline endpoint:', `${apiUrl}/searches/timeline`);
-        
+
         // Using axios with additional configuration for CORS
         const response = await axios.get(`${apiUrl}/searches/timeline`, {
           headers: {
@@ -65,7 +93,7 @@ const SearchAnalyticsDashboard = () => {
       } catch (err) {
         // More detailed error handling
         let errorMessage = 'Failed to fetch search data';
-        
+
         if (err.code === 'ECONNABORTED') {
           errorMessage = 'Request timed out';
         } else if (err.response) {
@@ -106,7 +134,7 @@ const SearchAnalyticsDashboard = () => {
     console.log('Processing timeline data:', rawData);
     const timeSeriesData = {};
     const rawSearchData = []; // For table display
-    
+
     if (!Array.isArray(rawData)) {
       console.error("Expected rawData to be an array, but got:", typeof rawData);
       return { timeSeriesData: generateMockData().timeSeriesData, rawSearchData: generateMockData().rawSearchData };
@@ -121,20 +149,22 @@ const SearchAnalyticsDashboard = () => {
 
       // Extract search terms (everything except timestamp and _id)
       const searchTermKeys = Object.keys(item).filter(key => key !== 'timestamp' && key !== '_id');
-      
+
       searchTermKeys.forEach(termKey => {
         const searchTerm = item[termKey];
-        const date = toGMT(new Date(item.timestamp)); // Convert to GMT
-        
-        if (isNaN(date.getTime())) {
+
+        // Parse timestamp robustly and treat as UTC
+        const date = parseTimestampToUTC(item.timestamp);
+
+        if (!date || isNaN(date.getTime())) {
           console.warn('Invalid timestamp:', item.timestamp);
           return;
         }
 
-        // For chart data - group by day, but use start of day as timestamp for proper filtering
+        // For chart data - group by day (UTC), use start of day as timestamp for proper filtering
         const dayKey = formatGMTDate(date, 'day');
         const startOfDay = new Date(dayKey + 'T00:00:00.000Z');
-        
+
         if (!timeSeriesData[dayKey]) {
           timeSeriesData[dayKey] = {
             time: dayKey,
@@ -143,7 +173,7 @@ const SearchAnalyticsDashboard = () => {
             searchTerms: new Set()
           };
         }
-        
+
         timeSeriesData[dayKey].searches += 1;
         timeSeriesData[dayKey].searchTerms.add(searchTerm);
 
@@ -182,14 +212,14 @@ const SearchAnalyticsDashboard = () => {
     const rawSearchData = [];
     const now = new Date();
     const mockTerms = ['flight123', 'airport_code', 'weather_data', 'booking_info', 'GJS4414', 'GJS4409', 'C105'];
-    
+
     // Generate time series data (daily aggregated)
     for (let i = 30; i >= 0; i--) {
-      const time = toGMT(new Date(now.getTime() - i * 24 * 60 * 60 * 1000));
+      const time = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
       const dayKey = formatGMTDate(time, 'day');
       const startOfDay = new Date(dayKey + 'T00:00:00.000Z');
       const searches = Math.floor(Math.random() * 50) + 5;
-      
+
       timeSeriesData.push({
         time: dayKey,
         timestamp: startOfDay.getTime(), // Use start of day timestamp
@@ -202,9 +232,9 @@ const SearchAnalyticsDashboard = () => {
     // Generate individual search records for table
     for (let i = 0; i < 100; i++) {
       const randomHours = Math.floor(Math.random() * 7 * 24); // Last 7 days
-      const time = toGMT(new Date(now.getTime() - randomHours * 60 * 60 * 1000));
+      const time = new Date(now.getTime() - randomHours * 60 * 60 * 1000);
       const term = mockTerms[Math.floor(Math.random() * mockTerms.length)];
-      
+
       rawSearchData.push({
         searchTerm: term,
         timestamp: time.getTime(),
@@ -218,7 +248,8 @@ const SearchAnalyticsDashboard = () => {
   };
 
   const getTimeKey = (date, granularity) => {
-    const gmtDate = toGMT(new Date(date));
+    const gmtDate = parseTimestampToUTC(date);
+    if (!gmtDate) return '';
     switch (granularity) {
       case 'minute': return gmtDate.toISOString().slice(0, 16);
       case 'hour': return gmtDate.toISOString().slice(0, 13);
@@ -231,42 +262,42 @@ const SearchAnalyticsDashboard = () => {
   // Filter data based on time range
   const filteredData = useMemo(() => {
     if (!searchData.timeSeriesData || !searchData.timeSeriesData.length) return [];
-    const now = toGMT(new Date());
+    const now = Date.now();
     let cutoffTime;
-    
+
     switch (timeRange) {
-      case '1d': 
+      case '1d':
         // For last 24 hours, include today and yesterday to ensure we show data
-        cutoffTime = now.getTime() - (2 * 24 * 60 * 60 * 1000); 
+        cutoffTime = now - (2 * 24 * 60 * 60 * 1000);
         break;
-      case '7d': 
-        cutoffTime = now.getTime() - (8 * 24 * 60 * 60 * 1000); // Include one extra day
+      case '7d':
+        cutoffTime = now - (8 * 24 * 60 * 60 * 1000); // Include one extra day
         break;
-      case '30d': 
-        cutoffTime = now.getTime() - (31 * 24 * 60 * 60 * 1000); // Include one extra day
+      case '30d':
+        cutoffTime = now - (31 * 24 * 60 * 60 * 1000); // Include one extra day
         break;
-      default: 
+      default:
         cutoffTime = 0;
     }
-    
+
     const filtered = searchData.timeSeriesData.filter(item => item.timestamp >= cutoffTime);
-    
+
     // For 24 hours, limit to last 2 days max to avoid showing too much historical data
     if (timeRange === '1d') {
       return filtered.slice(-2);
     }
-    
+
     return filtered;
   }, [searchData, timeRange]);
 
   // Filter table data based on table time range
   const filteredTableData = useMemo(() => {
     if (!searchData.rawSearchData || !searchData.rawSearchData.length) return [];
-    const now = toGMT(new Date());
+    const now = Date.now();
     let cutoffTime;
     switch (tableTimeRange) {
-      case '1d': cutoffTime = now.getTime() - (24 * 60 * 60 * 1000); break;
-      case '7d': cutoffTime = now.getTime() - (7 * 24 * 60 * 60 * 1000); break;
+      case '1d': cutoffTime = now - (24 * 60 * 60 * 1000); break;
+      case '7d': cutoffTime = now - (7 * 24 * 60 * 60 * 1000); break;
       default: cutoffTime = 0;
     }
     return searchData.rawSearchData.filter(item => item.timestamp >= cutoffTime);
@@ -274,7 +305,9 @@ const SearchAnalyticsDashboard = () => {
 
   // Format chart labels to show only day without repetition
   const formatChartLabel = (dateString) => {
-    const date = new Date(dateString);
+    // dateString may be 'YYYY-MM-DD' (day key) or an ISO string; ensure we parse as UTC day
+    const isoDay = dateString && !dateString.includes('T') ? `${dateString}T00:00:00Z` : dateString;
+    const date = parseTimestampToUTC(isoDay);
     const month = date.getUTCMonth() + 1;
     const day = date.getUTCDate();
     return `${month}/${day}`;
@@ -283,22 +316,22 @@ const SearchAnalyticsDashboard = () => {
   // Load Chart.js dynamically with better error handling
   useEffect(() => {
     if (window.Chart) return;
-    
+
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
     script.async = true;
-    
+
     script.onload = () => {
       console.log('Chart.js loaded successfully');
     };
-    
+
     script.onerror = () => {
       console.error('Failed to load Chart.js');
       setError('Failed to load Chart.js library');
     };
-    
+
     document.head.appendChild(script);
-    
+
     return () => {
       // Cleanup on unmount
       if (document.head.contains(script)) {
@@ -349,15 +382,15 @@ const SearchAnalyticsDashboard = () => {
           maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           scales: {
-            x: { 
-              display: true, 
-              title: { display: true, text: 'Time (GMT)' }, 
-              grid: { color: 'rgba(0, 0, 0, 0.05)' } 
+            x: {
+              display: true,
+              title: { display: true, text: 'Time (GMT)' },
+              grid: { color: 'rgba(0, 0, 0, 0.05)' }
             },
-            y: { 
-              display: true, 
-              title: { display: true, text: 'Count' }, 
-              grid: { color: 'rgba(0, 0, 0, 0.05)' } 
+            y: {
+              display: true,
+              title: { display: true, text: 'Count' },
+              grid: { color: 'rgba(0, 0, 0, 0.05)' }
             }
           },
           plugins: {
