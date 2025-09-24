@@ -9,11 +9,39 @@ const SearchAnalyticsDashboard = () => {
   const [error, setError] = useState(null);
   const [timeRange, setTimeRange] = useState('7d');
   const [chartType, setChartType] = useState('line');
+  const [tableTimeRange, setTableTimeRange] = useState('7d');
   const canvasRef = useRef(null);
   const chartInstance = useRef(null);
 
   // Get API URL from environment variables with fallback
   const apiUrl = import.meta.env.VITE_API_URL || 'https://beta.cirrostrats.us/api';
+
+  // Helper function to convert to GMT/Zulu time
+  const toGMT = (date) => {
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  };
+
+  // Helper function to format dates in GMT
+  const formatGMTDate = (date, format = 'full') => {
+    const gmtDate = toGMT(new Date(date));
+    
+    if (format === 'table') {
+      // Wed 24 1338Z format for table
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayName = dayNames[gmtDate.getUTCDay()];
+      const day = gmtDate.getUTCDate();
+      const hours = gmtDate.getUTCHours().toString().padStart(2, '0');
+      const minutes = gmtDate.getUTCMinutes().toString().padStart(2, '0');
+      return `${dayName} ${day} ${hours}${minutes}Z`;
+    }
+    
+    if (format === 'day') {
+      // For chart labels - day only
+      return gmtDate.toISOString().split('T')[0];
+    }
+    
+    return gmtDate.toISOString();
+  };
 
   useEffect(() => {
     const fetchSearchData = async () => {
@@ -77,10 +105,11 @@ const SearchAnalyticsDashboard = () => {
   const processSearchData = (rawData) => {
     console.log('Processing timeline data:', rawData);
     const timeSeriesData = {};
+    const rawSearchData = []; // For table display
     
     if (!Array.isArray(rawData)) {
       console.error("Expected rawData to be an array, but got:", typeof rawData);
-      return generateMockData();
+      return { timeSeriesData: generateMockData().timeSeriesData, rawSearchData: generateMockData().rawSearchData };
     }
 
     // Process the actual timeline API format: [{ field_name: "value", timestamp: "2025-08-06T21:32:38.072000" }]
@@ -95,30 +124,39 @@ const SearchAnalyticsDashboard = () => {
       
       searchTermKeys.forEach(termKey => {
         const searchTerm = item[termKey];
-        const date = new Date(item.timestamp);
+        const date = toGMT(new Date(item.timestamp)); // Convert to GMT
         
         if (isNaN(date.getTime())) {
           console.warn('Invalid timestamp:', item.timestamp);
           return;
         }
 
-        const timeKey = getTimeKey(date, 'hour');
+        // For chart data - group by day, but use start of day as timestamp for proper filtering
+        const dayKey = formatGMTDate(date, 'day');
+        const startOfDay = new Date(dayKey + 'T00:00:00.000Z');
         
-        if (!timeSeriesData[timeKey]) {
-          timeSeriesData[timeKey] = {
-            time: timeKey,
-            timestamp: date.getTime(),
+        if (!timeSeriesData[dayKey]) {
+          timeSeriesData[dayKey] = {
+            time: dayKey,
+            timestamp: startOfDay.getTime(), // Use start of day for consistent filtering
             searches: 0,
             searchTerms: new Set()
           };
         }
         
-        timeSeriesData[timeKey].searches += 1;
-        timeSeriesData[timeKey].searchTerms.add(searchTerm);
+        timeSeriesData[dayKey].searches += 1;
+        timeSeriesData[dayKey].searchTerms.add(searchTerm);
+
+        // For table data - keep individual records
+        rawSearchData.push({
+          searchTerm: searchTerm,
+          timestamp: date.getTime(),
+          formattedTime: formatGMTDate(date, 'table')
+        });
       });
     });
 
-    const processed = Object.values(timeSeriesData)
+    const processedTimeSeriesData = Object.values(timeSeriesData)
       .map(item => ({
         ...item,
         uniqueTerms: item.searchTerms.size,
@@ -126,69 +164,120 @@ const SearchAnalyticsDashboard = () => {
       }))
       .sort((a, b) => a.timestamp - b.timestamp);
 
-    console.log('Processed timeline data points:', processed.length);
-    return processed.length > 0 ? processed : generateMockData();
+    // Sort raw search data by timestamp descending (newest first)
+    rawSearchData.sort((a, b) => b.timestamp - a.timestamp);
+
+    console.log('Processed timeline data points:', processedTimeSeriesData.length);
+    const result = {
+      timeSeriesData: processedTimeSeriesData.length > 0 ? processedTimeSeriesData : generateMockData().timeSeriesData,
+      rawSearchData: rawSearchData.length > 0 ? rawSearchData : generateMockData().rawSearchData
+    };
+
+    return result;
   };
 
   // Generate mock data in case of initial fetch failure
   const generateMockData = () => {
-    const data = [];
+    const timeSeriesData = [];
+    const rawSearchData = [];
     const now = new Date();
-    for (let i = 168; i >= 0; i--) {
-      const time = new Date(now.getTime() - i * 60 * 60 * 1000);
-      data.push({
-        time: time.toISOString(),
-        timestamp: time.getTime(),
-        searches: Math.floor(Math.random() * 50) + 5,
+    const mockTerms = ['flight123', 'airport_code', 'weather_data', 'booking_info', 'GJS4414', 'GJS4409', 'C105'];
+    
+    // Generate time series data (daily aggregated)
+    for (let i = 30; i >= 0; i--) {
+      const time = toGMT(new Date(now.getTime() - i * 24 * 60 * 60 * 1000));
+      const dayKey = formatGMTDate(time, 'day');
+      const startOfDay = new Date(dayKey + 'T00:00:00.000Z');
+      const searches = Math.floor(Math.random() * 50) + 5;
+      
+      timeSeriesData.push({
+        time: dayKey,
+        timestamp: startOfDay.getTime(), // Use start of day timestamp
+        searches: searches,
         uniqueTerms: Math.floor(Math.random() * 20) + 2,
-        searchTerms: ['flight123', 'airport_code', 'weather_data', 'booking_info']
+        searchTerms: mockTerms.slice(0, Math.floor(Math.random() * 4) + 1)
       });
     }
-    return data;
+
+    // Generate individual search records for table
+    for (let i = 0; i < 100; i++) {
+      const randomHours = Math.floor(Math.random() * 7 * 24); // Last 7 days
+      const time = toGMT(new Date(now.getTime() - randomHours * 60 * 60 * 1000));
+      const term = mockTerms[Math.floor(Math.random() * mockTerms.length)];
+      
+      rawSearchData.push({
+        searchTerm: term,
+        timestamp: time.getTime(),
+        formattedTime: formatGMTDate(time, 'table')
+      });
+    }
+
+    rawSearchData.sort((a, b) => b.timestamp - a.timestamp);
+
+    return { timeSeriesData, rawSearchData };
   };
 
   const getTimeKey = (date, granularity) => {
+    const gmtDate = toGMT(new Date(date));
     switch (granularity) {
-      case 'minute': return date.toISOString().slice(0, 16);
-      case 'hour': return date.toISOString().slice(0, 13);
-      case 'day': return date.toISOString().slice(0, 10);
-      case 'month': return date.toISOString().slice(0, 7);
-      default: return date.toISOString().slice(0, 13);
+      case 'minute': return gmtDate.toISOString().slice(0, 16);
+      case 'hour': return gmtDate.toISOString().slice(0, 13);
+      case 'day': return gmtDate.toISOString().slice(0, 10);
+      case 'month': return gmtDate.toISOString().slice(0, 7);
+      default: return gmtDate.toISOString().slice(0, 10);
     }
   };
 
   // Filter data based on time range
   const filteredData = useMemo(() => {
-    if (!searchData.length) return [];
-    const now = new Date();
+    if (!searchData.timeSeriesData || !searchData.timeSeriesData.length) return [];
+    const now = toGMT(new Date());
     let cutoffTime;
+    
     switch (timeRange) {
-      case '1h': cutoffTime = now.getTime() - (60 * 60 * 1000); break;
-      case '6h': cutoffTime = now.getTime() - (6 * 60 * 60 * 1000); break;
-      case '1d': cutoffTime = now.getTime() - (24 * 60 * 60 * 1000); break;
-      case '7d': cutoffTime = now.getTime() - (7 * 24 * 60 * 60 * 1000); break;
-      case '30d': cutoffTime = now.getTime() - (30 * 24 * 60 * 60 * 1000); break;
-      default: cutoffTime = 0;
+      case '1d': 
+        // For last 24 hours, include today and yesterday to ensure we show data
+        cutoffTime = now.getTime() - (2 * 24 * 60 * 60 * 1000); 
+        break;
+      case '7d': 
+        cutoffTime = now.getTime() - (8 * 24 * 60 * 60 * 1000); // Include one extra day
+        break;
+      case '30d': 
+        cutoffTime = now.getTime() - (31 * 24 * 60 * 60 * 1000); // Include one extra day
+        break;
+      default: 
+        cutoffTime = 0;
     }
-    return searchData.filter(item => item.timestamp >= cutoffTime);
+    
+    const filtered = searchData.timeSeriesData.filter(item => item.timestamp >= cutoffTime);
+    
+    // For 24 hours, limit to last 2 days max to avoid showing too much historical data
+    if (timeRange === '1d') {
+      return filtered.slice(-2);
+    }
+    
+    return filtered;
   }, [searchData, timeRange]);
 
-  // Format timestamp for display
-  const formatLabel = (timestamp) => {
-    const date = new Date(timestamp);
-    switch (timeRange) {
-      case '1h':
-      case '6h':
-        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-      case '1d':
-        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-      case '7d':
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit' });
-      case '30d':
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      default:
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // Filter table data based on table time range
+  const filteredTableData = useMemo(() => {
+    if (!searchData.rawSearchData || !searchData.rawSearchData.length) return [];
+    const now = toGMT(new Date());
+    let cutoffTime;
+    switch (tableTimeRange) {
+      case '1d': cutoffTime = now.getTime() - (24 * 60 * 60 * 1000); break;
+      case '7d': cutoffTime = now.getTime() - (7 * 24 * 60 * 60 * 1000); break;
+      default: cutoffTime = 0;
     }
+    return searchData.rawSearchData.filter(item => item.timestamp >= cutoffTime);
+  }, [searchData, tableTimeRange]);
+
+  // Format chart labels to show only day without repetition
+  const formatChartLabel = (dateString) => {
+    const date = new Date(dateString);
+    const month = date.getUTCMonth() + 1;
+    const day = date.getUTCDate();
+    return `${month}/${day}`;
   };
 
   // Load Chart.js dynamically with better error handling
@@ -238,22 +327,13 @@ const SearchAnalyticsDashboard = () => {
     try {
       const ctx = canvasRef.current.getContext('2d');
       const chartData = {
-        labels: filteredData.map(item => formatLabel(item.timestamp)),
+        labels: filteredData.map(item => formatChartLabel(item.time)),
         datasets: [
           {
             label: 'Total Searches',
             data: filteredData.map(item => item.searches),
             borderColor: '#3b82f6',
             backgroundColor: chartType === 'bar' ? '#3b82f6' : 'rgba(59, 130, 246, 0.1)',
-            borderWidth: 2,
-            fill: chartType === 'line',
-            tension: 0.4
-          },
-          {
-            label: 'Unique Terms',
-            data: filteredData.map(item => item.uniqueTerms),
-            borderColor: '#10b981',
-            backgroundColor: chartType === 'bar' ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
             borderWidth: 2,
             fill: chartType === 'line',
             tension: 0.4
@@ -271,7 +351,7 @@ const SearchAnalyticsDashboard = () => {
           scales: {
             x: { 
               display: true, 
-              title: { display: true, text: 'Time' }, 
+              title: { display: true, text: 'Time (GMT)' }, 
               grid: { color: 'rgba(0, 0, 0, 0.05)' } 
             },
             y: { 
@@ -283,7 +363,10 @@ const SearchAnalyticsDashboard = () => {
           plugins: {
             tooltip: {
               callbacks: {
-                title: (context) => new Date(filteredData[context[0].dataIndex].timestamp).toLocaleString(),
+                title: (context) => {
+                  const data = filteredData[context[0].dataIndex];
+                  return `${formatChartLabel(data.time)} (GMT)`;
+                },
                 afterBody: (context) => {
                   const data = filteredData[context[0].dataIndex];
                   if (data.searchTerms && data.searchTerms.length > 0) {
@@ -321,6 +404,15 @@ const SearchAnalyticsDashboard = () => {
     return { total, average, peak };
   }, [filteredData]);
 
+  // Update searchData structure when processing
+  useEffect(() => {
+    if (Array.isArray(searchData) && searchData.length > 0) {
+      // Convert old format to new format
+      const processed = processSearchData(searchData);
+      setSearchData(processed);
+    }
+  }, []);
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -335,12 +427,12 @@ const SearchAnalyticsDashboard = () => {
       <div className="container">
         <header className="dashboard-header">
           <h1>Search Analytics Dashboard</h1>
-          <p>Monitor search patterns and trends over time</p>
+          <p>Monitor search patterns and trends over time (GMT/ZULU Time)</p>
         </header>
 
         {error && (
           <div className="error-message">
-            <p>{error} - {searchData.length > 0 ? 'Showing available data' : 'Showing mock data for demonstration'}</p>
+            <p>{error} - {searchData.timeSeriesData && searchData.timeSeriesData.length > 0 ? 'Showing available data' : 'Showing mock data for demonstration'}</p>
           </div>
         )}
 
@@ -355,7 +447,7 @@ const SearchAnalyticsDashboard = () => {
           <div className="stat-card">
             <TrendingUp className="stat-icon-green" />
             <div className="stat-info">
-              <p className="stat-title">Average per Period</p>
+              <p className="stat-title">Average per Day</p>
               <p className="stat-value">{stats.average}</p>
             </div>
           </div>
@@ -375,8 +467,6 @@ const SearchAnalyticsDashboard = () => {
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
             >
-              <option value="1h">Last Hour</option>
-              <option value="6h">Last 6 Hours</option>
               <option value="1d">Last 24 Hours</option>
               <option value="7d">Last 7 Days</option>
               <option value="30d">Last 30 Days</option>
@@ -401,7 +491,7 @@ const SearchAnalyticsDashboard = () => {
         </div>
 
         <div className="card">
-          <h2>Search Volume Over Time</h2>
+          <h2>Search Volume Over Time (GMT)</h2>
           <div className="chart-wrapper">
             <canvas ref={canvasRef} />
           </div>
@@ -411,45 +501,48 @@ const SearchAnalyticsDashboard = () => {
               <li>• Hover over data points to see detailed information</li>
               <li>• Use the time range selector to zoom in/out on different periods</li>
               <li>• Switch between line and bar chart views</li>
-              <li>• Blue line shows total searches, green line shows unique search terms</li>
+              <li>• Blue line shows total searches per day</li>
+              <li>• All times are displayed in GMT/ZULU timezone</li>
             </ul>
           </div>
         </div>
 
         <div className="card table-container">
-          <h2>Recent Search Activity</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2>Recent Search Activity (GMT)</h2>
+            <div className="control-group">
+              <label>Show:</label>
+              <select
+                value={tableTimeRange}
+                onChange={(e) => setTableTimeRange(e.target.value)}
+              >
+                <option value="1d">Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+              </select>
+            </div>
+          </div>
           <div className="table-wrapper">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Time</th>
-                  <th>Total Searches</th>
-                  <th>Unique Terms</th>
-                  <th>Top Search Terms</th>
+                  <th>Search Term</th>
+                  <th>Date Time (GMT)</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredData.slice(-10).reverse().map((item, index) => (
+                {filteredTableData.slice(0, 50).map((item, index) => (
                   <tr key={index}>
-                    <td>{new Date(item.timestamp).toLocaleString()}</td>
-                    <td><span className="badge badge-blue">{item.searches}</span></td>
-                    <td><span className="badge badge-green">{item.uniqueTerms}</span></td>
-                    <td>
-                      <div className="tag-group">
-                        {item.searchTerms.slice(0, 3).map((term, termIndex) => (
-                          <span key={termIndex} className="tag">{term}</span>
-                        ))}
-                        {item.searchTerms.length > 3 && (
-                          <span className="tag-more">
-                            +{item.searchTerms.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    </td>
+                    <td><span className="tag">{item.searchTerm}</span></td>
+                    <td>{item.formattedTime}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {filteredTableData.length === 0 && (
+              <p style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                No search activity found for the selected time range
+              </p>
+            )}
           </div>
         </div>
       </div>
