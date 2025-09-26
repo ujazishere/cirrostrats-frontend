@@ -10,21 +10,20 @@ import NASDetails from "./NASDetails";
  * @param {boolean} props.showSearchBar - Whether to show the search bar (default: true)
  */
 const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true }) => {
-    // --- START OF CHANGES ---
-
-    // 1. State to manage which button is visually active: 'DEP' or 'ARR'
+    // State to manage which button is visually active: 'DEP' or 'ARR'
     const [selectedDatisType, setSelectedDatisType] = useState('DEP'); 
 
-    // 2. All mock data and data-switching logic has been removed.
-    //    'datis' is now sourced directly from props without modification.
+    // 'datis' is sourced directly from props. The buttons do not change this data.
     const datis = weatherDetails?.datis;
-
-    // --- END OF CHANGES ---
-
     const metar = weatherDetails?.metar;
     const taf = weatherDetails?.taf;
     const searchContainerRef = useRef(null);
 
+    /**
+     * Parse HHMMZ format (4 digits) and calculate minutes ago
+     * @param {string} timeString - Time in HHMMZ format (e.g., "1953Z")
+     * @returns {number} - Minutes ago from current UTC time
+     */
     const calculateMinutesAgoHHMMZ = (timeString) => {
         if (!timeString || typeof timeString !== 'string') return null;
         
@@ -56,6 +55,11 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
         return diffMinutes;
     };
 
+    /**
+     * Parse DDHHMMZ format (6 digits) and calculate minutes ago
+     * @param {string} timeString - Time in DDHHMMZ format (e.g., "012054Z")
+     * @returns {number} - Minutes ago from current UTC time
+     */
     const calculateMinutesAgoDDHHMMZ = (timeString) => {
         if (!timeString || typeof timeString !== 'string') return null;
         
@@ -99,11 +103,22 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
         return diffMinutes;
     };
 
+    /**
+     * Format minutes as "X mins ago"
+     * @param {number} minutes - Minutes difference
+     * @returns {string} - Formatted string
+     */
     const formatMinutesAgo = (minutes) => {
         if (minutes === null || minutes === undefined) return 'N/A';
         return `${minutes} mins ago`;
     };
 
+    /**
+     * Get color based on minutes ago and data type
+     * @param {number} minutesAgo - Minutes since data was issued
+     * @param {string} dataType - Data type ('datis', 'metar', or 'taf')
+     * @returns {string} - Color value
+     */
     const getTimestampColor = (minutesAgo, dataType) => {
         if (minutesAgo === null || minutesAgo === undefined) return '#6b7280';
         
@@ -120,6 +135,10 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
         return '#6b7280';
     };
 
+    // Helper function to get NAS title
+    // THIS IS THE FIX: This function now always returns "NAS Status".
+    // TODO Ismail: Is this necessary to have this tiny function just for title? Can we pass the title text as a prop instead?
+            // Ismail: I tried with the prop like suggested but not sure why it breaks the entire page
     const getNASTitle = () => {
         return "NAS Status";
     };
@@ -140,6 +159,7 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
 
     return (
         <div className="weather-container">
+            {/* Search Input Component at the top with the same styling as combined.jsx | DO NOT DELETE THIS CODE */}
             {showSearchBar && (
                 <div className="combined-search" ref={searchContainerRef}>
                     <Input userEmail="user@example.com" isLoggedIn={true} />
@@ -153,7 +173,6 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
                 <div className="weather-card">
                     <div className="card-header">
                         <h2 className="header-title">D-ATIS</h2>
-                        {/* The buttons are here for UI purposes. Clicking them updates their style. */}
                         <div className="datis-toggle">
                             <button
                                 className={`toggle-btn ${selectedDatisType === 'DEP' ? 'active' : ''}`}
@@ -180,7 +199,6 @@ const AirportCard = ({ weatherDetails, nasResponseAirport, showSearchBar = true 
                     </div>
                     <div className="card-body">
                         <div className="data-content">
-                            {/* This now displays the original 'datis' prop, regardless of which button is active */}
                             <p 
                                 style={{ lineHeight: '1.87083' }}
                                 dangerouslySetInnerHTML={{ __html: datis }}
