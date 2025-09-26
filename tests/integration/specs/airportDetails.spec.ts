@@ -273,14 +273,13 @@ test(
   })
 );
 
-// TODO: UNV raw search fails. -- checked and it searched the airport but keeps on loading - seems like a timeout issue 
-// test(
-//   "Details : Airport : Raw : Weather Cards : UNV",
-//   shouldHaveWeatherCards({
-//     navigationMethod: "raw",
-//     query: "UNV",
-//   })
-// );
+test(
+  "Details : Airport : Raw : Weather Cards : UNV",
+  shouldHaveWeatherCards({
+    navigationMethod: "raw",
+    query: "UNV",
+  })
+);
 
 
 // TODO: This test is failing because of duplicates in search suggestions. Fix at source in `search query stid bug` for unique id
@@ -304,6 +303,17 @@ test(
 // -----------------------------------------------------------------------------
 // METAR Format Validation Tests - suggestion click and raw.
 // -----------------------------------------------------------------------------
+
+// NOTE: This test was failing due to weather parse query html injection issue. Monitor it.
+test(
+  "Details : Airport : Click : Validate METAR : POF",
+  shouldHaveMetarFormatAfterClicking({
+    navigationMethod: "click",
+    query: "POF",
+    airportCode: "POF",
+    clickedOption: "POF - Poplar Bluff Regional Business Airport",
+  })
+);
 
 test(
   "Details : Airport : Click : Validate METAR : EWR",

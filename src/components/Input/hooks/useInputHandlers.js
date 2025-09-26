@@ -269,7 +269,7 @@ const useInputHandlers = () => {
         }
 
         // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
-        if (suggestion.type === "Gate" || suggestion.type === "gate") {
+        if (suggestion.type === "Terminal/Gate" || suggestion.type === "gate") {
           const gateIdentifier = suggestion.label
             .split(" - ")[1]
             ?.split(" ")[0]; // Extract gate number
