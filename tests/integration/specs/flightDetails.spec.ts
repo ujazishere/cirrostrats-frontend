@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
 import { navigateToDetailsPage } from "../utils/details";
 
+// TODO: add test for 414, ua1, 1 raw click 1, 
+
 // A simple test for the skeleton of the flight page, not verifying any content
+// ua1 and anything that is prepended with `UA` will work becaus of the regex processing in the backend.
 test("Details : Flight : Raw : UA414", async ({ page }) => {
   await navigateToDetailsPage({
     page,
