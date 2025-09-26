@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { db } from '../firebase'; // Ensure this path is correct
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import flightService from '../components/utility/flightService.js'; // ✨ IMPORT: Added flightService for notifications
 import '../components/CSS/Contact.css'; // Import the new CSS file
 
 const Contact = () => {
@@ -43,9 +44,37 @@ const Contact = () => {
         source: 'Contact Page' // Added to differentiate from popup feedback
       };
 
+      // Step 1: Add the feedback to Firebase.
       await addDoc(collection(db, "feedback"), feedbackData);
 
-      // On successful submission
+      // --- 🚀 TELEGRAM NOTIFICATION LOGIC STARTS HERE ---
+
+      // Step 2: Create a formatted message for the Telegram bot.
+      // This provides an immediate notification for new contact form submissions.
+      const telegramMessage = `
+New Contact Form Submission! 📬
+-----------------------------
+👤 Name: ${name.trim()}
+✉️ Email: ${email.trim()}
+📝 Type: ${feedbackType}
+💬 Message: ${feedbackMessage.trim()}
+      `;
+
+      // Step 3: Send the notification via flightService.
+      // This is wrapped in its own try/catch block to ensure that a failure
+      // in the notification service does not prevent the user from seeing
+      // the success message. The primary action (saving to DB) is complete.
+      try {
+        await flightService.postNotifications(telegramMessage);
+      } catch (error) {
+        // Log silently to the console for debugging purposes without alerting the user.
+        console.error("Telegram notification failed to send:", error);
+      }
+      
+      // --- TELEGRAM NOTIFICATION LOGIC ENDS HERE ---
+
+
+      // On successful submission to Firebase
       setSubmitStatus({ message: 'Thank you! Your message has been sent successfully.', type: 'success' });
       
       // Reset form fields
