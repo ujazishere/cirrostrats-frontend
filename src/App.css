@@ -34,6 +34,54 @@
   }
 }
 
+/* Update the card header to use flexbox for easy alignment */
+.card-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px; /* Adds space between title, buttons, and timestamp */
+}
+
+/* Make the timestamp always stick to the right edge */
+.card-header .timestamp {
+    margin-left: auto;
+}
+
+/* Container for the toggle buttons */
+.datis-toggle {
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0; /* A light grey background for the container */
+    border-radius: 16px; /* Rounded corners for the container */
+    padding: 3px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Individual toggle button styling */
+.toggle-btn {
+    border: none;
+    background-color: transparent; /* No background by default */
+    padding: 4px 14px;
+    border-radius: 14px; /* Rounded corners for the button highlight */
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555; /* Default text color */
+    transition: all 0.2s ease-in-out; /* Smooth transition for color and background */
+}
+
+/* Styling for the ACTIVE button */
+.toggle-btn.active {
+    background-color: #24292f; /* A nice blue for the active state */
+    color: #ffffff; /* White text for the active state */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Optional: a subtle hover effect for inactive buttons */
+.toggle-btn:not(.active):hover {
+    background-color: #e9ecef;
+}
+
 
 /* Shake animation for search bar when multiple airports are found */
 .shake-animation {
