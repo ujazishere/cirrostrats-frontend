@@ -47,14 +47,14 @@
     margin-left: auto;
 }
 
+
 /* Container for the toggle buttons */
 .datis-toggle {
     display: flex;
     align-items: center;
-    background-color: #f0f0f0; /* A light grey background for the container */
+    background-color: #ffffff; /* A light grey background for the container */
     border-radius: 16px; /* Rounded corners for the container */
     padding: 3px;
-    border: 1px solid #e0e0e0;
 }
 
 /* Individual toggle button styling */
@@ -75,7 +75,10 @@
     background-color: #24292f; /* A nice blue for the active state */
     color: #ffffff; /* White text for the active state */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
 }
+
+
 
 /* Optional: a subtle hover effect for inactive buttons */
 .toggle-btn:not(.active):hover {
