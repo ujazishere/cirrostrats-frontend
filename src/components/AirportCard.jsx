@@ -159,20 +159,34 @@ const AirportCard = ({
   // THIS IS THE FIX: This function now always returns "NAS Status".
   // TODO Ismail: Is this necessary to have this tiny function just for title? Can we pass the title text as a prop instead?
   // Ismail: I tried with the prop like suggested but not sure why it breaks the entire page
+
   const getNASTitle = () => {
     return "NAS Status";
   };
 
-  // Calculate minutes ago for each section
-  const datisMinutesAgo = weatherDetails?.datis_ts
-    ? calculateMinutesAgoHHMMZ(weatherDetails.datis_ts)
-    : null;
+//   Old code
+//   // Calculate minutes ago for each section
+//   const datisMinutesAgo = weatherDetails?.datis_ts
+//     ? calculateMinutesAgoHHMMZ(weatherDetails.datis_ts)
+//     : null;
   const metarMinutesAgo = weatherDetails?.metar_ts
     ? calculateMinutesAgoDDHHMMZ(weatherDetails.metar_ts)
     : null;
   const tafMinutesAgo = weatherDetails?.taf_ts
     ? calculateMinutesAgoDDHHMMZ(weatherDetails.taf_ts)
     : null;
+    // For D-ATIS, you now have multiple types (arr, dep, combined)
+  const datisMinutesAgo = {
+    arr: weatherDetails?.datis?.arr?.datis_ts && weatherDetails.datis.arr.datis_ts !== "N/A"
+        ? calculateMinutesAgoHHMMZ(weatherDetails.datis.arr.datis_ts)
+        : null,
+    dep: weatherDetails?.datis?.dep?.datis_ts && weatherDetails.datis.dep.datis_ts !== "N/A"
+        ? calculateMinutesAgoHHMMZ(weatherDetails.datis.dep.datis_ts)
+        : null,
+    combined: weatherDetails?.datis?.combined?.datis_ts && weatherDetails.datis.combined.datis_ts !== "N/A"
+        ? calculateMinutesAgoHHMMZ(weatherDetails.datis.combined.datis_ts)
+        : null
+    };
 
   useEffect(() => {
     if (showSearchBar && searchContainerRef.current) {
@@ -190,9 +204,33 @@ const AirportCard = ({
 
   // --- Helper to determine if combined D-ATIS exists ---
   const hasCombinedDatis =
-    datis?.combined &&
-    datis.combined.trim() !== "" &&
-    datis.combined.trim().toUpperCase() !== "N/A";
+    datis?.combined?.datis &&
+    datis?.combined?.datis.trim() !== "" &&
+    datis?.combined?.datis.trim().toUpperCase() !== "N/A";
+
+    // OLD CODE
+//   const hasCombinedDatis =
+//     datis?.combined &&
+//     datis.combined.trim() !== "" &&
+//     datis.combined.trim().toUpperCase() !== "N/A";
+  
+
+  // Get the timestamp for the selected D-ATIS type
+  const getSelectedDatisTimestamp = () => {
+    if (hasCombinedDatis) {
+        return datis.combined.datis_ts;
+    }
+    return datis?.[selectedDatisType.toLowerCase()]?.datis_ts || "";
+  };
+
+  // Calculate minutes ago for the selected D-ATIS type
+  const getSelectedDatisMinutesAgo = () => {
+    const timestamp = getSelectedDatisTimestamp();
+    return timestamp && timestamp !== "N/A" 
+        ? calculateMinutesAgoHHMMZ(timestamp)
+        : null;
+  };
+
 
   return (
     <div className="weather-container">
@@ -217,7 +255,8 @@ const AirportCard = ({
             {/* Show toggle only if combined is NOT available */}
             {!hasCombinedDatis && (
               <div className="datis-toggle">
-                {datis?.dep && (
+                {datis?.dep?.datis && datis.dep.datis.trim() !== "" && datis.dep.datis.trim().toUpperCase() !== "N/A" && (
+                // {datis?.dep?.datis && (
                   <button
                     className={`toggle-btn ${
                       selectedDatisType === "DEP" ? "active" : ""
@@ -227,7 +266,8 @@ const AirportCard = ({
                     DEP
                   </button>
                 )}
-                {datis?.arr && (
+                {datis?.arr?.datis && datis.arr.datis.trim() !== "" && datis.arr.datis.trim().toUpperCase() !== "N/A" && (
+                // {datis?.arr && (
                   <button
                     className={`toggle-btn ${
                       selectedDatisType === "ARR" ? "active" : ""
@@ -241,6 +281,15 @@ const AirportCard = ({
             )}
 
             <span
+                className="timestamp"
+                style={{
+                color: getTimestampColor(getSelectedDatisMinutesAgo(), "datis"),
+                fontWeight: "normal",
+                }}
+            >
+                {formatMinutesAgo(getSelectedDatisMinutesAgo())}
+            </span>
+            {/* <span
               className="timestamp"
               style={{
                 color: getTimestampColor(datisMinutesAgo, "datis"),
@@ -248,7 +297,7 @@ const AirportCard = ({
               }}
             >
               {formatMinutesAgo(datisMinutesAgo)}
-            </span>
+            </span> */}
           </div>
 
           <div className="card-body">
@@ -257,10 +306,10 @@ const AirportCard = ({
                 style={{ lineHeight: "1.87083" }}
                 dangerouslySetInnerHTML={{
                   __html: hasCombinedDatis
-                    ? datis.combined // Show combined if exists
+                    ? datis?.combined?.datis // Show combined if exists
                     : selectedDatisType === "DEP"
-                    ? datis?.dep || "N/A" // Show dep or fallback
-                    : datis?.arr || "N/A", // Show arr or fallback
+                    ? datis?.dep?.datis || "N/A" // Show dep or fallback
+                    : datis?.arr?.datis || "N/A", // Show arr or fallback
                 }}
               ></p>
             </div>

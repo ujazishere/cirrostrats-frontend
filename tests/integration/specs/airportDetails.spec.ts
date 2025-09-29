@@ -234,6 +234,7 @@ function shouldHaveDAtisFormatAfterClicking({
   };
 }
 
+// TODO Ismail: add test for PHL/ATL airports to assert departure and arrival atis buttom and associated data with current date.
 
 // TODO ismail:there are 4 tests per airprot for ewr and bos. can we merge to have
     // two - raw and click? each of them have two tests - ones checking metar format and 
@@ -255,6 +256,7 @@ test(
   })
 );
 
+// TODO Test: Boston airport always has the NAS - Assert that for the test too to validate NAS source.
 test(
   "Details : Airport : Click : Weather Cards : BOS",
   shouldHaveWeatherCards({

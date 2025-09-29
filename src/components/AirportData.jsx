@@ -57,8 +57,9 @@ const useAirportData = (searchValue, apiUrl) => {
           // Process the airport weather data if it exists
           if (mdbAirportWeather.data){
             // FIX: We no longer set state here immediately. We wait to compare it with live data.
-            // setAirportWx(mdbAirportWeather.data); 
-            // setLoadingWeather(false);
+            console.log("!!MDB AIRPROT DATA received!!");
+            setAirportWx(mdbAirportWeather.data); 
+            setLoadingWeather(false);
             // Assign code for live weather fetching.
             mdbAirportCode = mdbAirportWeather.data.code
             // Format the airport code for the API calls
@@ -104,12 +105,12 @@ const useAirportData = (searchValue, apiUrl) => {
           // --- FIX: REVISED LOGIC TO HANDLE POTENTIALLY EMPTY WEATHER DATA ---
           const liveData = liveAirportWeather.data;
           const mdbData = mdbAirportWeather?.data;
-          
           // Helper to check for meaningful weather data (must not be an empty object and should have a METAR).
           const isMeaningful = (weatherObj) => weatherObj && Object.keys(weatherObj).length > 0 && weatherObj.metar;
 
           // Priority 1: Use live data if it's meaningful.
           if (isMeaningful(liveData)) {
+            console.log("!!! SUCCESSFUL LIVE DATA FETCH  and state updated!!!");
             setAirportWx(liveData);
             
             // If live data is different from MDB data, trigger a backend update.

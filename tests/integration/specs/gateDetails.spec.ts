@@ -10,7 +10,9 @@ test("Details : Gate : Click : C101", async ({ page }) => {
     query: "C101",
     clickedOption: "EWR - C101 Departures",
   });
-
+  // TODO ismail: assert that the data is for the latest date using visible date header on the page.
+      // Maybe do that for all on a separate isolated test so its not intensive on all?
+          //  - metar taf datis, sscheduled date for the flight, etc.
   await expect(page.getByRole("heading", { name: "Gate C101" })).toBeVisible();
   await expect(page.getByText("Flight")).toBeVisible();
   await expect(page.getByText("Scheduled")).toBeVisible();
