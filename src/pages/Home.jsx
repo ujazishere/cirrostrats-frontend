@@ -218,6 +218,7 @@ try {
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: '14px',
                 fontWeight: '500',
+                borderRadius: '12px',
               }}
             >
               Revert Back To Legacy

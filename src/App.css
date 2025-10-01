@@ -1221,9 +1221,9 @@
 
 .login-container {
   padding: 0.5rem;
-  border-radius: 0.5rem;
+  border-radius: 14px;
   background-color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(73, 31, 31, 0.393);
 }
 
 .user-profile {
@@ -1771,27 +1771,27 @@ body {
 
 /* Styling for the search input field */
 .search-input-field {
-  border-radius: 8px !important;
+  border-radius: 14px !important;
   background-color: #fff !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-  padding: 12px 16px !important;
+  padding: 12px 14px !important;
   height: 48px !important;
   transition: all 0.2s ease !important;
+  border: 0.1px solid #000000 !important;
 }
 
 /* Remove the outline and add custom focus styling */
 .search-input-field.Mui-focused {
-  box-shadow: 0 0 0 2px rgba(74,144,226,0.2) !important;
-  border-color: #4a90e2 !important;
+  box-shadow: 0 0 0 2px #f7fafc(74,144,226,0.2) !important;
+  border-color: #f7fafc !important;
 }
 
 /* Override MUI's default styling */
 .search-input-field .MuiOutlinedInput-notchedOutline {
-  border-color: #e0e4e8 !important;
+  border-color: #f7fafc !important;
 }
 
 .search-input-field.Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: #4a90e2 !important;
+  border-color: #f7fafc !important;
   border-width: 1px !important;
 }
 
@@ -1802,9 +1802,9 @@ body {
   justify-content: center !important;
   background-color:#24292f!important;
   color: white !important;
-  border-radius: 0 6px 6px 0 !important;
-  padding: 6px 16px !important;
-  height: 46px !important;
+  border-radius: 14px 14px 14px 14px !important;
+  padding: 6px 18px !important;
+  height: 48px !important;
   cursor: pointer !important;
   margin-right: -13px !important;
 }
@@ -2373,7 +2373,7 @@ body {
 
 .mobile-login-container {
   padding: 0.5rem;
-  border-radius: 0.5rem;
+  border-radius: 14px !important;
   background-color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
