@@ -34,6 +34,11 @@
   }
 }
 
+.MuiAutocomplete-popper {
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
 /* Update the card header to use flexbox for easy alignment */
 .card-header {
     display: flex;
@@ -1745,7 +1750,7 @@ body {
 
 .search-container {
   padding: 1.5rem 0 !important;
-  background-color: #f5f7fa !important;
+  background-color: #ffffff !important;
   display: flex !important;
   justify-content: center !important;
   width: 100% !important;
@@ -1756,6 +1761,8 @@ body {
   width: 100% !important;
   max-width: 650px !important;
   margin: 0 auto !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;  /* clips shadow inside */
 }
 
 /* Styling for the autocomplete component */
@@ -1782,7 +1789,7 @@ body {
 /* Remove the outline and add custom focus styling */
 .search-input-field.Mui-focused {
   box-shadow: 0 0 0 2px #f7fafc(74,144,226,0.2) !important;
-  border-color: #f7fafc !important;
+  border-color: #000000 !important;
 }
 
 /* Override MUI's default styling */
@@ -1818,20 +1825,22 @@ body {
 .search-option {
   padding: 12px 16px !important;
   cursor: pointer !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
 }
 
 .search-option:hover {
   background-color: #f5f7fa !important;
+  border-radius: 14px;
 }
 
 /* Styling for the dropdown listbox */
 .search-listbox {
   padding: 4px 0 !important;
   max-height: 300px !important;
-  overflow-y: auto !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-  background-color: #fff !important;
+  border-radius: 14px !important;
+  background-color: #ffffff !important;
+  border: 0.1px solid #000000 !important;
 }
 
 /* Media queries for responsive design */

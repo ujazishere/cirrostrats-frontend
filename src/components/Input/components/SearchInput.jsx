@@ -164,8 +164,7 @@ export default function SearchInput({
                         marginLeft: '8px',
                         color: '#999',
                         lineHeight: '1',
-                        fontSize: '16px'
-                      }}
+                        fontSize: '16px'                      }}
                       aria-label={`Remove ${option.label} from recent searches`}
                     >
                       &times;
