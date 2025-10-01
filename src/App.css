@@ -762,7 +762,8 @@
   padding: 1.5rem;
   background-color: #f9fafb; /* A light background to distinguish it */
   border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 0.5px solid #000000;
+  border-radius: 14px;
 }
 
 /* Title for the section */
@@ -1660,6 +1661,9 @@ body {
   padding: 15px;
   width: 100%;
   box-sizing: border-box;
+  border: 0.5px solid #000000;
+  border-bottom-left-radius: 14px !important;
+  border-bottom-right-radius: 14px !important;
 }
 
 .clearance-body {
@@ -2141,6 +2145,7 @@ body {
 /* Weather tab panels */
 .weather-tab-panel {
   padding: 16px 0;
+
 }
 
 .weather-tab-header {
@@ -2266,6 +2271,9 @@ body {
 .card-header {
   padding: 1rem;
   color: white;
+  border: 0.5px solid #000000;
+  border-top-left-radius: 14px !important;
+  border-top-right-radius: 14px !important;
 }
 
 .weather-header {
@@ -2478,13 +2486,15 @@ footer {
 
 .nas-section {
   background-color: white;
-  border-radius: 0.5rem;
+  border-radius: 14px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1rem;
   margin-bottom: 1rem;
+  border: 0.5px solid #000000;
 }
 
 .nas-tab-header {
+
 }
 
 /* Styles for the tab navigation */
@@ -2973,6 +2983,8 @@ footer {
   justify-content: space-between;
   position: relative;
   padding: 0.5rem 0;
+  border: 0.5px solid #000000;
+  border-radius: 14px !important;
 }
 
 
@@ -4107,13 +4119,17 @@ body.utc-dragging {
 
 
 
-
-
+.another-table {
+  border: 0.5px solid black !important;
+  border-radius: 14px !important;
+  border-collapse: separate !important; /* Key fix */
+  border-spacing: 0 !important; /* Key fix */
+}
 
 .dark-mode table.another-table th,
 .dark-mode table.another-table td {
   border-color: white;
-  border-width: 1px;
+  border-width: 0.5px; /* Changed from 1px */
   border-style: solid;
 }
 
@@ -4123,9 +4139,11 @@ table.another-table {
   max-width: 800px;
   background-color: #000000;
   text-align: center;
-  border-radius: 10px;
+  border-radius: 14px;
   overflow: hidden;
-
+  border: 0.5px solid black;
+  border-collapse: separate; /* Key fix */
+  border-spacing: 0; /* Key fix */
 }
 
 table.another-table th,
@@ -4133,7 +4151,20 @@ table.another-table td {
   padding: 10px;
   text-align: center;
   background-color: #FF6868;
-  border: 1px black
+  border: none; /* Remove individual cell borders */
+  border-right: 0.5px solid black; /* Add only right border */
+  border-bottom: 0.5px solid black; /* Add only bottom border */
+}
+
+/* Remove border from last column */
+table.another-table th:last-child,
+table.another-table td:last-child {
+  border-right: none;
+}
+
+/* Remove border from last row */
+table.another-table tr:last-child td {
+  border-bottom: none;
 }
 
 table.another-table thead {
@@ -4146,6 +4177,23 @@ table.another-table td:first-child {
   font-weight: 600;
 }
 
+/* Fix for rounded corners on first and last cells */
+table.another-table tr:first-child th:first-child {
+  border-top-left-radius: 14px;
+}
+
+table.another-table tr:first-child th:last-child {
+  border-top-right-radius: 14px;
+}
+
+table.another-table tr:last-child td:first-child {
+  border-bottom-left-radius: 14px;
+}
+
+table.another-table tr:last-child td:last-child {
+  border-bottom-right-radius: 14px;
+}
+
 .table-wrapper {
   display: flex;
   justify-content: center;
@@ -4153,6 +4201,7 @@ table.another-table td:first-child {
   min-height: 25vh;
   margin: 0 auto;
   max-width: 800px;
+  
 }
 
 
