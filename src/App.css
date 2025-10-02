@@ -762,8 +762,10 @@
   padding: 1.5rem;
   background-color: #f9fafb; /* A light background to distinguish it */
   border-radius: 0.75rem;
-  border: 0.5px solid #000000;
+  border: none;
   border-radius: 14px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.12); /* equal blur around all sides */
+
 }
 
 /* Title for the section */
@@ -1626,11 +1628,14 @@ body {
 
 /* Individual weather card */
 .weather-card {
-  background-color: white;
+  background-color: #ffffff; /* pure white for contrast with #f7fafc */
   border-radius: 12px;
   overflow: hidden;
   width: 100%;
   box-sizing: border-box;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 
+              0 4px 10px rgba(0, 0, 0, 0.10); /* floating shadow */
+  border: none;
 }
 
 /* Card header styling */
@@ -1661,7 +1666,6 @@ body {
   padding: 15px;
   width: 100%;
   box-sizing: border-box;
-  border: 0.5px solid #000000;
   border-bottom-left-radius: 14px !important;
   border-bottom-right-radius: 14px !important;
 }
@@ -2485,13 +2489,16 @@ footer {
 }
 
 .nas-section {
-  background-color: white;
-  border-radius: 14px !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background-color: #ffffff; /* keep contrast with #f7fafc */
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 
+              0 4px 10px rgba(0, 0, 0, 0.10); /* slightly darker + bigger blur */
   padding: 1rem;
   margin-bottom: 1rem;
-  border: 0.5px solid #000000;
+  border: none;
 }
+
+
 
 .nas-tab-header {
 
@@ -2604,6 +2611,7 @@ footer {
   display: flex;
   flex-direction: column;
   width: 100%;
+  
 }
 
 .weather-tab-header {
@@ -2628,6 +2636,8 @@ footer {
   padding-bottom: 10px;
 }
 
+
+
 .clearance-tab-title {
   font-size: 16px;
   font-weight: 600;
@@ -2646,10 +2656,14 @@ footer {
 /* Route Tab Specific Styling */
 .route-tab-content {
   padding: 16px;
-  background-color: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background-color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 
+    0 6px 10px rgba(0, 0, 0, 0.16),   /* natural depth */
+    0 0 30px 6px rgba(0, 0, 0, 0.18); /* floating glow all around */
+  border: none;
 }
+
 
 .route-display {
   background-color: #f8f9fa;
@@ -2983,9 +2997,14 @@ footer {
   justify-content: space-between;
   position: relative;
   padding: 0.5rem 0;
-  border: 0.5px solid #000000;
   border-radius: 14px !important;
+  background-color: #ffffff;
+box-shadow: 
+  0 6px 10px rgba(0, 0, 0, 0.16),
+  0 0 30px 6px rgba(0, 0, 0, 0.18);
+  border: none;
 }
+
 
 
 .airport-section {
