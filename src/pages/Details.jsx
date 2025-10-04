@@ -204,7 +204,6 @@ const useFlightData = (searchValue) => {
           weatherData = finalWeather;
           nasData = finalNas;
         }
-
         // Step 6: After all data has been fetched and processed, update the state in a single call.
         setFlightState({
           loading: false, // Set loading to false.

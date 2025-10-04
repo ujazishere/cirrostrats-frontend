@@ -1,9 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { navigateToDetailsPage } from "../utils/details";
 
-// TODO: add test for "414", "1" with pressing enter, clicking search button, clicking suggestion if exact match available.
 
-// A simple test for the skeleton of the flight page, not verifying any content
+
+// TODO: A simple test for the skeleton of the flight page, not verifying any content,
+  // assert using mock data: partial flight data/weather  data/ NAS data.
+
 // ua1 and anything that is prepended with `UA` will work becaus of the regex processing in the backend.
 test("Details : Flight : Raw : UA414", async ({ page }) => {
   await navigateToDetailsPage({
@@ -97,4 +99,29 @@ test("Details : Flight : Invalid Raw : 00000", async ({ page }) => {
   await expect(noDataMessage).toBeVisible({ timeout: 15000 });
 });
 
-//  Done TODO: added test for UA414, ua1, could not add for raw and click 1 because if you just search 1 and click enter or search it does not work (the feature is still broken and you mentioned that rarrely any user will just type 1 and enter)
+test("Details : Flight : Raw : b62584", async ({ page }) => {
+  await navigateToDetailsPage({
+    page,
+    navigationMethod: "raw",
+    query: "b62584",
+  });
+  await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
+  // TODO : This probably flightID needs to be associated with jms or flightaware for a skyvectorroute return.
+  // await expect(
+  //   page.getByRole("link", { name: "View on SkyVector" })
+  // ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Departure" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Destination" })).toBeVisible();
+  // TODO ismail: I attempted this assert but this is wrong it should not pass since there is no weather available of now: just assert METAR should suffice.. 
+  await expect(page.getByRole("heading", { name: "D-ATIS" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "TAF" })).toBeVisible();
+  
+  // subsequent search for
+  await navigateToDetailsPage({
+    page,
+    navigationMethod: "raw",
+    query: "b62584",
+  });
+  await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
+});

@@ -27,10 +27,8 @@ const flightService = {
     let departureAlternate = null;
     let arrivalAlternate = null;
 
-    // TODO VHP Test: compare departure and arrival from different sources for absolute verification! 
-      // If jms availbale return and show that first. use others to verify accuracy.
-      // Anomaly may exist between sources and arrival/departure alternate may not be accurate depending on weather conditions -- mismatch possible.
-      // Especially when one flight number has multiple flights back and forth.
+    // TODO: mismatch for when one flight number has multiple flights back and forth.
+    // If jms availbale return and show that first. use others to verify accuracy.
     if (ajms?.data) {
       departure = ajms.data.departure || null;
       arrival = ajms.data.arrival || null;
@@ -38,11 +36,29 @@ const flightService = {
       arrivalAlternate = ajms.data.arrivalAlternate || null;
     }
 
-    if ((!departure || !arrival) && flightAwareRes?.data) {
-      departure = flightAwareRes.data.fa_origin || departure;
-      arrival = flightAwareRes.data.fa_destination || arrival;
+    // DONE TODO VHP Test: compare departure and arrival from different sources for absolute verification! 
+      // NOTE: This is partially done this still needs to be tested for accuracy.
+    if (flightAwareRes?.data) {
+      // If AJMS data exists but differs from FlightAware, prefer FlightAware
+      if (ajms?.data && (departure !== flightAwareRes.data.fa_origin || arrival !== flightAwareRes.data.fa_destination)) {
+        departure = flightAwareRes.data.fa_origin;
+        arrival = flightAwareRes.data.fa_destination;
+      }
+      // Fallback: if no AJMS data or missing departure/arrival
+      else if (!departure || !arrival) {
+        departure = flightAwareRes.data.fa_origin || departure;
+        arrival = flightAwareRes.data.fa_destination || arrival;
+      }
     }
 
+    // Old logic; keep for reference temporarily - This is bad logic because ajms overrides it.
+    // if ((!departure || !arrival) && flightAwareRes?.data) {
+    //   departure = flightAwareRes.data.fa_origin || departure;
+    //   arrival = flightAwareRes.data.fa_destination || arrival;
+    // }
+
+    // TODO TEST: final comparison for accuracy but here its a IATA code return instead of ICAO.
+      // TODO VHP: Maybe consider validating the IATA from the backend itself and return associated ICAO? - will be so much cleaner
     if (!departure || !arrival) {
       departure = flightStatsTZRes?.data?.flightStatsOrigin || 
                   departure;
