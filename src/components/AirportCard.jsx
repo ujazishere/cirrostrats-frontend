@@ -207,6 +207,17 @@ const AirportCard = ({
     datis?.combined?.datis &&
     datis?.combined?.datis.trim() !== "" &&
     datis?.combined?.datis.trim().toUpperCase() !== "N/A";
+  const hasArrivalDatis =
+    datis?.arr?.datis &&
+    datis?.arr?.datis.trim() !== "" &&
+    datis?.arr?.datis.trim().toUpperCase() !== "N/A";
+
+  const hasDepartureDatis =
+    datis?.dep?.datis &&
+    datis?.dep?.datis.trim() !== "" &&
+    datis?.dep?.datis.trim().toUpperCase() !== "N/A";
+
+  const hasIndividualDatis = hasArrivalDatis || hasDepartureDatis;
 
     // OLD CODE
 //   const hasCombinedDatis =
@@ -253,7 +264,7 @@ const AirportCard = ({
             <h2 className="header-title">D-ATIS</h2>
 
             {/* Show toggle only if combined is NOT available */}
-            {!hasCombinedDatis && (
+            {hasIndividualDatis && (
               <div className="datis-toggle">
                 {datis?.dep?.datis && datis.dep.datis.trim() !== "" && datis.dep.datis.trim().toUpperCase() !== "N/A" && (
                 // {datis?.dep?.datis && (
