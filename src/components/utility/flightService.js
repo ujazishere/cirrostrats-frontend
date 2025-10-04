@@ -38,9 +38,10 @@ const flightService = {
 
     // DONE TODO VHP Test: compare departure and arrival from different sources for absolute verification! 
       // NOTE: This is partially done this still needs to be tested for accuracy.
-    if (flightAwareRes?.data) {
+    if (flightAwareRes && !flightAwareRes.error && Object.keys(flightAwareRes.data).length > 0) {
       // If AJMS data exists but differs from FlightAware, prefer FlightAware
       if (ajms?.data && (departure !== flightAwareRes.data.fa_origin || arrival !== flightAwareRes.data.fa_destination)) {
+        flightService.postNotifications(`Airport Discrepancy: \n**ajms** ${JSON.stringify(ajms.data)} \n**flightAware** ${JSON.stringify(flightAwareRes.data)} \n\n **flightStatsTZRes** ${JSON.stringify(flightStatsTZRes.data)}`);
         departure = flightAwareRes.data.fa_origin;
         arrival = flightAwareRes.data.fa_destination;
       }
