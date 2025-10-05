@@ -42,6 +42,8 @@ function shouldHaveWeatherCards({
 
     await expect(page, "Page should be on details page").toHaveURL("/details");
 
+    
+
     // TODO test: account for NAS related flight. -- check nas airports through their api and check if the component is available for that particular airport.
 
     // Assert that there are 3 weather cards
@@ -282,6 +284,12 @@ function shouldHaveValidWeatherInfo({
       });
     }
     await expect(page, "Page should be on details page").toHaveURL("/details");
+
+    if (airportCode === "BOS") {
+      await expect(
+        page.getByRole("heading", { name: "NAS Status" })
+      ).toBeVisible();
+    }
 
     // Step 2: Assert that there are exactly 3 weather cards and get their locators
     await expect(page.locator(".weather-card")).toHaveCount(3);
