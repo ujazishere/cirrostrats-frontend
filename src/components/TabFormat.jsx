@@ -11,10 +11,11 @@ const TabFormat = ({
   hideChildSearchBars = false // Add this prop to control search bars
 }) => {
   // Weather for Airports
-const dep_weather = weather?.departureWeatherLive ?? null;
-const dest_weather = weather?.arrivalWeatherLive ?? null;
-const departure_alternate_weather = weather?.departureAlternateWeatherLive ?? null;
-const arrival_alternate_weather = weather?.arrivalAlternateWeatherLive ?? null;
+const dep_weather = weather?.departureWeatherMdb ?? weather?.departureWeatherLive ?? null;
+const dest_weather = weather?.arrivalWeatherMdb ?? weather?.arrivalWeatherLive ?? null;
+const departure_alternate_weather = weather?.departureAlternateWeatherMdb ?? weather?.departureAlternateWeatherLive ?? null;
+const arrival_alternate_weather = weather?.arrivalAlternateWeatherMdb ?? weather?.arrivalAlternateWeatherLive ?? null;
+
 
   // TODO: priority should be mdb and if live is available then live.
 

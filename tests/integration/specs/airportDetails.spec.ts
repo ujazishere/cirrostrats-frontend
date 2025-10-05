@@ -120,6 +120,8 @@ function shouldHaveMetarFormatAfterClicking({
       has: page.getByRole("heading", { name: "METAR" }),
     });
 
+    
+
     // Validate that the METAR starts with the airport code (K followed by 3 letters) and time format (6 digits followed by Z)
     const basicMETARRegex = new RegExp(
       `^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`
