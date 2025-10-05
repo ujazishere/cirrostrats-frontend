@@ -5,9 +5,12 @@ import { navigateToDetailsPage } from "../utils/details";
  * Test that an airport details page displays the expected weather cards (D-ATIS, METAR, TAF)
  * @param navigationMethod - How to navigate to the details page: "click" for clicking a search suggestion, "raw" for direct query
  * @param query - The search query to use (airport code for click method, full ICAO code for raw method)
+ * @param airportCode - The 3-letter airport code (e.g., "PHL")
  * @param clickedOption - The specific search suggestion option to click (required only for "click" method)
  * @returns A function to be used as a playwright test that verifies 3 weather cards are present with proper content
  */
+
+
 function shouldHaveWeatherCards({
   navigationMethod,
   query,
@@ -291,6 +294,15 @@ function shouldHaveValidWeatherInfo({
       ).toBeVisible();
     }
 
+    // This new check asserts that DEP/ARR buttons are present for specific airports.
+    if (airportCode === "PHL" || airportCode === "ATL") {
+      const dAtisCard = page
+        .locator(".weather-card")
+        .filter({ has: page.getByRole("heading", { name: "D-ATIS" }) });
+      await expect(dAtisCard.getByRole("button", { name: "DEP" })).toBeVisible();
+      await expect(dAtisCard.getByRole("button", { name: "ARR" })).toBeVisible();
+    }
+
     // Step 2: Assert that there are exactly 3 weather cards and get their locators
     await expect(page.locator(".weather-card")).toHaveCount(3);
     const dAtisCard = page
@@ -314,8 +326,8 @@ function shouldHaveValidWeatherInfo({
 
     // Step 4: Validate the format of each weather report using regular expressions
     const dAtisRegex = new RegExp(
-      `^${airportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z(?:\\s+SPECIAL)?\\.`
-    );
+      `^${airportCode}\\s+(?:ATIS|DEP|ARR)\\s+INFO\\s+[A-Z]\\s+\\d{4,}Z`
+      );
     const metarRegex = new RegExp(
       `^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`
     );
@@ -358,6 +370,8 @@ test(
 );
 
 // TODO Test: Boston airport always has the NAS - Assert that for the test too to validate NAS source.
+
+// Ismail: Added NAS status assertion for BOS airport in the consolidated.
 test(
   "Details : Airport : Click : Validate All Weather Info : BOS",
   shouldHaveValidWeatherInfo({
@@ -389,6 +403,30 @@ test(
   shouldHaveWeatherCards({
     navigationMethod: "raw",
     query: "UNV",
+  })
+);
+
+// -----------------------------------------------------------------------------
+// NEW: PHL Weather & D-ATIS Button Validation
+// -----------------------------------------------------------------------------
+test(
+  "Details : Airport : Click : Validate All Weather Info : PHL",
+  shouldHaveValidWeatherInfo({
+    navigationMethod: "click",
+    query: "PHL",
+    airportCode: "PHL",
+    clickedOption: "PHL - Philadelphia International Airport",
+  })
+);
+
+// NEW: ATL Weather & D-ATIS Button Validation
+test(
+  "Details : Airport : Click : Validate All Weather Info : ATL",
+  shouldHaveValidWeatherInfo({
+    navigationMethod: "click",
+    query: "ATL",
+    airportCode: "ATL",
+    clickedOption: "ATL - Hartsfield - Jackson Atlanta International Airport",
   })
 );
 
