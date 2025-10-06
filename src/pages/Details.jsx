@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // Core React hooks for state and lifecycle management.
+import React, { useState, useEffect, useRef } from "react"; // ✅ FIX: Import useRef to track the previous state.
 import { useLocation } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
 import axios from "axios"; // A promise-based HTTP client for making requests to our backend API.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
@@ -256,6 +256,17 @@ const Details = () => {
   // Safely access the `searchValue` from the location's state. It might be undefined if the page is loaded directly.
   const searchValue = location?.state?.searchValue;
 
+  // ✅ FIX: Use a ref to store the previous search value. A ref's value persists
+  // across renders without causing a re-render itself. This is perfect for comparison.
+  const previousSearchValueRef = useRef();
+
+  // ✅ FIX: This effect runs *after* every render. We update the ref with the
+  // current `searchValue` so that on the *next* render, we can compare the new
+  // `searchValue` with what it was on the previous render.
+  useEffect(() => {
+    previousSearchValueRef.current = searchValue;
+  });
+
   // =================================================================================
   // Hook Instantiation
   // Here, we call our custom hooks, passing the `searchValue`.
@@ -293,10 +304,16 @@ const Details = () => {
   // state of our data hooks (loading, error, or success).
   // =================================================================================
   const renderContent = () => {
-    // Priority 1: Check for loading states. If any data is being fetched, show a loading indicator.
-    // This provides immediate feedback to the user.
-    if (loadingFlightData || loadingWeather || loadingGateData) {
-      // We can show a generic or specific loading UI. Here, we use a skeleton card.
+    // ✅ FIX: Detect if a new search has just been initiated.
+    // This is true when the current `searchValue` is different from the one we stored
+    // in our ref after the last render. We use JSON.stringify for a simple object comparison.
+    const hasSearchChanged = JSON.stringify(previousSearchValueRef.current) !== JSON.stringify(searchValue);
+
+    // Priority 1: Check for loading states.
+    // IF any of the hooks are actively loading, OR if the search value has just changed,
+    // we show the skeleton. This `hasSearchChanged` check is the key: it catches the
+    // transitional render and forces the loading UI before the incorrect "no data" message can appear.
+    if (loadingFlightData || loadingWeather || loadingGateData || (hasSearchChanged && searchValue)) {
       return <LoadingFlightCard />;
     }
 
