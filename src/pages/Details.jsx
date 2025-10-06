@@ -48,7 +48,7 @@ function normalizeAjms(ajms) {
 const useFlightData = (searchValue) => {
   // We manage all related states within a single object. This simplifies state updates and reduces re-renders.
   const [flightState, setFlightState] = useState({
-    loading: false, // Indicates if a fetch operation is in progress.
+    loading: true, // Indicates if a fetch operation is in progress.
     data: null, // Holds the combined flight data.
     weather: null, // Holds weather information for departure/arrival airports.
     nas: null, // Holds NAS (National Airspace System) status.
