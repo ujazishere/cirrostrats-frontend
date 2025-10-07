@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"; // ✅ FIX: Import useRef to track the previous state.
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
 import axios from "axios"; // A promise-based HTTP client for making requests to our backend API.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
@@ -232,8 +232,6 @@ const useFlightData = (searchValue) => {
 
 // =================================================================================
 // Details Component (Refactored)
-// This is the main component for this view. Its primary role is to orchestrate the
-// data fetching via hooks and render the appropriate UI based on the current state.
 // =================================================================================
 
 /**
@@ -251,130 +249,123 @@ const useFlightData = (searchValue) => {
  * @property {string} [searchValue.gate] - A specific gate identifier, if applicable.
  */
 const Details = () => {
-  // Access the location object provided by React Router.
   const location = useLocation();
-  // Safely access the `searchValue` from the location's state. It might be undefined if the page is loaded directly.
   const searchValue = location?.state?.searchValue;
 
-  // ✅ FIX: Use a ref to store the previous search value. A ref's value persists
-  // across renders without causing a re-render itself. This is perfect for comparison.
+  // Use a ref to track the previous search value to detect the initial render after a search change.
   const previousSearchValueRef = useRef();
-
-  // ✅ FIX: This effect runs *after* every render. We update the ref with the
-  // current `searchValue` so that on the *next* render, we can compare the new
-  // `searchValue` with what it was on the previous render.
   useEffect(() => {
     previousSearchValueRef.current = searchValue;
   });
+  const hasSearchChanged = JSON.stringify(previousSearchValueRef.current) !== JSON.stringify(searchValue);
 
   // =================================================================================
   // Hook Instantiation
-  // Here, we call our custom hooks, passing the `searchValue`.
-  // The component subscribes to the state changes from these hooks.
   // =================================================================================
 
-  // Hook for airport-specific searches.
   const {
-    airportWx, // Weather data for the airport.
-    nasResponseAirport, // NAS data for the airport.
-    loadingWeather, // Loading state for the airport hook.
-    airportError, // Error state for the airport hook.
+    airportWx,
+    nasResponseAirport,
+    loadingWeather,
+    airportError,
   } = useAirportData(searchValue, apiUrl);
 
-  // Hook for flight-specific searches.
   const {
-    loading: loadingFlightData, // Loading state from the flight hook.
-    data: flightData, // Flight data object.
-    weather: weatherResponseFlight, // Associated weather data for the flight's airports.
-    nas: nasResponseFlight, // Associated NAS data.
-    edct: EDCT, // Associated EDCT data.
-    error: flightError, // Error state from the flight hook.
+    loading: loadingFlightData,
+    data: flightData,
+    weather: weatherResponseFlight,
+    nas: nasResponseFlight,
+    edct: EDCT,
+    error: flightError,
   } = useFlightData(searchValue);
 
-  // Hook for gate-specific searches.
   const {
-    loading: loadingGateData, // Loading state from the gate hook.
-    data: gateData, // Gate data object.
-    error: gateError, // Error state from the gate hook.
+    loading: loadingGateData,
+    data: gateData,
+    error: gateError,
   } = useGateData(searchValue);
+
 
   // =================================================================================
   // Render Logic
-  // This function determines what to display on the screen based on the collective
-  // state of our data hooks (loading, error, or success).
   // =================================================================================
   const renderContent = () => {
-    // ✅ FIX: Detect if a new search has just been initiated.
-    // This is true when the current `searchValue` is different from the one we stored
-    // in our ref after the last render. We use JSON.stringify for a simple object comparison.
-    const hasSearchChanged = JSON.stringify(previousSearchValueRef.current) !== JSON.stringify(searchValue);
+    // --- LOADING LOGIC ---
+    // This section decides whether to show a skeleton, nothing, or proceed to show data.
+    // It correctly handles the initial render cycle where hook loading states are not yet updated.
+    
+    const isFlightSearch = searchValue?.type === 'flight' || searchValue?.type === 'N-Number';
+    const isAirportSearch = searchValue?.type === 'airport';
+    const isGateSearch = searchValue?.type === 'Terminal/Gate';
 
-    // Priority 1: Check for loading states.
-    // IF any of the hooks are actively loading, OR if the search value has just changed,
-    // we show the skeleton. This `hasSearchChanged` check is the key: it catches the
-    // transitional render and forces the loading UI before the incorrect "no data" message can appear.
-    if (loadingFlightData || loadingWeather || loadingGateData || (hasSearchChanged && searchValue)) {
+    // ✅ FIX: For flight searches, show the skeleton immediately if the search just changed OR if it's still loading.
+    // This removes the blank screen that appeared for a moment.
+    if (isFlightSearch && (hasSearchChanged || loadingFlightData)) {
       return <LoadingFlightCard />;
     }
 
-    // Priority 2: Check for error states. If any hook returned an error, display it.
-    // This ensures the user is informed of problems.
-    if (flightError) return <div>Error fetching flight data: {flightError}</div>;
-    if (airportError) return <div>Error fetching airport data: {airportError}</div>;
-    if (gateError) return <div>Error fetching gate data: {gateError}</div>;
+    // ✅ FIX: For fast searches (airport/gate), show null if the search just changed OR if it's still loading.
+    // This prevents the "no data" message from flashing.
+    if ((isAirportSearch && (hasSearchChanged || loadingWeather)) || (isGateSearch && (hasSearchChanged || loadingGateData))) {
+        return null;
+    }
 
-    // Priority 3: If not loading and no errors, render the data.
-    // We must ensure `searchValue` exists before trying to render data based on its type.
+    // --- DATA, ERROR, and NO-DATA LOGIC ---
+    // If we get here, it means all loading is complete and we are ready to display the final result.
+
     if (searchValue) {
-        // A `switch` statement is a clean way to handle rendering for different search types.
         switch (searchValue.type) {
-            // These two cases both result in showing the FlightCard.
             case "flight":
             case "N-Number":
-                // Render the FlightCard only if `flightData` is available (truthy and not null).
-                return flightData ? (
-                    <FlightCard
-                        flightData={flightData}
-                        weather={weatherResponseFlight}
-                        NAS={nasResponseFlight}
-                        EDCT={EDCT}
-                    />
-                ) : (
+                if (flightError) return <div>Error fetching flight data: {flightError}</div>;
+                if (flightData) {
+                    return (
+                        <FlightCard
+                            flightData={flightData}
+                            weather={weatherResponseFlight}
+                            NAS={nasResponseFlight}
+                            EDCT={EDCT}
+                        />
+                    );
+                }
+                return (
                     <div className="no-data-message">
                       <p>No flight data could be found for this search.</p>
                     </div>
                 );
 
             case "airport":
-                // FIX: Check if airportWx is a non-empty object. An empty object {} is truthy.
-                return airportWx && Object.keys(airportWx).length > 0 ? (
-                    <AirportCard
-                        weatherDetails={airportWx}
-                        nasResponseAirport={nasResponseAirport}
-                    />
-                ) : (
+                if (airportError) return <div>Error fetching airport data: {airportError}</div>;
+                if (airportWx && Object.keys(airportWx).length > 0) {
+                    return (
+                        <AirportCard
+                            weatherDetails={airportWx}
+                            nasResponseAirport={nasResponseAirport}
+                        />
+                    );
+                }
+                return (
                     <div className="no-data-message">
                       <p>No weather or airport data is available.</p>
                     </div>
                 );
 
             case "Terminal/Gate":
-                // FIX: Check if gateData is a non-empty array. An empty array [] is truthy.
-                return gateData && gateData.length > 0 ? (
-                    <GateCard gateData={gateData} currentSearchValue={searchValue} />
-                ) : (
+                if (gateError) return <div>Error fetching gate data: {gateError}</div>;
+                if (gateData && gateData.length > 0) {
+                    return <GateCard gateData={gateData} currentSearchValue={searchValue} />;
+                }
+                return (
                     <div className="no-data-message">
                       <p>No departure information is available for this gate.</p>
                     </div>
                 );
 
-            // A default case is good practice for unhandled search types.
             default:
                 return <p>Select a search type to begin.</p>;
         }
     }
     
-    // Fallback message if there's no data to display after all checks.
     return (
       <div className="no-data-message">
         <p>No results found. Please try a new search.</p>
@@ -384,12 +375,9 @@ const Details = () => {
 
   // =================================================================================
   // Component Return
-  // This is the final JSX structure of the component.
   // =================================================================================
   return (
-    // The main container div for the details page.
     <div className="details">
-      {/* ++ FIX: ADD THIS STYLE BLOCK ++ */}
       <style>{`
         .no-data-message {
           text-align: center;
@@ -399,16 +387,10 @@ const Details = () => {
         }
       `}</style>
       
-      {/* The UTC time component is always displayed. */}
       <UTCTime />
-      {/* Conditionally render the main content.
-        If `searchValue` exists, we call `renderContent()` to go through the loading/error/data logic.
-        If `searchValue` doesn't exist (e.g., on initial page load), we show a prompt to the user.
-      */}
       {searchValue ? renderContent() : <p>Please perform a search to see details.</p>}
     </div>
   );
 };
 
-// Export the component to make it available for use in other parts of the application, like the router.
 export default Details;

@@ -2791,7 +2791,7 @@ footer {
   background-color: #fff3cd;
   color: #856404;
   padding: 1px 3px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 .box_around_text {
@@ -3074,6 +3074,7 @@ box-shadow:
 
 .yellow_highlight {
   background-color: yellow;
+  border-radius: 4px;
 }
 
 .box_around_text {
@@ -3273,6 +3274,8 @@ table .skeleton-loader {
 
 .yellow_highlight {
   background-color: rgba(251, 118, 118, 0.847);
+  border-radius: 4px;
+  border: 0.5px solid #000000;
 }
 
 .yellow_warning {
