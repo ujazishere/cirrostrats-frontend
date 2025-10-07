@@ -2650,6 +2650,7 @@ footer {
   background-color: #f8f9fa;
   padding: 12px 16px;
   border-bottom: 1px solid #e0e0e0;
+  border-radius: 0px !important;
 }
 
 .weather-tab-title {
@@ -2861,7 +2862,7 @@ footer {
   }
   
   .weather-tab-title {
-    font-size: 14px;
+    font-size: 18px;
   }
 
   .nas-tab-title {
