@@ -247,7 +247,7 @@ const arrival_alternate_weather = weather?.arrivalAlternateWeatherMdb ?? weather
               disabled={isAnimating}
               style={{ backgroundColor: activeTab === 'alt-departure' ? '#fff3cd' : '#f8f9fa', color: activeTab === 'alt-departure' ? '#856404' : 'inherit' }}
             >
-              Alt-Dep
+              ALT-DEP
             </button>
           )}
           <button 
@@ -255,14 +255,14 @@ const arrival_alternate_weather = weather?.arrivalAlternateWeatherMdb ?? weather
             onClick={() => handleTabChange('departure')}
             disabled={isAnimating}
           >
-            Departure
+            DEPARTURE
           </button>
           <button 
             className={`weather-tab-button ${activeTab === 'destination' ? 'active' : ''}`}
             onClick={() => handleTabChange('destination')}
             disabled={isAnimating}
           >
-            Destination
+            DESTINATION
           </button>
           {hasAltDestWeather && (
             <button 
@@ -271,7 +271,7 @@ const arrival_alternate_weather = weather?.arrivalAlternateWeatherMdb ?? weather
               disabled={isAnimating}
               style={{ backgroundColor: activeTab === 'alt-destination' ? '#fff3cd' : '#f8f9fa', color: activeTab === 'alt-destination' ? '#856404' : 'inherit' }}
             >
-              Alt-Dest
+              ALT-DEST
             </button>
           )}
         </div>

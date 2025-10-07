@@ -2616,6 +2616,7 @@ footer {
   border: none;
   border-radius: 8px; /* Rounded corners for the pill shape */
   outline: none;
+  text-decoration: none !important;
 }
 
 /* Hover state for non-active buttons */
@@ -2629,6 +2630,7 @@ footer {
   font-weight: 800;
   background-color: #24292f; /* Your original dark color works great here */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a little depth */
+  border-bottom: 3px solid #067ff8;
 }
 
 
