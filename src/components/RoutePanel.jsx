@@ -130,7 +130,7 @@ const RoutePanel = ({ flightData, onRefresh }) => {
                   </svg>
                 </button> */}
 
-                <div className="card-body">
+                <div className="card-body-route">
                   <div className="data-content">{route}</div>
                   {skyVectorLink && (
                     <div className="route-actions">

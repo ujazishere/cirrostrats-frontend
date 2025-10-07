@@ -860,8 +860,6 @@
 /* Base container styling for the entire table */
 .flight-info-container {
     background: white !important;
-    border-radius: 8px !important;
-    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.5) !important;
     padding: 24px !important;
     margin: 20px auto !important;
     max-width: 800px !important; /* Slightly reduced max-width to make the table smaller */
@@ -1670,6 +1668,14 @@ body {
   border-bottom-right-radius: 14px !important;
 }
 
+.card-body-route {
+  padding: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom-left-radius: 14px !important;
+  border-bottom-right-radius: 14px !important;
+}
+
 .clearance-body {
   padding: 15px;
   width: 100%;
@@ -1729,6 +1735,10 @@ body {
   }
   
   .card-body {
+    padding: 10px;
+  }
+
+   .card-body-route {
     padding: 10px;
   }
 
@@ -2082,13 +2092,16 @@ body {
 .weather-tabs-container {
   position: relative;
   width: 100%;
+  box-shadow: 
+    0 6px 10px rgba(0, 0, 0, 0.16),   /* natural depth */
+    0 0 30px 6px rgba(0, 0, 0, 0.18); /* floating glow all around */
 }
 
 /* Tabs navigation */
 .weather-tabs-navigation {
   display: flex;
   background-color: #f5f5f5;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ffffff;
   width: 100%;
   z-index: 100;
   transition: all 0.3s ease;
@@ -2126,10 +2139,6 @@ body {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-.weather-tab-button.active {
-  color: #0066cc;
-  border-bottom: 2px solid #0066cc;
-}
 
 /* Tab content animations */
 .weather-tabs-content {
@@ -2298,6 +2307,10 @@ body {
 }
 
 .card-body {
+  padding: 1.5rem;
+}
+
+.card-body-route {
   padding: 1.5rem;
 }
 
@@ -2508,7 +2521,6 @@ footer {
 .weather-tabs-navigation {
   display: flex;
   background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
   width: 100%;
   z-index: 100;
 }
@@ -2544,10 +2556,7 @@ footer {
   transition: background-color 0.2s ease;
 }
 
-.weather-tab-button.active {
-  border-bottom: 3px solid #007bff;
-  color: #007bff;
-}
+
 
 /* Responsive styling for mobile devices */
 @media (max-width: 768px) {
@@ -2561,20 +2570,19 @@ footer {
 .weather-tabs-container {
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 16px;
   overflow: hidden;
   width: 120%; /* Makes it wider than its parent */
   margin-left: -10%; /* Shifts it to the left to center it */
   display: flex;
   flex-direction: column;
+  border-radius: 14px !important;
 }
 
 
 .weather-tabs-navigation {
   display: flex;
   background-color: #fff;
-  border-bottom: 1px solid #e0e0e0;
   overflow-x: auto;
 }
 
@@ -2591,12 +2599,14 @@ footer {
   transition: all 0.3s ease;
   outline: none;
   min-width: 120px;
+  text-decoration: none !important;
+  border-radius: 12px !important;
 }
 
 .weather-tab-button.active {
   color: #24292E;
   font-weight: 600;
-  border-bottom: 2px solid #24292E;
+  background-color: #00000062;
 }
 
 .weather-tab-button:hover:not(.active) {
@@ -2657,7 +2667,7 @@ footer {
 .route-tab-content {
   padding: 16px;
   background-color: #ffffff;
-  border-radius: 14px;
+  border-radius: 14px !important;
   box-shadow: 
     0 6px 10px rgba(0, 0, 0, 0.16),   /* natural depth */
     0 0 30px 6px rgba(0, 0, 0, 0.18); /* floating glow all around */
@@ -2821,6 +2831,7 @@ footer {
   .weather-tabs-content {
     width: 100%; /* Ensure content takes full width */
     overflow-x: hidden; /* Prevent horizontal overflow */
+    
   }
   
   .weather-tab-header {
