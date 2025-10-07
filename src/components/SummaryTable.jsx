@@ -192,6 +192,33 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
         <EDCTSection edctData={EDCT} />
 
+        {/* ✅ NEW: Section to display the flight's delay status badge. */}
+        {/* It only renders if flightStatsDelayStatus has a value. */}
+        {hasValue(flightData?.flightStatsDelayStatus) && (
+          <div style={{ textAlign: 'center', margin: '16px 0' }}> {/* Centered container for the badge */}
+            <span 
+              style={{
+                // ✅ NEW: Conditional styling is applied here.
+                // If the status includes "delay", the background is light red.
+                // Otherwise, it's a neutral gray for statuses like "scheduled".
+                backgroundColor: flightData.flightStatsDelayStatus.toLowerCase().includes('delay') 
+                  ? 'rgba(220, 53, 69, 0.2)' // Light red with opacity for delays
+                  : 'rgba(108, 117, 125, 0.15)', // Neutral gray for other statuses
+                color: flightData.flightStatsDelayStatus.toLowerCase().includes('delay')
+                  ? '#dc3545' // Darker red text for readability
+                  : '#6c757d', // Muted text for other statuses
+                padding: '5px 15px',
+                borderRadius: '16px',
+                fontSize: '0.9em',
+                fontWeight: 'bold',
+                textTransform: 'capitalize' // Ensures consistent text casing (e.g., "Delayed" or "Scheduled")
+              }}
+            >
+              {flightData.flightStatsDelayStatus}
+            </span>
+          </div>
+        )}
+
         {/* Airport Codes with Arrow - UPDATED: Using paired visibility logic */}
         {/* Show section only if at least one of departure or arrival has data */}
         {hasPairValue(flightData?.departure, flightData?.arrival) && (

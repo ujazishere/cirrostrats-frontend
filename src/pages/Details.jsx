@@ -109,6 +109,7 @@ const useFlightData = (searchValue) => {
           rawAJMS, flightAwareRes, flightStatsTZRes
         } = await flightService.getPrimaryFlightData(flightID);
         // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
+        console.log('Raw AJMS data before normalization:', flightStatsTZRes);
                 // *** Error prone such that it may return jumbled data from various dates. 
                 // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
                 // Fix JMS data structure issues at source trace it back from /ajms route's caution note
@@ -241,7 +242,7 @@ const useFlightData = (searchValue) => {
  * It acts as a controller, delegating data fetching to custom hooks and rendering
  * sub-components based on the search type and data availability.
  *
- * @param {object} location.state - The state passed from react-router during navigation.
+ * @param {object} location.state - The stfate passed from react-router during navigation.
  * @param {object} location.state.searchValue - The core search object that drives the component's behavior.
  * @property {string} searchValue.type - The type of search (e.g., "flight", "airport", "Terminal/Gate", "N-Number").
  * @property {string} searchValue.value - The primary value for the search (e.g., flight number, airport code).
