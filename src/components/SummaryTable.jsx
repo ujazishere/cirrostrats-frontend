@@ -165,6 +165,75 @@ const SummaryTable = ({ flightData, EDCT }) => {
     );
   };
 
+  // ✅ UPDATED: This function now calculates flight status based on the new logic.
+  // It prioritizes the actual departure time and falls back to the estimated time if the flight has not yet departed.
+  const calculateFlightDepartureStatus = (flightData) => {
+    // ✅ FIX: Get the date part of the departure from the data.
+    const departureDate = flightData?.flightStatsScheduledDepartureDate;
+    const scheduledTime = flightData?.flightStatsScheduledDepartureTime;
+    const actualTime = flightData?.flightStatsActualDepartureTime;
+    const estimatedTime = flightData?.flightStatsEstimatedDepartureTime; 
+
+    // A scheduled time AND a date are required to make any comparison.
+    if (!hasValue(scheduledTime) || !hasValue(departureDate)) {
+      return null;
+    }
+
+    let comparisonTime = null;
+
+    // SCENARIO 2: If the flight has an actual departure time, it has already departed.
+    if (hasValue(actualTime)) {
+      comparisonTime = actualTime;
+    } 
+    // SCENARIO 1: If there's no actual time, we use the estimated departure time.
+    else if (hasValue(estimatedTime)) {
+      comparisonTime = estimatedTime;
+    }
+
+    // If there is no time to compare against, we cannot show a status.
+    if (!comparisonTime) {
+      return null;
+    }
+
+    try {
+      // ✅ FIX: Combine the date and time strings to create a valid, full date object.
+      // Example: "08-Oct-2025" + " " + "17:30 EDT" -> "08-Oct-2025 17:30 EDT"
+      const scheduledDateTimeString = `${departureDate} ${scheduledTime}`;
+      const comparisonDateTimeString = `${departureDate} ${comparisonTime}`;
+
+      const scheduledDate = new Date(scheduledDateTimeString);
+      const comparisonDate = new Date(comparisonDateTimeString);
+
+      // Ensure dates are valid after being combined and parsed.
+      if (isNaN(scheduledDate.getTime()) || isNaN(comparisonDate.getTime())) {
+        return null;
+      }
+
+      // Calculate the difference in minutes.
+      const diffMinutes = Math.round((comparisonDate.getTime() - scheduledDate.getTime()) / (1000 * 60));
+
+      // If the difference is positive, the flight is delayed.
+      if (diffMinutes > 0) {
+        return {
+          text: `Delayed by ${diffMinutes} min`,
+          isDelayed: true,
+        };
+      } else {
+        // Otherwise, it's "On Time".
+        return {
+          text: 'On Time',
+          isDelayed: false,
+        };
+      }
+    } catch (error) {
+      console.error("Error calculating flight departure status:", error);
+      return null;
+    }
+  };
+
+  // ✅ UPDATED: Call the new status calculation function.
+  const flightStatus = calculateFlightDepartureStatus(flightData);
+
   return (
     <>
       <div className="flight-info-container">
@@ -192,29 +261,27 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
         <EDCTSection edctData={EDCT} />
 
-        {/* ✅ NEW: Section to display the flight's delay status badge. */}
-        {/* It only renders if flightStatsDelayStatus has a value. */}
-        {hasValue(flightData?.flightStatsDelayStatus) && (
+        {/* ✅ UPDATED: The display logic for the status badge remains the same, but it's now powered by the new calculation. */}
+        {/* It renders only if the flightStatus object is successfully calculated. */}
+        {flightStatus && (
           <div style={{ textAlign: 'center', margin: '16px 0' }}> {/* Centered container for the badge */}
             <span 
               style={{
-                // ✅ NEW: Conditional styling is applied here.
-                // If the status includes "delay", the background is light red.
-                // Otherwise, it's a neutral gray for statuses like "scheduled".
-                backgroundColor: flightData.flightStatsDelayStatus.toLowerCase().includes('delay') 
-                  ? 'rgba(220, 53, 69, 0.2)' // Light red with opacity for delays
-                  : 'rgba(108, 117, 125, 0.15)', // Neutral gray for other statuses
-                color: flightData.flightStatsDelayStatus.toLowerCase().includes('delay')
-                  ? '#dc3545' // Darker red text for readability
-                  : '#6c757d', // Muted text for other statuses
+                // Conditional styling is based on the `isDelayed` flag from the calculation.
+                backgroundColor: flightStatus.isDelayed 
+                  ? 'rgba(220, 53, 69, 0.2)' // Light red for delays
+                  : 'rgba(108, 117, 125, 0.15)', // Neutral gray for "On Time"
+                color: flightStatus.isDelayed
+                  ? '#dc3545' // Darker red text
+                  : '#6c757d', // Muted text
                 padding: '5px 15px',
                 borderRadius: '16px',
                 fontSize: '0.9em',
                 fontWeight: 'bold',
-                textTransform: 'capitalize' // Ensures consistent text casing (e.g., "Delayed" or "Scheduled")
+                textTransform: 'capitalize'
               }}
             >
-              {flightData.flightStatsDelayStatus}
+              {flightStatus.text}
             </span>
           </div>
         )}
