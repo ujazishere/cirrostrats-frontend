@@ -1,0 +1,33 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      env:
+        PRIVATE_KEY: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
+        HOST: ${{ secrets.TEST_HOST }}
+        USER: ${{ secrets.EC2_USER }}
+      run: |
+        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+        ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
+          
+          # Change directory to backend and pull latest changes 
+          cd base/cirrostrats-backend &&
+          
+          # Pull latest changes
+          git pull origin dev &&
+          
+          # Cleanup <none> type danging images, unused volues and builder cache
+          docker image prune -af &&
+          docker volume prune -af &&
+          docker builder prune -f
+        '
