@@ -121,7 +121,6 @@ const useFlightData = (searchValue) => {
           rawAJMS, flightAwareRes, flightStatsTZRes
         } = await flightService.getPrimaryFlightData(flightID);
         // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
-        console.log('Raw AJMS data before normalization:', flightStatsTZRes);
                 // *** Error prone such that it may return jumbled data from various dates. 
                 // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
                 // Fix JMS data structure issues at source trace it back from /ajms route's caution note
