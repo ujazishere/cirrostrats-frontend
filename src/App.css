@@ -34,6 +34,55 @@
   }
 }
 
+/* Updated CSS for the feedback trigger on the Details page */
+.feedback-trigger-container {
+  text-align: center; /* Center the button horizontally */
+  padding: 2.5rem 1rem 2rem 1rem; /* Adjust padding for better spacing */
+  margin-top: 30px; /* More margin from the content above */
+  border-top: 1px solid #e0e0e0; /* Keep the subtle separator line */
+  background-color: #f9f9f9; /* Slightly off-white background to give it a distinct section */
+}
+
+.feedback-trigger-link {
+  display: inline-flex; /* Use flexbox for alignment of text and icon */
+  align-items: center; /* Vertically center icon and text */
+  gap: 8px; /* Space between icon and text */
+  padding: 12px 25px; /* More padding for a larger clickable area */
+  background-color: #ffffff; /* White background for the "button" */
+  color: #5865f2; /* Retain the friendly blue color for text */
+  border: 1px solid #dcdcdc; /* Subtle border for definition */
+  border-radius: 8px; /* Rounded corners for a softer look */
+  font-size: 0.95rem; /* Slightly larger font size */
+  font-weight: 500; /* Medium font weight */
+  text-decoration: none; /* No underline by default */
+  cursor: pointer; /* Pointer cursor for interactivity */
+  transition: all 0.2s ease-in-out; /* Smooth transitions for hover effects */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+}
+
+.feedback-trigger-link:hover {
+  background-color: #f0f2ff; /* Light blue background on hover */
+  border-color: #aeb8f9; /* Slightly darker border on hover */
+  color: #4752c4; /* Darker blue text on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* More pronounced shadow on hover */
+  transform: translateY(-1px); /* Slight lift effect on hover */
+}
+
+/* Optional: Add an icon to the link if you're using Font Awesome or similar */
+.feedback-trigger-link::before {
+  font-family: "Font Awesome 6 Free"; /* Ensure Font Awesome is loaded */
+  content: "\f02d"; /* Unicode for a document/report icon (e.g., fa-file-alt or fa-flag) */
+  font-weight: 900; /* Solid icon style */
+  font-size: 1.1em; /* Adjust icon size */
+  color: #5865f2; /* Icon color */
+}
+
+/* If you prefer a different icon, you can use these examples: */
+/* content: "\f071"; /* fa-exclamation-triangle */
+/* content: "\f0e6"; /* fa-comment-dots */
+/* content: "\f08e"; /* fa-external-link-alt */
+/* content: "\f0ad"; /* fa-wrench */
+
 .time-value.time-delayed {
   color: #dc3545 !important; /* Red for delays */
 }

@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useRef } from "react"; // ✅ FIX: Import useRef to track the previous search state.
+// src/pages/Details.jsx
+
+// ✅ ADD: Import useState, useEffect, Suspense, and lazy for the feedback popup functionality.
+import React, { useState, useEffect, useRef, Suspense, lazy } from "react"; 
 import { useLocation } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
 import axios from "axios"; // A promise-based HTTP client for making requests to our backend API.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
@@ -8,6 +11,15 @@ import { LoadingFlightCard } from "../components/Skeleton"; // A placeholder/ske
 import useAirportData from "../components/AirportData"; // Custom hook to fetch airport weather and NAS data.
 import useGateData from "../components/GateData"; // Our newly separated custom hook for fetching gate-specific data.
 import flightService from '../components/utility/flightService'; // A service module with helper functions for flight data retrieval.
+
+// ✅ ADD: Import Firebase and Firestore functions for submitting feedback.
+import { db } from '../firebase.js';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+
+// ✅ ADD: Lazily import the FeedbackPopup component for better performance.
+// This ensures the popup's code is only downloaded when it's first needed.
+const FeedbackPopup = lazy(() => import('../pages/FeedbackPopup.jsx'));
+
 
 // =================================================================================
 // Configuration
@@ -298,6 +310,82 @@ const Details = () => {
     error: gateError, // Error state from the gate hook.
   } = useGateData(searchValue);
 
+  // --- FEEDBACK POPUP LOGIC START ---
+  // ✅ ADD: State and handlers for the feedback popup, mirrored from HomePage.js.
+  const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
+  // ✅ ADD: Default feedback type to a more relevant option for this page.
+  const [feedbackType, setFeedbackType] = useState("Data Discrepancy"); 
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userEmail, setUserEmail] = useState("Anonymous"); // State to hold the user's email.
+
+  // ✅ ADD: An effect to get the user's email from local storage when the component mounts.
+  useEffect(() => {
+    const storedUserEmail = localStorage.getItem("userEmail");
+    if (storedUserEmail) {
+      setUserEmail(storedUserEmail);
+    }
+  }, []); // The empty dependency array ensures this runs only once.
+
+  // ✅ ADD: Handler function to open the feedback popup.
+  const handleFeedbackClick = (e) => {
+    e.preventDefault();
+    setShowFeedbackPopup(true);
+  };
+
+  // ✅ ADD: Handler function to close the feedback popup and reset its state.
+  const handleCloseFeedback = () => {
+    setShowFeedbackPopup(false);
+    setFeedbackMessage("");
+    setFeedbackType("Data Discrepancy"); // Reset to the default type.
+  };
+
+  // ✅ ADD: Handler function for submitting the feedback form.
+  const handleSubmitFeedback = async () => {
+    if (!feedbackMessage.trim()) return; // Prevent empty submissions.
+    setIsSubmitting(true);
+
+    try {
+      // Add feedback document to the Firestore 'feedback' collection.
+      await addDoc(collection(db, "feedback"), {
+        user: userEmail,
+        type: feedbackType,
+        message: feedbackMessage,
+        submittedAt: serverTimestamp(),
+        userAgent: navigator.userAgent,
+        // ✅ ADD: Include the current search context in the feedback for better debugging.
+        context: JSON.stringify(searchValue || "No search value"),
+      });
+
+      // Format a detailed message for the Telegram notification.
+      const telegramMessage = `
+New Feedback from Details Page! 📬
+------------------------
+👤 User: ${userEmail}
+📝 Type: ${feedbackType}
+💬 Message: ${feedbackMessage}
+🔍 Context: ${JSON.stringify(searchValue || "No search value")}
+      `;
+
+      // Send the notification via our centralized flightService.
+      try {
+        await flightService.postNotifications(telegramMessage);
+      } catch (error) {
+        console.error("Telegram notification failed:", error); // Log silently without alerting the user.
+      }
+
+      alert("Thank you! Your feedback has been submitted successfully.");
+      handleCloseFeedback();
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      alert("Sorry, there was an error submitting your feedback. Please try again.");
+    } finally {
+      setIsSubmitting(false); // Re-enable the submit button regardless of outcome.
+    }
+  };
+  // --- FEEDBACK POPUP LOGIC END ---
+
   // =================================================================================
   // Render Logic
   // This function determines what to display on the screen based on the collective
@@ -411,6 +499,37 @@ const Details = () => {
         If `searchValue` doesn't exist (e.g., on initial page load), we show a prompt to the user.
       */}
       {searchValue ? renderContent() : <p>Please perform a search to see details.</p>}
+
+      {/* --- FEEDBACK LINK START --- */}
+      {/* ✅ ADD: A container at the bottom of the page for the feedback link.
+          This link will trigger the feedback popup.
+          We only show this if there was a search, as feedback is context-dependent. */}
+      {searchValue && (
+        <div className="feedback-trigger-container">
+          <span onClick={handleFeedbackClick} className="feedback-trigger-link">
+            Found an issue or data discrepancy? Report it.
+          </span>
+        </div>
+      )}
+      {/* --- FEEDBACK LINK END --- */}
+
+      {/* --- FEEDBACK POPUP START --- */}
+      {/* ✅ ADD: Suspense for the lazy-loaded FeedbackPopup component.
+          It's conditionally rendered based on the 'showFeedbackPopup' state. */}
+      <Suspense fallback={null}>
+        {showFeedbackPopup && (
+          <FeedbackPopup
+            onClose={handleCloseFeedback}
+            onSubmit={handleSubmitFeedback}
+            feedbackType={feedbackType}
+            setFeedbackType={setFeedbackType}
+            feedbackMessage={feedbackMessage}
+            setFeedbackMessage={setFeedbackMessage}
+            isSubmitting={isSubmitting}
+          />
+        )}
+      </Suspense>
+      {/* --- FEEDBACK POPUP END --- */}
     </div>
   );
 };
