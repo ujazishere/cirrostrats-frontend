@@ -387,6 +387,30 @@ New Feedback from Details Page! 📬
   // --- FEEDBACK POPUP LOGIC END ---
 
   // =================================================================================
+  // BUG FIX: Logic to sync content and feedback section visibility
+  // =================================================================================
+  const isFlightSearch = searchValue?.type === 'flight' || searchValue?.type === 'N-Number';
+  const isAirportSearch = searchValue?.type === 'airport';
+  const isGateSearch = searchValue?.type === 'Terminal/Gate';
+
+  // Determine if we are in a loading state that should hide the main content.
+  // This logic MUST match the loading checks inside `renderContent` to prevent mismatches.
+  let isContentLoading = false;
+  if (isFlightSearch && (hasSearchChanged || loadingFlightData)) {
+    isContentLoading = true;
+  }
+  if ((isAirportSearch && (hasSearchChanged || loadingWeather)) || (isGateSearch && (hasSearchChanged || loadingGateData))) {
+    isContentLoading = true;
+  }
+
+  // Determine if there's any error from the data hooks.
+  const hasError = flightError || airportError || gateError;
+  
+  // The final condition for showing the feedback section:
+  // A search must exist, content should not be loading, and there must be no errors.
+  const showFeedbackSection = searchValue && !isContentLoading && !hasError;
+
+  // =================================================================================
   // Render Logic
   // This function determines what to display on the screen based on the collective
   // state of our data hooks (loading, error, or success).
@@ -396,18 +420,10 @@ New Feedback from Details Page! 📬
     // to ensure the correct UI (skeleton, nothing, or data) is shown without flashing.
 
     // --- LOADING LOGIC ---
-    const isFlightSearch = searchValue?.type === 'flight' || searchValue?.type === 'N-Number';
-    const isAirportSearch = searchValue?.type === 'airport';
-    const isGateSearch = searchValue?.type === 'Terminal/Gate';
-
-    // For flight searches, show the skeleton immediately if the search just changed OR if it's still loading.
-    // This removes the blank screen that appeared for a moment.
+    // Note: The logic here is now mirrored above for the `showFeedbackSection` variable.
     if (isFlightSearch && (hasSearchChanged || loadingFlightData)) {
       return <LoadingFlightCard />;
     }
-
-    // For fast searches (airport/gate), show null if the search just changed OR if it's still loading.
-    // This prevents the "no data" message from flashing.
     if ((isAirportSearch && (hasSearchChanged || loadingWeather)) || (isGateSearch && (hasSearchChanged || loadingGateData))) {
         return null;
     }
@@ -500,11 +516,11 @@ New Feedback from Details Page! 📬
       */}
       {searchValue ? renderContent() : <p>Please perform a search to see details.</p>}
 
-      {/* --- FEEDBACK LINK START --- */}
-      {/* ✅ ADD: A container at the bottom of the page for the feedback link.
-          This link will trigger the feedback popup.
-          We only show this if there was a search, as feedback is context-dependent. */}
-      {searchValue && (
+      {/* --- FEEDBACK LINK START (NOW WITH CORRECT VISIBILITY LOGIC) --- */}
+      {/* ✅ BUG FIX: The entire feedback container is now conditionally rendered
+          using the `showFeedbackSection` variable. This variable is only true
+          when data has finished loading and no errors have occurred, preventing the flash. */}
+      {showFeedbackSection && (
         <div className="feedback-trigger-container">
           <span onClick={handleFeedbackClick} className="feedback-trigger-link">
             Found an issue or data discrepancy? Report it.
