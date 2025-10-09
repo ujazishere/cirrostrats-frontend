@@ -19,15 +19,8 @@ jobs:
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
         ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
-          
           # Change directory to backend and pull latest changes 
-          cd base/cirrostrats-backend &&
-          
-          # Pull latest changes
+          cd base/cirrostrats-frontend &&
           git pull origin dev &&
-          
-          # Cleanup <none> type danging images, unused volues and builder cache
-          docker image prune -af &&
-          docker volume prune -af &&
-          docker builder prune -f
+          docker system prune -af
         '
