@@ -188,11 +188,26 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
   // ✅ NEW: Major logic overhaul. This function now generates a comprehensive state object
   // for both the delay badge AND the departure time display based on the four scenarios.
+  // ✅ NEW: Major logic overhaul. This function now generates a comprehensive state object
+  // for both the delay badge AND the departure time display based on the four scenarios.
   const getDepartureDisplayInfo = (flightData) => {
     const departureDate = flightData?.flightStatsScheduledDepartureDate;
     const scheduledTime = flightData?.flightStatsScheduledDepartureTime;
     const actualTime = flightData?.flightStatsActualDepartureTime;
     const estimatedTime = flightData?.flightStatsEstimatedDepartureTime; 
+
+    // Helper function to format delay time
+    const formatDelay = (totalMinutes) => {
+      if (totalMinutes < 60) {
+        return `${totalMinutes} mins`;
+      }
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const hoursText = `${hours} hour${hours > 1 ? 's' : ''}`;
+      // Only add minutes if they are not zero
+      const minutesText = minutes > 0 ? ` ${minutes} min${minutes > 1 ? 's' : ''}` : '';
+      return `${hoursText}${minutesText}`;
+    };
 
     // Base state for a normal, on-time flight.
     const defaultState = {
@@ -238,7 +253,8 @@ const SummaryTable = ({ flightData, EDCT }) => {
           // **SCENARIO 2: Actual Delay**
           return {
             isDelayed: true,
-            badgeText: `Departed ${diffMinutes} mins Late`,
+            // ✅ UPDATED: Using the new formatDelay function
+            badgeText: `Departed ${formatDelay(diffMinutes)} Late`,
             departureLabel: 'DEPARTED',
             departureTime: formattedComparisonTime,
             // ✅ FIX: Set class for delayed time (red).
@@ -265,7 +281,8 @@ const SummaryTable = ({ flightData, EDCT }) => {
           // **SCENARIO 1: Estimated Delay**
           return {
             isDelayed: true,
-            badgeText: `Delayed by ${diffMinutes} mins`,
+            // ✅ UPDATED: Using the new formatDelay function
+            badgeText: `Delayed by ${formatDelay(diffMinutes)}`,
             departureLabel: 'Now @',
             departureTime: formattedComparisonTime,
             // ✅ FIX: Set class for delayed time (red).
