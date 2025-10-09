@@ -203,9 +203,9 @@ const SummaryTable = ({ flightData, EDCT }) => {
       }
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
-      const hoursText = `${hours} hour${hours > 1 ? 's' : ''}`;
+      const hoursText = `${hours}h${hours > 1 ? '' : ''}`;
       // Only add minutes if they are not zero
-      const minutesText = minutes > 0 ? ` ${minutes} min${minutes > 1 ? 's' : ''}` : '';
+      const minutesText = minutes > 0 ? ` ${minutes}m${minutes > 1 ? '' : ''}` : '';
       return `${hoursText}${minutesText}`;
     };
 
