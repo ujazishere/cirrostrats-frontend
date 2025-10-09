@@ -12,6 +12,7 @@
  */
 import React, { useState, useEffect } from 'react';
 
+
 /**
  * Displays comprehensive flight information and EDCT details.
  * @param {Object} props
@@ -164,75 +165,130 @@ const SummaryTable = ({ flightData, EDCT }) => {
       </div>
     );
   };
+  
+  // ✅ NEW: Helper function to format a full date-time string into just HH:MM AM/PM.
+  const formatTime = (dateString, datePart) => {
+    try {
+      const fullDateString = `${datePart} ${dateString}`;
+      const date = new Date(fullDateString);
+      if (isNaN(date.getTime())) return dateString; // Return original if invalid
+      
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      
+      return `${hours}:${minutes} ${ampm}`;
+    } catch (e) {
+      return dateString; // Fallback to original string on error
+    }
+  };
 
-  // ✅ UPDATED: This function now calculates flight status based on the new logic.
-  // It prioritizes the actual departure time and falls back to the estimated time if the flight has not yet departed.
-  const calculateFlightDepartureStatus = (flightData) => {
-    // ✅ FIX: Get the date part of the departure from the data.
+  // ✅ NEW: Major logic overhaul. This function now generates a comprehensive state object
+  // for both the delay badge AND the departure time display based on the four scenarios.
+  const getDepartureDisplayInfo = (flightData) => {
     const departureDate = flightData?.flightStatsScheduledDepartureDate;
     const scheduledTime = flightData?.flightStatsScheduledDepartureTime;
     const actualTime = flightData?.flightStatsActualDepartureTime;
     const estimatedTime = flightData?.flightStatsEstimatedDepartureTime; 
 
-    // A scheduled time AND a date are required to make any comparison.
+    // Base state for a normal, on-time flight.
+    const defaultState = {
+      isDelayed: false,
+      badgeText: null,
+      departureLabel: 'Scheduled Local',
+      departureTime: getPairDisplayValue(scheduledTime),
+      // ✅ FIX: Use a class for styling instead of an inline color.
+      departureTimeClass: '', 
+      showStrikethrough: false,
+      scheduledDepartureTimeForDisplay: null
+    };
+
     if (!hasValue(scheduledTime) || !hasValue(departureDate)) {
-      return null;
+      return defaultState;
     }
 
-    let comparisonTime = null;
+    const hasActual = hasValue(actualTime);
+    const hasEstimated = hasValue(estimatedTime);
 
-    // SCENARIO 2: If the flight has an actual departure time, it has already departed.
-    if (hasValue(actualTime)) {
-      comparisonTime = actualTime;
-    } 
-    // SCENARIO 1: If there's no actual time, we use the estimated departure time.
-    else if (hasValue(estimatedTime)) {
-      comparisonTime = estimatedTime;
-    }
+    const comparisonTime = hasActual ? actualTime : (hasEstimated ? estimatedTime : null);
 
-    // If there is no time to compare against, we cannot show a status.
     if (!comparisonTime) {
-      return null;
+      return defaultState;
     }
 
     try {
-      // ✅ FIX: Combine the date and time strings to create a valid, full date object.
-      // Example: "08-Oct-2025" + " " + "17:30 EDT" -> "08-Oct-2025 17:30 EDT"
       const scheduledDateTimeString = `${departureDate} ${scheduledTime}`;
       const comparisonDateTimeString = `${departureDate} ${comparisonTime}`;
-
       const scheduledDate = new Date(scheduledDateTimeString);
       const comparisonDate = new Date(comparisonDateTimeString);
 
-      // Ensure dates are valid after being combined and parsed.
       if (isNaN(scheduledDate.getTime()) || isNaN(comparisonDate.getTime())) {
-        return null;
+        return defaultState;
       }
 
-      // Calculate the difference in minutes.
       const diffMinutes = Math.round((comparisonDate.getTime() - scheduledDate.getTime()) / (1000 * 60));
-
-      // If the difference is positive, the flight is delayed.
-      if (diffMinutes > 0) {
-        return {
-          text: `Delayed by ${diffMinutes} min`,
-          isDelayed: true,
-        };
-      } else {
-        // Otherwise, it's "On Time".
-        return {
-          text: 'On Time',
-          isDelayed: false,
-        };
+      const formattedScheduledTime = formatTime(scheduledTime, departureDate);
+      const formattedComparisonTime = formatTime(comparisonTime, departureDate);
+      
+      if (hasActual) {
+        if (diffMinutes > 0) {
+          // **SCENARIO 2: Actual Delay**
+          return {
+            isDelayed: true,
+            badgeText: `Departed ${diffMinutes} mins Late`,
+            departureLabel: 'DEPARTED',
+            departureTime: formattedComparisonTime,
+            // ✅ FIX: Set class for delayed time (red).
+            departureTimeClass: 'time-delayed',
+            showStrikethrough: true,
+            scheduledDepartureTimeForDisplay: formattedScheduledTime
+          };
+        } else {
+          // **SCENARIO 4: Actual On-Time or Early**
+          return {
+            isDelayed: false,
+            badgeText: null,
+            departureLabel: 'DEPARTED',
+            departureTime: formattedComparisonTime,
+            // ✅ FIX: Set class for on-time departure (green).
+            departureTimeClass: 'time-on-time',
+            showStrikethrough: true,
+            scheduledDepartureTimeForDisplay: formattedScheduledTime
+          };
+        }
+      } 
+      else if (hasEstimated) {
+        if (diffMinutes > 0) {
+          // **SCENARIO 1: Estimated Delay**
+          return {
+            isDelayed: true,
+            badgeText: `Delayed by ${diffMinutes} mins`,
+            departureLabel: 'Now @',
+            departureTime: formattedComparisonTime,
+            // ✅ FIX: Set class for delayed time (red).
+            departureTimeClass: 'time-delayed',
+            showStrikethrough: true,
+            scheduledDepartureTimeForDisplay: formattedScheduledTime
+          };
+        } else {
+          // **SCENARIO 3: Estimated On-Time or Early**
+          return defaultState;
+        }
       }
+
+      return defaultState;
+
     } catch (error) {
       console.error("Error calculating flight departure status:", error);
-      return null;
+      return defaultState;
     }
   };
 
-  // ✅ UPDATED: Call the new status calculation function.
-  const flightStatus = calculateFlightDepartureStatus(flightData);
+  // ✅ UPDATED: Call the new, more powerful display info function.
+  const departureInfo = getDepartureDisplayInfo(flightData);
 
   return (
     <>
@@ -261,19 +317,13 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
         <EDCTSection edctData={EDCT} />
 
-        {/* ✅ UPDATED: The display logic for the status badge remains the same, but it's now powered by the new calculation. */}
-        {/* It renders only if the flightStatus object is successfully calculated. */}
-        {flightStatus && (
+        {/* ✅ UPDATED: Display logic is simpler. It only shows if the flight is delayed. */}
+        {departureInfo.isDelayed && (
           <div style={{ textAlign: 'center', margin: '16px 0' }}> {/* Centered container for the badge */}
             <span 
               style={{
-                // Conditional styling is based on the `isDelayed` flag from the calculation.
-                backgroundColor: flightStatus.isDelayed 
-                  ? 'rgba(220, 53, 69, 0.2)' // Light red for delays
-                  : 'rgba(108, 117, 125, 0.15)', // Neutral gray for "On Time"
-                color: flightStatus.isDelayed
-                  ? '#dc3545' // Darker red text
-                  : '#6c757d', // Muted text
+                backgroundColor: 'rgba(220, 53, 69, 0.2)', // Always red for delays
+                color: '#dc3545', 
                 padding: '5px 15px',
                 borderRadius: '16px',
                 fontSize: '0.9em',
@@ -281,19 +331,16 @@ const SummaryTable = ({ flightData, EDCT }) => {
                 textTransform: 'capitalize'
               }}
             >
-              {flightStatus.text}
+              {departureInfo.badgeText}
             </span>
           </div>
         )}
 
         {/* Airport Codes with Arrow - UPDATED: Using paired visibility logic */}
-        {/* Show section only if at least one of departure or arrival has data */}
         {hasPairValue(flightData?.departure, flightData?.arrival) && (
           <div className="airport-codes-section">
-            {/* Always show departure div, display '—' if no data */}
             <div className="airport-code-large">{getPairDisplayValue(flightData?.departure)}</div>
             <div className="arrow-icon">→</div>
-            {/* Always show arrival div, display '—' if no data */}
             <div className="airport-code-large">{getPairDisplayValue(flightData?.arrival)}</div>
           </div>
         )}
@@ -302,43 +349,45 @@ const SummaryTable = ({ flightData, EDCT }) => {
         <div className="flight-details-grid">
           {/* Departure Details */}
           <div className="departure-details">
-            {/* Gate pair: flightStatsOriginGate and flightStatsDestinationGate */}
-            {/* Show gate info only if at least one gate has data */}
             {hasPairValue(flightData?.flightStatsOriginGate, flightData?.flightStatsDestinationGate) && (
               <div className="info-item">
                 <div className="info-label">Gate</div>
-                {/* Always show value, display '—' if no data */}
                 <div className="info-value">{getPairDisplayValue(flightData?.flightStatsOriginGate)}</div>
               </div>
             )}
-            {/* Scheduled Local Time pair: flightStatsScheduledDepartureTime and flightStatsScheduledArrivalTime */}
-            {/* Show scheduled local time only if at least one time has data */}
+            
+            {/* ✅ UPDATED: This section is now fully dynamic based on the departureInfo object. */}
             {hasPairValue(flightData?.flightStatsScheduledDepartureTime, flightData?.flightStatsScheduledArrivalTime) && (
               <div className="info-item">
-                <div className="info-label">Scheduled Local</div>
-                {/* Always show value, display '—' if no data */}
-                <div className="time-value">{getPairDisplayValue(flightData?.flightStatsScheduledDepartureTime)}</div>
+                <div className="info-label">{departureInfo.departureLabel}</div>
+                {departureInfo.showStrikethrough ? (
+                  <div>
+                    {/* ✅ FIX: Switched from inline style to className for color control. */}
+                    <div className={`time-value ${departureInfo.departureTimeClass}`} style={{ fontWeight: 'bold' }}>
+                      {departureInfo.departureTime}
+                    </div>
+                    <div style={{ fontSize: '0.8em', textDecoration: 'line-through', opacity: 0.7 }}>
+                      {departureInfo.scheduledDepartureTimeForDisplay}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="time-value">{departureInfo.departureTime}</div>
+                )}
               </div>
             )}
           </div>
 
           {/* Arrival Details */}
           <div className="arrival-details">
-            {/* Gate pair: flightStatsOriginGate and flightStatsDestinationGate */}
-            {/* Show gate info only if at least one gate has data */}
             {hasPairValue(flightData?.flightStatsOriginGate, flightData?.flightStatsDestinationGate) && (
               <div className="info-item">
                 <div className="info-label">Gate</div>
-                {/* Always show value, display '—' if no data */}
                 <div className="info-value">{getPairDisplayValue(flightData?.flightStatsDestinationGate)}</div>
               </div>
             )}
-            {/* Scheduled Local Time pair: flightStatsScheduledDepartureTime and flightStatsScheduledArrivalTime */}
-            {/* Show scheduled local time only if at least one time has data */}
             {hasPairValue(flightData?.flightStatsScheduledDepartureTime, flightData?.flightStatsScheduledArrivalTime) && (
               <div className="info-item">
                 <div className="info-label">Scheduled Local</div>
-                {/* Always show value, display '—' if no data */}
                 <div className="time-value">{getPairDisplayValue(flightData?.flightStatsScheduledArrivalTime)}</div>
               </div>
             )}
@@ -347,45 +396,31 @@ const SummaryTable = ({ flightData, EDCT }) => {
 
         {/* Scheduled/Estimated Times Section - UPDATED: Using paired visibility logic */}
         <div className="scheduled-estimated-grid">
-          {/* Departure Out Times */}
           <div className="departure-out-times">
-            {/* Scheduled Out pair: flightAwareScheduledOut and flightAwareScheduledIn */}
-            {/* Show scheduled out/in only if at least one has data */}
             {hasPairValue(flightData?.flightAwareScheduledOut, flightData?.flightAwareScheduledIn) && (
               <div className="info-item">
                 <div className="info-label">Scheduled Out</div>
-                {/* Always show value, display '—' if no data */}
                 <div className="info-value">{getPairDisplayValue(flightData?.flightAwareScheduledOut)}</div>
               </div>
             )}
-            {/* Estimated Out pair: fa_estimated_out and fa_estimated_in */}
-            {/* Show estimated out/in only if at least one has data */}
             {hasPairValue(flightData?.fa_estimated_out, flightData?.fa_estimated_in) && (
               <div className="info-item">
                 <div className="info-label">Estimated Out</div>
-                {/* Always show value, display '—' if no data */}
                 <div className="info-value">{getPairDisplayValue(flightData?.fa_estimated_out)}</div>
               </div>
             )}
           </div>
 
-          {/* Arrival In Times */}
           <div className="arrival-in-times">
-            {/* Scheduled In pair: flightAwareScheduledOut and flightAwareScheduledIn */}
-            {/* Show scheduled out/in only if at least one has data */}
             {hasPairValue(flightData?.flightAwareScheduledOut, flightData?.flightAwareScheduledIn) && (
               <div className="info-item">
                 <div className="info-label">Scheduled In</div>
-                {/* Always show value, display '—' if no data */}
                 <div className="info-value">{getPairDisplayValue(flightData?.flightAwareScheduledIn)}</div>
               </div>
             )}
-            {/* Estimated In pair: fa_estimated_out and fa_estimated_in */}
-            {/* Show estimated out/in only if at least one has data */}
             {hasPairValue(flightData?.fa_estimated_out, flightData?.fa_estimated_in) && (
               <div className="info-item">
                 <div className="info-label">Estimated In</div>
-                {/* Always show value, display '—' if no data */}
                 <div className="info-value">{getPairDisplayValue(flightData?.fa_estimated_in)}</div>
               </div>
             )}

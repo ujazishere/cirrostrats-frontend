@@ -34,6 +34,16 @@
   }
 }
 
+.time-value.time-delayed {
+  color: #dc3545 !important; /* Red for delays */
+}
+
+/* Targets a div with BOTH classes, making it higher priority */
+.time-value.time-on-time {
+  color: #28a745 !important; /* Green for on-time/early departures */
+}
+
+
 .MuiAutocomplete-popper {
   border-radius: 14px !important;
   overflow: hidden !important;
