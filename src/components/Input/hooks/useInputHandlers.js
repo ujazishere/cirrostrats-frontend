@@ -475,6 +475,7 @@ const useInputHandlers = () => {
       flightInfoContainer: ".flight-info-container",
       datetab: ".date-tabs-container",
       gateCardContainer: ".departure-gate-container",
+      feedbackTriggerLink: ".feedback-trigger-container",
     };
 
     // Loop through all the elements and add the correct CSS class
