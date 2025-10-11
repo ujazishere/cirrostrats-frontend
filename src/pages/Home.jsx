@@ -205,7 +205,7 @@ try {
             // Added target="_blank" to open the link in a new tab.
             // Added rel="noopener noreferrer" for security.
             <a
-              href="https://cirrostrats.us/"
+              href="https://legacy.cirrostrats.us/"
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -235,7 +235,8 @@ try {
         </div>
       </div> 
 
-      {/* Footer - Animated */}
+      {/* --- FOOTER COMMENTED OUT --- */}
+      {/*
       <footer className="footer-support">
         <div className="footer-support-container">
           <a href="#" onClick={handleFeedbackClick} className="footer-support-link">
@@ -246,6 +247,8 @@ try {
           </a>
         </div>
       </footer>
+      */}
+      {/* --- END OF FOOTER --- */}
 
       {/* Suspense for Lazy Loaded Component */}
       <Suspense fallback={null}>
