@@ -36,8 +36,8 @@ const flightService = {
       arrivalAlternate = ajms.data.arrivalAlternate || null;
     }
 
-    // DONE TODO VHP Test: compare departure and arrival from different sources for absolute verification! 
-      // NOTE: This is partially done this still needs to be tested for accuracy.
+    // DONE: compare departure and arrival from different sources for absolute verification! 
+      // This validation is a precautionary measure. It is primarily handled by ValidateAiportData in details for detecting and resolving discrepancies between JMS and flightAware.
     if (flightAwareRes && !flightAwareRes.error && Object.keys(flightAwareRes.data).length > 0) {
       // If AJMS data exists but differs from FlightAware, prefer FlightAware
       if (ajms?.data && (departure !== flightAwareRes.data.fa_origin || arrival !== flightAwareRes.data.fa_destination)) {
@@ -52,13 +52,7 @@ const flightService = {
       }
     }
 
-    // Old logic; keep for reference temporarily - This is bad logic because ajms overrides it.
-    // if ((!departure || !arrival) && flightAwareRes?.data) {
-    //   departure = flightAwareRes.data.fa_origin || departure;
-    //   arrival = flightAwareRes.data.fa_destination || arrival;
-    // }
-
-    // TODO TEST: final comparison for accuracy but here its a IATA code return instead of ICAO.
+    // TODO TEST: final comparison for accuracy but here its a IATA airport code return instead of ICAO.
       // TODO VHP: Maybe consider validating the IATA from the backend itself and return associated ICAO? - will be so much cleaner
     if (!departure || !arrival) {
       departure = flightStatsTZRes?.data?.flightStatsOrigin || 

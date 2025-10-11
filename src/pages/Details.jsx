@@ -120,12 +120,44 @@ const useFlightData = (searchValue) => {
         const {
           rawAJMS, flightAwareRes, flightStatsTZRes
         } = await flightService.getPrimaryFlightData(flightID);
+
+        // Step 1.5: Validate AJMS data against FlightAware - nullify JMS if discrepancy found
+        function validateAirportData(ajmsData, flightAwareRes, flightService) {
+          // If no AJMS data or no FlightAware data, return as-is
+          if (!ajmsData?.data || !flightAwareRes?.data || flightAwareRes.error) {
+            return ajmsData;
+          }
+          
+          const ajmsDeparture = ajmsData.data.departure;
+          const ajmsArrival = ajmsData.data.arrival;
+          const faOrigin = flightAwareRes.data.fa_origin;
+          const faDestination = flightAwareRes.data.fa_destination;
+          
+          // Check for discrepancy
+          if (ajmsDeparture && faOrigin && ajmsDeparture !== faOrigin ||
+              ajmsArrival && faDestination && ajmsArrival !== faDestination) {
+            // Log the discrepancy
+            flightService.postNotifications(
+              `Airport Discrepancy: \n**ajms** ${JSON.stringify(ajmsData.data)} \n**flightAware** ${JSON.stringify(flightAwareRes.data)}`
+            );
+            
+            // Return nullified AJMS data (mark as faulty)
+            return { ...ajmsData, data: null, error: 'Airport discrepancy detected' };
+          }
+          
+          // No discrepancy, return original
+          return ajmsData;
+        }
+        
+        // Validate before normalization
+        const validatedAJMS = validateAirportData(rawAJMS, flightAwareRes, flightService);
+        
         // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
-                // *** Error prone such that it may return jumbled data from various dates. 
-                // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
-                // Fix JMS data structure issues at source trace it back from /ajms route's caution note
+        // *** Error prone such that it may return jumbled data from various dates. 
+        // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
+        // Fix JMS data structure issues at source trace it back from /ajms route's caution note
         // Normalize AJMS data to ensure consistent structure.
-        const ajms = normalizeAjms(rawAJMS.data || {});
+        const ajms = normalizeAjms(validatedAJMS.data || {});
         
         // If core data sources fail, we can't build a complete picture. Set an error and exit.
         if (ajms.error && flightAwareRes.error) {
