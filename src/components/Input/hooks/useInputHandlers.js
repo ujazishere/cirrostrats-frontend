@@ -207,6 +207,7 @@ const useInputHandlers = () => {
       return;
     }
 
+    // TODO VHP: SearchTracking is not working for other airliners from JMS - like delta/american and such. 
     // Call a tracking function to log the search event for analytics.
     trackSearch(userEmail, submitTerm);
 

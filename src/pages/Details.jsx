@@ -32,7 +32,6 @@ const apiUrl = import.meta.env.VITE_API_URL;
 // Note: In a real-world, large-scale application, this would also be in its own file (e.g., hooks/useFlightData.js) for better separation of concerns.
 // This hook is responsible for all logic related to fetching flight, weather, NAS, and EDCT data.
 // =================================================================================
-// TODO: Abstract the logic for fetching flight data into a separate service module just like we have airportData.jsx.
 
 function normalizeAjms(ajms) {
   // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
@@ -141,6 +140,7 @@ const useFlightData = (searchValue) => {
               `Airport Discrepancy: \n**ajms** ${JSON.stringify(ajmsData.data)} \n**flightAware** ${JSON.stringify(flightAwareRes.data)}`
             );
             
+            // TODO VHP:  what if there is a discrepancy between flightStats and the resolved JMS/flightAware?
             // Return nullified AJMS data (mark as faulty)
             return { ...ajmsData, data: null, error: 'Airport discrepancy detected' };
           }
@@ -161,9 +161,6 @@ const useFlightData = (searchValue) => {
         
         // If core data sources fail, we can't build a complete picture. Set an error and exit.
         if (ajms.error && flightAwareRes.error) {
-          // TODO test: Impletement this notification api for absolute errors.
-          // console.log('post notification api here');
-          // await flightService.postNotifications(`This is a test notification: ${searchValue}`);
           setFlightState({ loading: false, data: null, weather: null, nas: null, edct: null, error: `Could not retrieve data for flight ${flightID}.` });
           return;
         }

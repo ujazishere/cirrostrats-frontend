@@ -157,8 +157,6 @@ const AirportCard = ({
 
   // Helper function to get NAS title
   // THIS IS THE FIX: This function now always returns "NAS Status".
-  // TODO Ismail: Is this necessary to have this tiny function just for title? Can we pass the title text as a prop instead?
-  // Ismail: I tried with the prop like suggested but not sure why it breaks the entire page
 
   const getNASTitle = () => {
     return "NAS Status";

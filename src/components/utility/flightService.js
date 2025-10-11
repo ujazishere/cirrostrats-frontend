@@ -27,8 +27,7 @@ const flightService = {
     let departureAlternate = null;
     let arrivalAlternate = null;
 
-    // TODO: mismatch for when one flight number has multiple flights back and forth.
-    // If jms availbale return and show that first. use others to verify accuracy.
+    // TODO VHP: mismatch for when one flight number has multiple flights back and forth.
     if (ajms?.data) {
       departure = ajms.data.departure || null;
       arrival = ajms.data.arrival || null;
@@ -52,7 +51,7 @@ const flightService = {
       }
     }
 
-    // TODO TEST: final comparison for accuracy but here its a IATA airport code return instead of ICAO.
+    // TODO TEST: final comparison for accuracy but flightStats returns IATA airport code instead of ICAO.
       // TODO VHP: Maybe consider validating the IATA from the backend itself and return associated ICAO? - will be so much cleaner
     if (!departure || !arrival) {
       departure = flightStatsTZRes?.data?.flightStatsOrigin || 
@@ -79,7 +78,7 @@ const flightService = {
   getPrimaryFlightData: async (flightID) => {
 
     // # TODO: To fetch test jms - need to completely redesign ajms response architecture since current setup is inefficient
-      // Current setup requests ajms from bakend which is inefficient but secure since it abstracts away ajms through backend.
+      // Current setup requests ajms from bakend which is inefficient but secure since it abstracts away the source ajms and proxies it from backend?
     const [rawAJMS, flightStatsTZRes] = await Promise.all([
     axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => { console.error("AJMS Error:", e); return { data: {}, error: true }; }),
     axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => { console.error("FlightStatsTZ Error:", e); return { data: {}, error: true }; }),

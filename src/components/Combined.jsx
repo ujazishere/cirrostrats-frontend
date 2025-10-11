@@ -30,6 +30,9 @@ import GateCard from "./GateCard";
  * @param {Object} props.EDCT - Expected Departure Clearance Time data
  */
 const FlightCard = ({ flightData, weather, NAS, EDCT }) => {
+  // TODO VHP Ismail: User feature request - cache flightdata into localstorage so it doesn't reset every few mins or when they go airplane mode
+
+
   // --- Start: Tab logic ---
 
   // COMMENTED OUT: Date tab functionality - uncomment to re-enable
