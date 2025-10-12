@@ -166,33 +166,58 @@ const SummaryTable = ({ flightData, EDCT }) => {
     );
   };
   
-  // ✅ NEW: Helper function to format a full date-time string into just HH:MM AM/PM.
-  const formatTime = (dateString, datePart) => {
+  // ✅ NEW FUNCTION ADDED: Helper function to format time string and preserve timezone
+  // This replaces the old formatTime function that was converting to local timezone
+  // Returns the time with its original timezone (e.g., "7:00 AM PDT")
+  const formatTimeWithTimezone = (timeString) => {
+    if (!hasValue(timeString)) return '—';
+    
+    // timeString is expected to be in format like "07:00 AM PDT" or "7:00 AM EDT"
+    // We'll just return it as-is since it already has the timezone
+    return timeString;
+  };
+
+  // ✅ NEW FUNCTION ADDED: Extract just the timezone from a time string 
+  // (e.g., "PDT" from "07:00 AM PDT")
+  const extractTimezone = (timeString) => {
+    if (!hasValue(timeString)) return '';
+    const parts = timeString.trim().split(' ');
+    return parts.length >= 3 ? parts[parts.length - 1] : '';
+  };
+
+  // ✅ NEW FUNCTION ADDED: Calculate delay in minutes by parsing time strings 
+  // while preserving timezone display
+  // This function calculates the time difference without timezone conversion
+  const calculateDelayMinutes = (scheduledTime, comparisonTime) => {
     try {
-      const fullDateString = `${datePart} ${dateString}`;
-      const date = new Date(fullDateString);
-      if (isNaN(date.getTime())) return dateString; // Return original if invalid
+      // Parse times like "07:00 AM PDT" or "10:00 AM PDT" (ignoring timezone for calculation)
+      const parseTime = (timeStr) => {
+        const timePart = timeStr.split(' ').slice(0, 2).join(' '); // Get "07:00 AM"
+        const [time, period] = timePart.split(' ');
+        const [hours, minutes] = time.split(':').map(Number);
+        
+        let hour24 = hours;
+        if (period === 'PM' && hours !== 12) hour24 = hours + 12;
+        if (period === 'AM' && hours === 12) hour24 = 0;
+        
+        return hour24 * 60 + minutes;
+      };
       
-      let hours = date.getHours();
-      let minutes = date.getMinutes();
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
-      minutes = minutes < 10 ? '0' + minutes : minutes;
+      const scheduledMinutes = parseTime(scheduledTime);
+      const comparisonMinutes = parseTime(comparisonTime);
       
-      return `${hours}:${minutes} ${ampm}`;
+      return comparisonMinutes - scheduledMinutes;
     } catch (e) {
-      return dateString; // Fallback to original string on error
+      return 0;
     }
   };
 
   // ✅ NEW: Major logic overhaul. This function now generates a comprehensive state object
   // for both the delay badge AND the departure time display based on the four scenarios.
-  // ✅ NEW: Major logic overhaul. This function now generates a comprehensive state object
-  // for both the delay badge AND the departure time display based on the four scenarios.
+  // ✅ UPDATED: Now uses timezone-preserving functions instead of Date object conversion
   const getDepartureDisplayInfo = (flightData) => {
-    const departureDate = flightData?.flightStatsScheduledDepartureDate;
-    const scheduledTime = flightData?.flightStatsScheduledDepartureTime;
+    // ✅ CHANGED: Removed departureDate dependency since we're preserving timezone
+    const scheduledTime = flightData?.flightStatsScheduledDepartureTime; // e.g., "07:00 AM PDT"
     const actualTime = flightData?.flightStatsActualDepartureTime;
     const estimatedTime = flightData?.flightStatsEstimatedDepartureTime; 
 
@@ -214,14 +239,16 @@ const SummaryTable = ({ flightData, EDCT }) => {
       isDelayed: false,
       badgeText: null,
       departureLabel: 'Scheduled Local',
-      departureTime: getPairDisplayValue(scheduledTime),
+      // ✅ CHANGED: Use formatTimeWithTimezone instead of getPairDisplayValue
+      departureTime: formatTimeWithTimezone(scheduledTime),
       // ✅ FIX: Use a class for styling instead of an inline color.
       departureTimeClass: '', 
       showStrikethrough: false,
       scheduledDepartureTimeForDisplay: null
     };
 
-    if (!hasValue(scheduledTime) || !hasValue(departureDate)) {
+    // ✅ CHANGED: Removed departureDate check since we're not using Date objects anymore
+    if (!hasValue(scheduledTime)) {
       return defaultState;
     }
 
@@ -235,18 +262,14 @@ const SummaryTable = ({ flightData, EDCT }) => {
     }
 
     try {
-      const scheduledDateTimeString = `${departureDate} ${scheduledTime}`;
-      const comparisonDateTimeString = `${departureDate} ${comparisonTime}`;
-      const scheduledDate = new Date(scheduledDateTimeString);
-      const comparisonDate = new Date(comparisonDateTimeString);
-
-      if (isNaN(scheduledDate.getTime()) || isNaN(comparisonDate.getTime())) {
-        return defaultState;
-      }
-
-      const diffMinutes = Math.round((comparisonDate.getTime() - scheduledDate.getTime()) / (1000 * 60));
-      const formattedScheduledTime = formatTime(scheduledTime, departureDate);
-      const formattedComparisonTime = formatTime(comparisonTime, departureDate);
+      // ✅ CHANGED: Calculate delay using new calculateDelayMinutes function
+      // This preserves the original timezone instead of converting to local time
+      const diffMinutes = calculateDelayMinutes(scheduledTime, comparisonTime);
+      
+      // ✅ CHANGED: Format times using new formatTimeWithTimezone function
+      // This keeps the original timezone (e.g., PDT) intact
+      const formattedScheduledTime = formatTimeWithTimezone(scheduledTime);
+      const formattedComparisonTime = formatTimeWithTimezone(comparisonTime);
       
       if (hasActual) {
         if (diffMinutes > 0) {
