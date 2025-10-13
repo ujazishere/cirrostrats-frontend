@@ -30,6 +30,7 @@ backend
 /farmstack-project
 
 /fast-api
+.vscode
 
 .env
 #luis local
