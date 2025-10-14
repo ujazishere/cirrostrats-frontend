@@ -19,7 +19,7 @@ import React, { useState, useEffect } from 'react';
  * @param {Object} props.flightData - Flight information with departure and destination details.
  * @param {Array<Object>} props.EDCT - Array of EDCT information objects.
  */
-const SummaryTable = ({ flightData, EDCT }) => {
+const SummaryTable = ({ flightData, EDCT, isLoadingEdct }) => {
   // Helper function to check if a value exists and is not empty
   const hasValue = (value) => {
     return value !== null && value !== undefined && value.toString().trim() !== '' && value !== 'N/A';
@@ -123,6 +123,9 @@ const SummaryTable = ({ flightData, EDCT }) => {
     // TODO ismail: Make this section fetch and update edct state after the base flight data has been loaded to 
         // improve performance so whatever data is available is atleast displayed rightaway and new edct fetch happens in the background.
     // Hide section if there is no data
+
+    
+    // Original logic for hiding section if there is no data
     if (!edctData || !Array.isArray(edctData) || edctData.length === 0) {
       return null;
     }
