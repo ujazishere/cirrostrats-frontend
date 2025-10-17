@@ -123,16 +123,7 @@ const SummaryTable = ({ flightData, EDCT, isLoadingEdct }) => {
     // TODO ismail: Make this section fetch and update edct state after the base flight data has been loaded to 
         // improve performance so whatever data is available is atleast displayed rightaway and new edct fetch happens in the background.
     // Hide section if there is no data
-    if (isLoadingEdct) {
-      return (
-        <div className="edct-section">
-          <h3 className="edct-title" style={{ color: '#d0925e' }}>EDCT</h3>
-          <div style={{ padding: '10px 15px', color: '#6c757d', fontSize: '0.9em' }}>
-            Loading EDCT...
-          </div>
-        </div>
-      );
-    }
+
     
     // Original logic for hiding section if there is no data
     if (!edctData || !Array.isArray(edctData) || edctData.length === 0) {
