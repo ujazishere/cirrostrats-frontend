@@ -2,25 +2,25 @@ name: Deploy to Amazon ECS
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: ["dev"]
 
 jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Configure AWS credentials
-      env:
-        PRIVATE_KEY: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
-        HOST: ${{ secrets.TEST_HOST }}
-        USER: ${{ secrets.EC2_USER }}
-      run: |
-        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
-          # Change directory to backend and pull latest changes 
-          cd base/cirrostrats-frontend &&
-          git pull origin dev &&
-          docker system prune -af
-        '
+      - name: Configure AWS credentials
+        env:
+          PRIVATE_KEY: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.TEST_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
+            # Change directory to backend and pull latest changes 
+            cd base/cirrostrats-frontend &&
+            git pull origin dev &&
+            docker system prune -af
+          '

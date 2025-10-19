@@ -78,8 +78,10 @@ const data = {
     arrival_id: "xd",
     arrival_weather: {
       //remove teh spans new lines, no longer needed.
-      "D-ATIS": "IAH ATIS INFO V 0153Z. 12003KT 7SM BKN017 OVC250 1… 8R/26L AND RUNWAY 9/27. ...ADVS YOU HAVE INFO V.",
-      METAR: 'KIAH 010153Z 12003KT 7SM <span class="highlight-re…pan> OVC250 18/18 A2975 RMK AO2 SLP072 T01830183\n',
+      "D-ATIS":
+        "IAH ATIS INFO V 0153Z. 12003KT 7SM BKN017 OVC250 1… 8R/26L AND RUNWAY 9/27. ...ADVS YOU HAVE INFO V.",
+      METAR:
+        'KIAH 010153Z 12003KT 7SM <span class="highlight-re…pan> OVC250 18/18 A2975 RMK AO2 SLP072 T01830183\n',
       TAF: 'KIAH 010109Z 0101/0206 12006KT P6SM <span class="h…035 \n  <br>    FM012000 02006KT P6SM VCSH OVC025\n',
     },
     //change this as to arrival_something as i'm not sure what each one is since the id and destination are the same
@@ -95,8 +97,10 @@ const data = {
     departure_gate: "C - C1",
     departure_weather: {
       //remove teh spans new lines, no longer needed.
-      "D-ATIS": "MEM ATIS INFO S 0154Z. 06005KT 10SM -RA OVC050 09/…40 CTC GC FOR PUSHBACK.. ...ADVS YOU HAVE INFO S.",
-      METAR: "KMEM 010154Z 06005KT 10SM -RA OVC050 09/05 A2995 RMK AO2 RAB02 SLP142 P0003 T00940050\n",
+      "D-ATIS":
+        "MEM ATIS INFO S 0154Z. 06005KT 10SM -RA OVC050 09/…40 CTC GC FOR PUSHBACK.. ...ADVS YOU HAVE INFO S.",
+      METAR:
+        "KMEM 010154Z 06005KT 10SM -RA OVC050 09/05 A2995 RMK AO2 RAB02 SLP142 P0003 T00940050\n",
       TAF: "KMEM 302330Z 0100/0206 16012G20KT 5SM -SHRA OVC080…M OVC040 \n  <br>    FM020000 22008KT P6SM OVC250\n",
     },
     //an example of the time would be great as some have zulu time and some don't on your website

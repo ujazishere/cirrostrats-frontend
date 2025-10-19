@@ -17,7 +17,7 @@ test("Details : Flight : Raw : UA414", async ({ page }) => {
   //});
   await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "View on SkyVector" })
+    page.getByRole("link", { name: "View on SkyVector" }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Departure" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Destination" })).toBeVisible();
@@ -52,7 +52,7 @@ test("Details : Flight : Raw : 414", async ({ page }) => {
   });
   await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "View on SkyVector" })
+    page.getByRole("link", { name: "View on SkyVector" }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Departure" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Destination" })).toBeVisible();
@@ -98,7 +98,7 @@ test("Details : Flight : Raw : UA1", async ({ page }) => {
   //});
   await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "View on SkyVector" })
+    page.getByRole("link", { name: "View on SkyVector" }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Departure" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Destination" })).toBeVisible();
@@ -134,7 +134,7 @@ test("Details : Flight : Invalid Raw : 00000", async ({ page }) => {
 
   // 2. Locate the expected "no data" message
   const noDataMessage = page.getByText(
-    "No flight data could be found for this search."
+    "No flight data could be found for this search.",
   );
 
   // 3. Assert that the message is visible on the page.

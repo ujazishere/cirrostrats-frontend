@@ -6,7 +6,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   padding: 2rem 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .story {
@@ -97,7 +97,9 @@
   border-radius: 15px;
   padding: 2rem;
   box-shadow: 0 10px 25px rgba(36, 41, 47, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   border: 1px solid #dee2e6;
 }
 
@@ -173,42 +175,42 @@
   .story-container {
     padding: 1rem;
   }
-  
+
   .story-header {
     padding: 2rem 1.5rem 1.5rem 1.5rem;
   }
-  
+
   .story__title {
     font-size: 2rem;
   }
-  
+
   .story-content {
     padding: 2rem 1.5rem;
   }
-  
+
   .story__description {
     font-size: 1rem;
     text-align: left;
   }
-  
+
   .team-section {
     padding: 2rem 1.5rem;
   }
-  
+
   .team-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .team-card {
     padding: 1.5rem;
   }
-  
+
   .welcome-message {
     margin: 2rem 0 1rem 0;
     padding: 1.5rem;
   }
-  
+
   .story__subtitle {
     font-size: 1.5rem;
   }
@@ -218,19 +220,19 @@
   .story__title {
     font-size: 1.75rem;
   }
-  
+
   .story__description {
     font-size: 0.95rem;
   }
-  
+
   .team__member {
     padding: 0.75rem;
   }
-  
+
   .member__name {
     font-size: 1rem;
   }
-  
+
   .member__role {
     font-size: 0.9rem;
   }

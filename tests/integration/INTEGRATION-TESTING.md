@@ -1,6 +1,7 @@
 # Integration Testing
 
 ### Watch the overview video in slack
+
 https://cirrostrats.slack.com/archives/D096NCR4ZQT/p1753831443835899
 
 ## Overview
@@ -30,6 +31,7 @@ To debug tests you can use some of Playwright's handy dev tools. It is recommend
 Also, installing the [Playwright VSCode/Cursor extension](https://playwright.dev/docs/getting-started-vscode) makes it easier to run and create tests.
 
 The following commands are available in the `package.json` file to run tests:
+
 ```bash
 npm run test # Run all tests
 npm run test:ui # Open the playwright test UI, great for running specific tests and seeing what's happening in the browser for development
@@ -54,7 +56,7 @@ When adding a new feature or updating an existing feature, a developer should cr
 
 You'll need to create a new file in the "tests/integration/specs" directory, name it with the format "<name>.spec.ts".
 
-View the existing tests for examples. You can see I've created helper builder functions like `shouldHaveSpecificResult` so it's easy to add a variety of tests of diferent data points for the same feature. 
+View the existing tests for examples. You can see I've created helper builder functions like `shouldHaveSpecificResult` so it's easy to add a variety of tests of diferent data points for the same feature.
 
 The Playwright recorder can be useful as a starting point, access it by using the `npm run test:record` command, in which case you'll need to copy the generated code int a new test file. You can also use the Playwright VSCode extension to record actions, which will create a file called "test-1.spec.ts" in the specs directory.
 

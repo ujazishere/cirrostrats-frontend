@@ -8,60 +8,60 @@
 │   └── favicon.png
 ├── src
 │   ├── App.css
-│   ├── App.jsx
+│   ├── App.tsx
 │   ├── components
-│   │   ├── AirportCard.jsx
-│   │   ├── AirportData.jsx
-│   │   ├── Combined.jsx
+│   │   ├── AirportCard.tsx
+│   │   ├── AirportData.tsx
+│   │   ├── Combined.tsx
 │   │   ├── CSS
 │   │   │   ├── Contact.css
 │   │   │   ├── Source.css
 │   │   │   ├── Story.css
 │   │   │   └── WeatherInfo.css
-│   │   ├── FlightData.jsx
-│   │   ├── GateCard.jsx
-│   │   ├── GateData.jsx
+│   │   ├── FlightData.tsx
+│   │   ├── GateCard.tsx
+│   │   ├── GateData.tsx
 │   │   ├── Input
 │   │   │   ├── api
 │   │   │   │   └── searchservice.js
 │   │   │   ├── components
-│   │   │   │   └── SearchInput.jsx
+│   │   │   │   └── SearchInput.tsx
 │   │   │   ├── hooks
 │   │   │   │   ├── useDebounce.js
 │   │   │   │   ├── useInputHandlers copy.js
 │   │   │   │   ├── useInputHandlers.js
 │   │   │   │   ├── useSuggestions.js
 │   │   │   │   └── useTrackSearch.js
-│   │   │   ├── Index.jsx
+│   │   │   ├── Index.tsx
 │   │   │   └── utils
 │   │   │       └── searchUtils.js
-│   │   ├── NASDetails.jsx
-│   │   ├── Navbar.jsx
-│   │   ├── RoutePanel.jsx
-│   │   ├── Skeleton.jsx
-│   │   ├── SummaryTable.jsx
-│   │   ├── TabFormat.jsx
-│   │   ├── Table.jsx
-│   │   ├── UTCTime.jsx
+│   │   ├── NASDetails.tsx
+│   │   ├── Navbar.tsx
+│   │   ├── RoutePanel.tsx
+│   │   ├── Skeleton.tsx
+│   │   ├── SummaryTable.tsx
+│   │   ├── TabFormat.tsx
+│   │   ├── Table.tsx
+│   │   ├── UTCTime.tsx
 │   │   └── utility
 │   │       ├── flightService.js
-│   │       ├── SearchGraph.jsx
-│   │       └── SearchTimeline.jsx
+│   │       ├── SearchGraph.tsx
+│   │       └── SearchTimeline.tsx
 │   ├── favicon.png
 │   ├── firebase.js
 │   ├── index.css
-│   ├── main.jsx
+│   ├── main.tsx
 │   └── pages
-│       ├── Contact.jsx
-│       ├── Details.jsx
-│       ├── FeedbackPopup.jsx
+│       ├── Contact.tsx
+│       ├── Details.tsx
+│       ├── FeedbackPopup.tsx
 │       ├── Home.css
-│       ├── Home.jsx
-│       ├── LiveMap.jsx
-│       ├── Searches.jsx
-│       ├── SearchesTimeline.jsx
-│       ├── Source.jsx
-│       └── Story.jsx
+│       ├── Home.tsx
+│       ├── LiveMap.tsx
+│       ├── Searches.tsx
+│       ├── SearchesTimeline.tsx
+│       ├── Source.tsx
+│       └── Story.tsx
 ├── structure.txt
 ├── TODO-Frontend.txt
 └── vite.config.js

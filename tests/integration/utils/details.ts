@@ -24,12 +24,12 @@ export async function clickToDetailsPage({
 }) {
   await page.goto("http://localhost:5173/");
   await page.getByRole("combobox").click();
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
   await page.getByRole("combobox").fill(query);
   // wait after passing query to prevent race condition.
-  await page.waitForFunction(() => 
-    document.querySelectorAll('[role="option"]').length > 0, 
-    { timeout: 10000 }
+  await page.waitForFunction(
+    () => document.querySelectorAll('[role="option"]').length > 0,
+    { timeout: 10000 },
   );
   await page.getByRole("option", { name: clickedOption }).click();
   return page;
@@ -77,7 +77,7 @@ export async function rawQueryToDetailsPage({
  *   query: "EWR",
  *   clickedOption: "EWR - Newark Liberty"
  * });
- * 
+ *
  * // Navigate by direct query
  * await navigateToDetailsPage({
  *   page,
@@ -106,7 +106,7 @@ export async function navigateToDetailsPage({
   if (navigationMethod === "click") {
     if (!clickedOption) {
       throw new Error(
-        "clickedOption is required when navigationMethod is click"
+        "clickedOption is required when navigationMethod is click",
       );
     }
     await clickToDetailsPage({ page, query, clickedOption });

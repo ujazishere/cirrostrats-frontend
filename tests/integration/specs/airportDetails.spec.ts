@@ -10,7 +10,6 @@ import { navigateToDetailsPage } from "../utils/details";
  * @returns A function to be used as a playwright test that verifies 3 weather cards are present with proper content
  */
 
-
 function shouldHaveWeatherCards({
   navigationMethod,
   query,
@@ -44,8 +43,6 @@ function shouldHaveWeatherCards({
     }
 
     await expect(page, "Page should be on details page").toHaveURL("/details");
-
-    
 
     // TODO test: account for NAS related flight. -- check nas airports through their api and check if the component is available for that particular airport.
 
@@ -125,8 +122,6 @@ function shouldHaveMetarFormatAfterClicking({
       has: page.getByRole("heading", { name: "METAR" }),
     });
 
-
-
     // Validate that the METAR starts with the airport code (K followed by 3 letters) and time format (6 digits followed by Z)
     const basicMETARRegex = new RegExp(
       `^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`
@@ -141,7 +136,7 @@ function shouldHaveMetarFormatAfterClicking({
  * Test that the TAF weather data on an airport details page follows the proper format
  * Validates that TAF starts with "TAF" + airport code + timestamp in DDHHMMZ format
  */
-function shouldHaveTafFormatAfterClicking({
+function _shouldHaveTafFormatAfterClicking({
   navigationMethod,
   query,
   airportCode,
@@ -194,7 +189,7 @@ function shouldHaveTafFormatAfterClicking({
  * "ORD ATIS INFO R 0651Z."
  * So the regex must match: "<AIRPORT> ATIS INFO <Letter> <DDHHZ>."
  */
-function shouldHaveDAtisFormatAfterClicking({
+function _shouldHaveDAtisFormatAfterClicking({
   navigationMethod,
   query,
   airportCode,
@@ -234,8 +229,9 @@ function shouldHaveDAtisFormatAfterClicking({
 
     // Updated regex based on actual ATIS format from ORD, BOS, EWR
     // Matches: "<AIRPORT> ATIS INFO <Letter> <DDHHZ>."
-    const basicDAtisRegex = new RegExp(`^${airportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z(?:\\s+SPECIAL)?\\.`)
-
+    const basicDAtisRegex = new RegExp(
+      `^${airportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z(?:\\s+SPECIAL)?\\.`
+    );
 
     await expect(dAtisCard.locator("p")).toContainText(basicDAtisRegex);
   };
@@ -299,8 +295,12 @@ function shouldHaveValidWeatherInfo({
       const dAtisCard = page
         .locator(".weather-card")
         .filter({ has: page.getByRole("heading", { name: "D-ATIS" }) });
-      await expect(dAtisCard.getByRole("button", { name: "DEP" })).toBeVisible();
-      await expect(dAtisCard.getByRole("button", { name: "ARR" })).toBeVisible();
+      await expect(
+        dAtisCard.getByRole("button", { name: "DEP" })
+      ).toBeVisible();
+      await expect(
+        dAtisCard.getByRole("button", { name: "ARR" })
+      ).toBeVisible();
     }
 
     // Step 2: Assert that there are exactly 3 weather cards and get their locators
@@ -327,7 +327,7 @@ function shouldHaveValidWeatherInfo({
     // Step 4: Validate the format of each weather report using regular expressions
     const dAtisRegex = new RegExp(
       `^${airportCode}\\s+(?:ATIS|DEP|ARR)\\s+INFO\\s+[A-Z]\\s+\\d{4,}Z`
-      );
+    );
     const metarRegex = new RegExp(
       `^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`
     );
@@ -340,11 +340,11 @@ function shouldHaveValidWeatherInfo({
 }
 
 // TODO Ismail: add test for PHL/ATL airports to assert departure and arrival atis buttom and associated data with current date.
-  // added tests for PHL and ATL below
+// added tests for PHL and ATL below
 
 // TODO ismail:there are 4 tests per airprot for ewr and bos. can we merge to have
-    // two - raw and click? each of them have two tests - ones checking metar format and
-    // other checking weather cards. Merge them to check both instead of having separate tests?
+// two - raw and click? each of them have two tests - ones checking metar format and
+// other checking weather cards. Merge them to check both instead of having separate tests?
 
 // -----------------------------------------------------------------------------
 // MERGED: EWR & BOS Weather Validation Tests
@@ -379,8 +379,7 @@ test(
     navigationMethod: "click",
     query: "BOS",
     airportCode: "BOS",
-    clickedOption:
-      "BOS - General Edward Lawrence Logan International Airport",
+    clickedOption: "BOS - General Edward Lawrence Logan International Airport",
   })
 );
 
@@ -392,7 +391,6 @@ test(
     airportCode: "BOS",
   })
 );
-
 
 // -----------------------------------------------------------------------------
 // Original tests for other airports (Unchanged)
@@ -430,7 +428,6 @@ test(
     clickedOption: "ATL - Hartsfield - Jackson Atlanta International Airport",
   })
 );
-
 
 // TODO: This test is failing because of duplicates in search suggestions. Fix at source in `search query stid bug` for unique id
 // test(
