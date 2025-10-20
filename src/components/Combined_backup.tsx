@@ -17,22 +17,19 @@ import SummaryTable from "./SummaryTable";
 import TabFormat from "./TabFormat";
 import GateCard from "./GateCard";
 import { FlightData, NASData } from "../types";
-import { LoadingAirportCard } from "./Skeleton";
 
 interface FlightCardProps {
   flightData: FlightData;
   weather: any;
   NAS: NASData;
   EDCT: any;
-  isLoadingEdct: boolean;
-  isLoadingWeatherNas: boolean;
 }
 
 /**
  * Main component for displaying comprehensive flight information
  * This component now features a top-level date-based tab navigation.
  */
-const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWeatherNas }: FlightCardProps ) => {
+const FlightCard = ({ flightData, weather, NAS, EDCT }: FlightCardProps) => {
   // TODO VHP Ismail: User feature request - cache flightdata into localstorage so it doesn't reset every few mins or when they go airplane mode
 
   // --- Start: Tab logic ---
@@ -198,7 +195,8 @@ const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWe
       </div>
 
       {/* COMMENTED OUT: Date tabs container - uncomment to re-enable */}
-      {/* <div className="date-tabs-container">
+      {/* 
+      <div className="date-tabs-container">
         <div 
           ref={tabsNavRef}
           className="weather-tabs-navigation"
@@ -244,21 +242,15 @@ const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWe
       {/* TEMPORARY: Direct content display while date tabs are disabled */}
       <div className="flight-card-content">
         {/* Summary Table for today's flight */}
-        <SummaryTable flightData={flightData} EDCT={EDCT} isLoadingEdct={isLoadingEdct} />
-        
-        {isLoadingWeatherNas ? (
-          <div style={{ marginTop: '20px' }}>
-            <LoadingAirportCard />
-          </div>
-        ) : (
-          // Weather & NAS Tabs for Departure/Destination
-          <TabFormat 
-            flightData={flightData} 
-            weather={weather}
-            NAS={NAS}
-            hideChildSearchBars={true} // Prop to hide search bars in the nested component
-          />
-        )}
+        <SummaryTable flightData={flightData} EDCT={EDCT} />
+
+        {/* Weather & NAS Tabs for Departure/Destination */}
+        <TabFormat
+          flightData={flightData}
+          weather={weather}
+          NAS={NAS}
+          hideChildSearchBars={true} // Prop to hide search bars in the nested component
+        />
       </div>
     </div>
   );

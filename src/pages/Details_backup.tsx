@@ -1,22 +1,21 @@
 // ✅ ADD: Import useState, useEffect, Suspense, and lazy for the feedback popup functionality.
 import { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
+import axios from "axios"; // A promise-based HTTP client for making requests to our backend API.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
 import AirportCard from "../components/AirportCard"; // A card component to display airport details.
 import { FlightCard, GateCard } from "../components/Combined"; // Cards for displaying flight and gate information.
 import { LoadingFlightCard } from "../components/Skeleton"; // A placeholder/skeleton UI shown while data is loading.
 import useAirportData from "../components/AirportData"; // Custom hook to fetch airport weather and NAS data.
 import useGateData from "../components/GateData"; // Our newly separated custom hook for fetching gate-specific data.
-import flightService from '../components/utility/flightService'; // A service module with helper functions for flight data retrieval.
+import flightService from "../components/utility/flightService"; // A service module with helper functions for flight data retrieval.
 
-// ✅ CHANGE: Import the newly created custom hook for fetching flight-specific data from its own file.
-import useFlightData from "../components/FlightData.tsx"; // Our newly separated custom hook for fetching flight data.
-
-// type FlightService = typeof flightService;
+type FlightService = typeof flightService;
 
 // ✅ ADD: Import Firebase and Firestore functions for submitting feedback.
 import { db } from "../firebase.js";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { EDCTData, NASData, SearchValue, WeatherData } from "../types";
 
 // ✅ ADD: Lazily import the FeedbackPopup component for better performance.
 // This ensures the popup's code is only downloaded when it's first needed.
@@ -29,10 +28,333 @@ const FeedbackPopup = lazy(() => import("../pages/FeedbackPopup"));
 const apiUrl = import.meta.env.VITE_API_URL;
 
 // =================================================================================
-// ✅ REMOVED: The custom `useFlightData` hook and its helper function `normalizeAjms`
-// have been moved to their own file (`/src/components/flightData.jsx`) for better
-// code organization and separation of concerns.
+// CUSTOM HOOK for fetching Flight Data
+// Note: In a real-world, large-scale application, this would also be in its own file (e.g., hooks/useFlightData.js) for better separation of concerns.
+// This hook is responsible for all logic related to fetching flight, weather, NAS, and EDCT data.
 // =================================================================================
+
+
+function normalizeAjms(ajms: any): { data: any; error?: any } {
+  // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
+  // *** Error prone such that it may return jumbled data from various dates.
+  // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
+  const result: any = {};
+
+  for (const [key, val] of Object.entries(ajms)) {
+    if (val && typeof val === "object" && "value" in val) {
+      // case: { timestamp, value }
+      result[key] = (val as any).value;
+    } else if (typeof val === "string") {
+      // case: plain string
+      result[key] = val;
+    } else {
+      // everything else
+      result[key] = null;
+    }
+  }
+
+  return { data: result }; // keep .data wrapper
+  // return result;
+}
+
+type FlightState = {
+  loading: boolean;
+  data: any;
+  weather: WeatherData | null;
+  nas: NASData | null;
+  edct: EDCTData | null;
+  error: string | null;
+};
+
+const useFlightData = (searchValue: SearchValue | null) => {
+  // We manage all related states within a single object. This simplifies state updates and reduces re-renders.
+  const [flightState, setFlightState] = useState<FlightState>({
+    loading: true, // Indicates if a fetch operation is in progress.
+    data: null, // Holds the combined flight data.
+    weather: null, // Holds weather information for departure/arrival airports.
+    nas: null, // Holds NAS (National Airspace System) status.
+    edct: null, // Holds EDCT (Expect Departure Clearance Time) data.
+    error: null, // Holds any error message if a request fails.
+  });
+
+  // This `useEffect` hook triggers the data fetching logic whenever the `searchValue` changes.
+  useEffect(() => {
+    // First, we perform a guard check. If the search type isn't for a flight, we reset the state and do nothing further.
+    // This prevents the hook from running unnecessarily.
+    if (searchValue?.type !== "flight" && searchValue?.type !== "N-Number") {
+      setFlightState({
+        loading: false,
+        data: null,
+        weather: null,
+        nas: null,
+        edct: null,
+        error: null,
+      }); // Reset state to default.
+      return; // Exit the effect.
+    }
+
+    // Define an async function to handle the entire flight data fetching process.
+    const fetchFlightData = async () => {
+      // Immediately set the loading state to true and clear out any old data or errors from previous searches.
+      setFlightState({
+        loading: true,
+        data: null,
+        weather: null,
+        nas: null,
+        edct: null,
+        error: null,
+      });
+
+      // Check for a specific environment variable to use mock/test data. This is invaluable for development and testing without hitting live APIs.
+      if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
+        try {
+          // Fetch the test data from a dedicated endpoint.
+          const res = await axios.get(`${apiUrl}/testDataReturns`);
+          console.log("!!TEST FLIGHT DATA!!", res.data); // Log that we are using test data.
+          // Populate the state with the mock data.
+          setFlightState({
+            loading: false,
+            data: res.data.flightData || res.data,
+            weather: res.data.weather || res.data,
+            nas: res.data.NAS || res.data,
+            edct: res.data.EDCT || res.data,
+            error: null,
+          });
+        } catch (e) {
+          console.error("Test Data Error:", e); // Log any errors fetching test data.
+          // Set an error state if the mock data fetch fails.
+          setFlightState({
+            loading: false,
+            data: null,
+            weather: null,
+            nas: null,
+            edct: null,
+            error: "Failed to load test data.",
+          });
+        }
+        return; // Exit after handling test data.
+      }
+
+      // Extract the flight identifier from the `searchValue` object. It can be one of several properties.
+      const flightID =
+        searchValue?.flightID || searchValue?.nnumber || searchValue?.value;
+
+      // If no valid flightID can be found, we can't proceed. Set an error and stop.
+      if (!flightID) {
+        setFlightState({
+          loading: false,
+          data: null,
+          weather: null,
+          nas: null,
+          edct: null,
+          error: "Invalid Flight ID provided.",
+        });
+        return;
+      }
+
+      // This `try...catch` block handles potential errors during the multi-step API fetch process.
+      try {
+        // Step 1: Fetch primary flight data from various sources using our flight service.
+        const { rawAJMS, flightAwareRes, flightStatsTZRes } =
+          await flightService.getPrimaryFlightData(flightID);
+
+        // Step 1.5: Validate AJMS data against FlightAware - nullify JMS if discrepancy found
+        // eslint-disable-next-line no-inner-declarations
+        function validateAirportData(
+          ajmsData: { data: { departure: string; arrival: string } },
+          flightAwareRes: {
+            data: { fa_origin: string; fa_destination: string };
+            error: boolean;
+          },
+          flightService: FlightService
+        ) {
+          // If no AJMS data or no FlightAware data, return as-is
+          if (
+            !ajmsData?.data ||
+            !flightAwareRes?.data ||
+            flightAwareRes.error
+          ) {
+            return ajmsData;
+          }
+
+          const ajmsDeparture = ajmsData.data.departure;
+          const ajmsArrival = ajmsData.data.arrival;
+          const faOrigin = flightAwareRes.data.fa_origin;
+          const faDestination = flightAwareRes.data.fa_destination;
+
+          // Check for discrepancy
+          if (
+            (ajmsDeparture && faOrigin && ajmsDeparture !== faOrigin) ||
+            (ajmsArrival && faDestination && ajmsArrival !== faDestination)
+          ) {
+            // Log the discrepancy
+            flightService.postNotifications(
+              `Airport Discrepancy: \n**ajms** ${JSON.stringify(
+                ajmsData.data
+              )} \n**flightAware** ${JSON.stringify(flightAwareRes.data)}`
+            );
+
+            // TODO VHP:  what if there is a discrepancy between flightStats and the resolved JMS/flightAware?
+            // Return nullified AJMS data (mark as faulty)
+            return {
+              ...ajmsData,
+              data: null,
+              error: "Airport discrepancy detected",
+            };
+          }
+
+          // No discrepancy, return original
+          return ajmsData;
+        }
+
+        // Validate before normalization
+        const validatedAJMS = validateAirportData(
+          rawAJMS,
+          flightAwareRes,
+          flightService
+        );
+
+        // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
+        // *** Error prone such that it may return jumbled data from various dates.
+        // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
+        // Fix JMS data structure issues at source trace it back from /ajms route's caution note
+        // Normalize AJMS data to ensure consistent structure.
+        const ajms = normalizeAjms(validatedAJMS.data || {});
+
+        // If core data sources fail, we can't build a complete picture. Set an error and exit.
+        if ((ajms as any).error && (flightAwareRes as any).error) {
+          setFlightState({
+            loading: false,
+            data: null,
+            weather: null,
+            nas: null,
+            edct: null,
+            error: `Could not retrieve data for flight ${flightID}.`,
+          });
+          return;
+        }
+
+        // Step 2: Extract airport identifiers (departure, arrival, alternates) from the aggregated primary data.
+        const { departure, arrival, departureAlternate, arrivalAlternate } =
+          flightService.getAirports({ ajms, flightAwareRes, flightStatsTZRes });
+
+        // Step 3: Merge all the fetched data into a single, comprehensive object for the flight.
+        const combinedFlightData = {
+          flightID,
+          departure,
+          arrival,
+          departureAlternate,
+          arrivalAlternate,
+          ...ajms.data,
+          ...flightAwareRes.data,
+          ...flightStatsTZRes.data,
+        };
+
+        // --- FIX: VALIDATE DATA BEFORE PROCEEDING TO FURTHER FETCHES ---
+        // A flight is considered to have no real data if we couldn't find its
+        // departure/arrival airports AND we received no specific data from our primary sources.
+        const isDataEffectivelyEmpty =
+          !combinedFlightData.departure &&
+          !combinedFlightData.arrival &&
+          Object.keys(flightAwareRes.data || {}).length === 0 &&
+          Object.keys(ajms.data || {}).length === 0;
+
+        // If the initial data is empty, stop here and set the state to null.
+        if (isDataEffectivelyEmpty) {
+          setFlightState({
+            loading: false,
+            data: null, // Set data to null to trigger the "no data" message
+            weather: null,
+            nas: null,
+            edct: null,
+            error: null,
+          });
+          return; // Exit the function early
+        }
+
+        let edctData = null; // Initialize EDCT data as null.
+        // Step 4: Conditionally fetch EDCT data based on an environment flag. This allows turning the feature on/off easily.
+        if (import.meta.env.VITE_EDCT_FETCH === "1" && departure && arrival) {
+          // Log in development mode to remind developers this potentially costly fetch is active.
+          if (import.meta.env.VITE_ENV === "dev") {
+            console.warn(
+              "Getting EDCT data. Switch it off in .env if not needed"
+            );
+          }
+          const { EDCTRes } = await flightService.getEDCT({
+            flightID,
+            origin: departure.slice(1),
+            destination: arrival.slice(1),
+          });
+          edctData = EDCTRes?.data; // Store the result.
+        }
+
+        // Step 5: Fetch supplementary Weather and NAS data for all known airports.
+        let weatherData = null; // Initialize weather data.
+        let nasData = null; // Initialize NAS data.
+
+        // Create a list of airports that actually have an identifier to avoid fetching for null values.
+        const airportsToFetch = [
+          { key: "departure", code: departure },
+          { key: "arrival", code: arrival },
+          { key: "departureAlternate", code: departureAlternate },
+          { key: "arrivalAlternate", code: arrivalAlternate },
+        ].filter(item => item.code); // The `.filter` is crucial here.
+
+        // Only proceed if we have at least one valid airport code.
+        if (airportsToFetch.length > 0) {
+          // Create an array of promises for all the data fetches.
+          const requests = airportsToFetch.map(airport =>
+            flightService.getWeatherAndNAS(airport.code || "")
+          );
+          // Use `Promise.all` to execute all these requests in parallel, which is much more efficient than sequential requests.
+          const results = await Promise.all(requests);
+
+          // Once all promises resolve, process the results.
+          const finalWeather: any = {};
+          const finalNas: any = {};
+          results.forEach((result, index) => {
+            const airportKey = airportsToFetch[index].key; // Get the original key ('departure', 'arrival', etc.).
+            // Structure the weather and NAS data into a clean, keyed object.
+            finalWeather[`${airportKey}WeatherMdb`] =
+              result?.weather?.mdb || null;
+            finalWeather[`${airportKey}WeatherLive`] =
+              result?.weather?.live || null;
+            finalNas[`${airportKey}NAS`] = result?.NAS || null;
+          });
+          weatherData = finalWeather;
+          nasData = finalNas;
+        }
+        // Step 6: After all data has been fetched and processed, update the state in a single call.
+        setFlightState({
+          loading: false, // Set loading to false.
+          data: combinedFlightData,
+          weather: weatherData,
+          nas: nasData,
+          edct: edctData,
+          error: null, // Clear any previous errors.
+        });
+      } catch (e) {
+        // If any part of the `try` block fails, this `catch` block will execute.
+        console.error("Error fetching flight details bundle:", e); // Log the full error for debugging.
+        // Set a user-friendly error message in the state.
+        setFlightState({
+          loading: false,
+          data: null,
+          weather: null,
+          nas: null,
+          edct: null,
+          error: `Failed to fetch details for flight ${flightID}.`,
+        });
+      }
+    };
+
+    fetchFlightData(); // Execute the master fetching function.
+  }, [searchValue]); // The dependency array ensures this entire effect is re-run only when `searchValue` changes.
+
+  // The hook returns its state object, providing the component with everything it needs to render.
+  return flightState;
+};
 
 // =================================================================================
 // Details Component (Refactored)
@@ -86,16 +408,13 @@ const Details = () => {
   } = useAirportData(searchValue, apiUrl);
 
   // Hook for flight-specific searches.
-  // ✅ NOTE: This now calls the imported hook from `/components/flightData.jsx`.
   const {
-    loadingFlight, // This is now the main loader for the initial skeleton
-    loadingEdct,
-    loadingWeatherNas,
-    data: flightData,
-    weather: weatherResponseFlight,
-    nas: nasResponseFlight,
-    edct: EDCT,
-    error: flightError,
+    loading: loadingFlightData, // Loading state from the flight hook.
+    data: flightData, // Flight data object.
+    weather: weatherResponseFlight, // Associated weather data for the flight's airports.
+    nas: nasResponseFlight, // Associated NAS data.
+    edct: EDCT, // Associated EDCT data.
+    error: flightError, // Error state from the flight hook.
   } = useFlightData(searchValue);
 
   // Hook for gate-specific searches.
@@ -173,7 +492,9 @@ New Feedback from Details Page! 📬
       handleCloseFeedback();
     } catch (error) {
       console.error("Error adding document: ", error);
-      alert("Sorry, there was an an error submitting your feedback. Please try again.");
+      alert(
+        "Sorry, there was an error submitting your feedback. Please try again."
+      );
     } finally {
       setIsSubmitting(false); // Re-enable the submit button regardless of outcome.
     }
@@ -191,7 +512,7 @@ New Feedback from Details Page! 📬
   // Determine if we are in a loading state that should hide the main content.
   // This logic MUST match the loading checks inside `renderContent` to prevent mismatches.
   let isContentLoading = false;
-  if (isFlightSearch && (hasSearchChanged || loadingFlight)) {
+  if (isFlightSearch && (hasSearchChanged || loadingFlightData)) {
     isContentLoading = true;
   }
   if (
@@ -219,7 +540,7 @@ New Feedback from Details Page! 📬
 
     // --- LOADING LOGIC ---
     // Note: The logic here is now mirrored above for the `showFeedbackSection` variable.
-    if (isFlightSearch && (hasSearchChanged || loadingFlight)) {
+    if (isFlightSearch && (hasSearchChanged || loadingFlightData)) {
       return <LoadingFlightCard />;
     }
     if (
@@ -247,8 +568,6 @@ New Feedback from Details Page! 📬
               weather={weatherResponseFlight}
               NAS={nasResponseFlight ?? {}}
               EDCT={EDCT}
-              isLoadingEdct={loadingEdct}
-              isLoadingWeatherNas={loadingWeatherNas}
             />
           ) : (
             <div className="no-data-message">

@@ -16,7 +16,6 @@ import { EDCTData, FlightData } from "../types";
 type SummaryTableProps = {
   flightData: FlightData;
   EDCT: EDCTData[];
-  isLoadingEdct?: boolean;
 };
 
 /**
@@ -24,13 +23,7 @@ type SummaryTableProps = {
  * @param props.flightData - Flight information with departure and destination details.
  * @param props.EDCT - Array of EDCT information objects.
  */
-
-// const SummaryTable: React.FC<SummaryTableProps> = ({ flightData, EDCT }) => {
-const SummaryTable: React.FC<SummaryTableProps> = ({ 
-  flightData, 
-  EDCT, 
-  isLoadingEdct = false 
-}) => {
+const SummaryTable: React.FC<SummaryTableProps> = ({ flightData, EDCT }) => {
   // Helper function to check if a value exists and is not empty
   const hasValue = (value: any): boolean => {
     return (
@@ -149,11 +142,8 @@ const SummaryTable: React.FC<SummaryTableProps> = ({
     // improve performance so whatever data is available is atleast displayed rightaway and new edct fetch happens in the background.
     // Hide section if there is no data
 
-    // Old code
     const [isExpanded, setIsExpanded] = useState(false);
 
-    
-    // Original logic for hiding section if there is no data
     if (!edctData || !Array.isArray(edctData) || edctData.length === 0) {
       return null;
     }
