@@ -85,11 +85,62 @@ const useFlightData = (searchValue) => {
         // --- STEP 1: Fetch and display PRIMARY flight data immediately ---
         const { rawAJMS, flightAwareRes, flightStatsTZRes } = await flightService.getPrimaryFlightData(flightID);
 
-        // (Validation, normalization, and data combination logic is the same)
-        const ajms = normalizeAjms(rawAJMS.data || {});
-        if (ajms.error && flightAwareRes.error) throw new Error(`Could not retrieve data for flight ${flightID}.`);
+        // --- STEP 1.5: Validate AJMS data against FlightAware - *___ nullify JMS if discrepancy found ___*
+        // TODO VHP: This is a temporary fix to catch AJMS data route discrepancies w flightAware.
+          // This does not resolve the root cause of airport discrepancies but at least prevents displaying incorrect data.
+          // Introduces a new problem - flightAware showing up data for tomorrows flighs, once the scheduled time passes vs flightStats showing today flights throughout the day.
+          // Discrepancy fixes needed across all 3 sources- airport, datetime, multiple legs --> 
+        function validateAirportData(ajmsData, flightAwareRes, flightService) {
+          // If no AJMS data or no FlightAware data, return as-is
+          if (!ajmsData?.data || !flightAwareRes?.data || flightAwareRes.error) {
+            return ajmsData;
+          }
+          
+          const ajmsDeparture = ajmsData.data.departure;
+          const ajmsArrival = ajmsData.data.arrival;
+          const faOrigin = flightAwareRes.data.fa_origin;
+          const faDestination = flightAwareRes.data.fa_destination;
+          
+          // Check for discrepancy
+          if (ajmsDeparture && faOrigin && ajmsDeparture !== faOrigin ||
+              ajmsArrival && faDestination && ajmsArrival !== faDestination) {
+            // Log the discrepancy
+            flightService.postNotifications(
+              `Airport Discrepancy: \n**ajms** ${JSON.stringify(ajmsData.data)} \n**flightAware** ${JSON.stringify(flightAwareRes.data)}`
+            );
+            
+            // TODO VHP:  what if there is a discrepancy between flightStats and the resolved JMS/flightAware?
+            // Return nullified AJMS data (mark as faulty)
+            return { ...ajmsData, data: null, error: 'Airport discrepancy detected' };
+          }
+          
+          // No discrepancy, return original
+          return ajmsData;
+        }
         
-        const { departure, arrival, departureAlternate, arrivalAlternate } = flightService.getAirports({ ajms, flightAwareRes, flightStatsTZRes});
+        // Validate before normalization
+        const validatedAJMS = validateAirportData(rawAJMS, flightAwareRes, flightService);
+        
+        // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
+        // *** Error prone such that it may return jumbled data from various dates. 
+        // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
+        // Fix JMS data structure issues at source trace it back from /ajms route's caution note
+        // Normalize AJMS data to ensure consistent structure.
+        const ajms = normalizeAjms(validatedAJMS.data || {});
+        
+
+        // --- STEP 2: Extract airport identifiers (departure, arrival, alternates) from the aggregated primary data.
+        const {
+          departure, arrival, departureAlternate, arrivalAlternate
+        } = flightService.getAirports({ ajms, flightAwareRes, flightStatsTZRes});
+        
+        // If core data sources fail, we can't build a complete picture. Set an error and exit.
+        if (ajms.error && flightAwareRes.error) throw new Error(`Could not retrieve JMS or FlightAware data for flight ${flightID}.`);
+        
+        // TODO VHP: airport descrepency handling -
+            // Wouldn't this nullify airport validation since were re-introducing all sources again here?
+            // The whole idea of departure/arrival resolution was to pick the most reliable source among all 3.
+            // But then this re-introduces airport discrepancy by bringing back all 3 sources which has the root departure/arrival as is. 
         const combinedFlightData = {
           flightID, departure, arrival, departureAlternate, arrivalAlternate,
           ...ajms.data, ...flightAwareRes.data, ...flightStatsTZRes.data,
@@ -103,8 +154,7 @@ const useFlightData = (searchValue) => {
           loadingFlight: false, // Turn off the main loader
         }));
 
-        // --- STEP 2: Fetch SECONDARY data in the background ---
-        
+        // --- STEP 3: Fetch SECONDARY data in the background ---
         // Fetch EDCT data asynchronously
         if (import.meta.env.VITE_EDCT_FETCH === "1" && departure && arrival) {
           flightService.getEDCT({ flightID, origin: departure.slice(1), destination: arrival.slice(1) })
