@@ -121,7 +121,9 @@ function shouldHaveMetarFormatAfterClicking({
     });
 
     // Validate that the METAR starts with the airport code (K followed by 3 letters) and time format (6 digits followed by Z)
-    const basicMETARRegex = new RegExp(`^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`);
+    const basicMETARRegex = new RegExp(
+      `^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`,
+    );
     // This will look like /^KEWR\s+\d{6}Z/
 
     await expect(metarCard.locator("p")).toContainText(basicMETARRegex);
@@ -134,7 +136,7 @@ test(
     navigationMethod: "click",
     query: "EWR",
     clickedOption: "EWR - Newark Liberty",
-  })
+  }),
 );
 
 test(
@@ -142,7 +144,7 @@ test(
   shouldHaveWeatherCards({
     navigationMethod: "raw",
     query: "KEWR",
-  })
+  }),
 );
 
 test(
@@ -151,7 +153,7 @@ test(
     navigationMethod: "click",
     query: "BOS",
     clickedOption: "BOS - General Edward Lawrence Logan International Airport",
-  })
+  }),
 );
 
 test(
@@ -159,7 +161,7 @@ test(
   shouldHaveWeatherCards({
     navigationMethod: "raw",
     query: "KBOS",
-  })
+  }),
 );
 
 // TODO: This test is failing because of duplicates in search suggestions. Fix at source in `search query stid bug` for unique id
@@ -170,14 +172,14 @@ test(
 //     query: "DEN",
 //     clickedOption: "DEN - Denver International Airport",
 //   })
-// ); 
+// );
 
 test(
   "Details : Airport : Raw : Weather Cards : DEN",
   shouldHaveWeatherCards({
     navigationMethod: "raw",
     query: "KDEN",
-  })
+  }),
 );
 
 test(
@@ -187,7 +189,7 @@ test(
     query: "EWR",
     airportCode: "EWR",
     clickedOption: "EWR - Newark Liberty",
-  })
+  }),
 );
 
 test(
@@ -196,7 +198,7 @@ test(
     navigationMethod: "raw",
     query: "KEWR",
     airportCode: "EWR",
-  })
+  }),
 );
 
 test(
@@ -206,7 +208,7 @@ test(
     query: "BOS",
     airportCode: "BOS",
     clickedOption: "BOS - General Edward Lawrence Logan International Airport",
-  })
+  }),
 );
 
 test(
@@ -215,7 +217,5 @@ test(
     navigationMethod: "raw",
     query: "KBOS",
     airportCode: "BOS",
-  })
+  }),
 );
-
-

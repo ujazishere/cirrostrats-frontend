@@ -1,58 +1,57 @@
 /* WeatherInfo.css */
 body {
-    margin: 0;
-    padding: 0;
-  }
-  
-  .small-text {
-    font-size: 12px;
-    font-weight: 100;
-    color: gray;
-  }
-  
-  .comparison-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .comparison-table th,
-  .comparison-table td {
-    border: none;
-  }
-  
-  .comparison-table th:first-child,
-  .comparison-table td:first-child {
-    border-left: 1px solid black;
-  }
-  
-  .comparison-table th:last-child,
-  .comparison-table td:last-child {
-    border-right: 1px solid black;
-  }
-  
-  .comparison-table tr:first-child th,
-  .comparison-table tr:last-child td {
-    border-bottom: 1px solid black;
-  }
-  
-  .comparison-table tr:not(:first-child) th,
-  .comparison-table tr:not(:last-child) td {
-    border-top: 1px solid black;
-  }
-  
-  .search-form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
-  
-  @media only screen and (max-width: 600px) {
-    /* Add responsive styles here */
-  }
-  
-  @media only screen and (max-width: 400px) {
-    /* Add responsive styles here */
-  }
-  
+  margin: 0;
+  padding: 0;
+}
+
+.small-text {
+  font-size: 12px;
+  font-weight: 100;
+  color: gray;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th,
+.comparison-table td {
+  border: none;
+}
+
+.comparison-table th:first-child,
+.comparison-table td:first-child {
+  border-left: 1px solid black;
+}
+
+.comparison-table th:last-child,
+.comparison-table td:last-child {
+  border-right: 1px solid black;
+}
+
+.comparison-table tr:first-child th,
+.comparison-table tr:last-child td {
+  border-bottom: 1px solid black;
+}
+
+.comparison-table tr:not(:first-child) th,
+.comparison-table tr:not(:last-child) td {
+  border-top: 1px solid black;
+}
+
+.search-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+@media only screen and (max-width: 600px) {
+  /* Add responsive styles here */
+}
+
+@media only screen and (max-width: 400px) {
+  /* Add responsive styles here */
+}
