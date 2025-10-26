@@ -347,10 +347,7 @@ const TabFormat: React.FC<TabFormatProps> = ({
               <div className="weather-tab-header">
                 <h3 className="weather-tab-title">{flightData?.departure}</h3>
               </div>
-              <NASDetails
-                nasResponse={nasDepartureResponse}
-                title={getNASTitle()}
-              />
+
               <AirportCard
                 weatherDetails={dep_weather ?? {}}
                 nasResponseAirport={nasDepartureResponse ?? {}}
