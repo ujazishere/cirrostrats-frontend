@@ -34,6 +34,458 @@
   }
 }
 
+
+/* src/styles/advertisements.css */
+
+/* ============================================
+   PREMIUM BANNER AD STYLES
+   ============================================ */
+
+.ad-premium-banner-wrapper {
+  margin-top: 16px;
+  margin-bottom: 4px;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.premium-banner-ad {
+  position: relative;
+}
+
+.premium-banner-content {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: white;
+  padding: 28px 24px 24px 24px;
+  border-radius: 12px;
+  display: block;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+  cursor: pointer;
+  position: relative;
+}
+
+.premium-banner-content:hover {
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+}
+
+.premium-banner-text {
+  z-index: 2;
+  text-align: left;
+}
+
+.premium-banner-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.3;
+  color: white;
+}
+
+.premium-banner-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.premium-banner-cta {
+  background: white;
+  color: #2563eb;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  outline: none;
+}
+
+.premium-banner-cta:hover {
+  background: #f0f4f8;
+}
+
+.premium-banner-cta:active {
+  opacity: 0.9;
+}
+
+.ad-sponsor-badge {
+  position: absolute;
+  top: 12px;
+  left: 24px;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================
+   NATIVE CARD AD STYLES
+   ============================================ */
+
+.native-card-ad-wrapper {
+  margin-top: 4px;
+  margin-bottom: 24px;
+  padding: 0 20px;
+}
+
+.native-card-ad {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+  cursor: pointer;
+  border-left: 5px solid;
+}
+
+.native-card-ad:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Category-specific colors */
+
+.native-card-ad.green {
+  border-left-color: #10b981;
+}
+
+.native-card-ad.green .native-card-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border-bottom: 1px solid #047857;
+}
+
+.native-card-ad.green {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.native-card-ad.blue {
+  border-left-color: #3b82f6;
+}
+
+.native-card-ad.blue .native-card-header {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-bottom: 1px solid #1d4ed8;
+}
+
+.native-card-ad.blue .native-card-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.native-card-ad.indigo {
+  border-left-color: #4f46e5;
+}
+
+.native-card-ad.indigo .native-card-header {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  border-bottom: 1px solid #4338ca;
+}
+
+.native-card-ad.indigo .native-card-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.native-card-ad.orange {
+  border-left-color: #f97316;
+}
+
+.native-card-ad.orange .native-card-header {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  border-bottom: 1px solid #c2410c;
+}
+
+.native-card-ad.orange .native-card-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Card Header Styles */
+
+.native-card-header {
+  padding: 18px 20px;
+  transition: background 0.2s ease;
+}
+
+.native-card-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.native-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+.native-card-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.3;
+}
+
+/* Card Body Styles */
+
+.native-card-body {
+  padding: 16px 20px;
+  display: block;
+  background: #1f2937;
+}
+
+.native-card-text {
+  width: 100%;
+}
+
+.native-card-description {
+  font-size: 13px;
+  color: #d1d5db;
+  margin: 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet Devices */
+@media (max-width: 1024px) {
+  .premium-banner-title {
+    font-size: 18px;
+  }
+
+  .premium-banner-subtitle {
+    font-size: 13px;
+  }
+
+  .native-card-title {
+    font-size: 14px;
+  }
+
+  .native-card-description {
+    font-size: 12px;
+  }
+}
+
+/* Mobile Devices - 768px and below */
+@media (max-width: 768px) {
+  .ad-premium-banner-wrapper {
+    padding: 0 16px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+
+  .premium-banner-content {
+    padding: 24px 16px 16px 16px;
+  }
+
+  .premium-banner-title {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .premium-banner-subtitle {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .premium-banner-cta {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .ad-sponsor-badge {
+    top: 10px;
+    left: 16px;
+    font-size: 9px;
+    padding: 4px 8px;
+  }
+
+  .native-card-ad-wrapper {
+    padding: 0 16px;
+    margin-top: 4px;
+    margin-bottom: 20px;
+  }
+
+  .native-card-ad {
+    border-left: 4px solid;
+  }
+
+  .native-card-header {
+    padding: 14px 16px;
+  }
+
+  .native-card-badge {
+    font-size: 9px;
+    padding: 4px 8px;
+    margin-bottom: 8px;
+  }
+
+  .native-card-title {
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .native-card-subtitle {
+    font-size: 11px;
+  }
+
+  .native-card-body {
+    padding: 12px 16px;
+  }
+
+  .native-card-description {
+    font-size: 11px;
+  }
+}
+
+/* Small Mobile Devices - 480px and below */
+@media (max-width: 480px) {
+  .ad-premium-banner-wrapper {
+    padding: 0 12px;
+    margin-top: 10px;
+    margin-bottom: 2px;
+  }
+
+  .premium-banner-content {
+    padding: 20px 12px 12px 12px;
+  }
+
+  .premium-banner-title {
+    font-size: 14px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .premium-banner-subtitle {
+    font-size: 11px;
+    margin-bottom: 10px;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .premium-banner-cta {
+    padding: 7px 14px;
+    font-size: 11px;
+  }
+
+  .ad-sponsor-badge {
+    top: 8px;
+    left: 12px;
+    font-size: 8px;
+    padding: 3px 6px;
+    letter-spacing: 0.4px;
+  }
+
+  .native-card-ad-wrapper {
+    padding: 0 12px;
+    margin-top: 2px;
+    margin-bottom: 16px;
+  }
+
+  .native-card-ad {
+    border-left: 3px solid;
+  }
+
+  .native-card-header {
+    padding: 12px 14px;
+  }
+
+  .native-card-badge {
+    font-size: 8px;
+    padding: 3px 6px;
+    margin-bottom: 6px;
+    letter-spacing: 0.4px;
+  }
+
+  .native-card-title {
+    font-size: 12px;
+    margin-bottom: 1px;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .native-card-subtitle {
+    font-size: 10px;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .native-card-body {
+    padding: 10px 14px;
+  }
+
+  .native-card-description {
+    font-size: 10px;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .premium-banner-ad,
+  .native-card-ad-wrapper {
+    page-break-inside: avoid;
+  }
+}
+
+/* ============================================
+   FIX FOR LOGIN SECTION SPACING
+   ============================================ */
+
+.login-section {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.login-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.user-profile,
+.logout-button {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove spacing from hero section */
+.hero-section {
+  margin-bottom: 0 !important;
+  padding-bottom: 8px !important;
+}
+
+/* Remove spacing from features section */
+.features-section {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+
+
 /* Updated CSS for the feedback trigger on the Details page */
 .feedback-trigger-container {
   text-align: center; /* Center the button horizontally */

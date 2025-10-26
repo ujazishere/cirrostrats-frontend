@@ -1,4 +1,4 @@
-// src/pages/HomePage.js
+// src/pages/HomePage.tsx
 
 // By using Suspense and lazy, we can split our code into smaller chunks.
 // This is a key strategy for improving initial page load speed.
@@ -41,6 +41,76 @@ const HomePage = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); // To disable button on submit
 
+  // --- ADVERTISEMENT STATE ---
+  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+  const [currentNativeAdIndex, setCurrentNativeAdIndex] = useState(0);
+
+  // Premium Banner Ads Data
+  const premiumAds = [
+    {
+      id: 1,
+      title: "Garmin G1000 NXi Upgrade",
+      subtitle: "Next-Gen Glass Cockpit Technology",
+      icon: "",
+      ctaText: "Learn More",
+      link: "#",
+      advertiser: "Garmin",
+    },
+    {
+      id: 2,
+      title: "ATP Flight School",
+      subtitle: "CRJ Type Rating - Next Cohort Oct 29",
+      icon: "",
+      ctaText: "Enroll Now",
+      link: "#",
+      advertiser: "ATP Flight School",
+    },
+    {
+      id: 3,
+      title: "Shell Aviation Jet Fuel",
+      subtitle: "Enhanced Performance, Lower Emissions",
+      icon: "",
+      ctaText: "Learn More",
+      link: "#",
+      advertiser: "Shell Aviation",
+    },
+  ];
+
+  // Native Card Ads Data
+  const nativeAds = [
+    {
+      id: 1,
+      title: "Shell Aviation Jet Fuel",
+      subtitle: "Enhanced Performance • Lower Emissions",
+      description: "Trusted by 500+ operators worldwide",
+      icon: "",
+      category: "green",
+      link: "#",
+      advertiser: "Shell Aviation",
+    },
+    {
+      id: 2,
+      badge: "FEATURED",
+      title: "Chevron Jet Fuel",
+      subtitle: "Premium Quality • Best Pricing",
+      description: "Competitive pricing • Same-day delivery",
+      icon: "",
+      category: "green",
+      link: "#",
+      advertiser: "Chevron",
+    },
+    {
+      id: 3,
+      title: "Collins Aerospace",
+      subtitle: "Advanced Avionics Systems",
+      description: "Integrated flight deck solutions",
+      icon: "",
+      category: "blue",
+      link: "#",
+      advertiser: "Collins Aerospace",
+    },
+  ];
+
   // Effect for checking stored login information on initial load
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
@@ -63,6 +133,25 @@ const HomePage = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, [footerTexts.length]);
+
+  // --- ADVERTISEMENT HANDLERS ---
+  const handlePremiumAdClick = (e: any) => {
+    e.preventDefault();
+    const currentAd = premiumAds[currentAdIndex];
+    console.log(`Clicked on ${currentAd.advertiser}`);
+    // Add your tracking or navigation logic here
+    // window.open(currentAd.link, '_blank');
+  };
+
+  const handleNativeAdClick = (e: any) => {
+    e.preventDefault();
+    const currentAd = nativeAds[currentNativeAdIndex];
+    console.log(`Clicked on ${currentAd.advertiser}`);
+    // Add your tracking or navigation logic here
+    // window.open(currentAd.link, '_blank');
+  };
+
+  // --- END ADVERTISEMENT HANDLERS ---
 
   // --- GOOGLE LOGIN DISABLED ---
   // The 'googleLogin' function and its related logic remain commented out.
@@ -158,6 +247,65 @@ New Feedback Received! 📬
     }
   };
 
+  // --- ADVERTISEMENT JSX ELEMENTS ---
+  const PremiumBannerAdElement = () => {
+    const ad = premiumAds[currentAdIndex];
+    return (
+      <div className="premium-banner-ad">
+        <div className="premium-banner-content" onClick={handlePremiumAdClick}>
+          {/* Left Side - Text Content */}
+          <div className="premium-banner-text">
+            <h3 className="premium-banner-title">{ad.title}</h3>
+            <p className="premium-banner-subtitle">{ad.subtitle}</p>
+            <button className="premium-banner-cta">
+              {ad.ctaText}
+            </button>
+          </div>
+
+          {/* Right Side - Icon */}
+          <div className="premium-banner-icon">
+            {ad.icon}
+          </div>
+        </div>
+
+        {/* Ad Label */}
+      </div>
+    );
+  };
+
+  const NativeCardAdElement = () => {
+    const ad = nativeAds[currentNativeAdIndex];
+    return (
+      <div className="native-card-ad-wrapper">
+        <div
+          className={`native-card-ad ${ad.category}`}
+          onClick={handleNativeAdClick}
+        >
+          {/* Card Header */}
+          <div className="native-card-header">
+            <span className="native-card-badge">
+              {ad.badge}
+            </span>
+            <h3 className="native-card-title">{ad.title}</h3>
+            <p className="native-card-subtitle">{ad.subtitle}</p>
+          </div>
+
+          {/* Card Body */}
+          <div className="native-card-body">
+            <div className="native-card-text">
+              <p className="native-card-description">{ad.description}</p>
+            </div>
+            <div className="native-card-icon">
+              {ad.icon}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // --- END ADVERTISEMENT ELEMENTS ---
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* 🚀 PERFORMANCE OPTIMIZATION NOTE:
@@ -192,6 +340,12 @@ New Feedback Received! 📬
               <span className="nav-link">Gate</span>
             </div>
           </div>
+
+          {/* --- PREMIUM BANNER AD - Below Search Bar --- */}
+          <div className="ad-premium-banner-wrapper">
+            <PremiumBannerAdElement />
+          </div>
+          {/* --- END PREMIUM BANNER AD --- */}
         </div>
       </div>
 
@@ -234,7 +388,11 @@ New Feedback Received! 📬
 
       {/* Features section */}
       <div className="features-section">
-        <div className="container">{/* Content area */}</div>
+        <div className="container">
+          {/* --- NATIVE CARD AD - Bottom Section --- */}
+          <NativeCardAdElement />
+          {/* --- END NATIVE CARD AD --- */}
+        </div>
       </div>
 
       {/* --- FOOTER COMMENTED OUT --- */}
