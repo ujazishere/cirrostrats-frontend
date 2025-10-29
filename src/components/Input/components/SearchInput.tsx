@@ -102,8 +102,9 @@ export default function SearchInput({ userEmail }: SearchInputProps) {
             handleSubmit(e, submitTerm, userEmail, filteredSuggestions);
           }}
           className="search-autocomplete"
+          // TODO search: overhaul - This is the option.label that is being used to show the selected value in the input field after selection.
           getOptionLabel={(option) =>
-            typeof option === "string" ? option : option.label || ""
+            typeof option === "string" ? option : option.display || ""
           }
           renderInput={(params) => (
             <div
@@ -146,6 +147,7 @@ export default function SearchInput({ userEmail }: SearchInputProps) {
               />
             </div>
           )}
+          // TODO search:- This is the section that displays the serach items in the dropdown
           // The renderOption function is being used to highlight matching parts of the option's label based on the user's input.
           // Now, it will also conditionally apply styling for recent searches.
           renderOption={(props, option, { inputValue }) => {

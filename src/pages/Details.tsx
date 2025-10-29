@@ -91,13 +91,13 @@ const Details = () => {
     loadingFlight, // This is now the main loader for the initial skeleton
     loadingEdct,
     loadingWeatherNas,
-    data: flightData,
+    flightData: flightData,
     weather: weatherResponseFlight,
     nas: nasResponseFlight,
     edct: EDCT,
     error: flightError,
   } = useFlightData(searchValue);
-
+  
   // Hook for gate-specific searches.
   const {
     loading: loadingGateData, // Loading state from the gate hook.
@@ -154,12 +154,12 @@ const Details = () => {
 
       // Format a detailed message for the Telegram notification.
       const telegramMessage = `
-New Feedback from Details Page! 📬
-------------------------
-👤 User: ${userEmail}
-📝 Type: ${feedbackType}
-💬 Message: ${feedbackMessage}
-🔍 Context: ${JSON.stringify(searchValue || "No search value")}
+        New Feedback from Details Page! 📬
+        ------------------------
+        👤 User: ${userEmail}
+        📝 Type: ${feedbackType}
+        💬 Message: ${feedbackMessage}
+        🔍 Context: ${JSON.stringify(searchValue || "No search value")}
       `;
 
       // Send the notification via our centralized flightService.

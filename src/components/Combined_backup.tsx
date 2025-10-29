@@ -30,7 +30,7 @@ interface FlightCardProps {
  * This component now features a top-level date-based tab navigation.
  */
 const FlightCard = ({ flightData, weather, NAS, EDCT }: FlightCardProps) => {
-  // TODO VHP Ismail: User feature request - cache flightdata into localstorage so it doesn't reset every few mins or when they go airplane mode
+  // TODO Ismail: User feature request - cache flightdata into localstorage so it doesn't reset every few mins or when they go airplane mode
 
   // --- Start: Tab logic ---
 
