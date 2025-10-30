@@ -17,27 +17,57 @@ const getDefaultTab = (tabOrder: string[]): string => {
   return tabOrder[0] || "departure";
 };
 
-const TabFormat: React.FC<TabFormatProps> = ({
+  const TabFormat: React.FC<TabFormatProps> = ({
   flightData,
   weather,
   NAS,
   hideChildSearchBars = false, // Add this prop to control search bars
 }) => {
   // Weather for Airports
+
+  /**
+   * Cleans weather data. Returns the weather object if it's a valid object,
+   * otherwise returns null. This prevents error strings (like HTML from a 403)
+   * from being passed to child components.
+   */
+  const cleanWeatherData = (data: any): object | null => {
+    // Check if data is falsy (null, undefined, ""),
+    // or not an object,
+    // or an array,
+    // or an empty object.
+    if (
+      !data ||
+      typeof data !== "object" ||
+      Array.isArray(data) ||
+      Object.keys(data).length === 0
+    ) {
+      return null; // Treat as invalid/empty
+    }
+    return data; // It's a valid, non-empty object
+  };
+
+  // NOW, use this function when assigning weather variables
   const dep_weather =
-    weather?.departureWeatherMdb ?? weather?.departureWeatherLive ?? null;
+    cleanWeatherData(weather?.departureWeatherMdb) ??
+    cleanWeatherData(weather?.departureWeatherLive) ??
+    null;
   const dest_weather =
-    weather?.arrivalWeatherMdb ?? weather?.arrivalWeatherLive ?? null;
+    cleanWeatherData(weather?.arrivalWeatherMdb) ??
+    cleanWeatherData(weather?.arrivalWeatherLive) ??
+    null;
   const departure_alternate_weather =
-    weather?.departureAlternateWeatherMdb ??
-    weather?.departureAlternateWeatherLive ??
+    cleanWeatherData(weather?.departureAlternateWeatherMdb) ??
+    cleanWeatherData(weather?.departureAlternateWeatherLive) ??
     null;
   const arrival_alternate_weather =
-    weather?.arrivalAlternateWeatherMdb ??
-    weather?.arrivalAlternateWeatherLive ??
+    cleanWeatherData(weather?.arrivalAlternateWeatherMdb) ??
+    cleanWeatherData(weather?.arrivalAlternateWeatherLive) ??
     null;
 
   // TODO: priority should be mdb and if live is available then live.
+
+  // NAS for airports
+// ... (rest of your code)
 
   // NAS for airports
   const nasDepartureResponse = NAS?.departureNAS ?? null;
