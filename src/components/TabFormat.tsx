@@ -360,10 +360,14 @@ const getDefaultTab = (tabOrder: string[]): string => {
                   {flightData?.departureAlternate}
                 </h3>
               </div>
-              <NASDetails
+              {/* FIX: Commented out the standalone <NASDetails /> component.
+                REASON: The <AirportCard /> component is responsible for rendering NAS details.
+                Including both components was causing the NAS table to appear twice.
+              */}
+              {/* <NASDetails
                 nasResponse={nasDepartureAlternateResponse}
                 title={getNASTitle()}
-              />
+              /> */}
               <AirportCard
                 weatherDetails={departure_alternate_weather ?? {}}
                 nasResponseAirport={nasDepartureAlternateResponse ?? {}}
@@ -391,10 +395,14 @@ const getDefaultTab = (tabOrder: string[]): string => {
               <div className="weather-tab-header">
                 <h3 className="weather-tab-title">{flightData?.arrival}</h3>
               </div>
-              <NASDetails
+              {/* FIX: Commented out the standalone <NASDetails /> component.
+                REASON: The <AirportCard /> component is responsible for rendering NAS details.
+                Including both components was causing the NAS table to appear twice.
+              */}
+              {/* <NASDetails
                 nasResponse={nasDestinationResponse}
                 title={getNASTitle()}
-              />
+              /> */}
               <AirportCard
                 weatherDetails={dest_weather ?? {}}
                 nasResponseAirport={nasDestinationResponse ?? {}}
@@ -413,10 +421,14 @@ const getDefaultTab = (tabOrder: string[]): string => {
                   {flightData?.arrivalAlternate}
                 </h3>
               </div>
-              <NASDetails
+              {/* FIX: Commented out the standalone <NASDetails /> component.
+                REASON: The <AirportCard /> component is responsible for rendering NAS details.
+                Including both components was causing the NAS table to appear twice.
+              */}
+              {/* <NASDetails
                 nasResponse={nasDestinationAlternateResponse}
                 title={getNASTitle()}
-              />
+              /> */}
               <AirportCard
                 weatherDetails={arrival_alternate_weather ?? {}}
                 nasResponseAirport={nasDestinationAlternateResponse ?? {}}
