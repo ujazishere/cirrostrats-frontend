@@ -2907,6 +2907,11 @@ footer {
   border-radius: 2px;
 }
 
+.another-table {
+ overflow-wrap: break-word !important; 
+ word-break: break-word !important;
+}
+
 /* Mobile responsiveness */
 /* Mobile responsiveness */
 @media (max-width: 768px) {
@@ -2946,6 +2951,7 @@ footer {
     font-size: 14px;
   }
 }
+
 
 .card__depature__subtitle.card__header--dark {
   margin: -1px !important; /* Negative margin to overlap with card border */
