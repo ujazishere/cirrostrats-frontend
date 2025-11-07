@@ -345,7 +345,8 @@ const useFlightData = (searchValue: SearchValue | null) => {
             results.forEach((result, index) => {
               const airportKey = airportsToFetch[index].key; // Get the original key ('departure', 'arrival', etc.).
               // Structure the weather and NAS data into a clean, keyed object.
-              finalWeather[`${airportKey}WeatherMdb`] = result?.weather?.mdb || null;
+              // NOTE: this weatherMdb
+              // finalWeather[`${airportKey}WeatherMdb`] = result?.weather?.mdb || null;
               finalWeather[`${airportKey}WeatherLive`] = result?.weather?.live || null;
               finalNas[`${airportKey}NAS`] = result?.NAS || null;
             });
