@@ -195,7 +195,7 @@ New Feedback Received! 📬
         </div>
       </div>
 
-      {/* Login/Logout section */}
+      {/* Login/Logout section
       <div className="login-section">
         <div className="login-container">
           {isLoggedIn ? (
@@ -230,7 +230,7 @@ New Feedback Received! 📬
             // --- END OF BUTTON ---
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* Features section */}
       <div className="features-section">
