@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import flightService from "./utility/flightService";
 import { NASResponse, SearchValue, WeatherData } from "../types";
+import { airportWeatherAPI, isMeaningfulWeather } from './utility/airportWeather';
 
 interface UseAirportDataReturn {
   airportWx: WeatherData | null;
@@ -51,37 +52,42 @@ const useAirportData = (
           // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
         } else {
           // Initialize variables
-          let mdbAirportId = null;
+          let mdbAirportReferenceId = null;
           let mdbAirportCode = null;
           let ICAOformattedAirportCode = null;
           let mdbAirportWeather = null;
           // @ts-expect-error - unused variable
           const _rawAirportCode = null;
           // Get instant airport weather from database if availbale - could be old data
-          if (searchValue.r_id) {
-            mdbAirportId = searchValue.r_id;
+          if (searchValue.airportCacheReferenceId) {
+            mdbAirportReferenceId = searchValue.airportCacheReferenceId;
             setLoadingWeather(true);
-            mdbAirportWeather = await axios
-              .get(`${apiUrl}/mdbAirportWeather/${mdbAirportId}`)
-              .catch(e => {
-                console.error("mdb Error:", e);
-                return { data: null };
-              });
+            
+            let mdbAirportWeather = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId)
+
+
+            // mdbAirportWeather = await axios
+            //   .get(`${apiUrl}/mdbAirportWeatherById/${mdbAirportReferenceId}`)
+            //   .catch(e => {
+            //     console.error("mdb Error:", e);
+            //     return { data: null };
+            //   });
             // Process the airport weather data if it exists
-            if (mdbAirportWeather.data) {
+            if (mdbAirportWeather.weather) {
               // FIX: We no longer set state here immediately. We wait to compare it with live data.
-              console.log("!!MDB AIRPROT DATA received!!");
-              setAirportWx(mdbAirportWeather.data);
+              setAirportWx(mdbAirportWeather.data.weather);
               setLoadingWeather(false);
               // Assign code for live weather fetching.
-              mdbAirportCode = mdbAirportWeather.data.code;
+              mdbAirportCode = mdbAirportWeather.data.ICAO;
               // Format the airport code for the API calls
               // Store both the original code and the formatted code
               ICAOformattedAirportCode = mdbAirportCode; // if its international code its 4 chars but if its 3 char...
               if (mdbAirportCode && mdbAirportCode.length === 3) {
+                // This if block only serves the purpose of converting IATA to ICAO in a bad way.
+              console.log("!!MDB AIRPROT DATA received!!", mdbAirportCode, mdbAirportWeather.data);
                 let USIATAairportCode = null;
                 USIATAairportCode = mdbAirportCode;
-                ICAOformattedAirportCode = `K${USIATAairportCode}`;
+                ICAOformattedAirportCode = `K${USIATAairportCode}`;     // TODO VHP: bad man! resolve asap!
               }
             } else {
               console.error(
@@ -136,16 +142,16 @@ const useAirportData = (
 
               // If live data is different from MDB data, trigger a backend update.
               if (
-                mdbAirportId &&
+                mdbAirportReferenceId &&
                 JSON.stringify(liveData) !== JSON.stringify(mdbData)
               ) {
                 await axios
                   .post(
-                    `${apiUrl}/storeLiveWeather?mdbId=${mdbAirportId}&rawCode=${ICAOformattedAirportCode}`
+                    `${apiUrl}/storeLiveWeather?mdbAirportReferenceId=${mdbAirportReferenceId}&rawCode=${ICAOformattedAirportCode}`
                   )
                   .catch(e => {
                     console.error(
-                      "Error sending airport code/mdbID to backend for fresh data fetch and store:",
+                      "Error sending airport code/mdbAirportReferenceId to backend for fresh data fetch and store:",
                       e
                     );
                   });
@@ -171,7 +177,7 @@ const useAirportData = (
         console.error("Error in fetchAirportData:", e);
         setAirportError(e);
         const airportIdentifier =
-          searchValue?.label || searchValue?.r_id || "unknown airport";
+          searchValue?.label || searchValue?.airportCacheReferenceId|| "unknown airport";
         let errorSummary: string;
         if (e instanceof Error) {
           errorSummary = `${e.name}: ${e.message}`;

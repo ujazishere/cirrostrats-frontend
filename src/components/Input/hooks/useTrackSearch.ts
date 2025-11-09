@@ -38,9 +38,17 @@ export const trackSearch = async (
         stId: typeof submitTerm === "object" ? submitTerm?.stId || null : null,
         // Determine the value to send for submitTerm
         submitTerm:
+          // TODO sic: Befor you perform this you may want to address nececity before this priority
+            // because this section may be a priority but it relies on the data structure provided by the search interface which needs overhaul which is priority
+            // Account for others fields in the trackSearch section here in the object apart from .value see below
+            // curate all that is fed into this system - aiports collection, flights collection and make them modular?
+            // theres some inconsistency in regard to frontend - backend search interface.
+            // it combines sic data with ph; flights, airports and gates, 
+            
+          
           typeof submitTerm === "string"
             ? submitTerm
-            : submitTerm?.value || null,
+            : submitTerm?.value || null,      // .value may not be sufficient.
         timestamp,
       });
     } catch (error: any) {
