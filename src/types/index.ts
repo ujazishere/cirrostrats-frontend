@@ -84,7 +84,7 @@ export interface SearchValue {
   value?: string;
   label: string;
   stId?: string;
-  r_id?: string;
+  airportCacheReferenceId?: string;
   gate?: string;
   airport?: string;
   flightID?: string;

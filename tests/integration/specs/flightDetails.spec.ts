@@ -2,7 +2,9 @@ import { test, expect } from "@playwright/test";
 import { navigateToDetailsPage } from "../utils/details";
 
 // TODO: A simple test for the skeleton of the flight page, not verifying any content,
-// assert using mock data: partial flight data/weather  data/ NAS data.
+    // assert using mock data: partial flight data/weather  data/ NAS data.
+
+// TODO search: simulate various submit types - button click, return key, dropdown select - for each, perform exact match submit, multiple city match(chicago,miami) submit
 
 // ua1 and anything that is prepended with `UA` will work becaus of the regex processing in the backend.
 test("Details : Flight : Raw : UA414", async ({ page }) => {

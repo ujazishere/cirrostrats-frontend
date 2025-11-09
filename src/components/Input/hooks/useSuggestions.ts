@@ -48,7 +48,7 @@ const getRecentSearchesFromLocalStorage = (): FormattedSuggestion[] => {
 
 /**
  * @function useSearchSuggestions
- * @description An enhanced search suggestions hook that fetches popular and backend suggestions,
+ * @description Search suggestions hook that fetches popular and backend suggestions,
  * correctly prioritizes the user's recent search history, and handles dynamic updates.
  */
 export default function useSearchSuggestions(
@@ -97,7 +97,9 @@ export default function useSearchSuggestions(
             userEmail,
             "",
           );
+          console.log('rawdata', rawData.length);
           const formatted = formatSuggestions(rawData);
+          // console.log('formatted data', formatted);
 
           // Step 3: Store the raw popular suggestions.
           // FIX: The 'isRecent' flag is NOT applied here. It will be added dynamically in the filtering
@@ -147,13 +149,14 @@ export default function useSearchSuggestions(
         setIsLoading(true);
         lastFetchedQueryRef.current = query.toLowerCase();
 
-        const rawData = await searchService.fetchPopularSuggestions(
+        // TODO: labeling is inappropriate here - 
+        const additionalRawData = await searchService.fetchPopularSuggestions(
           userEmail,
           query,
         );
-
-        if (rawData && rawData.length > 0) {
-          const formatted = formatSuggestions(rawData);
+        console.log('aditional', additionalRawData.length);
+        if (additionalRawData && additionalRawData.length > 0) {
+          const formatted = formatSuggestions(additionalRawData);
           setSuggestions((prev) => {
             // TODO: inspect this .id and the syntax -- this will prevent me from feeding data to the sti outside of the id realm and may break the code.
             const existingIds = new Set(

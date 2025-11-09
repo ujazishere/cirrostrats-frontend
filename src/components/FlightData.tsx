@@ -6,6 +6,7 @@ import axios from "axios"; // A promise-based HTTP client for making requests to
 import flightService from './utility/flightService'; // A service module with helper functions for flight data retrieval.
 type FlightService = typeof flightService;
 import { EDCTData, NASData, SearchValue, WeatherData } from "../types";
+import { airportWeatherAPI } from "./utility/airportWeather";
 
 // =================================================================================
 // Configuration
@@ -46,7 +47,7 @@ type FlightState = {
   loadingEdct: boolean,        // For the EDCT section
   loadingWeatherNas: boolean,  // For Weather and NAS tabs
   // loading: boolean;
-  data: any;
+  flightData: any;
   weather: WeatherData | null;
   nas: NASData | null;
   edct: EDCTData | null;
@@ -65,7 +66,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
     loadingFlight: true,
     loadingEdct: true,
     loadingWeatherNas: true,
-    data: null,
+    flightData: null,
     weather: null,
     nas: null,
     edct: null,
@@ -81,7 +82,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         loadingFlight: false,
         loadingEdct: false,
         loadingWeatherNas: false,
-        data: null,
+        flightData: null,
         weather: null,
         nas: null,
         edct: null,
@@ -97,7 +98,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         loadingFlight: true,
         loadingEdct: true,
         loadingWeatherNas: true,
-        data: null,
+        flightData: null,
         weather: null,
         nas: null,
         edct: null,
@@ -115,7 +116,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
             loadingFlight: false,
             loadingEdct: false,
             loadingWeatherNas: false,
-            data: res.data.flightData || res.data,
+            flightData: res.data.flightData || res.data,
             weather: res.data.weather || res.data,
             nas: res.data.NAS || res.data,
             edct: res.data.EDCT || res.data,
@@ -128,7 +129,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
             loadingFlight: false,
             loadingEdct: false,
             loadingWeatherNas: false,
-            data: null,
+            flightData: null,
             weather: null,
             nas: null,
             edct: null,
@@ -159,7 +160,9 @@ const useFlightData = (searchValue: SearchValue | null) => {
         // --- STEP 1: Fetch and display PRIMARY flight data immediately ---
         const { rawAJMS, flightAwareRes, flightStatsTZRes } =
           await flightService.getPrimaryFlightData(flightID);
-
+        // console.log('rawJMS', rawAJMS.data);
+        // console.log('flightAware', flightAwareRes.data);
+        // console.log('flightStats',flightStatsTZRes.data);
         // --- STEP 1.5: Validate AJMS data against FlightAware - *___ nullify JMS if discrepancy found ___*
         // TODO VHP: This is a temporary fix to catch AJMS data route discrepancies w flightAware.
           // This does not resolve the root cause of airport discrepancies but at least prevents displaying incorrect data.
@@ -214,12 +217,12 @@ const useFlightData = (searchValue: SearchValue | null) => {
         // Normalize AJMS data to ensure consistent structure.
         const ajms = normalizeAjms(validatedAJMS.data || {});
         
-
+        // console.log('normalized jms', ajms);
         // --- STEP 2: Extract airport identifiers (departure, arrival, alternates) from the aggregated primary data.
         const {
           departure, arrival, departureAlternate, arrivalAlternate
         } = flightService.getAirports({ ajms, flightAwareRes, flightStatsTZRes});
-        
+        // console.log('determine airports of interest', departure, arrival, departureAlternate, arrivalAlternate);
         // Newer code:
         // If core data sources fail, we can't build a complete picture. Set an error and exit.
         if ((ajms as any).error && (flightAwareRes as any).error) {
@@ -227,7 +230,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
             loadingFlight: false,
             loadingEdct: false,
             loadingWeatherNas: false,
-            data: null,
+            flightData: null,
             weather: null,
             nas: null,
             edct: null,
@@ -254,6 +257,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
           ...flightAwareRes.data,
           ...flightStatsTZRes.data,
         };
+        // console.log('final combinedFlights', combinedFlightData);
 
         // --- FIX: VALIDATE DATA BEFORE PROCEEDING TO FURTHER FETCHES ---
         // A flight is considered to have no real data if we couldn't find its
@@ -270,7 +274,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
             loadingFlight: false,
             loadingEdct: false,
             loadingWeatherNas: false,
-            data: null, // Set data to null to trigger the "no data" message
+            flightData: null, // Set data to null to trigger the "no data" message
             weather: null,
             nas: null,
             edct: null,
@@ -283,7 +287,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         // This renders the SummaryTable(not the route panel?).
         setFlightState((prevState: FlightState)=> ({
           ...prevState,
-          data: combinedFlightData,
+          flightData: combinedFlightData,
           loadingFlight: false, // Turn off the main loader
         }));
 
@@ -330,10 +334,22 @@ const useFlightData = (searchValue: SearchValue | null) => {
           { key: "departureAlternate", code: departureAlternate },
           { key: "arrivalAlternate", code: arrivalAlternate },
         ].filter(item => item.code); // The `.filter` is crucial here.
-
+        console.log(departure, arrival);
         // Only proceed if we have at least one valid airport code.
         if (airportsToFetch.length > 0) {
           // Create an array of promises for all the data fetches.
+
+          const response = await airportWeatherAPI.getLiveByAirportCode(apiUrl, departure)
+          // console.log('resp', response);
+          // console.log('departure', departure);
+          setFlightState((prevState: FlightState) => ({ 
+              ...prevState, 
+              weather: response, 
+              nas: null, 
+              loadingWeatherNas: false 
+            }));
+
+
           const requests = airportsToFetch.map(airport =>
             flightService.getWeatherAndNAS(airport.code || "")
           );
@@ -341,7 +357,9 @@ const useFlightData = (searchValue: SearchValue | null) => {
           Promise.all(requests).then((results: any[]) => {
             const finalWeather: { [key: string]: any } = {};
             const finalNas: { [key: string]: any } = {};
-              
+            console.log('finalweather', finalWeather.data);
+            console.log('nas',finalNas.data);
+            
             results.forEach((result, index) => {
               const airportKey = airportsToFetch[index].key; // Get the original key ('departure', 'arrival', etc.).
               // Structure the weather and NAS data into a clean, keyed object.
@@ -350,7 +368,24 @@ const useFlightData = (searchValue: SearchValue | null) => {
               finalWeather[`${airportKey}WeatherLive`] = result?.weather?.live || null;
               finalNas[`${airportKey}NAS`] = result?.NAS || null;
             });
-          
+            // for await (const result of airportsToFetch.map(airport => flightService.getWeatherAndNAS(airport.code || ""))) {
+            //   const airportKey = airportsToFetch.find(a => a.code === result?.code)?.key;
+            //   if (airportKey) {
+            //     setFlightState((prevState) => ({
+            //       ...prevState,
+            //       weather: {
+            //         ...prevState.weather,
+            //         [`${airportKey}WeatherMdb`]: result?.weather?.mdb || null,
+            //         [`${airportKey}WeatherLive`]: result?.weather?.live || null,
+            //       },
+            //       nas: {
+            //         ...prevState.nas,
+            //         [`${airportKey}NAS`]: result?.NAS || null,
+            //       },
+            //     }));
+            //   }
+            // }
+            console.log('results', results);
             setFlightState((prevState: FlightState) => ({ 
                 ...prevState, 
                 weather: finalWeather, 
@@ -378,7 +413,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
 
       } catch (e) {
         console.error("Error fetching primary flight details:", e);
-        setFlightState({ loadingFlight: false, loadingEdct: false, loadingWeatherNas: false, data: null, weather: null, nas: null, edct: null, error: e.message });
+        setFlightState({ loadingFlight: false, loadingEdct: false, loadingWeatherNas: false, flightData: null, weather: null, nas: null, edct: null, error: e.message });
       }
   };
     fetchFlightData();

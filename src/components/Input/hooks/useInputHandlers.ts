@@ -67,7 +67,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     newInputValue: string,
     _userEmail: string,
   ): void => {
-    // TODO extended:
+    // TODO search: user based popular searches
     // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
     setInputValue(newInputValue);
     // We could track every keystroke for analytics, but it's a bit much.
@@ -119,7 +119,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // The spread syntax conditionally adds properties only if they exist on the source 'term' object.
       termToStore = {
         ...(term.stId && { stId: term.stId }),
-        ...(term.r_id && { r_id: term.r_id }),
+        ...(term.airportCacheReferenceId && { airportCacheReferenceId: term.airportCacheReferenceId }),
         ...(term.gate && { gate: term.gate }),
         ...(term.flightID && { flightID: term.flightID }),
         label: term.label,
@@ -220,6 +220,10 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     }, 3000);
   };
 
+
+
+
+
   /**
    * @function handleSubmit
    * @description Handles the search submission event. It intelligently determines whether the user
@@ -238,6 +242,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     // Prevent the default browser action for the event (e.g., page reload on form submit).
     if (e) e.preventDefault();
     // Guard clause: Exit if the search term is empty, null, or just whitespace. No point in searching for nothing.
+    console.log('submit', submitTerm);
     if (
       !submitTerm ||
       (typeof submitTerm === "string" && !submitTerm.trim()) ||
@@ -246,10 +251,11 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       return;
     }
 
-    // TODO VHP: SearchTracking is not working for other airliners from JMS - like delta/american and such.
+    // TODO serach: SearchTracking is not working for other airliners from JMS - like delta/american and such.
     // Call a tracking function to log the search event for analytics.
     trackSearch(userEmail, submitTerm);
 
+    console.log('submit', submitTerm);
     // Check if the submitted term is a structured object (meaning it was selected from the dropdown).
     if (typeof submitTerm === "object" && submitTerm.label) {
       // --- Case 1: A dropdown item was explicitly selected ---
@@ -281,6 +287,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         }
 
         // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
+        // TODO search: This data structure inconsistency needs to be addrtessed.
         if (suggestion.type === "flight" || suggestion.type === "Flight") {
           const digits = suggestion.display
             ? suggestion.display.replace(/\D/g, "")
@@ -294,6 +301,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
           return digits === trimmedSubmitTerm;
         }
 
+        // TODO search: This data structure inconsistency needs to be addrtessed.
         // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
         if (suggestion.type === "Airport" || suggestion.type === "airport") {
           const airportIdentifier = suggestion.label.split(" - ")[0];
@@ -308,6 +316,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
           );
         }
 
+        // TODO search: This data structure inconsistency needs to be addrtessed.
         // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
         if (suggestion.type === "Terminal/Gate" || suggestion.type === "gate") {
           const gateIdentifier = suggestion.label
@@ -327,7 +336,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
         return false;
       });
-
+      console.log('exactMatch', exactMatch);
       if (exactMatch) {
         // If an exact match is found in suggestions, use it as the definitive search term. Hooray!
         // console.log("Found exact match in suggestions:", exactMatch);
@@ -374,7 +383,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             state: { searchValue: airportNameMatches[0] },
           });
           setSelectedValue(airportNameMatches[0]);
-        } else {
+        } else {    // check within localStorage
           // --- START: FIX FOR RACE CONDITION ---
           // Before falling back to the API, check localStorage for a recent successful match.
           // This prevents failures when the user re-searches something faster than suggestions can load.
@@ -458,7 +467,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                   // );
                   const fallbackTerm = {
                     stId: "",
-                    r_id: "",
+                    airportCacheReferenceId: "",
                     label: trimmedSubmitTerm,
                     type: "unknown",
                   };
@@ -474,7 +483,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                 console.error("Error fetching raw query data:", error); // Create a fallback term and proceed with navigation, so the user isnt stuck.
                 const fallbackTerm = {
                   stId: "",
-                  r_id: "",
+                  airportCacheReferenceId: "",
                   label: trimmedSubmitTerm,
                   type: "unknown",
                 };
@@ -489,6 +498,10 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       }
     }
   };
+
+
+
+
 
   // This handles what happens when the user clicks INTO the search bar
   const handleFocus = () => {
@@ -611,11 +624,11 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     // Handle navigation based on selection type
     if (option) {
       if (option.type === "Airport") {
-        navigate(`/airport/${option.r_id}`);
+        navigate(`/airport/${option.airportCacheReferenceId}`);
       } else if (option.type === "Flight") {
-        navigate(`/flight/${option.r_id}`);
+        navigate(`/flight/${option.airportCacheReferenceId}`);
       } else if (option.type === "Gate") {
-        navigate(`/gate/${option.r_id}`);
+        navigate(`/gate/${option.airportCacheReferenceId}`);
       }
     }
   };

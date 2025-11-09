@@ -1,6 +1,7 @@
 // utils/flightDataUtils.ts
 // services/flightService.ts
 import axios, { AxiosResponse } from "axios";
+import { WeatherData } from "../../types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -41,13 +42,13 @@ interface GetAirportsParams {
   flightStatsTZRes: FlightStatsTZData;
 }
 
-interface WeatherData {
-  live: any;
-  mdb: any;
+interface WeatherDataCollective {
+  live: WeatherData;
+  mdb: WeatherData;
 }
 
 interface WeatherAndNASResult {
-  weather: WeatherData | null;
+  weather: WeatherDataCollective | null;
   NAS: any;
 }
 
@@ -235,6 +236,9 @@ const flightService = {
     }
   },
 
+  
+
+
   /**
    * Fetches weather and nas for airport in parallel.
    *
@@ -268,7 +272,7 @@ const flightService = {
 
   getAirportWeather: async (
     airportCode: string
-  ): Promise<WeatherData | null> => {
+  ): Promise<WeatherDataCollective | null> => {
     try {
       const [liveWeather, mdbWeather] = await Promise.all([
         axios
@@ -277,6 +281,7 @@ const flightService = {
         axios
           .get(`${apiUrl}/mdbAirportWeather/${airportCode}`)
           .catch(() => null),
+      
       ]);
 
       return {
