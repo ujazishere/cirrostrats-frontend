@@ -1,22 +1,45 @@
-FROM node:21.7.1-alpine
+# --- STAGE 1: Build ---
+# Use a full Node image to build the app
+FROM node:21.7.1-alpine AS builder
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json
 COPY package*.json .
 
-# Update npm
+# Update npm and install dependencies
 RUN apk update && \
     apk add npm 
-
 RUN npm install --include=dev
-
 
 # Copy the rest of the application code
 COPY . .
 
-# Default to development, can be overridden in compose
-ARG NODE_ENV=development
-ENV NODE_ENV=${NODE_ENV}
+# Set the VITE_API_URL. It will use /api as a default.
+# This value will be overridden by your .env file in docker-compose
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=${VITE_API_URL}
 
-CMD ["npm", "run", "dev"]
+# Run the production build
+RUN npm run build
+
+# --- STAGE 2: Serve ---
+# Use a lighter Node image to serve the built files
+FROM node:21.7.1-alpine
+
+WORKDIR /app
+
+# Install 'serve', the static file server
+RUN npm install -g serve
+
+# Copy the 'dist' folder from the 'builder' stage
+COPY --from=builder /app/dist ./dist
+# Copy package.json so 'serve' can find it
+COPY package.json .
+
+# Expose port 3000 (where 'serve' runs by default)
+EXPOSE 3000
+
+# The command to run is 'serve'
+# It serves the 'dist' folder, and '-l 3000' tells it to listen on port 3000.
+# The '-s' flag is critical for React Router to work.
+CMD ["serve", "-s", "dist", "-l", "3000"]

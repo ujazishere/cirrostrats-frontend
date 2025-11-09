@@ -13,16 +13,26 @@ import UTCTime from "./components/UTCTime";
 import "./WeatherInfo.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import LiveMap from "./pages/LiveMap";
-// import Input from './components/Input'; // Adjusted import path
 import SearchAnalyticsDashboard from "./components/SearchAnalyticsDashboard";
+// NEW: Import the online status hook and banner
+import { useOnlineStatus } from "./hooks/useOnlineStatus";
+import { GlobalOfflineBanner } from "./components/OfflineBanner";
 
 function App(): JSX.Element {
+  // NEW: Get the current network status
+  const isOnline = useOnlineStatus();
+
   return (
     <GoogleOAuthProvider clientId="678901205467-g2hk1dmj5krq4ua0n3uc4r2s1d98mtq5.apps.googleusercontent.com">
       <div className="App">
+        {/* NEW: Conditionally render the global offline banner */}
+        {!isOnline && <GlobalOfflineBanner />}
+        
+        {/* Your existing Navbar. We add a style to push it down if the banner is visible. */}
         <Navbar />
         <UTCTime />
         <Routes>
+          {/* ... all your existing routes ... */}
           <Route path="/" element={<Home />} />
           <Route path="/homepage" element={<Home />} />
           <Route path="/story" element={<Story />} />
