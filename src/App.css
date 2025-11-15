@@ -34,6 +34,191 @@
   }
 }
 
+/*
+ * =========================================
+ * NEW CSS for Date and Leg Selectors
+ * Add this to your main CSS file
+ * =========================================
+ */
+
+/* --- Date Selector --- */
+.date-selector-container {
+  display: flex !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important; /* Smooth scrolling on iOS */
+  scrollbar-width: none !important; /* Hide scrollbar for Firefox */
+  padding: 16px 12px 12px 12px !important;
+  gap: 8px !important;
+  background-color: #ffffff !important; /* Matches your white card background */
+  border-bottom: 1px solid #dee2e6 !important; /* Separator */
+}
+
+/* Hide scrollbar for Chrome/Safari */
+.date-selector-container::-webkit-scrollbar {
+  display: none !important;
+}
+
+.date-selector-tab {
+  flex: 0 0 auto !important; /* Don't grow, don't shrink, base on content */
+  min-width: 90px !important;
+  padding: 8px 12px !important;
+  border: 1px solid #343a40 !important; /* Dark border to match dark theme */
+  border-radius: 8px !important;
+  background-color: #f8f9fa !important; /* Light gray, like SkyVector button */
+  color: #343a40 !important;
+  font-weight: 600 !important;
+  font-size: 0.95em !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  line-height: 1.4 !important;
+}
+
+.date-selector-tab .date-day {
+  font-size: 0.85em !important;
+  font-weight: 500 !important;
+  color: #6c757d !important; /* Muted color for day name */
+}
+
+.date-selector-tab .date-month-day {
+  font-weight: 700 !important;
+}
+
+.date-selector-tab:hover {
+  background-color: #e9ecef !important;
+}
+
+.date-selector-tab.active {
+  background-color: #343a40 !important; /* Dark, like your active tabs */
+  color: #ffffff !important;
+  border-color: #343a40 !important;
+}
+
+.date-selector-tab.active .date-day {
+  color: #f8f9fa !important; /* Light text for active state */
+}
+
+/* --- Leg Selector --- */
+.leg-selector-container {
+  padding: 16px !important;
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+.leg-selector-title {
+  font-size: 0.8em !important;
+  font-weight: 700 !important;
+  color: #6c757d !important;
+  margin: 0 0 12px 0 !important;
+  letter-spacing: 0.5px !important;
+}
+
+.leg-selector-options {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.leg-option-card {
+  display: flex !important;
+  align-items: center !important;
+  padding: 12px !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 8px !important;
+  background-color: #ffffff !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.leg-option-card:hover {
+  border-color: #adb5bd !important;
+}
+
+.leg-option-card.active {
+  border-color: #007bff !important; /* Use your site's accent blue */
+  background-color: #f8faff !important; /* Very light blue tint */
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1) !important;
+}
+
+.leg-radio-button {
+  width: 20px !important;
+  height: 20px !important;
+  border: 2px solid #ced4da !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.leg-option-card.active .leg-radio-button {
+  border-color: #007bff !important;
+}
+
+.leg-radio-dot {
+  width: 10px !important;
+  height: 10px !important;
+  background-color: #ffffff !important;
+  border-radius: 50% !important;
+  transform: scale(0) !important;
+  transition: all 0.2s ease !important;
+}
+
+.leg-option-card.active .leg-radio-dot {
+  background-color: #007bff !important;
+  transform: scale(1) !important;
+}
+
+.leg-info {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+}
+
+.leg-number {
+  font-size: 0.75em !important;
+  font-weight: 700 !important;
+  color: #6c757d !important;
+  margin-bottom: 4px !important;
+}
+
+.leg-route {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 4px !important;
+}
+
+.leg-airport {
+  font-size: 1.1em !important;
+  font-weight: 700 !important;
+  color: #212529 !important;
+}
+
+.leg-arrow {
+  font-size: 1.1em !important;
+  font-weight: 700 !important;
+  color: #007bff !important; /* Accent blue */
+  margin: 0 8px !important;
+}
+
+.leg-time {
+  font-size: 0.9em !important;
+  color: #495057 !important;
+}
+
+
+
+
+
+
+
+
+
+
+
 /* Updated CSS for the feedback trigger on the Details page */
 .feedback-trigger-container {
   text-align: center; /* Center the button horizontally */

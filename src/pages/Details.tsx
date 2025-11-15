@@ -10,7 +10,7 @@ import useGateData from "../components/GateData"; // Our newly separated custom 
 import flightService from '../components/utility/flightService'; // A service module with helper functions for flight data retrieval.
 
 // ✅ CHANGE: Import the newly created custom hook for fetching flight-specific data from its own file.
-import useFlightData from "../components/FlightData.tsx"; // Our newly separated custom hook for fetching flight data.
+import useFlightData from "../components/FlightData"; // ✅ IMPORT THE MODIFIED HOOK
 
 // type FlightService = typeof flightService;
 
@@ -86,12 +86,18 @@ const Details = () => {
   } = useAirportData(searchValue, apiUrl);
 
   // Hook for flight-specific searches.
-  // ✅ NOTE: This now calls the imported hook from `/components/flightData.jsx`.
+  // ✅ MODIFIED: Calling the new hook
   const {
-    loadingFlight, // This is now the main loader for the initial skeleton
+    scheduleData,
+    loadingSchedule,
+    selectedDate,
+    selectedLegIndex,
+    setSelectedDate,
+    setSelectedLegIndex,
+    loadingFlight,
     loadingEdct,
     loadingWeatherNas,
-    data: flightData,
+    data: flightData, // This is now data for the *selected leg*
     weather: weatherResponseFlight,
     nas: nasResponseFlight,
     edct: EDCT,
@@ -181,17 +187,22 @@ New Feedback from Details Page! 📬
   // --- FEEDBACK POPUP LOGIC END ---
 
   // =================================================================================
-  // BUG FIX: Logic to sync content and feedback section visibility
+  // ✅ MODIFIED: Logic to sync content and feedback section visibility
   // =================================================================================
   const isFlightSearch =
     searchValue?.type === "flight" || searchValue?.type === "N-Number";
+    
+  // ✅ FIX: Removed the typo 'A' after '==='
   const isAirportSearch = searchValue?.type === "airport";
+  
   const isGateSearch = searchValue?.type === "Terminal/Gate";
 
   // Determine if we are in a loading state that should hide the main content.
   // This logic MUST match the loading checks inside `renderContent` to prevent mismatches.
+  // ✅ MODIFIED: Update visibility logic
+  // Show main skeleton if the *schedule* is loading
   let isContentLoading = false;
-  if (isFlightSearch && (hasSearchChanged || loadingFlight)) {
+  if (isFlightSearch && loadingSchedule) { // ✅ CHANGED: Check loadingSchedule
     isContentLoading = true;
   }
   if (
@@ -219,7 +230,8 @@ New Feedback from Details Page! 📬
 
     // --- LOADING LOGIC ---
     // Note: The logic here is now mirrored above for the `showFeedbackSection` variable.
-    if (isFlightSearch && (hasSearchChanged || loadingFlight)) {
+    // ✅ MODIFIED: Check `loadingSchedule` for the main skeleton
+    if (isFlightSearch && (hasSearchChanged || loadingSchedule)) {
       return <LoadingFlightCard />;
     }
     if (
@@ -239,10 +251,21 @@ New Feedback from Details Page! 📬
         case "flight":
         case "N-Number":
           if (flightError)
-            return <div>Error fetching flight data: {flightError}</div>;
-          // Render the FlightCard only if `flightData` is available (truthy and not null).
-          return flightData ? (
+            return <div className="no-data-message">Error: {flightError}</div>;
+            
+          // ✅ MODIFIED: Check `scheduleData` to render FlightCard
+          // `flightData` (for the leg) might be null while it's loading,
+          // but FlightCard itself should still render to show selectors.
+          return scheduleData && scheduleData.length > 0 ? (
             <FlightCard
+              // --- New Props ---
+              scheduleData={scheduleData}
+              selectedDate={selectedDate}
+              selectedLegIndex={selectedLegIndex}
+              setSelectedDate={setSelectedDate}
+              setSelectedLegIndex={setSelectedLegIndex}
+              loadingFlight={loadingFlight}
+              // --- Existing Props ---
               flightData={flightData}
               weather={weatherResponseFlight}
               NAS={nasResponseFlight ?? {}}
@@ -251,6 +274,7 @@ New Feedback from Details Page! 📬
               isLoadingWeatherNas={loadingWeatherNas}
             />
           ) : (
+            // This shows if the *schedule* comes back empty
             <div className="no-data-message">
               <p>No flight data could be found for this search.</p>
             </div>
@@ -311,6 +335,31 @@ New Feedback from Details Page! 📬
           color: #6c757d; /* A muted text color */
           padding: 5rem 1rem;
           font-size: 1.1rem;
+          min-height: 30vh;
+        }
+        .feedback-trigger-container {
+          text-align: center;
+          padding: 20px 15px 40px;
+        }
+        .feedback-trigger-link {
+          color: #007bff; /* Use an accent color */
+          text-decoration: underline;
+          cursor: pointer;
+          font-size: 0.9em;
+        }
+        /* Skeleton styles for SummaryTable */
+        .skeleton-loader {
+          opacity: 0.7;
+        }
+        .skeleton-box {
+          display: inline-block;
+          background-color: #e0e0e0 !important;
+          border-radius: 4px !important;
+          animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
         }
       `}</style>
 

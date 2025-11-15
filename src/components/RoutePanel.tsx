@@ -1,3 +1,5 @@
+// ✅ MODIFIED FILE: src/components/RoutePanel.tsx
+
 import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { FlightData } from "../types";
@@ -12,14 +14,28 @@ import { FlightData } from "../types";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 interface RoutePanelProps {
-  flightData: FlightData;
-  onRefresh?: () => void;
+  // Allow flightData to be null
+  flightData: FlightData | null;
 }
 
 const RoutePanel: React.FC<RoutePanelProps> = ({ flightData }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [cooldownActive, setCooldownActive] = useState(false);
-  const [route, setRoute] = useState(flightData.fa_route || flightData.route);
+
+  // ✅ FIX: Explicitly type the state to allow `null`
+  const [route, setRoute] = useState<string | undefined | null>(
+    flightData?.fa_route || flightData?.route
+  );
+
+  // ✅ FIX: Add an effect to update the route when flightData prop changes.
+  // This now works because `setRoute(null)` matches the state's type.
+  useEffect(() => {
+    if (flightData) {
+      setRoute(flightData.fa_route || flightData.route);
+    } else {
+      setRoute(null); // Clear the route if flightData becomes null
+    }
+  }, [flightData]); // Dependency array ensures this runs when flightData changes
 
   // This ensures the timeout is cleared if the component is removed, preventing memory leaks.
   useEffect(() => {
@@ -49,7 +65,8 @@ const RoutePanel: React.FC<RoutePanelProps> = ({ flightData }) => {
       // const response = await axios.get(`${apiUrl}/flightAware/${flightData.fa_ident_icao}`);
       // setRoute(response.data.fa__route) if route
       const response = await axios.get(`${apiUrl}/testDataReturns`);
-      console.log("latest", response.data.flightData.fa_ident_icao);
+      // Use optional chaining
+      console.log("latest", response.data.flightData?.fa_ident_icao);
       const nroute = "NEWA ROUTER";
       setRoute(nroute);
       // await onRefresh();
@@ -61,6 +78,22 @@ const RoutePanel: React.FC<RoutePanelProps> = ({ flightData }) => {
       setIsRefreshing(false); // Stop the spinning animation
     }
   }, [isRefreshing, cooldownActive]);
+
+
+  // Add a "guard clause" to prevent rendering if there is no data.
+  // This stops the component from trying to read `flightData.fa_sv` etc. when it's null.
+  if (!flightData) {
+    return (
+      <div className="weather-tab-panel">
+        <div className="route-tab-content">
+          <h3 className="weather-tab-title">Route</h3>
+          <div className="no-route-data">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+  
+  // --- If we get here, flightData is valid ---
 
   return (
     <>
@@ -136,6 +169,7 @@ const RoutePanel: React.FC<RoutePanelProps> = ({ flightData }) => {
 
                 <div className="card-body-route">
                   <div className="data-content">{route}</div>
+                  {/* Use optional chaining here too */}
                   {(flightData?.fa_sv || flightData?.faa_skyvector) && (
                     <div className="route-actions">
                       <a
@@ -151,6 +185,7 @@ const RoutePanel: React.FC<RoutePanelProps> = ({ flightData }) => {
                 </div>
               </div>
 
+              {/* And here */}
               {flightData?.clearance && (
                 <div
                   className="clearance-display"

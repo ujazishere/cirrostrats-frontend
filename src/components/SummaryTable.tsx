@@ -13,10 +13,55 @@
 import React, { useState, useEffect } from "react";
 import { EDCTData, FlightData } from "../types";
 
+// ✅ NEW: Simple skeleton component for the summary table
+const SummaryTableSkeleton: React.FC = () => (
+  <div className="flight-info-container skeleton-loader">
+    <div className="flight-header-section">
+      <div className="flight-header-item">
+        <span className="skeleton-box" style={{ width: '120px', height: '36px' }}></span>
+      </div>
+      <div className="flight-header-item">
+        <span className="skeleton-box" style={{ width: '100px', height: '24px' }}></span>
+      </div>
+      <div className="flight-header-item">
+        <span className="skeleton-box" style={{ width: '80px', height: '24px' }}></span>
+      </div>
+    </div>
+    <div className="airport-codes-section">
+      <div className="skeleton-box" style={{ width: '100px', height: '40px' }}></div>
+      <div className="arrow-icon">→</div>
+      <div className="skeleton-box" style={{ width: '100px', height: '40px' }}></div>
+    </div>
+    <div className="flight-details-grid">
+      <div className="departure-details">
+        <div className="info-item">
+          <div className="skeleton-box" style={{ width: '60px', height: '20px' }}></div>
+          <div className="skeleton-box" style={{ width: '40px', height: '24px', marginTop: '4px' }}></div>
+        </div>
+        <div className="info-item">
+          <div className="skeleton-box" style={{ width: '100px', height: '20px' }}></div>
+          <div className="skeleton-box" style={{ width: '120px', height: '24px', marginTop: '4px' }}></div>
+        </div>
+      </div>
+      <div className="arrival-details">
+        <div className="info-item">
+          <div className="skeleton-box" style={{ width: '60px', height: '20px' }}></div>
+          <div className="skeleton-box" style={{ width: '40px', height: '24px', marginTop: '4px' }}></div>
+        </div>
+        <div className="info-item">
+          <div className="skeleton-box" style={{ width: '100px', height: '20px' }}></div>
+          <div className="skeleton-box" style={{ width: '120px', height: '24px', marginTop: '4px' }}></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 type SummaryTableProps = {
   flightData: FlightData;
   EDCT: EDCTData[];
   isLoadingEdct?: boolean;
+  isLoadingFlight?: boolean; // ✅ NEW PROP
 };
 
 /**
@@ -24,12 +69,11 @@ type SummaryTableProps = {
  * @param props.flightData - Flight information with departure and destination details.
  * @param props.EDCT - Array of EDCT information objects.
  */
-
-// const SummaryTable: React.FC<SummaryTableProps> = ({ flightData, EDCT }) => {
-const SummaryTable: React.FC<SummaryTableProps> = ({ 
-  flightData, 
-  EDCT, 
-  isLoadingEdct = false 
+const SummaryTable: React.FC<SummaryTableProps> = ({
+  flightData,
+  EDCT,
+  isLoadingEdct = false,
+  isLoadingFlight = false, // ✅ NEW PROP
 }) => {
   // Helper function to check if a value exists and is not empty
   const hasValue = (value: any): boolean => {
@@ -379,7 +423,13 @@ const SummaryTable: React.FC<SummaryTableProps> = ({
   };
 
   // ✅ UPDATED: Call the new, more powerful display info function.
-  const departureInfo = getDepartureDisplayInfo(flightData);
+  // We check if flightData exists first. If loading, we'll return the skeleton.
+  const departureInfo = flightData ? getDepartureDisplayInfo(flightData) : null;
+
+  // ✅ NEW: Render skeleton if loading
+  if (isLoadingFlight || !departureInfo) {
+    return <SummaryTableSkeleton />;
+  }
 
   return (
     <>
