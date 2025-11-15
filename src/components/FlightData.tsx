@@ -1,17 +1,15 @@
-// ✅ MODIFIED FILE: src/components/FlightData.tsx
-// This hook is now refactored to handle a new data flow:
-// 1. Fetch a "schedule" of all available days and flight legs for a given search value.
-// 2. Manage the state for the user's *selected date* and *selected leg*.
-// 3. Fetch the *detailed* data (weather, NAS, EDCT) for *only* the selected leg.
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import flightService from "./utility/flightService";
 type FlightService = typeof flightService;
-import { EDCTData, NASData, SearchValue, WeatherData, FlightData } from "../types"; // Assuming FlightData is in types
+import { EDCTData, NASData, SearchValue, WeatherData, FlightData } from "../types";
+
+// ✅ NEW: Import the mock data from the separate file
+import { MOCK_SCHEDULE_DATA, getMockLegDetails } from "./multipleLegTestData";
 
 // =_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=
 // ✅ NEW TYPES: Define the new data structures for schedules and legs.
+// These are exported so the mock data file can use them.
 //_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=
 
 /**
@@ -80,56 +78,9 @@ type FlightState = {
 };
 
 // =_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=
-// ✅ MOCK DATA: Simulates the new API responses
+// ✅ REMOVED MOCK DATA: All mock data definitions were moved
+// to `multipleLegTestData.tsx`.
 //_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=
-
-// Simulates the Scenario 1 you described (Multiple legs, single day)
-// and Scenario 2 (Single leg, multiple days)
-const MOCK_SCHEDULE_DATA: FlightDay[] = [
-  {
-    date: "2025-11-15",
-    dateLabel: "Sat, Nov 15",
-    legs: [
-      { legIndex: 0, flightID: "GJS4433", origin: "KEWR", destination: "KSFO", departureTime: "14:30 EST", arrivalTime: "17:46 PST" },
-      { legIndex: 1, flightID: "GJS4433", origin: "KSFO", destination: "KDEN", departureTime: "19:00 PST", arrivalTime: "22:30 MST" },
-    ],
-  },
-  {
-    date: "2025-11-16",
-    dateLabel: "Sun, Nov 16",
-    legs: [
-      { legIndex: 0, flightID: "GJS4433", origin: "KEWR", destination: "KDEN", departureTime: "09:15 EST", arrivalTime: "11:45 MST" },
-    ],
-  },
-  {
-    date: "2025-11-17",
-    dateLabel: "Mon, Nov 17",
-    legs: [
-      { legIndex: 0, flightID: "GJS4433", origin: "KEWR", destination: "KSFO", departureTime: "14:30 EST", arrivalTime: "17:46 PST" },
-      { legIndex: 1, flightID: "GJS4433", origin: "KSFO", destination: "KDEN", departureTime: "19:00 PST", arrivalTime: "22:30 MST" },
-      { legIndex: 2, flightID: "GJS4433", origin: "KDEN", destination: "KJFK", departureTime: "23:55 MST", arrivalTime: "05:15 EST" },
-    ],
-  },
-  {
-    date: "2025-11-18",
-    dateLabel: "Tue, Nov 18",
-    legs: [
-      { legIndex: 0, flightID: "GJS4433", origin: "KEWR", destination: "KDEN", departureTime: "09:15 EST", arrivalTime: "11:45 MST" },
-    ],
-  },
-];
-
-// This is your *old* mock data, which we'll reuse to simulate fetching *details* for a leg.
-const getMockLegDetails = async () => {
-  const res = await axios.get(`${apiUrl}/testDataReturns`);
-  console.log("!!TEST FLIGHT *LEG DETAILS* DATA!!", res.data);
-  return {
-    data: res.data.flightData || res.data,
-    weather: res.data.weather || res.data,
-    nas: res.data.NAS || res.data,
-    edct: res.data.EDCT || res.data,
-  };
-};
 
 // =_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=
 // ✅ MODIFIED HOOK: `useFlightData`
@@ -237,7 +188,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
           // --- Use Mock Schedule Data ---
           console.log("!! USING MOCK SCHEDULE DATA !!");
-          schedule = MOCK_SCHEDULE_DATA;
+          schedule = MOCK_SCHEDULE_DATA; // ✅ Using imported mock data
         } else {
           // --- TODO: Your REAL API call for the schedule ---
           // When your backend is ready, replace this.
@@ -340,7 +291,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
       try {
         // --- Use Mock Detail Data ---
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
-          const { data, weather, nas, edct } = await getMockLegDetails();
+          const { data, weather, nas, edct } = await getMockLegDetails(); // ✅ Using imported mock function
           
           // We need to *override* mock data with the *selected* leg's info
           // so the UI matches the selection.
@@ -381,7 +332,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         const ajms = normalizeAjms(validatedAJMS.data || {});
         
         const { departure, arrival, departureAlternate, arrivalAlternate } =
-          flightService.getAirports({ ajms, flightAwareRes, flightStatsTZRes });
+          flightService.getAirports({ ajms, flightAwareRes, flightStatsTZRes});
         
         if ((ajms as any).error && (flightAwareRes as any).error) {
           throw new Error(`Could not retrieve data for flight ${flightID}.`);
@@ -447,6 +398,12 @@ const useFlightData = (searchValue: SearchValue | null) => {
               const finalWeather: { [key: string]: any } = {};
               const finalNas: { [key: string]: any } = {};
               // ... (your logic to build finalWeather/finalNas)
+              results.forEach((result, index) => {
+                const airportKey = airportsToFetch[index].key;
+                finalWeather[`${airportKey}WeatherLive`] = result?.weather?.live || null;
+                finalNas[`${airportKey}NAS`] = result?.NAS || null;
+              });
+
               setFlightState(prevState => ({
                 ...prevState,
                 weather: finalWeather,
