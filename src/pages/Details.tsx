@@ -5,7 +5,7 @@ import UTCTime from "../components/UTCTime"; // Displays the current time in UTC
 import AirportCard from "../components/AirportCard"; // A card component to display airport details.
 import { FlightCard, GateCard } from "../components/Combined"; // Cards for displaying flight and gate information.
 import { LoadingFlightCard } from "../components/Skeleton"; // A placeholder/skeleton UI shown while data is loading.
-import useAirportData from "../components/AirportData"; // Custom hook to fetch airport weather and NAS data.
+import useAirportData from "../components/utility/airportService.ts"; // Custom hook to fetch airport weather and NAS data.
 import useGateData from "../components/GateData"; // Our newly separated custom hook for fetching gate-specific data.
 import flightService from '../components/utility/flightService'; // A service module with helper functions for flight data retrieval.
 
@@ -29,12 +29,6 @@ const FeedbackPopup = lazy(() => import("../pages/FeedbackPopup"));
 const apiUrl = import.meta.env.VITE_API_URL;
 
 // =================================================================================
-// ✅ REMOVED: The custom `useFlightData` hook and its helper function `normalizeAjms`
-// have been moved to their own file (`/src/components/flightData.jsx`) for better
-// code organization and separation of concerns.
-// =================================================================================
-
-// =================================================================================
 // Details Component (Refactored)
 // This is the main component for this view. Its primary role is to orchestrate the
 // data fetching via hooks and render the appropriate UI based on the current state.
@@ -45,14 +39,12 @@ const apiUrl = import.meta.env.VITE_API_URL;
  * It acts as a controller, delegating data fetching to custom hooks and rendering
  * sub-components based on the search type and data availability.
  *
- * @param {object} location.state - The stfate passed from react-router during navigation.
+ * @param {object} location.state - The state passed from react-router during navigation.
  * @param {object} location.state.searchValue - The core search object that drives the component's behavior.
  * @property {string} searchValue.type - The type of search (e.g., "flight", "airport", "Terminal/Gate", "N-Number").
  * @property {string} searchValue.value - The primary value for the search (e.g., flight number, airport code).
  * @property {string} searchValue.label - A user-friendly label for the search term, often used for display.
- * @property {string} [searchValue.flightID] - A specific flight identifier, if applicable.
- * @property {string} [searchValue.nnumber] - An aircraft's N-number (tail number), if applicable.
- * @property {string} [searchValue.gate] - A specific gate identifier, if applicable.
+ * @property {string} [searchValue.referenceId] - A specific reference id to direct the search to the correct database collection.
  */
 const Details = () => {
   // Access the location object provided by React Router.
@@ -186,7 +178,7 @@ const Details = () => {
   const isFlightSearch =
     searchValue?.type === "flight" || searchValue?.type === "N-Number";
   const isAirportSearch = searchValue?.type === "airport";
-  const isGateSearch = searchValue?.type === "Terminal/Gate";
+  const isGateSearch = searchValue?.type === "gate";
 
   // Determine if we are in a loading state that should hide the main content.
   // This logic MUST match the loading checks inside `renderContent` to prevent mismatches.
@@ -271,7 +263,7 @@ const Details = () => {
             </div>
           );
 
-        case "Terminal/Gate":
+        case "gate":
           if (gateError)
             return <div>Error fetching gate data: {gateError}</div>;
           // FIX: Check if gateData is a non-empty array. An empty array [] is truthy.

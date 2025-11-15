@@ -97,7 +97,6 @@ export default function useSearchSuggestions(
             userEmail,
             "",
           );
-          console.log('rawdata', rawData.length);
           const formatted = formatSuggestions(rawData);
           // console.log('formatted data', formatted);
 
@@ -161,14 +160,14 @@ export default function useSearchSuggestions(
             // TODO: inspect this .id and the syntax -- this will prevent me from feeding data to the sti outside of the id realm and may break the code.
             const existingIds = new Set(
               [
-                ...prev.initial.map((s) => s.stId),
-                ...prev.backend.map((s) => s.stId),
+                ...prev.initial.map((s) => s.id),
+                ...prev.backend.map((s) => s.id),
               ].filter(Boolean),
             );
 
             // Filters newly fetched suggestions to exclude any items whose IDs already exist.
             const newSuggestions = formatted.filter((s) =>
-              s.stId ? !existingIds.has(s.stId) : true,
+              s.id ? !existingIds.has(s.id) : true,
             );
 
             return {

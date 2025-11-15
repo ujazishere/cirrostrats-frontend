@@ -118,10 +118,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // Construct the object using only the properties we need.
       // The spread syntax conditionally adds properties only if they exist on the source 'term' object.
       termToStore = {
-        ...(term.stId && { stId: term.stId }),
-        ...(term.airportCacheReferenceId && { airportCacheReferenceId: term.airportCacheReferenceId }),
-        ...(term.gate && { gate: term.gate }),
-        ...(term.flightID && { flightID: term.flightID }),
+        ...(term.id && { id: term.id }),
+        ...(term.referenceId && { referenceId: term.referenceId }),
         label: term.label,
         type: term.type,
       };
@@ -135,8 +133,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     // We don't want the same search showing up multiple times.
     recentSearches = recentSearches.filter((item: any) => {
       // Priority 1: If both the new term and an existing item have an 'id', compare them. This is the most reliable check.
-      if (termToStore.stId && item.stId) {
-        return item.stId !== termToStore.stId;
+      if (termToStore.id && item.id) {
+        return item.id !== termToStore.id;
       }
       // Priority 2: If IDs aren't available, compare their labels in a case-insensitive way.
       if (item.label && termToStore.label) {
@@ -242,7 +240,6 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     // Prevent the default browser action for the event (e.g., page reload on form submit).
     if (e) e.preventDefault();
     // Guard clause: Exit if the search term is empty, null, or just whitespace. No point in searching for nothing.
-    console.log('submit', submitTerm);
     if (
       !submitTerm ||
       (typeof submitTerm === "string" && !submitTerm.trim()) ||
@@ -255,12 +252,12 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     // Call a tracking function to log the search event for analytics.
     trackSearch(userEmail, submitTerm);
 
-    console.log('submit', submitTerm);
     // Check if the submitted term is a structured object (meaning it was selected from the dropdown).
     if (typeof submitTerm === "object" && submitTerm.label) {
       // --- Case 1: A dropdown item was explicitly selected ---
       // The term is already in the correct format, this is the easy path.
       // console.log("Submitting selected term:", submitTerm);
+      console.log('submitTerm', submitTerm);
       saveSearchToLocalStorage(submitTerm);
       // Navigate to the details page, passing the search object in the route's state.
       navigate("/details", { state: { searchValue: submitTerm } });
@@ -288,7 +285,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
         // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
         // TODO search: This data structure inconsistency needs to be addrtessed.
-        if (suggestion.type === "flight" || suggestion.type === "Flight") {
+        if (suggestion.type === "flight") {
           const digits = suggestion.display
             ? suggestion.display.replace(/\D/g, "")
             : "";
@@ -303,7 +300,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
         // TODO search: This data structure inconsistency needs to be addrtessed.
         // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
-        if (suggestion.type === "Airport" || suggestion.type === "airport") {
+        if (suggestion.type === "airport") {
           const airportIdentifier = suggestion.label.split(" - ")[0];
           // console.log(
           //   "Checking airport identifier match:",
@@ -318,7 +315,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
         // TODO search: This data structure inconsistency needs to be addrtessed.
         // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
-        if (suggestion.type === "Terminal/Gate" || suggestion.type === "gate") {
+        if (suggestion.type === "gate") {
           const gateIdentifier = suggestion.label
             .split(" - ")[1]
             ?.split(" ")[0]; // Extract gate number
@@ -347,7 +344,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         // NEW: Check if it could be a partial airport name match (e.g., "Newark" matches "EWR - Newark Liberty...")
         const airportNameMatches = suggestions.filter(
           (suggestion: FormattedSuggestion) =>
-            (suggestion.type === "Airport" || suggestion.type === "airport") &&
+            (suggestion.type === "airport") &&
             suggestion.label
               .toLowerCase()
               .includes(trimmedSubmitTerm.toLowerCase()),
@@ -394,7 +391,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             );
             // Find a recent search that could be a flight number match
             recentMatch = recentSearches.find((item: any) => {
-              if (item.type === "flight" || item.type === "Flight") {
+              if (item.type === "flight") {
                 // Extract just the digits from the stored flight label or a display property if it exists
                 const flightIdentifier = item.display || item.label;
                 const digits = flightIdentifier.replace(/\D/g, "");
@@ -466,8 +463,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                   //   "fetchRawQuery returned null, using fallback term"
                   // );
                   const fallbackTerm = {
-                    stId: "",
-                    airportCacheReferenceId: "",
+                    id: "",
+                    referenceId: "",
                     label: trimmedSubmitTerm,
                     type: "unknown",
                   };
@@ -482,8 +479,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                 // Handle API errors gracefully instead of letting them break the user experience
                 console.error("Error fetching raw query data:", error); // Create a fallback term and proceed with navigation, so the user isnt stuck.
                 const fallbackTerm = {
-                  stId: "",
-                  airportCacheReferenceId: "",
+                  id: "",
+                  referenceId: "",
                   label: trimmedSubmitTerm,
                   type: "unknown",
                 };

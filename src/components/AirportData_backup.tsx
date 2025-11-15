@@ -4,7 +4,6 @@ import flightService from "./utility/flightService";
 import { NASResponse, SearchValue, WeatherData } from "../types";
 import { airportWeatherAPI, isMeaningfulWeather } from './utility/airportService';
 
-// In the process of refactoring, this file is no longer used.
 interface UseAirportDataReturn {
   airportWx: WeatherData | null;
   nasResponseAirport: NASResponse;

@@ -1,10 +1,119 @@
-import { useState, useEffect } from "react";
 import axios from "axios";
-import flightService from "./utility/flightService";
-import { NASResponse, SearchValue, WeatherData } from "../types";
-import { airportWeatherAPI, isMeaningfulWeather } from './utility/airportService';
+import { useState, useEffect } from "react";
+import flightService from "./flightService";
+import { NASResponse, SearchValue, WeatherData } from "../../types";
 
-// In the process of refactoring, this file is no longer used.
+// Minimal, reusable weather helpers
+export const isMeaningfulWeather = (weatherObj: WeatherData): boolean =>
+  !!(
+    weatherObj &&
+    typeof weatherObj === "object" &&
+    Object.keys(weatherObj).length > 0 &&
+    (weatherObj as any).metar
+  );
+
+type ChooseArgs = {
+  apiUrl: string;
+  mdbAirportReferenceId?: string | null;
+  airportCodeICAO?: string | null; // e.g., KJFK
+  mdbData?: any | null;
+  liveData?: any | null;
+};
+
+// Chooses live over mdb when meaningful. If live differs from mdb and we have mdbAirportReferenceId,
+// it will notify backend to store fresh live weather. Returns the chosen payload (or null).
+export async function chooseAirportWeatherAndMaybeUpdate({
+  apiUrl,
+  mdbAirportReferenceId,
+  airportCodeICAO,
+  mdbData,
+  liveData,
+}: ChooseArgs): Promise<any | null> {
+  const hasLive = isMeaningfulWeather(liveData);
+  const hasMdb = isMeaningfulWeather(mdbData);
+
+  if (hasLive) {
+    if (
+      mdbAirportReferenceId &&
+      hasMdb &&
+      JSON.stringify(liveData) !== JSON.stringify(mdbData)
+    ) {
+      try {
+        await axios.post(
+          `${apiUrl}/storeLiveWeather?mdbAirportReferenceId=${mdbAirportReferenceId}&rawCode=${airportCodeICAO || ""}`
+        );
+      } catch (e) {
+        console.error("Error notifying backend to store live weather:", e);
+      }
+    }
+    return liveData;
+  }
+
+  if (hasMdb) return mdbData;
+
+  return null;
+}
+
+export const airportWeatherAPI = {
+  /**
+   * Fetch airport weather by reference ID
+   */
+  getByReferenceId: async (apiUrl: string, referenceId: string): Promise<WeatherData | null> => {
+    if (!referenceId) {
+      console.error('No reference ID provided');
+      return null;
+    }
+
+    try {
+      const response = await axios.get(`${apiUrl}/mdbAirportWeatherById/${referenceId}`);
+      // console.log("!!MDB AIRPORT DATA received!!", response.data);
+      isMeaningfulWeather(response.data)
+      return response.data;
+    } catch (error) {
+      console.error("MDB Airport Weather Error:", error);
+      return null;
+    }
+  },
+
+   /**
+   * Fetch live airport weather by ICAO code
+   */
+  getLiveByAirportCode: async (apiUrl: string, airportCode: string): Promise<WeatherData | null> => {
+    if (!airportCode) {
+      console.error('No airport code provided');
+      return null;
+    }
+
+    try {
+      const response = await axios.get(`${apiUrl}/liveAirportWeather/${airportCode}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Live Weather Error for ${airportCode}:`, error);
+      return null;
+    }
+  },
+
+
+   /**
+   * Fetch NAS by ICAO
+   */
+
+  getMdbByAirportCode: async (apiUrl: string, airportCode: string): Promise<WeatherData | null> => {
+    if (!airportCode) {
+      console.error('No airport code provided');
+      return null;
+    }
+
+    try {
+      const response = await axios.get(`${apiUrl}/liveAirportWeather/${airportCode}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Live Weather Error for ${airportCode}:`, error);
+      return null;
+    }
+  },
+}
+
 interface UseAirportDataReturn {
   airportWx: WeatherData | null;
   nasResponseAirport: NASResponse;
@@ -12,6 +121,7 @@ interface UseAirportDataReturn {
   LoadingNAS: boolean;
   airportError: any;
 }
+
 
 const useAirportData = (
   searchValue: SearchValue | null,
@@ -56,7 +166,6 @@ const useAirportData = (
           let mdbAirportReferenceId = null;
           let mdbAirportCode = null;
           let ICAOformattedAirportCode = null;
-          let mdbAirportWeather = null;
           // @ts-expect-error - unused variable
           const _rawAirportCode = null;
           // Get instant airport weather from database if availbale - could be old data
@@ -64,28 +173,20 @@ const useAirportData = (
             mdbAirportReferenceId = searchValue.referenceId;
             setLoadingWeather(true);
             
-            let mdbAirportWeather = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId)
+            let mdbAirportWeather: WeatherData | null = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId);
 
-
-            // mdbAirportWeather = await axios
-            //   .get(`${apiUrl}/mdbAirportWeatherById/${mdbAirportReferenceId}`)
-            //   .catch(e => {
-            //     console.error("mdb Error:", e);
-            //     return { data: null };
-            //   });
-            // Process the airport weather data if it exists
-            if (mdbAirportWeather.weather) {
-              // FIX: We no longer set state here immediately. We wait to compare it with live data.
-              setAirportWx(mdbAirportWeather.data.weather);
+            // Process the airport weather data if it exists and is not null
+            if (mdbAirportWeather && (mdbAirportWeather as any).weather) {
+              setAirportWx((mdbAirportWeather as any).weather);
               setLoadingWeather(false);
               // Assign code for live weather fetching.
-              mdbAirportCode = mdbAirportWeather.data.ICAO;
+              mdbAirportCode = (mdbAirportWeather as any).ICAO;
               // Format the airport code for the API calls
               // Store both the original code and the formatted code
               ICAOformattedAirportCode = mdbAirportCode; // if its international code its 4 chars but if its 3 char...
               if (mdbAirportCode && mdbAirportCode.length === 3) {
                 // This if block only serves the purpose of converting IATA to ICAO in a bad way.
-              console.log("!!MDB AIRPROT DATA received!!", mdbAirportCode, mdbAirportWeather.data);
+              console.log("!!MDB AIRPROT DATA received!!", mdbAirportCode, (mdbAirportWeather as any).ICAO);
                 let USIATAairportCode = null;
                 USIATAairportCode = mdbAirportCode;
                 ICAOformattedAirportCode = `K${USIATAairportCode}`;     // TODO VHP: bad man! resolve asap!
@@ -191,16 +292,16 @@ const useAirportData = (
             errorSummary = "Unserializable error payload";
           }
         }
-        flightService
-          .postNotifications(
-            `AirportData absolute error\nAirport: ${airportIdentifier}\nDetails: ${errorSummary}`
-          )
-          .catch(notificationError => {
-            console.error(
-              "Failed to send absolute error notification:",
-              notificationError
-            );
-          });
+        // flightService
+        //   .postNotifications(
+        //     `AirportData absolute error\nAirport: ${airportIdentifier}\nDetails: ${errorSummary}`
+        //   )
+        //   .catch(notificationError => {
+        //     console.error(
+        //       "Failed to send absolute error notification:",
+        //       notificationError
+        //     );
+        //   });
       } finally {
         // Loading state is already set in the individual branches above
       }

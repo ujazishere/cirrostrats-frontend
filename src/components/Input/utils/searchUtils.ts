@@ -1,24 +1,20 @@
 interface RawSuggestion {
-  stId: string;
-  airportCacheReferenceId?: string;
-  gate?: string;
-  airport?: string;
-  flightID?: string;
+  _id: string;
+  referenceId?: string;
   display?: string;
+  displaySimilarity?: string;
   type: string;
-  code?: string;
-  name?: string;
+  metadata?: object;
 }
 
 export interface FormattedSuggestion {
-  stId: string;
-  airportCacheReferenceId?: string;
-  gate?: string;
-  airport?: string;
-  flightID?: string;
+  id: string;
+  referenceId?: string;
   display?: string;
+  // displaySimilarity?: string;
   label: string;
   type: string;
+  metadata?: object;
   isRecent?: boolean;
   timestamp?: number;
 }
@@ -28,38 +24,18 @@ export const formatSuggestions = (
 ): FormattedSuggestion[] => {
   if (!rawSuggestions || !Array.isArray(rawSuggestions)) return [];
 
-  // TODO search: duplicate bug - `search query stid bug`  -- Investigate in backend and add unique id to backend's source collection instead of just sic stId?
+  // TODO search: duplicate bug - `search query id bug`  -- Investigate in backend and add unique id to backend's source collection instead of just sic id?
   //  problem is that the  search index collection ID is clashing due to the fall back to non-popular searches within airport.
   // take for example Denver, it may be an airport within the popular items from search index collection and also exist in the airports collection, hence the ID conflict.
+  // console.log('rawSuggestios', rawSuggestions);
   return rawSuggestions.map((item) => ({
-    stId: item.stId,
-    ...(item.airportCacheReferenceId && { airportCacheReferenceId: item.airportCacheReferenceId }), // gates dont have id so making id optional.
-    ...(item.gate && { gate: item.gate }), // For gates
-    ...(item.airport && { airport: item.airport }), // For gates
-    ...(item.flightID && { flightID: item.flightID }),
-    // fuzz_find_search_text: item.fuzz_find_search_text,   // Trying to get fuzz find from backend to mathc and use instead of label.
-    // TODO serach matching:
-    // account for fuzzfund - label vs display -- show display on frontend but use label for search matching? since it may have fuzz find labels in array?
-    // fuzzfind on airports - Some airports dont show up - need to account for large airport file with icao and iata codes names and location.
+    id: item._id,
+    referenceId: item.referenceId,
     display: item.display,
     // TODO search suggestion label formatting for flights:
       // move this to backend to reduce frontend processing save it in sic for frequent popular searches and exhaustion searches runs thru IATA/ICAO codes and airline codes to generate appropriate combination labels. e.g JBU4646 -> B64646 (JBU4646)
-    label: item.display
-      ? item.type === "flight"
-        ? item.display.startsWith("GJS")
-          ? `UA${item.display.slice(3)} (${item.display})`
-          : item.display.startsWith("DAL")
-            ? `DL${item.display.slice(3)} (${item.display})`
-            : item.display.startsWith("AAL")
-              ? `AA${item.display.slice(3)} (${item.display})`
-              : item.display.startsWith("UAL")
-                ? `UA${item.display.slice(3)} (${item.display})`
-                : item.display.startsWith("UCA")
-                  ? `UA${item.display.slice(3)} (${item.display})`
-                  : item.display
-        : item.display
-      : `${item.code} - ${item.name}`,
-
+    label: item.display || '',
+    metadata: item.metadata,
     type: item.type,
   }));
 };

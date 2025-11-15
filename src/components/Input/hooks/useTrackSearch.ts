@@ -3,7 +3,7 @@ import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 interface SearchTermObject {
-  stId?: string;
+  id?: string;
   value?: string;
   [key: string]: any;
 }
@@ -35,7 +35,7 @@ export const trackSearch = async (
 
       await axios.post(`${apiUrl}/searches/track`, {
         email: userEmail,
-        stId: typeof submitTerm === "object" ? submitTerm?.stId || null : null,
+        id: typeof submitTerm === "object" ? submitTerm?.id || null : null,
         // Determine the value to send for submitTerm
         submitTerm:
           // TODO sic: Befor you perform this you may want to address nececity before this priority
