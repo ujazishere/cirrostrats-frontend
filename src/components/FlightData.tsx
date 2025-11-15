@@ -45,12 +45,13 @@ const useFlightData = (searchValue: SearchValue | null) => {
     error: null,
   });
 
-  const {
-    weather: airportWx, // Weather data for the airport.
-    nas: nasResponseAirport, // NAS data for the airport.
-    loadingWeatherNas, // Loading state for the airport hook.
-    airportError: error, // Error state for the airport hook.
-  } = useAirportData(searchValue, apiUrl);
+  // Note : Removed custom hook from below and moved it outside of useEffect
+    const {
+            airportWx, // Weather data for the airport.
+            nasResponseAirport, // NAS data for the airport.
+            loadingWeather, // Loading state for the airport hook.
+            airportError, // Error state for the airport hook.
+          } = useAirportData(searchValue, apiUrl);
 
   // This `useEffect` hook triggers the data fetching logic whenever the `searchValue` changes.
   useEffect(() => {
@@ -123,7 +124,6 @@ const useFlightData = (searchValue: SearchValue | null) => {
         searchValue?.type === "flight" ? (searchValue?.metadata as any)?.flightID :
         searchValue?.type === "nNumber" ? (searchValue?.metadata as any)?.nnumber : null;       // TODO VHP: add for .value support that may come from the search value.
         // searchValue?.flightID || searchValue?.nnumber || searchValue?.value;
-
       // If no valid flightID can be found, we can't proceed. Set an error and stop.
       if (!flightID) {
         setFlightState((s: FlightState) => ({ 
@@ -284,12 +284,6 @@ const useFlightData = (searchValue: SearchValue | null) => {
 
           // const response = await airportWeatherAPI.getLiveByAirportCode(apiUrl, departure)
           // Hook for airport-specific searches.
-          const {
-            airportWx, // Weather data for the airport.
-            nasResponseAirport, // NAS data for the airport.
-            loadingWeather, // Loading state for the airport hook.
-            airportError, // Error state for the airport hook.
-          } = useAirportData(searchValue, apiUrl);
           // console.log('resp', response);
           // console.log('departure', departure);
           setFlightState((prevState: FlightState) => ({ 
