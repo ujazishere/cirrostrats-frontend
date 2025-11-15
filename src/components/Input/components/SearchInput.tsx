@@ -70,8 +70,8 @@ export default function SearchInput({ userEmail }: SearchInputProps) {
     // It matches based on ID if available, otherwise by a case-insensitive label match.
     const updatedSearches = recentSearches.filter(
       (item: FormattedSuggestion) => {
-        if (itemToRemove.stId && item.stId) {
-          return item.stId !== itemToRemove.stId;
+        if (itemToRemove.id && item.id) {
+          return item.id !== itemToRemove.id;
         }
         return item.label.toLowerCase() !== itemToRemove.label.toLowerCase();
       },

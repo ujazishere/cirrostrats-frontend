@@ -83,13 +83,9 @@ export interface SearchValue {
   type: string;
   value?: string;
   label: string;
-  stId?: string;
-  airportCacheReferenceId?: string;
-  gate?: string;
-  airport?: string;
-  flightID?: string;
-  nnumber?: string;
-  display?: string;
+  id?: string;
+  referenceId?: string;
+  metadata?: object;
   isRecent?: boolean;
   timestamp?: number;
 }

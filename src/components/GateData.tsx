@@ -28,8 +28,8 @@ const useGateData = (searchValue: SearchValue | null): GateState => {
   useEffect(() => {
     // We first validate if the search is actually for a gate. If not, we do nothing.
     // This prevents unnecessary API calls when the user searches for a flight or airport.
-    if (searchValue?.type !== "Terminal/Gate") {
-      // Reset the state to its initial values if the search type is not 'Terminal/Gate'.
+    if (searchValue?.type !== "gate") {
+      // Reset the state to its initial values if the search type is not 'gate'.
       setGateState({ loading: false, data: null, error: null });
       return; // Exit the effect early.
     }
@@ -41,7 +41,7 @@ const useGateData = (searchValue: SearchValue | null): GateState => {
       try {
         // Perform the GET request to the gate-specific API endpoint.
         // The gate identifier from `searchValue` is used to construct the URL.
-        const res = await axios.get(`${apiUrl}/gates/${searchValue.gate}`);
+        const res = await axios.get(`${apiUrl}/gates/${searchValue.referenceId}`);
         // On success, update the state with the fetched data and set loading to false.
         setGateState({ loading: false, data: res.data, error: null });
       } catch (e: any) {

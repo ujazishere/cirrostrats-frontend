@@ -4,43 +4,16 @@
 import { useState, useEffect } from "react";
 import axios from "axios"; // A promise-based HTTP client for making requests to our backend API.
 import flightService from './utility/flightService'; // A service module with helper functions for flight data retrieval.
-type FlightService = typeof flightService;
-import { EDCTData, NASData, SearchValue, WeatherData } from "../types";
-import { airportWeatherAPI } from "./utility/airportWeather";
+import { EDCTData, NASData, NASResponse, SearchValue, WeatherData } from "../types";
+import useAirportData, { airportWeatherAPI } from "./utility/airportService";
+import { normalizeAjms, validateAirportData } from "./utility/dataUtils";
+import { CloudCog } from "lucide-react";
 
 // =================================================================================
 // Configuration
 // =================================================================================
 // Retrieve the API's base URL from environment variables. This is a best practice for security and configuration management.
 const apiUrl = import.meta.env.VITE_API_URL;
-
-
-// =================================================================================
-// Helper Function
-// This function was moved from Details.jsx along with the hook.
-// =================================================================================
-function normalizeAjms(ajms: any): { data: any;error?:any } {
-  // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
-    // *** Error prone such that it may return jumbled data from various dates. 
-    // This is a temporary fix to normalize ajms data until we can fix the backend to return consistent data.
-  const result: any = {};
-
-  for (const [key, val] of Object.entries(ajms)) {
-    if (val && typeof val === "object" && "value" in val) {
-      // case: { timestamp, value }
-      result[key] = (val as any).value;
-    } else if (typeof val === "string") {
-      // case: plain string
-      result[key] = val;
-    } else {
-      // everything else
-      result[key] = null;
-    }
-  }
-
-  return { data: result }; // keep .data wrapper
-  // return result;
-}
 
 type FlightState = {
   loadingFlight: boolean,      // For the main flight data
@@ -49,7 +22,7 @@ type FlightState = {
   // loading: boolean;
   flightData: any;
   weather: WeatherData | null;
-  nas: NASData | null;
+  nas: NASResponse | NASData | null;
   edct: EDCTData | null;
   error: string | null;
 };
@@ -58,7 +31,6 @@ type FlightState = {
 // CUSTOM HOOK for fetching Flight Data
 // This hook is responsible for all logic related to fetching flight, weather, NAS, and EDCT data.
 // =================================================================================
-// flightdata.jsx: line 76
 const useFlightData = (searchValue: SearchValue | null) => {
   // We manage all related states within a single object. This simplifies state updates and reduces re-renders.
   // REFACTORED: State now has granular loading flags for each data piece.
@@ -72,6 +44,13 @@ const useFlightData = (searchValue: SearchValue | null) => {
     edct: null,
     error: null,
   });
+
+  const {
+    weather: airportWx, // Weather data for the airport.
+    nas: nasResponseAirport, // NAS data for the airport.
+    loadingWeatherNas, // Loading state for the airport hook.
+    airportError: error, // Error state for the airport hook.
+  } = useAirportData(searchValue, apiUrl);
 
   // This `useEffect` hook triggers the data fetching logic whenever the `searchValue` changes.
   useEffect(() => {
@@ -138,10 +117,12 @@ const useFlightData = (searchValue: SearchValue | null) => {
         }
         return; // Exit after handling test data.
       }
-
+      // console.log('searchValue', searchValue);
       // Extract the flight identifier from the `searchValue` object. It can be one of several properties.
       const flightID =
-        searchValue?.flightID || searchValue?.nnumber || searchValue?.value;
+        searchValue?.type === "flight" ? (searchValue?.metadata as any)?.flightID :
+        searchValue?.type === "nNumber" ? (searchValue?.metadata as any)?.nnumber : null;       // TODO VHP: add for .value support that may come from the search value.
+        // searchValue?.flightID || searchValue?.nnumber || searchValue?.value;
 
       // If no valid flightID can be found, we can't proceed. Set an error and stop.
       if (!flightID) {
@@ -168,47 +149,9 @@ const useFlightData = (searchValue: SearchValue | null) => {
           // This does not resolve the root cause of airport discrepancies but at least prevents displaying incorrect data.
           // Introduces a new problem - flightAware showing up data for tomorrows flighs, once the scheduled time passes vs flightStats showing today flights throughout the day.
           // Discrepancy fixes needed across all 3 sources- airport, datetime, multiple legs --> 
-        function validateAirportData(
-          ajmsData: { data: { departure: string; arrival: string } },
-          flightAwareRes: {
-            data: { fa_origin: string; fa_destination: string };
-            error: boolean;
-          },
-          flightService: FlightService
-        ) {
-          // If no AJMS data or no FlightAware data, return as-is
-          if (!ajmsData?.data || !flightAwareRes?.data || flightAwareRes.error) {
-            return ajmsData;
-          }
-          
-          const ajmsDeparture = ajmsData.data.departure;
-          const ajmsArrival = ajmsData.data.arrival;
-          const faOrigin = flightAwareRes.data.fa_origin;
-          const faDestination = flightAwareRes.data.fa_destination;
-          
-          // Check for discrepancy
-          if (
-            (ajmsDeparture && faOrigin && ajmsDeparture !== faOrigin) ||
-            (ajmsArrival && faDestination && ajmsArrival !== faDestination)
-          ) {
-            // Log the discrepancy
-            flightService.postNotifications(
-              `Airport Discrepancy: \n**ajms** ${JSON.stringify(
-                ajmsData.data
-              )} \n**flightAware** ${JSON.stringify(flightAwareRes.data)}`
-            );
-            
-            // TODO VHP:  what if there is a discrepancy between flightStats and the resolved JMS/flightAware?
-            // Return nullified AJMS data (mark as faulty)
-            return { ...ajmsData, data: null, error: 'Airport discrepancy detected' };
-          }
-          
-          // No discrepancy, return original
-          return ajmsData;
-        }
         
         // Validate before normalization
-        const validatedAJMS = validateAirportData(rawAJMS, flightAwareRes, flightService);
+        const validatedAJMS = validateAirportData(rawAJMS, flightAwareRes);   // TODO VHP: what if there is a discrepancy between flightStats and the resolved JMS/flightAware?
         
         // TODO: *** CAUTION DO NOT REMOVE THIS NORMALIZATION STEP ***
         // *** Error prone such that it may return jumbled data from various dates. 
@@ -334,19 +277,26 @@ const useFlightData = (searchValue: SearchValue | null) => {
           { key: "departureAlternate", code: departureAlternate },
           { key: "arrivalAlternate", code: arrivalAlternate },
         ].filter(item => item.code); // The `.filter` is crucial here.
-        console.log(departure, arrival);
+        // console.log(departure, arrival);
         // Only proceed if we have at least one valid airport code.
         if (airportsToFetch.length > 0) {
           // Create an array of promises for all the data fetches.
 
-          const response = await airportWeatherAPI.getLiveByAirportCode(apiUrl, departure)
+          // const response = await airportWeatherAPI.getLiveByAirportCode(apiUrl, departure)
+          // Hook for airport-specific searches.
+          const {
+            airportWx, // Weather data for the airport.
+            nasResponseAirport, // NAS data for the airport.
+            loadingWeather, // Loading state for the airport hook.
+            airportError, // Error state for the airport hook.
+          } = useAirportData(searchValue, apiUrl);
           // console.log('resp', response);
           // console.log('departure', departure);
           setFlightState((prevState: FlightState) => ({ 
               ...prevState, 
-              weather: response, 
-              nas: null, 
-              loadingWeatherNas: false 
+              weather: airportWx, 
+              nas: nasResponseAirport, 
+              loadingWeatherNas: loadingWeather || false 
             }));
 
 
