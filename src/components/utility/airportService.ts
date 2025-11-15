@@ -1,3 +1,4 @@
+import { NASResponse } from './../../types/index';
 import axios from "axios";
 import { useState, useEffect } from "react";
 import flightService from "./flightService";
@@ -114,6 +115,23 @@ export const airportWeatherAPI = {
   },
 }
 
+export const airportNasAPI ={
+  getByAirportCode: async (apiUrl: string, airportCode: string): Promise<WeatherData | null> => {
+    if (!airportCode) {
+      console.error('No airportCode provided');
+      return null;
+    }
+
+    try {
+      const response = await axios.get(`${apiUrl}/NAS?airport=${airportCode}`);
+      return response.data;
+    } catch (error) {
+      console.error("Airport NAS Error:", error);
+      return null;
+    }
+  }
+}
+
 interface UseAirportDataReturn {
   airportWx: WeatherData | null;
   nasResponseAirport: NASResponse;
@@ -166,6 +184,7 @@ const useAirportData = (
           let mdbAirportReferenceId = null;
           let mdbAirportCode = null;
           let ICAOformattedAirportCode = null;
+          let mdbAirportWeather= null;
           // @ts-expect-error - unused variable
           const _rawAirportCode = null;
           // Get instant airport weather from database if availbale - could be old data
@@ -203,32 +222,18 @@ const useAirportData = (
 
           // Fetch Live data w ICAO airport code -- Use either mdb code or raw code through searchValue.airport - ICAO format accounted and pre-processed for.
           if (ICAOformattedAirportCode) {
-            const [nasRes, liveAirportWeather] = await Promise.all([
-              // Use the formatted code for NAS API
-              axios
-                .get(`${apiUrl}/NAS?airport=${ICAOformattedAirportCode}`)
-                .catch(e => {
-                  console.error("NAS Error:", e);
-                  return { data: null };
-                }),
 
-              // Use the formatted code for live weather API
-              axios
-                .get(`${apiUrl}/liveAirportWeather/${ICAOformattedAirportCode}`)
-                .catch(e => {
-                  console.error("liveWeather fetch error:", e);
-                  return { data: null };
-                }),
-            ]);
+            const nasRes : WeatherData | null = await airportNasAPI.getByAirportCode(apiUrl, ICAOformattedAirportCode);
+            let liveAirportWeather: WeatherData | null = await airportWeatherAPI.getLiveByAirportCode(apiUrl, ICAOformattedAirportCode);
 
-            if (nasRes.data) {
-              setNasResponseAirport(nasRes.data);
+            if (nasRes) {
+              setNasResponseAirport(nasRes);
               setLoadingNAS(false);
             }
 
             // --- FIX: REVISED LOGIC TO HANDLE POTENTIALLY EMPTY WEATHER DATA ---
-            const liveData = liveAirportWeather.data;
-            const mdbData = mdbAirportWeather?.data;
+            const liveData = liveAirportWeather;
+            const mdbData = mdbAirportWeather;
             // Helper to check for meaningful weather data (must not be an empty object and should have a METAR).
             const isMeaningful = (weatherObj: any): boolean =>
               weatherObj &&
