@@ -106,7 +106,7 @@ export const airportWeatherAPI = {
     }
 
     try {
-      const response = await axios.get(`${apiUrl}/liveAirportWeather/${airportCode}`);
+      const response = await axios.get(`${apiUrl}/mdbAirportWeatherByAirportCode/${airportCode}`);
       return response.data;
     } catch (error) {
       console.error(`Live Weather Error for ${airportCode}:`, error);
