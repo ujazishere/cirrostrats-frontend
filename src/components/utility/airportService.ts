@@ -1,8 +1,6 @@
-import { NASResponse } from './../../types/index';
+import { AirportToFetch, NASResponse, WeatherData } from './../../types/index';
 import axios from "axios";
 import { useState, useEffect } from "react";
-import flightService from "./flightService";
-import { NASResponse, SearchValue, WeatherData } from "../../types";
 
 // Minimal, reusable weather helpers
 export const isMeaningfulWeather = (weatherObj: WeatherData): boolean =>
@@ -140,9 +138,63 @@ interface UseAirportDataReturn {
   airportError: any;
 }
 
+/**
+ * Custom hook: useAirportData
+ * 
+ * This hook retrieves live weather and NAS (National Airspace System) data for a given airport.
+ * It is especially designed for use within the Details page (or similar), enabling rapid access to airport-specific data.
+ * 
+ * Usage:
+ *  const {
+ *    airportWx,
+ *    nasResponseAirport,
+ *    loadingWeather,
+ *    loadingNAS,
+ *    airportError
+ *  } = useAirportData(airportsToFetch, apiUrl);
+ * 
+ * Parameters:
+ *   airportsToFetch: Array of AirportToFetch objects - each object can include:
+ *     - key: a string (e.g., "airport", "departure", etc.)
+ *     - ICAOairportCode: the airport identifier (ICAO, e.g., "KBOS") or null.
+ *     - referenceId: optional backend referenceId for the airport.
+ *   apiUrl: string - base url for API requests (usually from .env).
+ * 
+ * Return value:
+ *   {
+ *     airportWx: WeatherData | null; // Live weather for the first (or specified) airport
+ *     nasResponseAirport: NASResponse | null; // NAS information object for the airport
+ *     loadingWeather: boolean;
+ *     loadingNAS: boolean;
+ *     airportError: any;
+ *   }
+ * 
+ * Notes:
+ * - The hook currently fetches data only for the first airport in the `airportsToFetch` array.
+ *   This matches the Details page's logic for single-airport and airport search views.
+ * - Handles both real requests and, if VITE_APP_TEST_FLIGHT_DATA === "true", returns test data from a mock endpoint.
+ * - Callers should pass an array with a single well-formed AirportToFetch object to get accurate data.
+ * - Intended for use (primarily) when searchValue?.type === "airport" (in Details.tsx), but can be reused wherever
+ *   rapid single-airport data lookup is needed.
+ * 
+ * Example searchValue (from Details.tsx):
+ *   searchValue = {
+ *     type: "airport",
+ *     value: "JFK",
+ *     label: "JFK",
+ *     id: "...",
+ *     referenceId: "...",
+ *     ...
+ *   }
+ * airportsToFetchForDetails = [{
+ *     key: "airport",
+ *     ICAOairportCode: searchValue.label || null,
+ *     referenceId: searchValue.referenceId || null
+ * }]
+ */
 
 const useAirportData = (
-  searchValue: SearchValue | null,
+  airportToFetch: AirportToFetch | null,
   apiUrl: string
 ): UseAirportDataReturn => {
   const [airportWx, setAirportWx] = useState<WeatherData | null>(null);
@@ -153,8 +205,8 @@ const useAirportData = (
   const [airportError, setAirportError] = useState<any>(null);
 
   useEffect(() => {
-    // Only proceed if it's an airport search
-    if (searchValue?.type !== "airport") {
+    // Only proceed if we have airports to fetch
+    if (!airportToFetch) {
       return;
     }
     // Reset states for a new airport search
@@ -181,49 +233,60 @@ const useAirportData = (
           // e.g., setAirportWx(res.data.airportWx) // This would override the hook for test mode.
         } else {
           // Initialize variables
-          let mdbAirportReferenceId = null;
-          let mdbAirportCode = null;
-          let ICAOformattedAirportCode = null;
-          let mdbAirportWeather= null;
-          // @ts-expect-error - unused variable
-          const _rawAirportCode = null;
-          // Get instant airport weather from database if availbale - could be old data
-          if (searchValue.referenceId) {
-            mdbAirportReferenceId = searchValue.referenceId;
+          // console.log("airportsToFetch in useAirportData", airportsToFetch);
+          // Defensive: check first airport object in the array
+          // If the string length is more than 4, treat as referenceId, otherwise as ICAO code
+          let mdbAirportReferenceId = (airportToFetch && typeof airportToFetch === 'string' && airportToFetch.length > 4) ? airportToFetch : null;
+          let ICAOformattedAirportCode = (airportToFetch && typeof airportToFetch === 'string' && airportToFetch.length === 4) ? airportToFetch : null;
+          // console.log("mdbAirportReferenceId for airportToFetch", mdbAirportReferenceId);
+          let mdbAirportWeather = null;
+
+          // Get instant airport weather from database if available - could be old data
+          if (mdbAirportReferenceId) {
             setLoadingWeather(true);
             
-            let mdbAirportWeather: WeatherData | null = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId);
-
+            let fetchedMdbWeather: WeatherData | null = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId);
             // Process the airport weather data if it exists and is not null
-            if (mdbAirportWeather && (mdbAirportWeather as any).weather) {
-              setAirportWx((mdbAirportWeather as any).weather);
+            if (fetchedMdbWeather && (fetchedMdbWeather as any).weather) {
+              setAirportWx((fetchedMdbWeather as any).weather);
               setLoadingWeather(false);
+              return;
               // Assign code for live weather fetching.
-              mdbAirportCode = (mdbAirportWeather as any).ICAO;
+              mdbAirportCode = (fetchedMdbWeather as any).ICAO;
+              mdbAirportWeather = fetchedMdbWeather;
               // Format the airport code for the API calls
               // Store both the original code and the formatted code
               ICAOformattedAirportCode = mdbAirportCode; // if its international code its 4 chars but if its 3 char...
               if (mdbAirportCode && mdbAirportCode.length === 3) {
                 // This if block only serves the purpose of converting IATA to ICAO in a bad way.
-              console.log("!!MDB AIRPROT DATA received!!", mdbAirportCode, (mdbAirportWeather as any).ICAO);
-                let USIATAairportCode = null;
-                USIATAairportCode = mdbAirportCode;
+                console.log("!!MDB AIRPROT DATA received!!", mdbAirportCode, (fetchedMdbWeather as any).ICAO);
+                let USIATAairportCode = mdbAirportCode;
                 ICAOformattedAirportCode = `K${USIATAairportCode}`;     // TODO VHP: bad man! resolve asap!
               }
             } else {
               console.error(
                 "Impossible error -- mdb data for weather not found"
               );
+              // Fallback to ICAO code from airportToFetch if MDB fetch failed
+              if (!ICAOformattedAirportCode && airportToFetch.ICAOairportCode) {
+                ICAOformattedAirportCode = airportToFetch.ICAOairportCode;
+              }
             }
-          } else if (searchValue.label) {
+          }
+          return;
+          
+          // If we don't have a referenceId or MDB fetch didn't provide a code, use the provided ICAO code
+          if (!ICAOformattedAirportCode && airportToFetch.ICAOairportCode) {
             setLoadingWeather(true);
-            ICAOformattedAirportCode = searchValue.label;
+            ICAOformattedAirportCode = airportToFetch.ICAOairportCode;
           }
 
           // Fetch Live data w ICAO airport code -- Use either mdb code or raw code through searchValue.airport - ICAO format accounted and pre-processed for.
           if (ICAOformattedAirportCode) {
+            setLoadingWeather(true);
+            setLoadingNAS(true);
 
-            const nasRes : WeatherData | null = await airportNasAPI.getByAirportCode(apiUrl, ICAOformattedAirportCode);
+            const nasRes: WeatherData | null = await airportNasAPI.getByAirportCode(apiUrl, ICAOformattedAirportCode);
             let liveAirportWeather: WeatherData | null = await airportWeatherAPI.getLiveByAirportCode(apiUrl, ICAOformattedAirportCode);
 
             if (nasRes) {
@@ -283,8 +346,6 @@ const useAirportData = (
       } catch (e) {
         console.error("Error in fetchAirportData:", e);
         setAirportError(e);
-        const airportIdentifier =
-          searchValue?.label || searchValue?.referenceId|| "unknown airport";
         let errorSummary: string;
         if (e instanceof Error) {
           errorSummary = `${e.name}: ${e.message}`;
@@ -313,7 +374,7 @@ const useAirportData = (
     };
 
     fetchAirportData();
-  }, [searchValue, apiUrl]); // Effect dependencies
+  }, [airportToFetch, apiUrl]); // Effect dependencies
 
   return {
     airportWx,

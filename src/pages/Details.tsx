@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
+import { AirportToFetch } from "../types/index";
 import AirportCard from "../components/AirportCard"; // A card component to display airport details.
 import { FlightCard, GateCard } from "../components/Combined"; // Cards for displaying flight and gate information.
 import { LoadingFlightCard } from "../components/Skeleton"; // A placeholder/skeleton UI shown while data is loading.
@@ -69,13 +70,17 @@ const Details = () => {
   // The component subscribes to the state changes from these hooks.
   // =================================================================================
 
+  // Prepare airport data for the hook - abstract searchValue processing here
+  const airportsToFetch: AirportToFetch = 
+    searchValue?.type === "airport" && (searchValue?.referenceId || searchValue?.metadata.ICAO)
+
   // Hook for airport-specific searches.
   const {
     airportWx, // Weather data for the airport.
     nasResponseAirport, // NAS data for the airport.
     loadingWeather, // Loading state for the airport hook.
     airportError, // Error state for the airport hook.
-  } = useAirportData(searchValue, apiUrl);
+  } = useAirportData(airportsToFetch, apiUrl);
 
   // Hook for flight-specific searches.
   // ✅ NOTE: This now calls the imported hook from `/components/flightData.jsx`.

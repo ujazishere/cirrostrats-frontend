@@ -253,19 +253,18 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     trackSearch(userEmail, submitTerm);
 
     // Check if the submitted term is a structured object (meaning it was selected from the dropdown).
-    if (typeof submitTerm === "object" && submitTerm.label) {
+    console.log("submitTerm", submitTerm);
+    if (typeof submitTerm === "object" && submitTerm.referenceId) {
       // --- Case 1: A dropdown item was explicitly selected ---
       // The term is already in the correct format, this is the easy path.
-      // console.log("Submitting selected term:", submitTerm);
-      console.log('submitTerm', submitTerm);
+      console.log("Submitting selected term:", submitTerm);
       saveSearchToLocalStorage(submitTerm);
       // Navigate to the details page, passing the search object in the route's state.
       navigate("/details", { state: { searchValue: submitTerm } });
       // Update the Autocomplete component's value to reflect the selection.
       setSelectedValue(submitTerm);
     } else if (typeof submitTerm === "string") {
-      // This is the tricky part, when user just types something and hits enter
-      // console.log("Submitting raw string term:", submitTerm);
+      // This is the tricky part, when user just types something and hits enter...
       // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
       const trimmedSubmitTerm = submitTerm.trim(); // trimming leading and trailing white spaces
 
@@ -276,9 +275,10 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // This now handles airports, gates, and flights properly. Much smarter.
       const exactMatch = suggestions.find((suggestion: FormattedSuggestion) => {
         // Check for exact label match (case-insensitive) - works for all types
+        console.log("suggestion", suggestions);
         if (
-          suggestion.label &&
-          suggestion.label.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+          suggestion.display
+          // suggestion.display.toLowerCase() === trimmedSubmitTerm.toLowerCase()
         ) {
           return true;
         }
@@ -301,15 +301,18 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         // TODO search: This data structure inconsistency needs to be addrtessed.
         // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
         if (suggestion.type === "airport") {
-          const airportIdentifier = suggestion.label.split(" - ")[0];
+          console.log("suggestion", suggestion);
+          const airportIdentifier = (suggestion.metadata as { ICAO?: string })?.ICAO;
           // console.log(
           //   "Checking airport identifier match:",
           //   airportIdentifier,
           //   "vs",
           //   trimmedSubmitTerm
           // );
+          if (!airportIdentifier) return false;
           return (
-            airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+            suggestion.display
+            // airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
           );
         }
 

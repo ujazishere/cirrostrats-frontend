@@ -90,6 +90,8 @@ export interface SearchValue {
   timestamp?: number;
 }
 
+export type AirportToFetch = string;
+
 // Component Props types
 export interface AirportCardProps {
   weatherDetails: WeatherData;

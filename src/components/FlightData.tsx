@@ -44,14 +44,16 @@ const useFlightData = (searchValue: SearchValue | null) => {
     edct: null,
     error: null,
   });
+  const [airportsToFetch, setAirportsToFetch] = useState<{ key: string; ICAOairportCode: string | null | undefined }[]>([]);
 
   // Note : Removed custom hook from below and moved it outside of useEffect
-    const {
-            airportWx, // Weather data for the airport.
-            nasResponseAirport, // NAS data for the airport.
-            loadingWeather, // Loading state for the airport hook.
-            airportError, // Error state for the airport hook.
-          } = useAirportData(searchValue, apiUrl);
+
+  const {
+          airportWx, // Weather data for the airport.
+          nasResponseAirport, // NAS data for the airport.
+          loadingWeather, // Loading state for the airport hook.
+          airportError, // Error state for the airport hook.
+        } = useAirportData(airportsToFetch, apiUrl);
 
   // This `useEffect` hook triggers the data fetching logic whenever the `searchValue` changes.
   useEffect(() => {
@@ -271,12 +273,17 @@ const useFlightData = (searchValue: SearchValue | null) => {
         }
 
         // Fetch Weather and NAS data asynchronously
-        const airportsToFetch = [
-          { key: "departure", code: departure },
-          { key: "arrival", code: arrival },
-          { key: "departureAlternate", code: departureAlternate },
-          { key: "arrivalAlternate", code: arrivalAlternate },
-        ].filter(item => item.code); // The `.filter` is crucial here.
+        // Instead of using a local airportsToFetch variable, we use state to track the airports we want to fetch.
+        // This allows useAirportData (which should accept an airports array as input) to always be synced with our current airports.
+        setAirportsToFetch(
+          [
+            { key: "departure", ICAOairportCode: departure },
+            { key: "arrival", ICAOairportCode: arrival },
+            { key: "departureAlternate", ICAOairportCode: departureAlternate },
+            { key: "arrivalAlternate", ICAOairportCode: arrivalAlternate }
+          ].filter(item => item.ICAOairportCode) // Don't include entries with no code
+        );
+
         // console.log(departure, arrival);
         // Only proceed if we have at least one valid airport code.
         if (airportsToFetch.length > 0) {
@@ -295,7 +302,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
 
 
           const requests = airportsToFetch.map(airport =>
-            flightService.getWeatherAndNAS(airport.code || "")
+            flightService.getWeatherAndNAS(airport.ICAOairportCode || null)
           );
           // Use `Promise.all` to execute all these requests in parallel, which is much more efficient than sequential requests.
           Promise.all(requests).then((results: any[]) => {
