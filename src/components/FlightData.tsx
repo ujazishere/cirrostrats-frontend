@@ -275,6 +275,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         // Fetch Weather and NAS data asynchronously
         // Instead of using a local airportsToFetch variable, we use state to track the airports we want to fetch.
         // This allows useAirportData (which should accept an airports array as input) to always be synced with our current airports.
+        // NOTE: Nidhi: These ICAO 4 charater airport codes need to be passed to useAirportData one at a time as string to get its weather and update state in the flight look up.
         setAirportsToFetch(
           [
             { key: "departure", ICAOairportCode: departure },

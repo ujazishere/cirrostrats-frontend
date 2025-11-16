@@ -1,5 +1,6 @@
 import { AirportToFetch, NASResponse, WeatherData } from './../../types/index';
 import axios from "axios";
+import { CloudFog } from 'lucide-react';
 import { useState, useEffect } from "react";
 
 // Minimal, reusable weather helpers
@@ -246,53 +247,43 @@ const useAirportData = (
             setLoadingWeather(true);
             
             let fetchedMdbWeather: WeatherData | null = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId);
+            console.log("fetchedMdbWeather", fetchedMdbWeather);
             // Process the airport weather data if it exists and is not null
             if (fetchedMdbWeather && (fetchedMdbWeather as any).weather) {
               setAirportWx((fetchedMdbWeather as any).weather);
               setLoadingWeather(false);
-              return;
               // Assign code for live weather fetching.
-              mdbAirportCode = (fetchedMdbWeather as any).ICAO;
               mdbAirportWeather = fetchedMdbWeather;
+              ICAOformattedAirportCode = (fetchedMdbWeather as any).ICAO;
               // Format the airport code for the API calls
               // Store both the original code and the formatted code
-              ICAOformattedAirportCode = mdbAirportCode; // if its international code its 4 chars but if its 3 char...
-              if (mdbAirportCode && mdbAirportCode.length === 3) {
-                // This if block only serves the purpose of converting IATA to ICAO in a bad way.
-                console.log("!!MDB AIRPROT DATA received!!", mdbAirportCode, (fetchedMdbWeather as any).ICAO);
-                let USIATAairportCode = mdbAirportCode;
-                ICAOformattedAirportCode = `K${USIATAairportCode}`;     // TODO VHP: bad man! resolve asap!
-              }
             } else {
               console.error(
                 "Impossible error -- mdb data for weather not found"
               );
               // Fallback to ICAO code from airportToFetch if MDB fetch failed
-              if (!ICAOformattedAirportCode && airportToFetch.ICAOairportCode) {
-                ICAOformattedAirportCode = airportToFetch.ICAOairportCode;
-              }
             }
-          }
-          return;
-          
-          // If we don't have a referenceId or MDB fetch didn't provide a code, use the provided ICAO code
-          if (!ICAOformattedAirportCode && airportToFetch.ICAOairportCode) {
-            setLoadingWeather(true);
-            ICAOformattedAirportCode = airportToFetch.ICAOairportCode;
           }
 
           // Fetch Live data w ICAO airport code -- Use either mdb code or raw code through searchValue.airport - ICAO format accounted and pre-processed for.
           if (ICAOformattedAirportCode) {
+            console.log("ICAOformattedAirportCode", ICAOformattedAirportCode);
             setLoadingWeather(true);
             setLoadingNAS(true);
-
             const nasRes: WeatherData | null = await airportNasAPI.getByAirportCode(apiUrl, ICAOformattedAirportCode);
             let liveAirportWeather: WeatherData | null = await airportWeatherAPI.getLiveByAirportCode(apiUrl, ICAOformattedAirportCode);
 
+            console.log("nasRes", nasRes);
+            console.log("liveAirportWeather", liveAirportWeather);
+            // Note: Nidhi: This live weather needs to be compared with mdb weather and if 
+              // different, update the state with the live weather and ALSO Store the live weather in the database - see above function 
+              // `${apiUrl}/storeLiveWeather?mdbAirportReferenceId=${mdbAirportReferenceId}&rawCode=${airportCodeICAO || ""}`
+            // return;
             if (nasRes) {
               setNasResponseAirport(nasRes);
               setLoadingNAS(false);
             }
+            return
 
             // --- FIX: REVISED LOGIC TO HANDLE POTENTIALLY EMPTY WEATHER DATA ---
             const liveData = liveAirportWeather;
