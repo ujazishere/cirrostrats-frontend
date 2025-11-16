@@ -84,15 +84,15 @@ const NASDetails: React.FC<NASDetailsProps> = ({
                 >
                   <thead>
                     <tr>
-                      <th colSpan={2}>{key}</th>
+                      <th colSpan={2} className="nas-table-title">{key}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {Object.entries(value).map(
                       ([subKey, subValue]: [string, any], subIndex: number) => (
                         <tr key={subIndex}>
-                          <td>{subKey}</td>
-                          <td>
+                          <td className="nas-label">{subKey}</td>
+                          <td className="nas-value">
                             {typeof subValue === "object"
                               ? JSON.stringify(subValue)
                               : subValue}
