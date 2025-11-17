@@ -241,32 +241,43 @@ const useAirportData = (
           // console.log("mdbAirportReferenceId for airportToFetch", mdbAirportReferenceId);
           let mdbAirportWeather = null;
 
+          // NOTE: Temporary disabled - need to revisit this to use referenceId throught suggestions 
           // Get instant airport weather from database if available - could be old data
-          if (mdbAirportReferenceId) {
-            setLoadingWeather(true);
+          // if (mdbAirportReferenceId) {
+          //   setLoadingWeather(true);
             
-            let fetchedMdbWeather: MdbWeatherData | null = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId);
-            console.log("fetchedMdbWeather", fetchedMdbWeather?.weather);
+          //   let fetchedMdbWeather: MdbWeatherData | null = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId);
+          //   console.log("fetchedMdbWeather", fetchedMdbWeather?.weather);
 
-            // Process the airport weather data if it exists and is not null
-            if (fetchedMdbWeather && fetchedMdbWeather.weather && isMeaningfulWeather(fetchedMdbWeather.weather)) {
-              setAirportWx(fetchedMdbWeather.weather);
-              setLoadingWeather(false);
-              // Assign code for live weather fetching.
-              mdbAirportWeather = fetchedMdbWeather.weather;
-              ICAOformattedAirportCode = fetchedMdbWeather.metadata.ICAO;
-              // Format the airport code for the API calls
-              // Store both the original code and the formatted code
-            } else {
-              console.error(
-                "Impossible error -- mdb data for weather not found"
-              );
-              // Fallback to ICAO code from airportToFetch if MDB fetch failed
-            }
-          }
+          //   // Process the airport weather data if it exists and is not null
+          //   if (fetchedMdbWeather && fetchedMdbWeather.weather) {
+          //     console.log('airportWx set to', airportWx);
+          //     setAirportWx(fetchedMdbWeather.weather);
+          //     console.log('airportWx  updated to', airportWx);
+
+          //     // Assign code for live weather fetching.
+          //     mdbAirportWeather = fetchedMdbWeather.weather;
+          //     ICAOformattedAirportCode = fetchedMdbWeather.metadata.ICAO;
+          //     // Format the airport code for the API calls
+          //     // Store both the original code and the formatted code
+          //   } else {
+          //     console.error(
+          //       "Impossible error -- mdb data for weather not found"
+          //     );
+          //     // Fallback to ICAO code from airportToFetch if MDB fetch failed
+          //   }
+          // }
 
           // Fetch Live data w ICAO airport code -- Use either mdb code or raw code through searchValue.airport - ICAO format accounted and pre-processed for.
           if (ICAOformattedAirportCode) {
+            // TODO: if the ICAO code is comging from flightData then 
+            setLoadingWeather(true);
+            let mdbAirportWeatherUsingICAO = await airportWeatherAPI.getMdbByAirportCode(apiUrl, ICAOformattedAirportCode) as MdbWeatherData | null;
+            console.log("mdbAirportWeatherUsingICAO", mdbAirportWeatherUsingICAO?.weather);
+
+            setAirportWx(mdbAirportWeatherUsingICAO?.weather as WeatherData);
+            setLoadingWeather(false);
+
             console.log("ICAOformattedAirportCode", ICAOformattedAirportCode);
             setLoadingWeather(true);
             setLoadingNAS(true);
@@ -320,16 +331,20 @@ const useAirportData = (
             }
             // Priority 2: Fallback to database data if it's meaningful and live data was not.
             else if (isMeaningful(mdbData)) {
+              console.log("mdbData is meaningful", mdbData);
               setAirportWx(mdbData);
             }
             // Priority 3: If no data from any source is meaningful, set state to null.
             else {
+              console.log("no data from any source is meaningful, setting state to null");
               setAirportWx(null);
             }
+            console.log("airportWx loaded up", airportWx);
             // Finally, set loading to false.
             setLoadingWeather(false);
           } else {
             // FIX: If there's no airport code to search with, ensure state is null.
+            console.log("no airport code to search with, setting state to null");
             setAirportWx(null);
             setLoadingWeather(false);
           }

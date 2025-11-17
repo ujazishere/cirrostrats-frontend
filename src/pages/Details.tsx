@@ -72,7 +72,8 @@ const Details = () => {
 
   // Prepare airport data for the hook - abstract searchValue processing here
   const airportsToFetch: AirportToFetch = 
-    searchValue?.type === "airport" && (searchValue?.referenceId || searchValue?.metadata.ICAO)
+    // searchValue?.type === "airport" && (searchValue?.referenceId || searchValue?.metadata.ICAO)
+    searchValue?.type === "airport" && searchValue?.metadata.ICAO
 
   // Hook for airport-specific searches.
   const {
