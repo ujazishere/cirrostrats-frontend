@@ -254,7 +254,14 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
     // Check if the submitted term is a structured object (meaning it was selected from the dropdown).
     console.log("submitTerm", submitTerm);
-    if (typeof submitTerm === "object" && submitTerm.referenceId) {
+    // Accept either referenceId or metadata.ICAO as a unique indicator (for airports)
+    if (
+      typeof submitTerm === "object" &&
+      (
+        submitTerm.referenceId ||
+        (submitTerm.metadata && submitTerm.metadata.ICAO)
+      )
+    ) {
       // --- Case 1: A dropdown item was explicitly selected ---
       // The term is already in the correct format, this is the easy path.
       console.log("Submitting selected term:", submitTerm);

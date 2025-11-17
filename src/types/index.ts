@@ -36,6 +36,14 @@ export interface WeatherData {
   };
 }
 
+
+export interface MdbWeatherData {
+  weather: WeatherData;
+  metadata: {
+    ICAO: string;
+  };
+}
+
 // TODO: make this type prescriptive
 export type NASResponse =
   | {

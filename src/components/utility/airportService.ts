@@ -1,4 +1,4 @@
-import { AirportToFetch, NASResponse, WeatherData } from './../../types/index';
+import { AirportToFetch, NASResponse, MdbWeatherData, WeatherData } from './../../types/index';
 import axios from "axios";
 import { CloudFog } from 'lucide-react';
 import { useState, useEffect } from "react";
@@ -58,7 +58,7 @@ export const airportWeatherAPI = {
   /**
    * Fetch airport weather by reference ID
    */
-  getByReferenceId: async (apiUrl: string, referenceId: string): Promise<WeatherData | null> => {
+  getByReferenceId: async (apiUrl: string, referenceId: string): Promise<MdbWeatherData | null> => {
     if (!referenceId) {
       console.error('No reference ID provided');
       return null;
@@ -67,7 +67,6 @@ export const airportWeatherAPI = {
     try {
       const response = await axios.get(`${apiUrl}/mdbAirportWeatherById/${referenceId}`);
       // console.log("!!MDB AIRPORT DATA received!!", response.data);
-      isMeaningfulWeather(response.data)
       return response.data;
     } catch (error) {
       console.error("MDB Airport Weather Error:", error);
@@ -246,15 +245,16 @@ const useAirportData = (
           if (mdbAirportReferenceId) {
             setLoadingWeather(true);
             
-            let fetchedMdbWeather: WeatherData | null = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId);
-            console.log("fetchedMdbWeather", fetchedMdbWeather);
+            let fetchedMdbWeather: MdbWeatherData | null = await airportWeatherAPI.getByReferenceId(apiUrl, mdbAirportReferenceId);
+            console.log("fetchedMdbWeather", fetchedMdbWeather?.weather);
+
             // Process the airport weather data if it exists and is not null
-            if (fetchedMdbWeather && (fetchedMdbWeather as any).weather) {
-              setAirportWx((fetchedMdbWeather as any).weather);
+            if (fetchedMdbWeather && fetchedMdbWeather.weather && isMeaningfulWeather(fetchedMdbWeather.weather)) {
+              setAirportWx(fetchedMdbWeather.weather);
               setLoadingWeather(false);
               // Assign code for live weather fetching.
-              mdbAirportWeather = fetchedMdbWeather;
-              ICAOformattedAirportCode = (fetchedMdbWeather as any).ICAO;
+              mdbAirportWeather = fetchedMdbWeather.weather;
+              ICAOformattedAirportCode = fetchedMdbWeather.metadata.ICAO;
               // Format the airport code for the API calls
               // Store both the original code and the formatted code
             } else {

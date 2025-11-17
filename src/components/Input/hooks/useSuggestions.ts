@@ -153,7 +153,6 @@ export default function useSearchSuggestions(
           userEmail,
           query,
         );
-        console.log('aditional', additionalRawData.length);
         if (additionalRawData && additionalRawData.length > 0) {
           const formatted = formatSuggestions(additionalRawData);
           setSuggestions((prev) => {
@@ -164,11 +163,19 @@ export default function useSearchSuggestions(
                 ...prev.backend.map((s) => s.id),
               ].filter(Boolean),
             );
+            const existingDisplays = new Set(
+              [
+                ...prev.initial.map((s) => s.display),
+                ...prev.backend.map((s) => s.display),
+              ].filter(Boolean),
+            );
 
             // Filters newly fetched suggestions to exclude any items whose IDs already exist.
-            const newSuggestions = formatted.filter((s) =>
-              s.id ? !existingIds.has(s.id) : true,
-            );
+            const newSuggestions = formatted.filter((s) =>  {
+              const hasDuplicateId = s.id && existingIds.has(s.id);
+              const hasDuplicateDisplay = s.display && existingDisplays.has(s.display);
+              return !(hasDuplicateId || hasDuplicateDisplay);
+            });
 
             return {
               ...prev,
