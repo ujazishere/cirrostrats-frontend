@@ -94,7 +94,6 @@ const Details = () => {
     edct: EDCT,
     error: flightError,
   } = useFlightData(searchValue);
-  
   // Hook for gate-specific searches.
   const {
     loading: loadingGateData, // Loading state from the gate hook.

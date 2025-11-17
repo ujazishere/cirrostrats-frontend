@@ -283,7 +283,7 @@ const useAirportData = (
               setNasResponseAirport(nasRes);
               setLoadingNAS(false);
             }
-            return
+            // return
 
             // --- FIX: REVISED LOGIC TO HANDLE POTENTIALLY EMPTY WEATHER DATA ---
             const liveData = liveAirportWeather;
