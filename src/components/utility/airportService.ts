@@ -236,7 +236,8 @@ const useAirportData = (
           // console.log("airportsToFetch in useAirportData", airportsToFetch);
           // Defensive: check first airport object in the array
           // If the string length is more than 4, treat as referenceId, otherwise as ICAO code
-          let mdbAirportReferenceId = (airportToFetch && typeof airportToFetch === 'string' && airportToFetch.length > 4) ? airportToFetch : null;
+          // let mdbAirportReferenceId = (airportToFetch && typeof airportToFetch === 'string' && airportToFetch.length > 4) ? airportToFetch : null;
+
           let ICAOformattedAirportCode = (airportToFetch && typeof airportToFetch === 'string' && airportToFetch.length === 4) ? airportToFetch : null;
           // console.log("mdbAirportReferenceId for airportToFetch", mdbAirportReferenceId);
           let mdbAirportWeather = null;
@@ -279,11 +280,12 @@ const useAirportData = (
             setLoadingWeather(false);
 
             console.log("ICAOformattedAirportCode", ICAOformattedAirportCode);
-            setLoadingWeather(true);
-            setLoadingNAS(true);
+            // setLoadingWeather(true);
+            // setLoadingNAS(true);
             const nasRes: WeatherData | null = await airportNasAPI.getByAirportCode(apiUrl, ICAOformattedAirportCode);
             let liveAirportWeather: WeatherData | null = await airportWeatherAPI.getLiveByAirportCode(apiUrl, ICAOformattedAirportCode);
-
+            setLoadingWeather(false);
+            // setLoadingNAS(false);
             console.log("nasRes", nasRes);
             console.log("liveAirportWeather", liveAirportWeather);
             // Note: Nidhi: This live weather needs to be compared with mdb weather and if 
@@ -312,6 +314,7 @@ const useAirportData = (
               );
               setAirportWx(liveData);
 
+            return;
               // If live data is different from MDB data, trigger a backend update.
               if (
                 mdbAirportReferenceId &&
