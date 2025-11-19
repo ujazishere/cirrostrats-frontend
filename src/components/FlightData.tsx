@@ -49,7 +49,10 @@ const useFlightData = (searchValue: SearchValue | null) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const weatherRef = useRef({});
   const nasRef = useRef({});
+  const processedAirportsRef = useRef<Set<string>>(new Set());
 
+  console.log("airportsToFetch", airportsToFetch);
+  // console.log("singleAirportToFetch", singleAirportToFetch);
   const {
         airportWx, // Weather data for the airport.
         nasResponseAirport, // NAS data for the airport.
@@ -57,18 +60,40 @@ const useFlightData = (searchValue: SearchValue | null) => {
         airportError, // Error state for the airport hook.
   } = useAirportData(singleAirportToFetch, apiUrl);
 
+  // Initialize: When airportsToFetch changes, reset and start with first airport
   useEffect(() => {
     if (airportsToFetch.length > 0) {
       setCurrentIndex(0);
+      processedAirportsRef.current.clear();
+      weatherRef.current = {};
+      nasRef.current = {};
       setsingleAirportToFetch(airportsToFetch[0].ICAOairportCode);
+    } else {
+      setsingleAirportToFetch(null);
+      setCurrentIndex(0);
+      processedAirportsRef.current.clear();
     }
   }, [airportsToFetch]);
 
+  // Process airport data when it arrives - but only once per airport
   useEffect(() => {
+    // Don't process if we don't have data yet
     if (!airportWx && !nasResponseAirport) return;
-
+    
+    // Don't process if we don't have a current airport
     const current = airportsToFetch[currentIndex];
     if (!current) return;
+
+    // Create a unique key for this airport to prevent duplicate processing
+    const airportKey = `${current.key}-${current.ICAOairportCode}`;
+    
+    // Skip if we've already processed this airport
+    if (processedAirportsRef.current.has(airportKey)) {
+      return;
+    }
+
+    // Mark as processed BEFORE updating refs to prevent race conditions
+    processedAirportsRef.current.add(airportKey);
 
     // Save to refs
     weatherRef.current = {
@@ -88,8 +113,8 @@ const useFlightData = (searchValue: SearchValue | null) => {
       setsingleAirportToFetch(airportsToFetch[nextIndex].ICAOairportCode);
     } else {
       // ALL DONE → update state once
-    console.log("FINAL WEATHER MAP:", weatherRef.current);
-    console.log("FINAL NAS MAP:", nasRef.current);
+    // console.log("FINAL WEATHER MAP:", weatherRef.current);
+    // console.log("FINAL NAS MAP:", nasRef.current);
       setFlightState(prev => ({
         ...prev,
         weather: weatherRef.current,
@@ -97,7 +122,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         loadingWeatherNas: false
       }));
     }
-  }, [airportWx, nasResponseAirport]);
+  }, [airportWx, nasResponseAirport, currentIndex, airportsToFetch]);
 
 // useEffect(() => {
 //   console.log("🔍 FULL FLIGHT STATE UPDATED:");

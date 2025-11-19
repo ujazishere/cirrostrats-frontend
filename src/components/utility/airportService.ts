@@ -206,6 +206,7 @@ const useAirportData = (
 
   useEffect(() => {
     // Only proceed if we have airports to fetch
+    // console.log("airportToFetch in useAirportData", airportToFetch);
     if (!airportToFetch) {
       return;
     }
@@ -279,15 +280,15 @@ const useAirportData = (
             setAirportWx(mdbAirportWeatherUsingICAO?.weather as WeatherData);
             setLoadingWeather(false);
 
-            console.log("ICAOformattedAirportCode", ICAOformattedAirportCode);
+            // console.log("ICAOformattedAirportCode", ICAOformattedAirportCode);
             // setLoadingWeather(true);
             // setLoadingNAS(true);
             const nasRes: WeatherData | null = await airportNasAPI.getByAirportCode(apiUrl, ICAOformattedAirportCode);
             let liveAirportWeather: WeatherData | null = await airportWeatherAPI.getLiveByAirportCode(apiUrl, ICAOformattedAirportCode);
             setLoadingWeather(false);
             // setLoadingNAS(false);
-            console.log("nasRes", nasRes);
-            console.log("liveAirportWeather", liveAirportWeather);
+            // console.log("nasRes", nasRes);
+            // console.log("liveAirportWeather", liveAirportWeather);
             // Note: Nidhi: This live weather needs to be compared with mdb weather and if 
               // different, update the state with the live weather and ALSO Store the live weather in the database - see above function 
               // `${apiUrl}/storeLiveWeather?mdbAirportReferenceId=${mdbAirportReferenceId}&rawCode=${airportCodeICAO || ""}`
