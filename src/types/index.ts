@@ -98,7 +98,7 @@ export interface SearchValue {
   timestamp?: number;
 }
 
-export type AirportToFetch = string;
+export type AirportToFetch = string | { ICAOairportCode: string | null; referenceId: string | null; };
 
 // Component Props types
 export interface AirportCardProps {
