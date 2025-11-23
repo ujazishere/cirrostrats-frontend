@@ -140,7 +140,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
     const hasNas =
       nasResponseAirport &&
       typeof nasResponseAirport === "object" &&
-      Object.keys(nasResponseAirport || {}).length > 0;
+      Object.keys(nasResponseAirport).length > 0;
 
     // Don't process if neither weather nor NAS is available yet
     if (!hasWeatherLive && !hasWeatherMdb && !hasNas) return;
