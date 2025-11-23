@@ -134,7 +134,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
   // Process airport data when it arrives - but only once per airport
   useEffect(() => {
     const hasWeatherLive =
-      !!airportWxLive && Object.keys(airportWxLive || {}).length > 0;
+      Object.keys(airportWxLive || {}).length > 0;
     const hasWeatherMdb =
       Object.keys(airportWxMdb || {}).length > 0;
     const hasNas =
