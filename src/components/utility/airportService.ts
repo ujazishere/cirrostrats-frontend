@@ -133,7 +133,7 @@ export const airportNasAPI ={
 interface UseAirportDataReturn {
   airportWxLive: WeatherData | null;
   airportWxMdb: WeatherData | null;
-  nasResponseAirport: NASResponse;
+  nasResponseAirport: NASResponse | null;
   loadingWeather: boolean;
   LoadingNAS: boolean;
   airportError: any;
