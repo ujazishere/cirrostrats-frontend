@@ -86,6 +86,18 @@ export interface EDCTData {
   flightCancelled?: boolean;
 }
 
+// TODO search suggestions: inspect 
+export interface Metadata {
+  ICAO?: string;
+  ICAOairportCode?: string;
+  IATAairportCode?: string;
+  flightID?: string;
+  gate?: string;
+  ICAOFlightID?: string;
+  IATAFlightID?: string;
+  nnumber?: string;
+  referenceId?: string;
+}
 // Search Value types
 export interface SearchValue {
   type: string;
@@ -93,7 +105,7 @@ export interface SearchValue {
   label: string;
   id?: string;
   referenceId?: string;
-  metadata?: object;
+  metadata?: Metadata;
   isRecent?: boolean;
   timestamp?: number;
 }

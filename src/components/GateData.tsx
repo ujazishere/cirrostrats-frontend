@@ -41,7 +41,7 @@ const useGateData = (searchValue: SearchValue | null): GateState => {
       try {
         // Perform the GET request to the gate-specific API endpoint.
         // The gate identifier from `searchValue` is used to construct the URL.
-        const res = await axios.get(`${apiUrl}/gates/${searchValue.referenceId}`);
+        const res = await axios.get(`${apiUrl}/gates/${searchValue.metadata?.gate}`);
         // On success, update the state with the fetched data and set loading to false.
         setGateState({ loading: false, data: res.data, error: null });
       } catch (e: any) {

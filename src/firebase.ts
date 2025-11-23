@@ -4,6 +4,7 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
+  // TODO ismail: VHP move this api key to env file. This is a security risk.
   apiKey: "AIzaSyBAS7T-rH8qyx8bHEeHU236EejjVzM4us8",
   authDomain: "cirrostrats-feedback.firebaseapp.com",
   databaseURL: "https://cirrostrats-feedback-default-rtdb.firebaseio.com",

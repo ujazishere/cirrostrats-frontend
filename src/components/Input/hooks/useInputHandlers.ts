@@ -239,7 +239,6 @@ const useInputHandlers = (): UseInputHandlersReturn => {
   ): void => {
     // Prevent the default browser action for the event (e.g., page reload on form submit).
     if (e) e.preventDefault();
-    console.log('submitTerm in handleSubmit', submitTerm)
     // Guard clause: Exit if the search term is empty, null, or just whitespace. No point in searching for nothing.
     if (
       !submitTerm ||
@@ -261,11 +260,14 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       typeof submitTerm === "object" &&
       (
         submitTerm.referenceId ||
-  
-          
-          submitTerm.metadata.ICAOlightID ||
-          submitTerm.metadata.IATAFlightID ||
-          submitTerm.metadata.ICAO
+        submitTerm.metadata.ICAO ||
+        submitTerm.metadata.ICAOairportCode ||
+        submitTerm.metadata.IATAairportCode ||
+        submitTerm.metadata.flightID ||
+        submitTerm.metadata.ICAOFlightID ||
+        submitTerm.metadata.IATAFlightID ||
+        submitTerm.metadata.gate ||
+        submitTerm.metadata.nnumber
         ))
      {
       // --- Case 1: A dropdown item was explicitly selected ---
