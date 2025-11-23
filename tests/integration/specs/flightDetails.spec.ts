@@ -190,3 +190,37 @@ test("Details : Flight : Raw : b62584", async ({ page }) => {
   });
   await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
 });
+
+/**
+ Test to verify that clicking a "Recent Search" for a FLIGHT
+ */
+test("Recent Search - GJS4433", async ({ page }) => {
+  const query = "GJS4433";
+
+  // 1. Perform the INITIAL search directly
+  await page.goto("/");
+  await page.getByRole("combobox").fill(query);
+  await page.getByRole("combobox").press("Enter");
+
+  // 2. Verify the search was successful
+  await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
+
+  // 3. DO NOT go back to home. Click the search bar ON THE DETAILS PAGE.
+  await page.getByRole("combobox").click();
+
+  // 4. Find the item in the dropdown (Recent Search)
+  const recentOption = page.getByRole("option").filter({ hasText: query }).first();
+  
+  // Verify it exists
+  await expect(recentOption).toBeVisible();
+
+  // 5. CLICK the recent item
+  await recentOption.click();
+
+  // 6. SUCCESS CONDITION: The Route header is visible again.
+  await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
+  
+  // 7. FAIL CONDITION check
+  await expect(page.getByText("Error fetching flight data")).not.toBeVisible();
+  await expect(page.getByText("Invalid Flight ID")).not.toBeVisible();
+});

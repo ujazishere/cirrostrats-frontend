@@ -122,6 +122,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         ...(term.referenceId && { referenceId: term.referenceId }),
         label: term.label,
         type: term.type,
+        metadata: term.metadata,
       };
     } else {
       // If the term is invalid, log a warning and exit the function to avoid saving bad data.

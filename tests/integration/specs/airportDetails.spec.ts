@@ -339,14 +339,9 @@ function shouldHaveValidWeatherInfo({
   };
 }
 
-// TODO Ismail: add test for PHL/ATL airports to assert departure and arrival atis buttom and associated data with current date.
 // added tests for PHL and ATL below
-
-// TODO ismail:there are 4 tests per airprot for ewr and bos. can we merge to have
 // two - raw and click? each of them have two tests - ones checking metar format and
 // other checking weather cards. Merge them to check both instead of having separate tests?
-
-// -----------------------------------------------------------------------------
 // MERGED: EWR & BOS Weather Validation Tests
 // These tests now use the consolidated `shouldHaveValidWeatherInfo` function.
 // -----------------------------------------------------------------------------
@@ -369,8 +364,6 @@ test(
     airportCode: "EWR",
   })
 );
-
-// TODO Test: Boston airport always has the NAS - Assert that for the test too to validate NAS source.
 
 // Ismail: Added NAS status assertion for BOS airport in the consolidated.
 test(
@@ -461,3 +454,49 @@ test(
     clickedOption: "POF - Poplar Bluff Regional Business Airport",
   })
 );
+
+/**
+ * Test to verify that clicking a "Recent Search" for a AIRPORT
+ */
+test("Recent Search - EWR", async ({ page }) => {
+  const query = "EWR";
+  const fullOptionLabel = "EWR - Newark Liberty International Airport";
+
+  // 1. Perform the INITIAL search from Homepage
+  await page.goto("/");
+  await page.getByRole("combobox").click();
+  await page.getByRole("combobox").fill(query);
+
+  // Wait for dropdown options
+  await page.waitForFunction(
+    () => document.querySelectorAll('[role="option"]').length > 0,
+    { timeout: 10000 }
+  );
+
+  // Click the specific airport option
+  await page.getByRole("option", { name: fullOptionLabel }).click();
+
+  // 2. Verify we are on the details page
+  await expect(page).toHaveURL("/details");
+  await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
+
+  // 3. DO NOT go back to home. Open the search bar ON THE DETAILS PAGE.
+  await page.getByRole("combobox").click();
+
+  // 4. Select the 1st item from the dropdown (Recent Search)
+  const firstOption = page.getByRole("option").first();
+  
+  // Verify it's the correct recent item
+  await expect(firstOption).toContainText("EWR"); 
+  
+  // 5. CLICK the recent item again
+  await firstOption.click();
+
+  // 6. VERIFY SUCCESS (Data should reload without error)
+  await expect(page).toHaveURL("/details");
+  await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
+
+  // 7. Explicitly ensure NO error message is shown
+  await expect(page.getByText("No weather or airport data is available")).not.toBeVisible();
+  await expect(page.getByText("Error fetching airport data")).not.toBeVisible();
+});

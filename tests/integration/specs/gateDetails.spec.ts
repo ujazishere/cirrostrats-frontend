@@ -32,3 +32,50 @@ test("Details : Gate : Click : C101", async ({ page }) => {
 //   await expect(page.getByText("Scheduled")).toBeVisible();
 //   await expect(page.locator("div.flight-row-card").first()).toBeVisible();
 // });
+
+/**
+ Test to verify that clicking a "Recent Search" for a GATE
+ */
+test("Recent Saerch - C101", async ({ page }) => {
+  const query = "C101";
+  const fullOptionLabel = "EWR - C101 Departures";
+
+  // 1. Perform the INITIAL search from Homepage
+  await page.goto("/");
+  await page.getByRole("combobox").click();
+  await page.getByRole("combobox").fill(query);
+
+  // Wait for dropdown options
+  await page.waitForFunction(
+    () => document.querySelectorAll('[role="option"]').length > 0,
+    { timeout: 10000 }
+  );
+
+  // Click the specific gate option
+  await page.getByRole("option", { name: fullOptionLabel }).click();
+
+  // 2. Verify we are on the details page
+  await expect(page).toHaveURL("/details");
+  await expect(page.getByRole("heading", { name: "Gate C101" })).toBeVisible();
+
+  // 3. DO NOT go back to home. Open the search bar ON THE DETAILS PAGE.
+  await page.getByRole("combobox").click();
+
+  // 4. Select the 1st item from the dropdown (Recent Search)
+  const firstOption = page.getByRole("option").first();
+  
+  // Verify it's the correct recent item
+  await expect(firstOption).toContainText("C101"); 
+  
+  // 5. CLICK the recent item again
+  await firstOption.click();
+
+  // 6. VERIFY SUCCESS (Data should reload without error)
+  await expect(page).toHaveURL("/details");
+  await expect(page.getByRole("heading", { name: "Gate C101" })).toBeVisible();
+  await expect(page.locator("div.flight-row-card").first()).toBeVisible();
+
+  // 7. Explicitly ensure NO error message is shown
+  await expect(page.getByText("No departure information is available for this gate.")).not.toBeVisible();
+  await expect(page.getByText("Error fetching gate data")).not.toBeVisible();
+});
