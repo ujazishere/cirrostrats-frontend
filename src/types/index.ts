@@ -47,10 +47,10 @@ export interface MdbWeatherData {
 // TODO: make this type prescriptive
 export type NASResponse =
   | {
-      [key: string]: any;
-      data?: any[];
-      items?: any[];
-    }
+    [key: string]: any;
+    data?: any[];
+    items?: any[];
+  }
   | Record<string, any>;
 
 // Flight Data types
@@ -98,7 +98,7 @@ export interface SearchValue {
   timestamp?: number;
 }
 
-export type AirportToFetch = string;
+export type AirportToFetch = string | { ICAOairportCode: string | null; referenceId: string | null; };
 
 // Component Props types
 export interface AirportCardProps {
