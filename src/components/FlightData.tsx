@@ -136,7 +136,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
     const hasWeatherLive =
       !!airportWxLive && Object.keys(airportWxLive || {}).length > 0;
     const hasWeatherMdb =
-      !!airportWxMdb && Object.keys(airportWxMdb || {}).length > 0;
+      Object.keys(airportWxMdb || {}).length > 0;
     const hasNas =
       nasResponseAirport &&
       typeof nasResponseAirport === "object" &&
