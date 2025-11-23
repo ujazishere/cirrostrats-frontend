@@ -113,7 +113,6 @@ const useFlightData = (searchValue: SearchValue | null) => {
         airportWxMdb,
         nasResponseAirport,
         loadingWeather,
-        airportError,
   } = useAirportData(singleAirportToFetch, apiUrl);
 
   // Initialize: When airportsToFetch changes, reset and start with first airport
