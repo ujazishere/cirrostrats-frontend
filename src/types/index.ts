@@ -98,7 +98,15 @@ export interface SearchValue {
   timestamp?: number;
 }
 
-export type AirportToFetch = string | { ICAOairportCode: string | null; referenceId: string | null; };
+/**
+ * Represents airport data for fetching weather and NAS information.
+ * Can be either:
+ * - A string: ICAO airport code (e.g., "KBOS") - used by FlightData component
+ * - An object: Contains both ICAO code and referenceId - used by Details page
+ */
+export type AirportToFetch =
+  | string
+  | { ICAOairportCode: string | null; referenceId: string | null };
 
 // Component Props types
 export interface AirportCardProps {
