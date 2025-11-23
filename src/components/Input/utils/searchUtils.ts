@@ -30,7 +30,13 @@ export const formatSuggestions = (
   // console.log('rawSuggestios', rawSuggestions);
   return rawSuggestions.map((item) => ({
     id: item._id,
-    referenceId: item.referenceId,
+    referenceId:
+      item.referenceId ||
+      (item.metadata &&
+        typeof item.metadata === "object" &&
+        "gate" in item.metadata
+        ? (item.metadata as { gate?: string }).gate || item._id
+        : item._id),
     display: item.display,
     // TODO search suggestion label formatting for flights:
       // move this to backend to reduce frontend processing save it in sic for frequent popular searches and exhaustion searches runs thru IATA/ICAO codes and airline codes to generate appropriate combination labels. e.g JBU4646 -> B64646 (JBU4646)

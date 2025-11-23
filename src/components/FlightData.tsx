@@ -30,6 +30,62 @@ type FlightState = {
 // CUSTOM HOOK for fetching Flight Data
 // This hook is responsible for all logic related to fetching flight, weather, NAS, and EDCT data.
 // =================================================================================
+type AirportRole =
+  | "departure"
+  | "arrival"
+  | "departureAlternate"
+  | "arrivalAlternate";
+
+type WeatherAccumulatorEntry = {
+  live?: WeatherData | null;
+  mdb?: WeatherData | null;
+};
+
+const AIRPORT_KEY_MAP: Record<
+  AirportRole,
+  { live: string; mdb: string; nas: string }
+> = {
+  departure: {
+    live: "departureWeatherLive",
+    mdb: "departureWeatherMdb",
+    nas: "departureNAS",
+  },
+  arrival: {
+    live: "arrivalWeatherLive",
+    mdb: "arrivalWeatherMdb",
+    nas: "arrivalNAS",
+  },
+  departureAlternate: {
+    live: "departureAlternateWeatherLive",
+    mdb: "departureAlternateWeatherMdb",
+    nas: "departureAlternateNAS",
+  },
+  arrivalAlternate: {
+    live: "arrivalAlternateWeatherLive",
+    mdb: "arrivalAlternateWeatherMdb",
+    nas: "arrivalAlternateNAS",
+  },
+};
+
+const flattenAirportData = (
+  weatherMap: Record<string, WeatherAccumulatorEntry>,
+  nasMap: Record<string, NASResponse | NASData | null>
+) => {
+  const flattenedWeather: Record<string, WeatherData | null> = {};
+  const flattenedNAS: Record<string, NASResponse | NASData | null> = {};
+
+  (Object.keys(AIRPORT_KEY_MAP) as AirportRole[]).forEach(role => {
+    const mapping = AIRPORT_KEY_MAP[role];
+    const weatherEntry = weatherMap[role] || {};
+    flattenedWeather[mapping.live] =
+      (weatherEntry.live as WeatherData) ?? null;
+    flattenedWeather[mapping.mdb] = (weatherEntry.mdb as WeatherData) ?? null;
+    flattenedNAS[mapping.nas] = nasMap[role] ?? null;
+  });
+
+  return { flattenedWeather, flattenedNAS };
+};
+
 const useFlightData = (searchValue: SearchValue | null) => {
   // We manage all related states within a single object. This simplifies state updates and reduces re-renders.
   // REFACTORED: State now has granular loading flags for each data piece.
@@ -46,17 +102,18 @@ const useFlightData = (searchValue: SearchValue | null) => {
   const [airportsToFetch, setAirportsToFetch] = useState<{ key: string; ICAOairportCode: string | null  }[]>([]);
   const [singleAirportToFetch, setsingleAirportToFetch] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const weatherRef = useRef({});
-  const nasRef = useRef({});
+  const weatherRef = useRef<Record<string, WeatherAccumulatorEntry>>({});
+  const nasRef = useRef<Record<string, NASResponse | NASData | null>>({});
   const processedAirportsRef = useRef<Set<string>>(new Set());
 
   console.log("airportsToFetch", airportsToFetch);
   // console.log("singleAirportToFetch", singleAirportToFetch);
   const {
-        airportWx, // Weather data for the airport.
-        nasResponseAirport, // NAS data for the airport.
-        loadingWeather, // Loading state for the airport hook.
-        airportError, // Error state for the airport hook.
+        airportWxLive,
+        airportWxMdb,
+        nasResponseAirport,
+        loadingWeather,
+        airportError,
   } = useAirportData(singleAirportToFetch, apiUrl);
 
   // Initialize: When airportsToFetch changes, reset and start with first airport
@@ -76,8 +133,17 @@ const useFlightData = (searchValue: SearchValue | null) => {
 
   // Process airport data when it arrives - but only once per airport
   useEffect(() => {
-    // Don't process if we don't have data yet
-    if (!airportWx && !nasResponseAirport) return;
+    const hasWeatherLive =
+      !!airportWxLive && Object.keys(airportWxLive || {}).length > 0;
+    const hasWeatherMdb =
+      !!airportWxMdb && Object.keys(airportWxMdb || {}).length > 0;
+    const hasNas =
+      nasResponseAirport &&
+      typeof nasResponseAirport === "object" &&
+      Object.keys(nasResponseAirport || {}).length > 0;
+
+    // Don't process if neither weather nor NAS is available yet
+    if (!hasWeatherLive && !hasWeatherMdb && !hasNas) return;
     
     // Don't process if we don't have a current airport
     const current = airportsToFetch[currentIndex];
@@ -97,12 +163,16 @@ const useFlightData = (searchValue: SearchValue | null) => {
     // Save to refs
     weatherRef.current = {
       ...weatherRef.current,
-      [current.key]: airportWx
+      [current.key]: {
+        ...(weatherRef.current[current.key] || {}),
+        live: airportWxLive ?? weatherRef.current[current.key]?.live ?? null,
+        mdb: airportWxMdb ?? weatherRef.current[current.key]?.mdb ?? null,
+      },
     };
 
     nasRef.current = {
       ...nasRef.current,
-      [current.key]: nasResponseAirport
+      [current.key]: nasResponseAirport ?? null,
     };
 
     const nextIndex = currentIndex + 1;
@@ -114,14 +184,19 @@ const useFlightData = (searchValue: SearchValue | null) => {
       // ALL DONE → update state once
     // console.log("FINAL WEATHER MAP:", weatherRef.current);
     // console.log("FINAL NAS MAP:", nasRef.current);
-      setFlightState(prev => ({
+      const { flattenedWeather, flattenedNAS } = flattenAirportData(
+        weatherRef.current,
+        nasRef.current
+      );
+      console.log('flattenedWeather', flattenedWeather)
+      setFlightState((prev: FlightState) => ({
         ...prev,
-        weather: weatherRef.current,
-        nas: nasRef.current,
+        weather: flattenedWeather,
+        nas: flattenedNAS,
         loadingWeatherNas: false
       }));
     }
-  }, [airportWx, nasResponseAirport, currentIndex, airportsToFetch]);
+  }, [airportWxLive, airportWxMdb, nasResponseAirport, currentIndex, airportsToFetch]);
 
 // useEffect(() => {
 //   console.log("🔍 FULL FLIGHT STATE UPDATED:");
@@ -354,10 +429,28 @@ const useFlightData = (searchValue: SearchValue | null) => {
           // NOTE:  : These ICAO 4 charater airport codes need to be passed to useAirportData one at a time as string to get its weather and update state in the flight look up.
           
         setAirportsToFetch([
-          { key: "departure", ICAOairportCode: departure },
-          { key: "arrival", ICAOairportCode: arrival },
-          { key: "departureAlternate", ICAOairportCode: departureAlternate },
-          { key: "arrivalAlternate", ICAOairportCode: arrivalAlternate }
+          {
+            key: "departure",
+            ICAOairportCode: departure,
+            referenceId: (ajms.data?.departureAirport || {}).referenceId || null,
+          },
+          {
+            key: "arrival",
+            ICAOairportCode: arrival,
+            referenceId: (ajms.data?.arrivalAirport || {}).referenceId || null,
+          },
+          {
+            key: "departureAlternate",
+            ICAOairportCode: departureAlternate,
+            referenceId:
+              (ajms.data?.departureAlternateAirport || {}).referenceId || null,
+          },
+          {
+            key: "arrivalAlternate",
+            ICAOairportCode: arrivalAlternate,
+            referenceId:
+              (ajms.data?.arrivalAlternateAirport || {}).referenceId || null,
+          },
         ].filter(a => a.ICAOairportCode));
     
           // console.log(airportWx, nasResponseAirport);

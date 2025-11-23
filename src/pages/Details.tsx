@@ -1,5 +1,5 @@
 // ✅ ADD: Import useState, useEffect, Suspense, and lazy for the feedback popup functionality.
-import { useState, useEffect, useRef, Suspense, lazy } from "react";
+import { useState, useEffect, useRef, useMemo, Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
 import { AirportToFetch } from "../types/index";
@@ -72,17 +72,23 @@ const Details = () => {
   // =================================================================================
 
   // Prepare airport data for the hook - abstract searchValue processing here
-  const airportsToFetch: AirportToFetch = 
-    // searchValue?.type === "airport" && (searchValue?.referenceId || searchValue?.metadata.ICAO)
-    searchValue?.type === "airport" && searchValue?.metadata.ICAO
+  const airportsToFetch: AirportToFetch | null = useMemo(() => {
+    if (searchValue?.type !== "airport") return null;
+    return {
+      ICAOairportCode: searchValue?.metadata?.ICAO || searchValue?.label || null,
+      referenceId: searchValue?.referenceId || null,
+    };
+  }, [searchValue]);
 
   // Hook for airport-specific searches.
   const {
-    airportWx, // Weather data for the airport.
-    nasResponseAirport, // NAS data for the airport.
-    loadingWeather, // Loading state for the airport hook.
-    airportError, // Error state for the airport hook.
+    airportWxLive,
+    airportWxMdb,
+    nasResponseAirport,
+    loadingWeather,
+    airportError,
   } = useAirportData(airportsToFetch, apiUrl);
+  const airportWx = airportWxLive || airportWxMdb;
 
   // Hook for flight-specific searches.
   // ✅ NOTE: This now calls the imported hook from `/components/flightData.jsx`.
