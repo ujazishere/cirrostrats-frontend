@@ -242,7 +242,7 @@ const useAirportData = (
           // If the string length is more than 4, treat as referenceId, otherwise as ICAO code
           const airportInput =
             typeof airportToFetch === "string"
-              ? { referenceId: airportToFetch, ICAOairportCode: airportToFetch }
+              ? { referenceId: airportToFetch, ICAOairportCode: airportToFetch.length === 4 ? airportToFetch : null }
               : airportToFetch;
 
           const mdbAirportReferenceId =
