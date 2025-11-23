@@ -101,8 +101,8 @@ export interface SearchValue {
 /**
  * Represents airport data for fetching weather and NAS information via useAirportData hook.
  * Can be either:
- * - A string: ICAO airport code (e.g., "KBOS") - used when passing from FlightData
- * - An object: Contains both ICAO code and referenceId - used when passing from Details page
+ * - A string: ICAO airport code (e.g., "KBOS") - used when passing from FlightData.tsx
+ * - An object: Contains both ICAO code and referenceId - used when passing from Details.tsx
  */
 export type AirportToFetch =
   | string
