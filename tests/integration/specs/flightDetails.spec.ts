@@ -83,7 +83,8 @@ test("Details : Flight : Raw : 414", async ({ page }) => {
     navigationMethod: "raw",
     query: "414",
   });
-  // TODO ismail This section fails - subsequent search for 414 does not work due to match in suggestions not accounting for local storage?
+  // TODO ismail This section fails - subsequent search for 414 does not work due to match in suggestions not accounting for localStorage?
+    // design test in series such that a funciton should search something and then access the localStorage for search to validate localStorage works.
   await expect(page.getByRole("heading", { name: "Route" })).toBeVisible();
 });
 

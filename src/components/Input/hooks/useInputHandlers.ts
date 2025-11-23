@@ -239,6 +239,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
   ): void => {
     // Prevent the default browser action for the event (e.g., page reload on form submit).
     if (e) e.preventDefault();
+    console.log('submitTerm in handleSubmit', submitTerm)
     // Guard clause: Exit if the search term is empty, null, or just whitespace. No point in searching for nothing.
     if (
       !submitTerm ||
@@ -253,18 +254,23 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     trackSearch(userEmail, submitTerm);
 
     // Check if the submitted term is a structured object (meaning it was selected from the dropdown).
-    console.log("submitTerm", submitTerm);
+    // console.log("submitTerm", submitTerm);
     // Accept either referenceId or metadata.ICAO as a unique indicator (for airports)
     if (
+      // TODO search suggestions: inspect this submit
       typeof submitTerm === "object" &&
       (
         submitTerm.referenceId ||
-        (submitTerm.metadata && submitTerm.metadata.ICAO)
-      )
-    ) {
+  
+          
+          submitTerm.metadata.ICAOlightID ||
+          submitTerm.metadata.IATAFlightID ||
+          submitTerm.metadata.ICAO
+        ))
+     {
       // --- Case 1: A dropdown item was explicitly selected ---
       // The term is already in the correct format, this is the easy path.
-      console.log("Submitting selected term:", submitTerm);
+      // console.log("Submitting selected term:", submitTerm);
       saveSearchToLocalStorage(submitTerm);
       // Navigate to the details page, passing the search object in the route's state.
       navigate("/details", { state: { searchValue: submitTerm } });

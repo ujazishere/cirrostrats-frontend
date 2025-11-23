@@ -7,7 +7,6 @@ import flightService from './utility/flightService'; // A service module with he
 import { EDCTData, NASData, NASResponse, SearchValue, WeatherData } from "../types";
 import useAirportData, { airportWeatherAPI } from "./utility/airportService";
 import { normalizeAjms, validateAirportData } from "./utility/dataUtils";
-import { CloudCog } from "lucide-react";
 
 // =================================================================================
 // Configuration
@@ -197,10 +196,11 @@ const useFlightData = (searchValue: SearchValue | null) => {
         // console.log('searchValue', searchValue);
         // Extract the flight identifier from the `searchValue` object. It can be one of several properties.
         const flightID =
-          searchValue?.type === "flight" ? (searchValue?.metadata as any)?.flightID :
+          searchValue?.type === "flight" ? (searchValue?.metadata as any)?.flightID || (searchValue?.metadata as any)?.IATAFlightID :
           searchValue?.type === "nNumber" ? (searchValue?.metadata as any)?.nnumber : null;       // TODO VHP: add for .value support that may come from the search value.
           // searchValue?.flightID || searchValue?.nnumber || searchValue?.value;
         // If no valid flightID can be found, we can't proceed. Set an error and stop.
+        console.log('flightID determined', flightID)
         if (!flightID) {
           setFlightState((s: FlightState) => ({ 
             ...s, 
@@ -213,10 +213,12 @@ const useFlightData = (searchValue: SearchValue | null) => {
         }
 
         // This `try...catch` block handles potential errors during the multi-step API fetch process.
+        // Fetch data using flightID
         try {
           // --- STEP 1: Fetch and display PRIMARY flight data immediately ---
           const { rawAJMS, flightAwareRes, flightStatsTZRes } =
             await flightService.getPrimaryFlightData(flightID);
+          console.log('primary flight data fetched', rawAJMS, flightAwareRes, flightStatsTZRes)
           // console.log('rawJMS', rawAJMS.data);
           // console.log('flightAware', flightAwareRes.data);
           // console.log('flightStats',flightStatsTZRes.data);

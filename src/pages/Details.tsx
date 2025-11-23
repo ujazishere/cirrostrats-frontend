@@ -18,6 +18,7 @@ import useFlightData from "../components/FlightData.tsx"; // Our newly separated
 // ✅ ADD: Import Firebase and Firestore functions for submitting feedback.
 import { db } from "../firebase.js";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { CloudCog } from "lucide-react";
 
 // ✅ ADD: Lazily import the FeedbackPopup component for better performance.
 // This ensures the popup's code is only downloaded when it's first needed.
