@@ -158,6 +158,7 @@ export default function SearchInput({ userEmail }: SearchInputProps) {
             return (
               <li
                 {...props}
+                key={option.id}
                 className="search-option"
                 style={{ justifyContent: "flex-start" }}
               >

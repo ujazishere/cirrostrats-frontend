@@ -131,8 +131,9 @@ export const airportNasAPI ={
 }
 
 interface UseAirportDataReturn {
-  airportWx: WeatherData | null;
-  nasResponseAirport: NASResponse;
+  airportWxLive: WeatherData | null;
+  airportWxMdb: WeatherData | null;
+  nasResponseAirport: NASResponse | null;
   loadingWeather: boolean;
   LoadingNAS: boolean;
   airportError: any;
@@ -197,7 +198,8 @@ const useAirportData = (
   airportToFetch: AirportToFetch | null,
   apiUrl: string
 ): UseAirportDataReturn => {
-  const [airportWx, setAirportWx] = useState<WeatherData | null>(null);
+  const [airportWxLive, setAirportWxLive] = useState<WeatherData | null>(null);
+  const [airportWxMdb, setAirportWxMdb] = useState<WeatherData | null>(null);
   const [nasResponseAirport, setNasResponseAirport] =
     useState<NASResponse | null>(null);
   const [loadingNAS, setLoadingNAS] = useState<boolean>(false);
@@ -211,7 +213,8 @@ const useAirportData = (
       return;
     }
     // Reset states for a new airport search
-    setAirportWx(null);
+    setAirportWxLive(null);
+    setAirportWxMdb(null);
     setNasResponseAirport(null);
     setAirportError(null);
 
@@ -237,9 +240,24 @@ const useAirportData = (
           // console.log("airportsToFetch in useAirportData", airportsToFetch);
           // Defensive: check first airport object in the array
           // If the string length is more than 4, treat as referenceId, otherwise as ICAO code
-          // let mdbAirportReferenceId = (airportToFetch && typeof airportToFetch === 'string' && airportToFetch.length > 4) ? airportToFetch : null;
+          const airportInput =
+            typeof airportToFetch === "string"
+              ? { referenceId: airportToFetch, ICAOairportCode: airportToFetch.length === 4 ? airportToFetch : null }
+              : airportToFetch;
 
-          let ICAOformattedAirportCode = (airportToFetch && typeof airportToFetch === 'string' && airportToFetch.length === 4) ? airportToFetch : null;
+          const mdbAirportReferenceId =
+            airportInput && typeof airportInput === "object"
+              ? airportInput.referenceId || null
+              : null;
+
+          let ICAOformattedAirportCode =
+            airportInput && typeof airportInput === "object"
+              ? airportInput.ICAOairportCode || null
+              : typeof airportToFetch === "string" &&
+                airportToFetch.length === 4
+              ? airportToFetch
+              : null;
+
           // console.log("mdbAirportReferenceId for airportToFetch", mdbAirportReferenceId);
           let mdbAirportWeather = null;
 
@@ -277,7 +295,7 @@ const useAirportData = (
             let mdbAirportWeatherUsingICAO = await airportWeatherAPI.getMdbByAirportCode(apiUrl, ICAOformattedAirportCode) as MdbWeatherData | null;
             console.log("mdbAirportWeatherUsingICAO", mdbAirportWeatherUsingICAO?.weather);
 
-            setAirportWx(mdbAirportWeatherUsingICAO?.weather as WeatherData);
+            setAirportWxMdb(mdbAirportWeatherUsingICAO?.weather as WeatherData);
             setLoadingWeather(false);
 
             // console.log("ICAOformattedAirportCode", ICAOformattedAirportCode);
@@ -301,21 +319,17 @@ const useAirportData = (
 
             // --- FIX: REVISED LOGIC TO HANDLE POTENTIALLY EMPTY WEATHER DATA ---
             const liveData = liveAirportWeather;
-            const mdbData = mdbAirportWeather;
+            const mdbData =
+              mdbAirportWeather ?? mdbAirportWeatherUsingICAO?.weather ?? null;
             // Helper to check for meaningful weather data (must not be an empty object and should have a METAR).
             const isMeaningful = (weatherObj: any): boolean =>
               weatherObj &&
               Object.keys(weatherObj).length > 0 &&
               weatherObj.metar;
 
-            // Priority 1: Use live data if it's meaningful.
             if (isMeaningful(liveData)) {
-              console.log(
-                "!!! SUCCESSFUL LIVE DATA FETCH  and state updated!!!"
-              );
-              setAirportWx(liveData);
-
-            return;
+              console.log("!!! SUCCESSFUL LIVE DATA FETCH  and state updated!!!");
+              setAirportWxLive(liveData);
               // If live data is different from MDB data, trigger a backend update.
               if (
                 mdbAirportReferenceId &&
@@ -332,24 +346,22 @@ const useAirportData = (
                     );
                   });
               }
-            }
-            // Priority 2: Fallback to database data if it's meaningful and live data was not.
-            else if (isMeaningful(mdbData)) {
+            } else if (isMeaningful(mdbData)) {
               console.log("mdbData is meaningful", mdbData);
-              setAirportWx(mdbData);
-            }
-            // Priority 3: If no data from any source is meaningful, set state to null.
-            else {
+              setAirportWxMdb(mdbData);
+            } else {
               console.log("no data from any source is meaningful, setting state to null");
-              setAirportWx(null);
+              setAirportWxLive(null);
+              setAirportWxMdb(null);
             }
-            console.log("airportWx loaded up", airportWx);
+
             // Finally, set loading to false.
             setLoadingWeather(false);
           } else {
             // FIX: If there's no airport code to search with, ensure state is null.
             console.log("no airport code to search with, setting state to null");
-            setAirportWx(null);
+            setAirportWxLive(null);
+            setAirportWxMdb(null);
             setLoadingWeather(false);
           }
         }
@@ -387,7 +399,8 @@ const useAirportData = (
   }, [airportToFetch, apiUrl]); // Effect dependencies
 
   return {
-    airportWx,
+    airportWxLive,
+    airportWxMdb,
     nasResponseAirport: nasResponseAirport ?? {},
     loadingWeather,
     LoadingNAS: loadingNAS,
