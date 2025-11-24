@@ -1,7 +1,7 @@
 // utils/flightDataUtils.ts
 // services/flightService.ts
 import axios, { AxiosResponse } from "axios";
-import { WeatherData } from "../../types";
+import { SearchValue, WeatherData } from "../../types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -161,16 +161,18 @@ const flightService = {
    *  - flightStatsTZRes
    */
   getPrimaryFlightData: async (
-    flightID: string
+    searchValue: SearchValue
   ): Promise<PrimaryFlightData> => {
     // # TODO: To fetch test jms - need to completely redesign ajms response architecture since current setup is inefficient
     // Current setup requests ajms from bakend which is inefficient but secure since it abstracts away the source ajms and proxies it from backend?
+    const ICAOFlightID = searchValue?.type === "flight" ? (searchValue?.metadata as any)?.ICAOFlightID : null;
+    const IATAFlightID = searchValue?.type === "flight" ? (searchValue?.metadata as any)?.IATAFlightID : null;
     const [rawAJMS, flightStatsTZRes] = await Promise.all([
-      axios.get(`${apiUrl}/ajms/${flightID}`).catch(e => {
+      axios.get(`${apiUrl}/ajms/${ICAOFlightID}`).catch(e => {
         console.error("AJMS Error:", e);
         return { data: {}, error: true };
       }),
-      axios.get(`${apiUrl}/flightStatsTZ/${flightID}`).catch(e => {
+      axios.get(`${apiUrl}/flightStatsTZ/${IATAFlightID}`).catch(e => {
         console.error("FlightStatsTZ Error:", e);
         return { data: {}, error: true };
       }),
@@ -191,7 +193,7 @@ const flightService = {
         );
       } // let developer know flightaware fetch is on in dev mode.
       flightAwareRes = await axios
-        .get(`${apiUrl}/flightAware/${flightID}`)
+        .get(`${apiUrl}/flightAware/${IATAFlightID}`)
         .catch(e => {
           console.error("FlightAware Error:", e);
           return { data: {}, error: true };

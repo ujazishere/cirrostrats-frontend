@@ -270,7 +270,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         // console.log('searchValue', searchValue);
         // Extract the flight identifier from the `searchValue` object. It can be one of several properties.
         const flightID =
-          searchValue?.type === "flight" ? (searchValue?.metadata as any)?.flightID || (searchValue?.metadata as any)?.IATAFlightID :
+          searchValue?.type === "flight" ? (searchValue?.metadata as any)?.flightID || (searchValue?.metadata as any)?.ICAOFlightID :
           searchValue?.type === "nNumber" ? (searchValue?.metadata as any)?.nnumber : null;       // TODO VHP: add for .value support that may come from the search value.
           // searchValue?.flightID || searchValue?.nnumber || searchValue?.value;
         // If no valid flightID can be found, we can't proceed. Set an error and stop.
@@ -291,7 +291,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
         try {
           // --- STEP 1: Fetch and display PRIMARY flight data immediately ---
           const { rawAJMS, flightAwareRes, flightStatsTZRes } =
-            await flightService.getPrimaryFlightData(flightID);
+            await flightService.getPrimaryFlightData(searchValue);
           console.log('primary flight data fetched', rawAJMS, flightAwareRes, flightStatsTZRes)
           // console.log('rawJMS', rawAJMS.data);
           // console.log('flightAware', flightAwareRes.data);
