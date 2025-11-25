@@ -500,3 +500,46 @@ test("Recent Search - EWR", async ({ page }) => {
   await expect(page.getByText("No weather or airport data is available")).not.toBeVisible();
   await expect(page.getByText("Error fetching airport data")).not.toBeVisible();
 });
+
+/**
+ * Test to verify the shake/error feature when a search term matches multiple airports
+ * but isn't an exact match (e.g. "Miami" matches MIA and TMB).
+ */
+test("MIA - Multiple Suggestion Shake Feature", async ({ page }) => {
+  const query = "MIA";
+
+  // 1. Navigate to Homepage
+  await page.goto("/");
+
+  // 2. Type "Miami" into the search bar
+  await page.getByRole("combobox").click();
+  await page.getByRole("combobox").fill(query);
+
+  // 3. Wait for the dropdown to populate with multiple options
+  // We expect at least 2 options (MIA and TMB usually)
+  await page.waitForFunction(
+    () => document.querySelectorAll('[role="option"]').length >= 2,
+    { timeout: 10000 }
+  );
+
+  // 4. Press Enter to trigger the "raw" submission logic
+  await page.getByRole("combobox").press("Enter");
+
+  // 5. VERIFICATION
+
+  // Check A: Verify the warning message appears
+  // This element is created by your showMultipleAirportsMessage function
+  const messageLocator = page.locator(".multiple-airports-message");
+  await expect(messageLocator).toBeVisible();
+  await expect(messageLocator).toHaveText(
+    "Multiple airports found. Please select one from the dropdown."
+  );
+
+  // Check B: Verify the user was NOT navigated to the details page
+  // The URL should still be the homepage
+  await expect(page).toHaveURL("http://localhost:5173/");
+  
+  // Check C: Verify the dropdown is still open (user is forced to select)
+  const listbox = page.getByRole("listbox");
+  await expect(listbox).toBeVisible();
+});

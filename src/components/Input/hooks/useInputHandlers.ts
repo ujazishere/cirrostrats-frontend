@@ -293,8 +293,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         // Check for exact label match (case-insensitive) - works for all types
         console.log("suggestion", suggestions);
         if (
-          suggestion.display
-          // suggestion.display.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+          suggestion.label &&
+          suggestion.label.toLowerCase() === trimmedSubmitTerm.toLowerCase()
         ) {
           return true;
         }
@@ -302,8 +302,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
         // TODO search: This data structure inconsistency needs to be addrtessed.
         if (suggestion.type === "flight") {
-          const digits = suggestion.display
-            ? suggestion.display.replace(/\D/g, "")
+          const digits = suggestion.label
+            ? suggestion.label.replace(/\D/g, "")
             : "";
           // console.log(
           //   "Checking flight digit match:",
@@ -327,8 +327,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
           // );
           if (!airportIdentifier) return false;
           return (
-            suggestion.display
-            // airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+            airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
           );
         }
 
