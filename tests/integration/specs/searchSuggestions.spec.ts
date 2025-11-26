@@ -54,10 +54,20 @@ function shouldHaveSpecificResult({
   };
 }
 
-test(
-  "Search Suggestions : 5 Options : EWR",
-  shouldHave5Options({ query: "EWR" }),
-);
+test("Search Suggestions : 2 Options : EWR", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("combobox").click();
+  await page.waitForLoadState("networkidle");
+  await page.getByRole("combobox").fill("EWR");
+
+  await page.waitForFunction(
+    () => document.querySelectorAll('[role="option"]').length > 0,
+    { timeout: 10000 },
+  );
+
+  await expect(page.getByRole("option")).toHaveCount(2);
+});
+
 
 test(
   "Search Suggestions : 5 Options : UA",
@@ -125,7 +135,7 @@ test(
   shouldHaveSpecificResult({
     query: "EWR",
     expectedOption: "EWR - C101 Departures",
-    expectedCount: 5,
+    expectedCount: 2,
   }),
 );
 

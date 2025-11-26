@@ -451,7 +451,7 @@ test(
     navigationMethod: "click",
     query: "POF",
     airportCode: "POF",
-    clickedOption: "POF - Poplar Bluff Regional Business Airport",
+    clickedOption: "POF - Poplar Bluff Municipal Airport",
   })
 );
 
