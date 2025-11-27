@@ -291,7 +291,6 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // This now handles airports, gates, and flights properly. Much smarter.
       const exactMatch = suggestions.find((suggestion: FormattedSuggestion) => {
         // Check for exact label match (case-insensitive) - works for all types
-        console.log("suggestion", suggestions);
         if (
           suggestion.label &&
           suggestion.label.toLowerCase() === trimmedSubmitTerm.toLowerCase()
@@ -351,7 +350,6 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
         return false;
       });
-      console.log('exactMatch', exactMatch);
       if (exactMatch) {
         // If an exact match is found in suggestions, use it as the definitive search term. Hooray!
         // console.log("Found exact match in suggestions:", exactMatch);

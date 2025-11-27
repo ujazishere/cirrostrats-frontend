@@ -120,14 +120,10 @@ export interface AirportCardProps {
 }
 
 export interface CombinedWeatherData {
-  departureWeatherMdb?: WeatherData;
-  departureWeatherLive?: WeatherData;
-  arrivalWeatherMdb?: WeatherData;
-  arrivalWeatherLive?: WeatherData;
-  departureAlternateWeatherMdb?: WeatherData;
-  departureAlternateWeatherLive?: WeatherData;
-  arrivalAlternateWeatherMdb?: WeatherData;
-  arrivalAlternateWeatherLive?: WeatherData;
+  departureWeather?: WeatherData | null;
+  arrivalWeather?: WeatherData | null;
+  departureAlternateWeather?: WeatherData | null;
+  arrivalAlternateWeather?: WeatherData | null;
 }
 
 export interface NASData {

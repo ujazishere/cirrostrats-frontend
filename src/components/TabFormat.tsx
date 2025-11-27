@@ -48,23 +48,19 @@ const getDefaultTab = (tabOrder: string[]): string => {
 
   // NOW, use this function when assigning weather variables
   const dep_weather =
-    cleanWeatherData(weather?.departureWeatherMdb) ??
-    cleanWeatherData(weather?.departureWeatherLive) ??
+    cleanWeatherData(weather?.departureWeather) ??
     null;
   const dest_weather =
-    cleanWeatherData(weather?.arrivalWeatherMdb) ??
-    cleanWeatherData(weather?.arrivalWeatherLive) ??
+    cleanWeatherData(weather?.arrivalWeather) ??
     null;
   const departure_alternate_weather =
-    cleanWeatherData(weather?.departureAlternateWeatherMdb) ??
-    cleanWeatherData(weather?.departureAlternateWeatherLive) ??
+    cleanWeatherData(weather?.departureAlternateWeather) ??
     null;
   const arrival_alternate_weather =
-    cleanWeatherData(weather?.arrivalAlternateWeatherMdb) ??
-    cleanWeatherData(weather?.arrivalAlternateWeatherLive) ??
+    cleanWeatherData(weather?.arrivalAlternateWeather) ??
     null;
 
-  // TODO: priority should be mdb and if live is available then live.
+  // TODO: priority should be mdb if available, and if live is available then update state with live.
 
   // NAS for airports
 // ... (rest of your code)
