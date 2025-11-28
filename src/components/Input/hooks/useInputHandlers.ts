@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { trackSearch } from "./useTrackSearch";
 import searchService from "../api/searchservice";
 import { FormattedSuggestion } from "../utils/searchUtils";
+import { Metadata } from "../../../types";
 
 /*
 This file manages UI interactions (click, submit, keyboard events)
@@ -228,7 +229,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
    * @description Handles the search submission event. It intelligently determines whether the user
    * selected an item from the dropdown or submitted a raw text query by pressing Enter.
    * @param {Event} e - The form submission or click event.
-   * @param {object|string} submitTerm - The term being searched. Can be a full object from the dropdown or a raw string.
+   * @param {object|string} submitTerm - The term being searched. Can be a full object from the dropdown or a raw string submission.
    * @param {string} userEmail - The email of the current user for tracking purposes.
    * @param {Array<object>} suggestions - The list of suggestion objects currently displayed in the dropdown.
    */
@@ -261,10 +262,10 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       typeof submitTerm === "object" &&
       (
         submitTerm.referenceId ||
-        submitTerm.metadata.ICAO ||
+        submitTerm.metadata.ICAO ||         // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
         submitTerm.metadata.ICAOairportCode ||
         submitTerm.metadata.IATAairportCode ||
-        submitTerm.metadata.flightID ||
+        submitTerm.metadata.flightID ||       // for flights. TODO search suggestions: may not need this keep it standard with ICAOFlightID/IATAFlightID?
         submitTerm.metadata.ICAOFlightID ||
         submitTerm.metadata.IATAFlightID ||
         submitTerm.metadata.gate ||
@@ -284,46 +285,40 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
       const trimmedSubmitTerm = submitTerm.trim(); // trimming leading and trailing white spaces
 
-      // previously we were checking if the first suggestion matched the submit term. Not doing it anymore.
-      // const topSuggestion = suggestions && suggestions.length > 0 ? suggestions[0] : null;
-
       // NEW IMPROVED LOGIC: Check if there's an exact match in ANY of the current suggestions
       // This now handles airports, gates, and flights properly. Much smarter.
+      console.log('suggestions in exactMatch from dropdown', suggestions);
+
+      // TODO ismail abstract this logic to a separate function within searchUtils.ts Ive created a placeholder for it there
+          // Line 294-347
+      // const exactMatch = exactMatchFinder(suggestions, trimmedSubmitTerm);
       const exactMatch = suggestions.find((suggestion: FormattedSuggestion) => {
         // Check for exact label match (case-insensitive) - works for all types
         if (
-          suggestion.label &&
-          suggestion.label.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+          suggestion.metadata &&
+          (suggestion.metadata as Metadata).ICAOFlightID?.toLowerCase() === trimmedSubmitTerm.toLowerCase()
         ) {
           return true;
         }
 
         // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
-        // TODO search: This data structure inconsistency needs to be addrtessed.
+        // TODO search: This data structure inconsistency needs to be addrtessed - For exactMatch of digits, need to pass along with metadata
+          // `See more` on top of the page that shows the backend finds using the submitted term through metadata?
         if (suggestion.type === "flight") {
           const digits = suggestion.label
-            ? suggestion.label.replace(/\D/g, "")
+            ? (suggestion.metadata as Metadata).ICAOFlightID?.replace(/\D/g, "")
             : "";
-          // console.log(
-          //   "Checking flight digit match:",
-          //   digits,
-          //   "vs",
-          //   trimmedSubmitTerm
-          // );
           return digits === trimmedSubmitTerm;
         }
 
-        // TODO search: This data structure inconsistency needs to be addrtessed.
+        // TODO multiple matches: let it go to submit on a new page with multiple matches shown for user to select from.
+        // TODO search: This data structure inconsistency needs to be addrtessed - For exactMatch of city name, need to pass along with metadata
+          // `See more` on top of the page that shows the backend finds using the submitted term through metadata?
         // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
+        // TODO UJ: account for ICAO code - since it will never match as suggestions have IATA airport codes only.
         if (suggestion.type === "airport") {
-          console.log("suggestion", suggestion);
-          const airportIdentifier = (suggestion.metadata as { ICAO?: string })?.ICAO;
-          // console.log(
-          //   "Checking airport identifier match:",
-          //   airportIdentifier,
-          //   "vs",
-          //   trimmedSubmitTerm
-          // );
+          const airportIdentifier = (suggestion.metadata as Metadata).ICAOairportCode || (suggestion.metadata as Metadata).IATAairportCode;
+          
           if (!airportIdentifier) return false;
           return (
             airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
@@ -333,9 +328,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         // TODO search: This data structure inconsistency needs to be addrtessed.
         // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
         if (suggestion.type === "gate") {
-          const gateIdentifier = suggestion.label
-            .split(" - ")[1]
-            ?.split(" ")[0]; // Extract gate number
+          const gateIdentifier = (suggestion.metadata as Metadata).gate
+          if (!gateIdentifier) return false;
           // console.log(
           //   "Checking gate identifier match:",
           //   gateIdentifier,
@@ -351,6 +345,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         return false;
       });
       if (exactMatch) {
+        console.log("exactMatch found: ", exactMatch);
         // If an exact match is found in suggestions, use it as the definitive search term. Hooray!
         // console.log("Found exact match in suggestions:", exactMatch);
         saveSearchToLocalStorage(exactMatch);
@@ -437,6 +432,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             // we revert to calling the API to try and resolve the raw query. This is our last hope.
 
             // Check if the search term is a number-only string
+            
+            console.log("trimmedSubmitTerm in numeric check", trimmedSubmitTerm);
             const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
             let finalQuery = trimmedSubmitTerm;
 
@@ -446,7 +443,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
               // For the sake of this fix, we'll assume a common carrier like 'UA'
               // In a production environment, you might want a more robust way to handle this
               // based on context or user history.
-              finalQuery = `UA${trimmedSubmitTerm}`;
+              finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
               // console.log(
               //   `Pre-processing numeric flight query. Sending '${finalQuery}' to API.`
               // );
@@ -467,6 +464,15 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                 // Save the result (either from the API or the raw text) to local storage.
                 if (rawReturn) {
                   // The API gave us something useful
+                  if (rawReturn.length > 0) {
+                    console.log("rawReturn from backend", rawReturn);
+                    // use exactMatch logic to find the correct match in the rawReturn array and use that for the details page.
+                    saveSearchToLocalStorage(rawReturn); // The value passed to the details page is the API response
+                    navigate("/details", {
+                      state: { searchValue: rawReturn },
+                    });
+                    setSelectedValue(rawReturn);
+                  }
                   // console.log("fetchRawQuery returned:", rawReturn);
                   saveSearchToLocalStorage(rawReturn); // The value passed to the details page is the API response
                   navigate("/details", {
@@ -637,11 +643,11 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     // Handle navigation based on selection type
     if (option) {
       if (option.type === "Airport") {
-        navigate(`/airport/${option.airportCacheReferenceId}`);
+        navigate(`/airport/${option.referenceId}`);
       } else if (option.type === "Flight") {
-        navigate(`/flight/${option.airportCacheReferenceId}`);
+        navigate(`/flight/${option.referenceId}`);
       } else if (option.type === "Gate") {
-        navigate(`/gate/${option.airportCacheReferenceId}`);
+        navigate(`/gate/${option.referenceId}`);
       }
     }
   };

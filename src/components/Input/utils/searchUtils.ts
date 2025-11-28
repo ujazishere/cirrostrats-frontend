@@ -1,3 +1,5 @@
+import { Metadata } from "../../../types";
+
 interface RawSuggestion {
   _id: string;
   referenceId?: string;
@@ -62,3 +64,62 @@ export const matchingSuggestions = (
     .filter((s) => s.label.toLowerCase().includes(lowercaseQuery))
     .slice(0, 5);
 };
+
+
+// export const exactMatchFinder = (
+//   suggestions: FormattedSuggestion[],
+//   trimmedSubmitTerm: string,
+// ): FormattedSuggestion => {
+//   return suggestions.find((suggestion: FormattedSuggestion) => {
+//   // Check for exact label match (case-insensitive) - works for all types
+//   if (
+//     suggestion.metadata &&
+//     (suggestion.metadata as Metadata).ICAOFlightID?.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+//   ) {
+//     return true;
+//   }
+
+//   // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
+//   // TODO search: This data structure inconsistency needs to be addrtessed - For exactMatch of digits, need to pass along with metadata
+//     // `See more` on top of the page that shows the backend finds using the submitted term through metadata?
+//   if (suggestion.type === "flight") {
+//     console.log("suggestion in flight check", suggestion);
+//     const digits = suggestion.label
+//       ? (suggestion.metadata as Metadata).ICAOFlightID?.replace(/\D/g, "")
+//       : "";
+//     return digits === trimmedSubmitTerm;
+//   }
+
+//   // TODO multiple matches: let it go to submit on a new page with multiple matches shown for user to select from.
+//   // TODO search: This data structure inconsistency needs to be addrtessed - For exactMatch of city name, need to pass along with metadata
+//     // `See more` on top of the page that shows the backend finds using the submitted term through metadata?
+//   // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
+//   // TODO UJ: account for ICAO code - since it will never match as suggestions have IATA airport codes only.
+//   if (suggestion.type === "airport") {
+//     const airportIdentifier = (suggestion.metadata as Metadata).ICAOairportCode || (suggestion.metadata as Metadata).IATAairportCode;
+    
+//     if (!airportIdentifier) return false;
+//     return (
+//       airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+//     );
+//   }
+
+//   // TODO search: This data structure inconsistency needs to be addrtessed.
+//   // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
+//   if (suggestion.type === "gate") {
+//     const gateIdentifier = (suggestion.metadata as Metadata).gate
+//     if (!gateIdentifier) return false;
+//     // console.log(
+//     //   "Checking gate identifier match:",
+//     //   gateIdentifier,
+//     //   "vs",
+//     //   trimmedSubmitTerm
+//     // );
+//     return (
+//       gateIdentifier &&
+//       gateIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
+//     );
+//   }
+
+//   return false;
+// });

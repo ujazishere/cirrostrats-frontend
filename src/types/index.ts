@@ -88,15 +88,15 @@ export interface EDCTData {
 
 // TODO search suggestions: inspect 
 export interface Metadata {
-  ICAO?: string;
+  ICAO?: string;      // maybe remove this and use ICAOairportCode instead?
   ICAOairportCode?: string;
   IATAairportCode?: string;
-  flightID?: string;
-  gate?: string;
+  flightID?: string;       // maybe remove this and use ICAOFlightID instead?
   ICAOFlightID?: string;
   IATAFlightID?: string;
+  gate?: string;
   nnumber?: string;
-  referenceId?: string;
+  referenceId?: string;   // maybe remove this and use airportCacheReferenceId instead?
 }
 // Search Value types
 export interface SearchValue {
