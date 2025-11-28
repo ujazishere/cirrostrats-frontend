@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackSearch } from "./useTrackSearch";
 import searchService from "../api/searchservice";
-import { FormattedSuggestion } from "../utils/searchUtils";
+import { FormattedSuggestion, findExactMatch, formatRawSearchResults } from "../utils/searchUtils"; 
 import { Metadata } from "../../../types";
 
 /*
@@ -292,58 +292,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // TODO ismail abstract this logic to a separate function within searchUtils.ts Ive created a placeholder for it there
           // Line 294-347
       // const exactMatch = exactMatchFinder(suggestions, trimmedSubmitTerm);
-      const exactMatch = suggestions.find((suggestion: FormattedSuggestion) => {
-        // Check for exact label match (case-insensitive) - works for all types
-        if (
-          suggestion.metadata &&
-          (suggestion.metadata as Metadata).ICAOFlightID?.toLowerCase() === trimmedSubmitTerm.toLowerCase()
-        ) {
-          return true;
-        }
+      const exactMatch = findExactMatch(suggestions, trimmedSubmitTerm);
 
-        // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
-        // TODO search: This data structure inconsistency needs to be addrtessed - For exactMatch of digits, need to pass along with metadata
-          // `See more` on top of the page that shows the backend finds using the submitted term through metadata?
-        if (suggestion.type === "flight") {
-          const digits = suggestion.label
-            ? (suggestion.metadata as Metadata).ICAOFlightID?.replace(/\D/g, "")
-            : "";
-          return digits === trimmedSubmitTerm;
-        }
-
-        // TODO multiple matches: let it go to submit on a new page with multiple matches shown for user to select from.
-        // TODO search: This data structure inconsistency needs to be addrtessed - For exactMatch of city name, need to pass along with metadata
-          // `See more` on top of the page that shows the backend finds using the submitted term through metadata?
-        // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
-        // TODO UJ: account for ICAO code - since it will never match as suggestions have IATA airport codes only.
-        if (suggestion.type === "airport") {
-          const airportIdentifier = (suggestion.metadata as Metadata).ICAOairportCode || (suggestion.metadata as Metadata).IATAairportCode;
-          
-          if (!airportIdentifier) return false;
-          return (
-            airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
-          );
-        }
-
-        // TODO search: This data structure inconsistency needs to be addrtessed.
-        // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
-        if (suggestion.type === "gate") {
-          const gateIdentifier = (suggestion.metadata as Metadata).gate
-          if (!gateIdentifier) return false;
-          // console.log(
-          //   "Checking gate identifier match:",
-          //   gateIdentifier,
-          //   "vs",
-          //   trimmedSubmitTerm
-          // );
-          return (
-            gateIdentifier &&
-            gateIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
-          );
-        }
-
-        return false;
-      });
       if (exactMatch) {
         console.log("exactMatch found: ", exactMatch);
         // If an exact match is found in suggestions, use it as the definitive search term. Hooray!
@@ -456,40 +406,60 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             searchService
               .fetchRawQuery(finalQuery)
               .then((rawReturn) => {
-                // Determine the final term: use the API result if valid, otherwise create a basic object from the raw text.
+                const formattedResults = formatRawSearchResults(rawReturn);
 
-                // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
-                // May have to account for this in the search interface.
-                // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
-                // Save the result (either from the API or the raw text) to local storage.
-                if (rawReturn) {
-                  // The API gave us something useful
-                  if (rawReturn.length > 0) {
-                    console.log("rawReturn from backend", rawReturn);
-                    // use exactMatch logic to find the correct match in the rawReturn array and use that for the details page.
-                    saveSearchToLocalStorage(rawReturn); // The value passed to the details page is the API response
-                    navigate("/details", {
-                      state: { searchValue: rawReturn },
+                // Check if we got ANY results back
+                if (formattedResults && formattedResults.length > 0) {
+                  
+                  // 1. Try to find an Exact Match (e.g. User typed "AA1010")
+                  const exactMatch = findExactMatch(formattedResults, trimmedSubmitTerm);
+
+                  if (exactMatch) {
+                    // SCENARIO A: Exact Match Found - Go straight to that flight
+                    console.log("Exact match found:", exactMatch);
+                    saveSearchToLocalStorage(exactMatch);
+                    
+                    navigate("/details", { 
+                      state: { searchValue: exactMatch } 
                     });
-                    setSelectedValue(rawReturn);
+                    setSelectedValue(exactMatch);
+
+                  } else {
+                    // SCENARIO B: Ambiguous Search (User typed "101", Backend returned "AA1010", "AA1012"...)
+                    console.log("No exact match. Passing candidates to Details page.");
+                    
+                    // Create a temporary object representing what the user ACTUALLY typed
+                    const userQueryObject: FormattedSuggestion = {
+                      id: `raw-${Date.now()}`,
+                      label: trimmedSubmitTerm, // "101"
+                      type: "ambiguous",        // Mark type as ambiguous
+                      metadata: {}
+                    };
+
+                    // Save "101" to history (optional, but good for UX)
+                    saveSearchToLocalStorage(userQueryObject);
+
+                    // Navigate to details, but PASS THE CANDIDATES list in the state
+                    navigate("/details", {
+                      state: { 
+                        searchValue: userQueryObject, // The page will show "No results for 101"
+                        possibleMatches: formattedResults // The page will render the list "Did you mean..."
+                      }
+                    });
+                    setSelectedValue(userQueryObject);
                   }
-                  // console.log("fetchRawQuery returned:", rawReturn);
-                  saveSearchToLocalStorage(rawReturn); // The value passed to the details page is the API response
-                  navigate("/details", {
-                    state: { searchValue: rawReturn },
-                  });
-                  setSelectedValue(rawReturn);
+
                 } else {
-                  // If API returns null/undefined, create a fallback term so the app doesn't break
-                  // console.log(
-                  //   "fetchRawQuery returned null, using fallback term"
-                  // );
-                  const fallbackTerm = {
-                    id: "",
-                    referenceId: "",
+                  // SCENARIO C: No results at all (Backend returned [])
+                  console.warn("No results found in raw query");
+                  
+                  const fallbackTerm: FormattedSuggestion = {
+                    id: `fallback-${Date.now()}`,
                     label: trimmedSubmitTerm,
                     type: "unknown",
+                    metadata: {},
                   };
+                  
                   saveSearchToLocalStorage(fallbackTerm);
                   navigate("/details", {
                     state: { searchValue: fallbackTerm },
@@ -498,13 +468,14 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                 }
               })
               .catch((error) => {
-                // Handle API errors gracefully instead of letting them break the user experience
-                console.error("Error fetching raw query data:", error); // Create a fallback term and proceed with navigation, so the user isnt stuck.
-                const fallbackTerm = {
+                // ... your existing catch block ...
+                console.error("Error fetching raw query data:", error);
+                const fallbackTerm: FormattedSuggestion = {
                   id: "",
                   referenceId: "",
                   label: trimmedSubmitTerm,
                   type: "unknown",
+                  metadata: {}
                 };
                 saveSearchToLocalStorage(fallbackTerm);
                 navigate("/details", {
@@ -512,10 +483,17 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                 });
                 setSelectedValue(fallbackTerm);
               });
+                 // ... existing catch logic ...
+
+                // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
+                // May have to account for this in the search interface.
+                // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
+                // Save the result (either from the API or the raw text) to local storage.
+            }   
           }
         }
       }
-    }
+    
   };
 
 

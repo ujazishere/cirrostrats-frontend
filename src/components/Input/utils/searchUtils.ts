@@ -9,6 +9,28 @@ interface RawSuggestion {
   metadata?: object;
 }
 
+export const formatRawSearchResults = (rawResults: any[]): FormattedSuggestion[] => {
+  if (!rawResults || !Array.isArray(rawResults)) return [];
+
+  return rawResults.map((item) => {
+    // Attempt to find a unique ID from metadata if the DB _id is missing
+    const uniqueId =
+      item._id ||
+      item.metadata?.ICAOFlightID ||
+      item.metadata?.ICAOairportCode ||
+      `generated-${Math.random().toString(36).substr(2, 9)}`;
+
+    return {
+      id: uniqueId,
+      referenceId: item.referenceId || undefined, 
+      display: item.display,
+      label: item.display || "Unknown", 
+      type: item.type,
+      metadata: item.metadata || {},
+    };
+  });
+};
+
 export interface FormattedSuggestion {
   id: string;
   referenceId?: string;
@@ -66,60 +88,43 @@ export const matchingSuggestions = (
 };
 
 
-// export const exactMatchFinder = (
-//   suggestions: FormattedSuggestion[],
-//   trimmedSubmitTerm: string,
-// ): FormattedSuggestion => {
-//   return suggestions.find((suggestion: FormattedSuggestion) => {
-//   // Check for exact label match (case-insensitive) - works for all types
-//   if (
-//     suggestion.metadata &&
-//     (suggestion.metadata as Metadata).ICAOFlightID?.toLowerCase() === trimmedSubmitTerm.toLowerCase()
-//   ) {
-//     return true;
-//   }
+export const findExactMatch = (
+  suggestions: FormattedSuggestion[],
+  term: string,
+): FormattedSuggestion | undefined => {
+  const trimmedTerm = term.trim();
+  const lowerTerm = trimmedTerm.toLowerCase();
 
-//   // For flights: check digit-only match (e.g., user types "4433" and it matches "UA4433")
-//   // TODO search: This data structure inconsistency needs to be addrtessed - For exactMatch of digits, need to pass along with metadata
-//     // `See more` on top of the page that shows the backend finds using the submitted term through metadata?
-//   if (suggestion.type === "flight") {
-//     console.log("suggestion in flight check", suggestion);
-//     const digits = suggestion.label
-//       ? (suggestion.metadata as Metadata).ICAOFlightID?.replace(/\D/g, "")
-//       : "";
-//     return digits === trimmedSubmitTerm;
-//   }
+  return suggestions.find((suggestion: FormattedSuggestion) => {
+    const meta = suggestion.metadata as Metadata;
 
-//   // TODO multiple matches: let it go to submit on a new page with multiple matches shown for user to select from.
-//   // TODO search: This data structure inconsistency needs to be addrtessed - For exactMatch of city name, need to pass along with metadata
-//     // `See more` on top of the page that shows the backend finds using the submitted term through metadata?
-//   // For airports: check identifier match (e.g., "EWR" matches "EWR - Newark Liberty...")
-//   // TODO UJ: account for ICAO code - since it will never match as suggestions have IATA airport codes only.
-//   if (suggestion.type === "airport") {
-//     const airportIdentifier = (suggestion.metadata as Metadata).ICAOairportCode || (suggestion.metadata as Metadata).IATAairportCode;
-    
-//     if (!airportIdentifier) return false;
-//     return (
-//       airportIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
-//     );
-//   }
+    // 1. Universal Check: ICAOFlightID Match
+    if (meta && meta.ICAOFlightID?.toLowerCase() === lowerTerm) {
+      return true;
+    }
 
-//   // TODO search: This data structure inconsistency needs to be addrtessed.
-//   // For gates: check identifier match (e.g., "C101" matches from "EWR - C101 departures")
-//   if (suggestion.type === "gate") {
-//     const gateIdentifier = (suggestion.metadata as Metadata).gate
-//     if (!gateIdentifier) return false;
-//     // console.log(
-//     //   "Checking gate identifier match:",
-//     //   gateIdentifier,
-//     //   "vs",
-//     //   trimmedSubmitTerm
-//     // );
-//     return (
-//       gateIdentifier &&
-//       gateIdentifier.toLowerCase() === trimmedSubmitTerm.toLowerCase()
-//     );
-//   }
+    // 2. Flight Check: Digit Only Match (e.g. "4433" matches "UA4433")
+    if (suggestion.type === "flight") {
+      const digits = suggestion.label
+        ? meta.ICAOFlightID?.replace(/\D/g, "")
+        : "";
+      return digits === trimmedTerm;
+    }
 
-//   return false;
-// });
+    // 3. Airport Check: ICAO or IATA Code Match
+    if (suggestion.type === "airport") {
+      const airportIdentifier = meta.ICAOairportCode || meta.IATAairportCode;
+      if (!airportIdentifier) return false;
+      return airportIdentifier.toLowerCase() === lowerTerm;
+    }
+
+    // 4. Gate Check: Identifier Match
+    if (suggestion.type === "gate") {
+      const gateIdentifier = meta.gate;
+      if (!gateIdentifier) return false;
+      return gateIdentifier.toLowerCase() === lowerTerm;
+    }
+
+    return false;
+  });
+};

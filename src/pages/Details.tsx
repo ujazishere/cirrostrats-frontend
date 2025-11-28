@@ -1,6 +1,6 @@
 // ✅ ADD: Import useState, useEffect, Suspense, and lazy for the feedback popup functionality.
 import { useState, useEffect, useRef, useMemo, Suspense, lazy } from "react";
-import { useLocation } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
+import { useLocation, useNavigate } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
 import { AirportToFetch } from "../types/index";
 import AirportCard from "../components/AirportCard"; // A card component to display airport details.
@@ -51,8 +51,10 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const Details = () => {
   // Access the location object provided by React Router.
   const location = useLocation();
+  const navigate = useNavigate();
   // Safely access the `searchValue` from the location's state. It might be undefined if the page is loaded directly.
   const searchValue = location?.state?.searchValue;
+  const possibleMatches = location?.state?.possibleMatches;
 
   // ✅ FIX: Use a ref to track the previous search value. This is essential to detect
   // the very first render after a search has changed, which is when states can be inconsistent.
@@ -73,12 +75,15 @@ const Details = () => {
 
   // Prepare airport data for the hook - abstract searchValue processing here
   const airportsToFetch: AirportToFetch | null = useMemo(() => {
+    if (possibleMatches) return null;
     if (searchValue?.type !== "airport") return null;
     return {
       ICAOairportCode: searchValue?.metadata?.ICAO || searchValue?.label || null,
       referenceId: searchValue?.referenceId || null,
     };
   }, [searchValue]);
+
+
 
   // Hook for airport-specific searches.
   const {
@@ -101,13 +106,13 @@ const Details = () => {
     nas: nasResponseFlight,
     edct: EDCT,
     error: flightError,
-  } = useFlightData(searchValue);
+  } = useFlightData(possibleMatches ? null : searchValue);
   // Hook for gate-specific searches.
   const {
     loading: loadingGateData, // Loading state from the gate hook.
     data: gateData, // Gate data object.
     error: gateError, // Error state from the gate hook.
-  } = useGateData(searchValue);
+  } = useGateData(possibleMatches ? null : searchValue);
 
   // --- FEEDBACK POPUP LOGIC START ---
   // ✅ ADD: State and handlers for the feedback popup, mirrored from HomePage.js.
@@ -212,6 +217,12 @@ const Details = () => {
   // A search must exist, content should not be loading, and there must be no errors.
   const showFeedbackSection = searchValue && !isContentLoading && !hasError;
 
+  const handleSuggestionClick = (suggestion: any) => {
+    navigate("/details", { 
+      state: { searchValue: suggestion } 
+    });
+  };
+
   // =================================================================================
   // Render Logic
   // This function determines what to display on the screen based on the collective
@@ -226,6 +237,29 @@ const Details = () => {
     if (isFlightSearch && (hasSearchChanged || loadingFlight)) {
       return <LoadingFlightCard />;
     }
+
+    if (possibleMatches && possibleMatches.length > 0) {
+      return (
+        <div className="ambiguous-results-container">
+          <h2>No exact match found for "{searchValue?.label}"</h2>
+          <p>Did you mean one of these?</p>
+          
+          <div className="suggestions-grid">
+            {possibleMatches.map((item: any) => (
+              <div 
+                key={item.id} 
+                className="suggestion-card"
+                onClick={() => handleSuggestionClick(item)}
+                style={{ cursor: "pointer", padding: "10px", border: "1px solid #ccc", margin: "5px 0" }} // Inline style just for functionality
+              >
+                <strong>{item.label}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     if (
       (isAirportSearch && (hasSearchChanged || loadingWeather)) ||
       (isGateSearch && (hasSearchChanged || loadingGateData))
