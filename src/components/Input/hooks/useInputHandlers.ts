@@ -295,10 +295,86 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       const exactMatch = findExactMatch(suggestions, trimmedSubmitTerm);
 
       if (exactMatch) {
-        console.log("exactMatch found: ", exactMatch);
+        console.log("exactMatch found from dropdown suggestions: ", exactMatch);
         // If an exact match is found in suggestions, use it as the definitive search term. Hooray!
         // console.log("Found exact match in suggestions:", exactMatch);
         saveSearchToLocalStorage(exactMatch);
+        // TODO ismail send this raw return to the details page?
+        searchService
+          .fetchRawQuery(trimmedSubmitTerm)
+          .then((rawReturn) => {
+            const formattedResults = formatRawSearchResults(rawReturn);
+
+            // Check if we got ANY results back
+            if (formattedResults && formattedResults.length > 0) {
+              console.log('formattedResults in handleSubmit for raw return', formattedResults);
+              // 1. Try to find an Exact Match (e.g. User typed "AA1010")
+              const exactMatch = findExactMatch(formattedResults, trimmedSubmitTerm);
+
+              if (exactMatch) {
+                // SCENARIO A: Exact Match Found - Go straight to that flight
+                console.log("Exact match found from backend returns:", exactMatch);
+                saveSearchToLocalStorage(exactMatch);
+                
+                navigate("/details", { 
+                  state: { searchValue: exactMatch } 
+                });
+                setSelectedValue(exactMatch);
+
+              } else {
+                // SCENARIO B: Ambiguous Search (User typed "101", Backend returned "AA1010", "AA1012"...)
+                console.log("No exact match. Passing candidates to Details page.");
+                
+                // Create a temporary object representing what the user ACTUALLY typed
+                const userQueryObject: FormattedSuggestion = {
+                  id: `raw-${Date.now()}`,
+                  label: trimmedSubmitTerm, // "101"
+                  type: "ambiguous",        // Mark type as ambiguous
+                  metadata: {}
+                };
+
+                // Save "101" to history (optional, but good for UX)
+                saveSearchToLocalStorage(userQueryObject);
+
+                // Navigate to details, but PASS THE CANDIDATES list in the state
+                navigate("/details", {
+                  state: { 
+                    searchValue: userQueryObject, // The page will show "No results for 101"
+                    possibleMatches: formattedResults // The page will render the list "Did you mean..."
+                  }
+                });
+                setSelectedValue(userQueryObject);
+              }
+
+            } else {
+              // SCENARIO C: No results at all (Backend returned [])
+              console.warn("No results found in raw query");
+              
+              const fallbackTerm: FormattedSuggestion = {
+                id: `fallback-${Date.now()}`,
+                label: trimmedSubmitTerm,
+                type: "unknown",
+                metadata: {},
+              };
+              
+              saveSearchToLocalStorage(fallbackTerm);
+              navigate("/details", {
+                state: { searchValue: fallbackTerm },
+              });
+              setSelectedValue(fallbackTerm);
+            }
+          })
+          .catch((error) => {
+            // ... your existing catch block ...
+            console.error("Error fetching raw query data:", error);
+            const fallbackTerm: FormattedSuggestion = {
+              id: "",
+              referenceId: "",
+              label: trimmedSubmitTerm,
+              type: "unknown",
+              metadata: {}
+            }});
+
         navigate("/details", { state: { searchValue: exactMatch } });
         setSelectedValue(exactMatch);
       } else {
@@ -383,31 +459,22 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
             // Check if the search term is a number-only string
             
-            console.log("trimmedSubmitTerm in numeric check", trimmedSubmitTerm);
             const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
             let finalQuery = trimmedSubmitTerm;
 
             // If it's a number, assume it's a flight number and prepend a common carrier code
             // This is the core fix to prevent the API from failing on raw numbers like '414'
             if (isNumeric) {
-              // For the sake of this fix, we'll assume a common carrier like 'UA'
-              // In a production environment, you might want a more robust way to handle this
-              // based on context or user history.
+              console.log("Final else block: digits submitted", trimmedSubmitTerm);
               finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
-              // console.log(
-              //   `Pre-processing numeric flight query. Sending '${finalQuery}' to API.`
-              // );
             }
 
-            // console.log(
-            //   "No matches in suggestions or localStorage, calling fetchRawQuery for:",
-            //   finalQuery
-            // );
             searchService
               .fetchRawQuery(finalQuery)
               .then((rawReturn) => {
                 const formattedResults = formatRawSearchResults(rawReturn);
 
+                console.log('formattedResults in handleSubmit for raw return when submitting numeric query', formattedResults);
                 // Check if we got ANY results back
                 if (formattedResults && formattedResults.length > 0) {
                   
@@ -416,7 +483,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
                   if (exactMatch) {
                     // SCENARIO A: Exact Match Found - Go straight to that flight
-                    console.log("Exact match found:", exactMatch);
+                    console.log("Exact digitsmatch found from backend returns:", exactMatch);
                     saveSearchToLocalStorage(exactMatch);
                     
                     navigate("/details", { 
