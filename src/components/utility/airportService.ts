@@ -314,11 +314,11 @@ const useAirportData = (
             const liveData = liveAirportWeather;
             const mdbData =
               mdbAirportWeather ?? mdbAirportWeatherUsingICAO?.weather ?? null;
-            // Helper to check for meaningful weather data (must not be an empty object and should have a METAR).
+            // Helper to check for meaningful weather data (must not be an empty object and should have a METAR, TAF, or DATIS).
             const isMeaningful = (weatherObj: any): boolean =>
               weatherObj &&
               Object.keys(weatherObj).length > 0 &&
-              weatherObj.metar;
+              (weatherObj.metar || weatherObj.taf || weatherObj.datis);
 
             if (isMeaningful(liveData)) {
               console.log("!!! SUCCESSFUL LIVE DATA FETCH  and state updated!!!");
