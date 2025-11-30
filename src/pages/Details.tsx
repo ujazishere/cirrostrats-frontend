@@ -83,11 +83,10 @@ const Details = () => {
 
   // Prepare airport data for the hook - abstract searchValue processing here
   const airportsToFetch: AirportToFetch | null = useMemo(() => {
-    if (possibleSimilarMatches) return null;
+    // if (possibleSimilarMatches) return null;
     if (searchValue?.type !== "airport") return null;
     return {
-      ICAOairportCode:
-        searchValue?.metadata?.ICAO || searchValue?.label || null,
+      ICAOAirportCode: searchValue?.metadata?.ICAOAirportCode || searchValue?.metadata?.ICAO || searchValue?.label || null,
       referenceId: searchValue?.referenceId || null,
     };
   }, [searchValue]);

@@ -17,7 +17,7 @@ export const formatRawSearchResults = (rawResults: any[]): FormattedSuggestion[]
     const uniqueId =
       item._id ||
       item.metadata?.ICAOFlightID ||
-      item.metadata?.ICAOairportCode ||
+      item.metadata?.ICAOAirportCode ||
       `generated-${Math.random().toString(36).substr(2, 9)}`;
 
     return {
@@ -38,7 +38,7 @@ export interface FormattedSuggestion {
   // displaySimilarity?: string;
   label: string;
   type: string;
-  metadata?: object;
+  metadata?: Metadata;
   isRecent?: boolean;
   timestamp?: number;
 }
@@ -96,7 +96,6 @@ export const findExactMatch = (
 
   if (suggestions.length === 0) return ;
 
-  console.log('suggestions in findExactMatch', suggestions);
   return suggestions.find((suggestion: FormattedSuggestion) => {
     const meta = suggestion.metadata as Metadata;
 
@@ -109,12 +108,12 @@ export const findExactMatch = (
       return true;
     }
 
-    if (meta && meta.ICAOairportCode?.toLowerCase() === lowerTerm) {
-      console.log('ICAOairportCode match found in findExactMatch', meta.ICAOairportCode);
+    if (meta && meta.ICAOAirportCode?.toLowerCase() === lowerTerm) {
+      console.log('ICAOairportCode match found in findExactMatch', meta.ICAOAirportCode);
       return true;
     }
 
-    if (meta && meta.IATAairportCode?.toLowerCase() === lowerTerm) {
+    if (meta && meta.IATAAirportCode?.toLowerCase() === lowerTerm) {
       return true;
     }
     // 2. Flight Check: Digit Only Match (e.g. "4433" matches "UA4433")
@@ -123,10 +122,11 @@ export const findExactMatch = (
       return digits === lowerTerm;
     }
 
+    // TODO UJ: This function doesn't work currentky. Idea was ti fetch more from backend in the background and shoot it as possibleSimilarMatches
     // 3. Airport Check: ICAO or IATA Code Match
     if (suggestion.type === "airport") {
-      console.log('airport match found in findExactMatch', meta.ICAOairportCode, meta.IATAairportCode);
-      const airportIdentifier = meta.ICAOairportCode || meta.IATAairportCode;
+      console.log('airport match found in findExactMatch', meta.ICAOAirportCode, meta.IATAAirportCode, meta.ICAO);
+      const airportIdentifier = meta.ICAOAirportCode || meta.IATAAirportCode || meta.ICAO;
       if (!airportIdentifier) return false;
       return airportIdentifier.toLowerCase() === lowerTerm;
     }

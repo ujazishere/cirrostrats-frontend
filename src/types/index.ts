@@ -89,8 +89,8 @@ export interface EDCTData {
 // TODO search suggestions: inspect 
 export interface Metadata {
   ICAO?: string;      // maybe remove this and use ICAOairportCode instead?
-  ICAOairportCode?: string;
-  IATAairportCode?: string;
+  ICAOAirportCode?: string;
+  IATAAirportCode?: string;
   flightID?: string;       // maybe remove this and use ICAOFlightID instead?
   ICAOFlightID?: string;
   IATAFlightID?: string;
@@ -110,7 +110,7 @@ export interface SearchValue {
   timestamp?: number;
 }
 
-export type AirportToFetch = string | { ICAOairportCode: string | null; referenceId: string | null; };
+export type AirportToFetch = string | { ICAOAirportCode: string | null; referenceId: string | null; };
 
 // Component Props types
 export interface AirportCardProps {

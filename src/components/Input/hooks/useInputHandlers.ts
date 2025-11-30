@@ -260,8 +260,9 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     if (
       // TODO search suggestions: inspect this submit
       typeof submitTerm === "object" &&
-      (submitTerm.referenceId ||
-        submitTerm.metadata.ICAO || // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
+      (
+        // submitTerm.referenceId ||        // This maybe used later once ICAO airport searches stabalize. Was commented out since it was causing complications on wx state update.
+        submitTerm.metadata.ICAO ||         // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
         submitTerm.metadata.ICAOairportCode ||
         submitTerm.metadata.IATAairportCode ||
         submitTerm.metadata.flightID || // for flights. TODO search suggestions: may not need this keep it standard with ICAOFlightID/IATAFlightID?
@@ -272,7 +273,6 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     ) {
       // --- Case 1: A dropdown item was explicitly selected ---
       // The term is already in the correct format, this is the easy path.
-      // console.log("Submitting selected term:", submitTerm);
       saveSearchToLocalStorage(submitTerm);
       // Navigate to the details page, passing the search object in the route's state.
       navigate("/details", { state: { searchValue: submitTerm } });
@@ -283,8 +283,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // --- Case 2: A raw string was submitted (e.g., by typing and pressing Enter) ---
       const trimmedSubmitTerm = submitTerm.trim(); // trimming leading and trailing white spaces
 
-      // NEW IMPROVED LOGIC: Check if there's an exact match in ANY of the current suggestions
-      // This now handles airports, gates, and flights properly. Much smarter.
+      // STEP 1: Check if there's an exact match in ANY of the current dropdown suggestions
       const exactMatch = findExactMatch(suggestions, trimmedSubmitTerm);
 
       let formattedResults: FormattedSuggestion[] = [];
@@ -422,11 +421,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                   );
 
                   if (exactMatch) {
-                    // SCENARIO A: Match Found (e.g. Logic matched "101" to "AAY101")
-                    console.log(
-                      "Exact digitsmatch found from backend returns:",
-                      exactMatch
-                    );
+                    // SCENARIO A: Exact Match Found - Go straight to that flight
+                    console.log("Exact found from backend returns:", formattedResults);
                     saveSearchToLocalStorage(exactMatch);
 
                     // ✅ FIX: Pass formattedResults as possibleMatches
