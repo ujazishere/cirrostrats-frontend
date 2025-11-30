@@ -240,11 +240,18 @@ const useAirportData = (
           // console.log("airportsToFetch in useAirportData", airportsToFetch);
           // Defensive: check first airport object in the array
           // If the string length is more than 4, treat as referenceId, otherwise as ICAO code
+          // Handle string input vs object. 
+          // If given a string, treat as a code: 4-char = ICAO, 3-char = IATA
           const airportInput =
             typeof airportToFetch === "string"
-              ? { referenceId: airportToFetch, ICAOAirportCode: airportToFetch.length === 4 ? airportToFetch : null }
+              ? {
+                  referenceId: airportToFetch,
+                  ICAOAirportCode: airportToFetch.length === 4 ? airportToFetch : null,
+                  IATAAirportCode: airportToFetch.length === 3 ? airportToFetch : null,
+                  airportCode: airportToFetch // for convenience, could be either form; you may map this to either ICAO or IATA as required downstream
+                }
               : airportToFetch;
-
+              
           const mdbAirportReferenceId =
             airportInput && typeof airportInput === "object"
               ? airportInput.referenceId || null
@@ -257,6 +264,21 @@ const useAirportData = (
                 airportToFetch.length === 4
               ? airportToFetch
               : null;
+
+          // // Extract the IATA code (priority: explicit IATA, or a string of length 3)
+          let IATAformattedAirportCode =
+            airportInput && typeof airportInput === "object"
+              ? ('IATAAirportCode' in airportInput ? airportInput.IATAAirportCode : null) || null
+              : null;
+          //     : typeof airportToFetch === "string" && airportToFetch.length === 3
+          //     ? airportToFetch
+          //     : null;
+
+          // // The main airport code we can use in lookups (prefer ICAO if present, fallback to IATA)
+          let airportCode =
+            ICAOformattedAirportCode ||
+            IATAformattedAirportCode ||
+            (typeof airportToFetch === "string" ? airportToFetch : null);
 
           // console.log("mdbAirportReferenceId for airportToFetch", mdbAirportReferenceId);
           let mdbAirportWeather = null;
@@ -289,10 +311,10 @@ const useAirportData = (
           // }
 
           // Fetch Live data w ICAO airport code -- Use either mdb code or raw code through searchValue.airport - ICAO format accounted and pre-processed for.
-          if (ICAOformattedAirportCode) {
+          if (airportCode) {
             // TODO: if the ICAO code is comging from flightData then 
             setLoadingWeather(true);
-            let mdbAirportWeatherUsingICAO = await airportWeatherAPI.getMdbByAirportCode(apiUrl, ICAOformattedAirportCode) as MdbWeatherData | null;
+            let mdbAirportWeatherUsingICAO = await airportWeatherAPI.getMdbByAirportCode(apiUrl, airportCode) as MdbWeatherData | null;
 
             setAirportWxMdb(mdbAirportWeatherUsingICAO?.weather as WeatherData);
             setLoadingWeather(false);
@@ -300,8 +322,8 @@ const useAirportData = (
             // console.log("ICAOformattedAirportCode", ICAOformattedAirportCode);
             // setLoadingWeather(true);
             // setLoadingNAS(true);
-            const nasRes: WeatherData | null = await airportNasAPI.getByAirportCode(apiUrl, ICAOformattedAirportCode);
-            let liveAirportWeather: WeatherData | null = await airportWeatherAPI.getLiveByAirportCode(apiUrl, ICAOformattedAirportCode);
+            const nasRes: WeatherData | null = await airportNasAPI.getByAirportCode(apiUrl, airportCode);
+            let liveAirportWeather: WeatherData | null = await airportWeatherAPI.getLiveByAirportCode(apiUrl, airportCode);
             setLoadingWeather(false);
 
             if (nasRes) {
@@ -356,6 +378,9 @@ const useAirportData = (
             setAirportWxLive(null);
             setAirportWxMdb(null);
             setLoadingWeather(false);
+          }
+          if (IATAformattedAirportCode){
+
           }
         }
       } catch (e) {

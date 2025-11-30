@@ -8,7 +8,6 @@ import { CombinedWeatherData, EDCTData, NASData, NASResponse, SearchValue, Weath
 import useAirportData, { airportWeatherAPI } from "./utility/airportService";
 import { normalizeAjms, validateAirportData } from "./utility/dataUtils";
 import { CloudCog } from "lucide-react";
-import { FormattedSuggestion } from "./Input/utils/searchUtils";
 
 // =================================================================================
 // Configuration
@@ -262,113 +261,6 @@ const useFlightData = (searchValue: SearchValue | null) => {
             }));
           }
 
-          // Fetch Weather and NAS data asynchronously
-          // Instead of using a local airportsToFetch variable, we use state to track the airports we want to fetch.
-          // This allows useAirportData (which should accept an airports array as input) to always be synced with our current airports.
-          // NOTE:  : These ICAO 4 charater airport codes need to be passed to useAirportData one at a time as string to get its weather and update state in the flight look up.
-          
-        // setAirportsToFetch([
-        //   {
-        //     key: "departure",
-        //     ICAOairportCode: departure,
-        //     referenceId: (ajms.data?.departureAirport || {}).referenceId || null,
-        //   },
-        //   {
-        //     key: "arrival",
-        //     ICAOairportCode: arrival,
-        //     referenceId: (ajms.data?.arrivalAirport || {}).referenceId || null,
-        //   },
-        //   {
-        //     key: "departureAlternate",
-        //     ICAOairportCode: departureAlternate,
-        //     referenceId:
-        //       (ajms.data?.departureAlternateAirport || {}).referenceId || null,
-        //   },
-        //   {
-        //     key: "arrivalAlternate",
-        //     ICAOairportCode: arrivalAlternate,
-        //     referenceId:
-        //       (ajms.data?.arrivalAlternateAirport || {}).referenceId || null,
-        //   },
-        // ].filter(a => a.ICAOairportCode));
-    
-        //   // console.log(airportWx, nasResponseAirport);
-        //   // Only proceed if we have at least one valid airport code.
-        //   // if (airportsToFetch.length > 0) {
-        //   //   // Create an array of promises for all the data fetches.
-
-          //   // const response = await airportWeatherAPI.getLiveByAirportCode(apiUrl, departure)
-          //   // Hook for airport-specific searches.
-          //   // console.log('resp', response);
-          //   // console.log('departure', departure);
-          //   setFlightState((prevState: FlightState) => ({ 
-          //       ...prevState, 
-          //       weather: airportWx, 
-          //       nas: nasResponseAirport, 
-          //       loadingWeatherNas: loadingWeather || false 
-          //     }));
-
-          //   const requests = airportsToFetch.map(airport =>
-          //     flightService.getWeatherAndNAS(airport.ICAOairportCode || '')
-          //   );
-          //   // Use `Promise.all` to execute all these requests in parallel, which is much more efficient than sequential requests.
-          //   Promise.all(requests).then((results: any[]) => {
-          //     const finalWeather: { [key: string]: any } = {};
-          //     const finalNas: { [key: string]: any } = {};
-          //     console.log('finalweather', finalWeather.data);
-          //     console.log('nas',finalNas.data);
-              
-          //     results.forEach((result, index) => {
-          //       const airportKey = airportsToFetch[index].key; // Get the original key ('departure', 'arrival', etc.).
-          //       // Structure the weather and NAS data into a clean, keyed object.
-          //       // NOTE: this weatherMdb
-          //       // finalWeather[`${airportKey}WeatherMdb`] = result?.weather?.mdb || null;
-          //       finalWeather[`${airportKey}WeatherLive`] = result?.weather?.live || null;
-          //       finalNas[`${airportKey}NAS`] = result?.NAS || null;
-          //     });
-          //     for await (const result of airportsToFetch.map(airport => flightService.getWeatherAndNAS(airport.code || ""))) {
-          //       const airportKey = airportsToFetch.find(a => a.code === result?.code)?.key;
-          //       if (airportKey) {
-          //         setFlightState((prevState) => ({
-          //           ...prevState,
-          //           weather: {
-          //             ...prevState.weather,
-          //             [`${airportKey}WeatherMdb`]: result?.weather?.mdb || null,
-          //             [`${airportKey}WeatherLive`]: result?.weather?.live || null,
-          //           },
-          //           nas: {
-          //             ...prevState.nas,
-          //             [`${airportKey}NAS`]: result?.NAS || null,
-          //           },
-          //         }));
-          //       }
-          //     }
-          //     console.log('results', results);
-          //     setFlightState((prevState: FlightState) => ({ 
-          //         ...prevState, 
-          //         weather: finalWeather, 
-          //         nas: finalNas, 
-          //         loadingWeatherNas: false 
-          //       }));
-          //     }).catch((error: Error) => {
-          //       console.error("Failed to fetch weather/NAS data:", error);
-          //       setFlightState((prevState: FlightState) => ({ 
-          //         ...prevState, 
-          //         loadingWeatherNas: false 
-          //       }));
-          //     });
-          //     } else {
-          //       setFlightState((prevState: FlightState) => ({ 
-          //         ...prevState, 
-          //         loadingWeatherNas: false 
-          //     }));
-          //     };
-          //     setFlightState(prevState => ({ ...prevState, weather: finalWeather, nas: finalNas, loadingWeatherNas: false }));
-          //   }).catch(() => setFlightState(prevState => ({ ...prevState, loadingWeatherNas: false })));
-          // } else {
-          //   setFlightState(prevState => ({ ...prevState, loadingWeatherNas: false }));
-          // }
-
         } catch (e) {
           console.error("Error fetching primary flight details:", e);
           setFlightState({ loadingFlight: false, loadingEdct: false, loadingWeatherNas: false, flightData: null, weather: null, nas: null, edct: null, error: e.message });
@@ -378,16 +270,16 @@ const useFlightData = (searchValue: SearchValue | null) => {
   }, [searchValue]); // The dependency array ensures this entire effect is re-run only when `searchValue` changes.
 
   const airportsToFetch = flightState.flightData ? [
-    { key: "departure", ICAOairportCode: flightState.flightData.departure},
-    { key: "arrival", ICAOairportCode: flightState.flightData.arrival},
-    { key: "departureAlternate", ICAOairportCode: flightState.flightData.departureAlternate},
-    { key: "arrivalAlternate", ICAOairportCode: flightState.flightData.arrivalAlternate},
-  ].filter(a => a.ICAOairportCode) : [];
+    { key: "departure", airportCode: flightState.flightData.departure},
+    { key: "arrival", airportCode: flightState.flightData.arrival},
+    { key: "departureAlternate", airportCode: flightState.flightData.departureAlternate},
+    { key: "arrivalAlternate", airportCode: flightState.flightData.arrivalAlternate},
+  ].filter(a => a.airportCode) : [];
 
-  const departureData = useAirportData(airportsToFetch.find(a => a.key === "departure")?.ICAOairportCode, apiUrl);
-  const arrivalData = useAirportData(airportsToFetch.find(a => a.key === "arrival")?.ICAOairportCode, apiUrl);
-  const departureAlternateData = useAirportData(airportsToFetch.find(a => a.key === "departureAlternate")?.ICAOairportCode, apiUrl);
-  const arrivalAlternateData = useAirportData(airportsToFetch.find(a => a.key === "arrivalAlternate")?.ICAOairportCode, apiUrl);
+  const departureData = useAirportData(airportsToFetch.find(a => a.key === "departure")?.airportCode, apiUrl);
+  const arrivalData = useAirportData(airportsToFetch.find(a => a.key === "arrival")?.airportCode, apiUrl);
+  const departureAlternateData = useAirportData(airportsToFetch.find(a => a.key === "departureAlternate")?.airportCode, apiUrl);
+  const arrivalAlternateData = useAirportData(airportsToFetch.find(a => a.key === "arrivalAlternate")?.airportCode, apiUrl);
 
   // 4. Combine airport data into flightState
   useEffect(() => {
