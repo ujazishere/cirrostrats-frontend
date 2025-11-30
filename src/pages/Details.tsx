@@ -1,5 +1,5 @@
 // ✅ ADD: Import useState, useEffect, Suspense, and lazy for the feedback popup functionality.
-import { useState, useEffect, useRef, useMemo, Suspense, lazy } from "react";
+import { useState, useEffect, useRef, useMemo, Suspense, lazy, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
 import { AirportToFetch } from "../types/index";
@@ -54,7 +54,7 @@ const Details = () => {
   const navigate = useNavigate();
   // Safely access the `searchValue` from the location's state. It might be undefined if the page is loaded directly.
   const searchValue = location?.state?.searchValue;
-  const possibleMatches = location?.state?.possibleMatches;
+  const possibleSimilarMatches = location?.state?.possibleMatches;
 
   // ✅ FIX: Use a ref to track the previous search value. This is essential to detect
   // the very first render after a search has changed, which is when states can be inconsistent.
@@ -75,7 +75,7 @@ const Details = () => {
 
   // Prepare airport data for the hook - abstract searchValue processing here
   const airportsToFetch: AirportToFetch | null = useMemo(() => {
-    if (possibleMatches) return null;
+    if (possibleSimilarMatches) return null;
     if (searchValue?.type !== "airport") return null;
     return {
       ICAOairportCode: searchValue?.metadata?.ICAO || searchValue?.label || null,
@@ -106,13 +106,14 @@ const Details = () => {
     nas: nasResponseFlight,
     edct: EDCT,
     error: flightError,
-  } = useFlightData(possibleMatches ? null : searchValue);
+  } = useFlightData(searchValue);
+
   // Hook for gate-specific searches.
   const {
     loading: loadingGateData, // Loading state from the gate hook.
     data: gateData, // Gate data object.
     error: gateError, // Error state from the gate hook.
-  } = useGateData(possibleMatches ? null : searchValue);
+  } = useGateData(possibleSimilarMatches ? null : searchValue);
 
   // --- FEEDBACK POPUP LOGIC START ---
   // ✅ ADD: State and handlers for the feedback popup, mirrored from HomePage.js.
@@ -132,22 +133,34 @@ const Details = () => {
   }, []); // The empty dependency array ensures this runs only once.
 
   // ✅ ADD: Handler function to open the feedback popup.
-  const handleFeedbackClick = (e: any) => {
+  const handleFeedbackClick = useCallback((e: any) => {
     e.preventDefault();
     setShowFeedbackPopup(true);
-  };
+  }, []); // No dependencies - only uses setState
+  // const handleFeedbackClick = (e: any) => {
+  //   e.preventDefault();
+  //   setShowFeedbackPopup(true);
+  // };
 
   // ✅ ADD: Handler function to close the feedback popup and reset its state.
-  const handleCloseFeedback = () => {
+  const handleCloseFeedback = useCallback(() => {
     setShowFeedbackPopup(false);
     setFeedbackMessage("");
-    setFeedbackType("Data Discrepancy"); // Reset to the default type.
-  };
+    setFeedbackType("Data Discrepancy");
+  }, []); // No dependencies - only uses setters
+  // const handleCloseFeedback = () => {
+  //   setShowFeedbackPopup(false);
+  //   setFeedbackMessage("");
+  //   setFeedbackType("Data Discrepancy"); // Reset to the default type.
+  // };
 
   // ✅ ADD: Handler function for submitting the feedback form.
-  const handleSubmitFeedback = async () => {
-    if (!feedbackMessage.trim()) return; // Prevent empty submissions.
+  const handleSubmitFeedback = useCallback(async () => {
+    if (!feedbackMessage.trim()) return;
     setIsSubmitting(true);
+  // const handleSubmitFeedback = async () => {
+  //   if (!feedbackMessage.trim()) return; // Prevent empty submissions.
+  //   setIsSubmitting(true);
 
     try {
       // Add feedback document to the Firestore 'feedback' collection.
@@ -186,7 +199,7 @@ const Details = () => {
     } finally {
       setIsSubmitting(false); // Re-enable the submit button regardless of outcome.
     }
-  };
+  }, [feedbackMessage, feedbackType, userEmail, searchValue]); // Dependencies: values used inside
   // --- FEEDBACK POPUP LOGIC END ---
 
   // =================================================================================
@@ -217,11 +230,17 @@ const Details = () => {
   // A search must exist, content should not be loading, and there must be no errors.
   const showFeedbackSection = searchValue && !isContentLoading && !hasError;
 
-  const handleSuggestionClick = (suggestion: any) => {
+  const handleSuggestionClick = useCallback((suggestion: any) => {
     navigate("/details", { 
       state: { searchValue: suggestion } 
     });
-  };
+  }, [navigate]); // Dependency array
+  // without useCallback
+  // const handleSuggestionClick = (suggestion: any) => {
+  //   navigate("/details", { 
+  //     state: { searchValue: suggestion } 
+  //   });
+  // };
 
   // =================================================================================
   // Render Logic
@@ -238,27 +257,28 @@ const Details = () => {
       return <LoadingFlightCard />;
     }
 
-    if (possibleMatches && possibleMatches.length > 0) {
-      return (
-        <div className="ambiguous-results-container">
-          <h2>No exact match found for "{searchValue?.label}"</h2>
-          <p>Did you mean one of these?</p>
+    // // TODO ismail : ismail's code to show multiple options on raw submit.
+    // if (possibleSimilarMatches && possibleSimilarMatches.length > 0) {
+    //   return (
+    //     <div className="ambiguous-results-container">
+    //       <h2>No exact match found for "{searchValue?.label}"</h2>
+    //       <p>Did you mean one of these?</p>
           
-          <div className="suggestions-grid">
-            {possibleMatches.map((item: any) => (
-              <div 
-                key={item.id} 
-                className="suggestion-card"
-                onClick={() => handleSuggestionClick(item)}
-                style={{ cursor: "pointer", padding: "10px", border: "1px solid #ccc", margin: "5px 0" }} // Inline style just for functionality
-              >
-                <strong>{item.label}</strong>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
+    //       <div className="suggestions-grid">
+    //         {possibleSimilarMatches.map((item: any) => (
+    //           <div 
+    //             key={item.id} 
+    //             className="suggestion-card"
+    //             onClick={() => handleSuggestionClick(item)}
+    //             style={{ cursor: "pointer", padding: "10px", border: "1px solid #ccc", margin: "5px 0" }} // Inline style just for functionality
+    //           >
+    //             <strong>{item.label}</strong>
+    //           </div>
+    //         ))}
+    //       </div>
+    //     </div>
+    //   );
+    // }
 
     if (
       (isAirportSearch && (hasSearchChanged || loadingWeather)) ||
@@ -275,7 +295,7 @@ const Details = () => {
       switch (searchValue.type) {
         // These two cases both result in showing the FlightCard.
         case "flight":
-        case "N-Number":
+        case "nNumber":
           if (flightError)
             return <div>Error fetching flight data: {flightError}</div>;
           // Render the FlightCard only if `flightData` is available (truthy and not null).
@@ -287,6 +307,7 @@ const Details = () => {
               EDCT={EDCT}
               isLoadingEdct={loadingEdct}
               isLoadingWeatherNas={loadingWeatherNas}
+              possibleSimilarMatches={possibleSimilarMatches}
             />
           ) : (
             <div className="no-data-message">

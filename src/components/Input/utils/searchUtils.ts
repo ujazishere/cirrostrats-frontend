@@ -92,9 +92,11 @@ export const findExactMatch = (
   suggestions: FormattedSuggestion[],
   term: string,
 ): FormattedSuggestion | undefined => {
-  const trimmedTerm = term.trim();
-  const lowerTerm = trimmedTerm.toLowerCase();
+  const lowerTerm = term.toLowerCase();
 
+  if (suggestions.length === 0) return ;
+
+  console.log('suggestions in findExactMatch', suggestions);
   return suggestions.find((suggestion: FormattedSuggestion) => {
     const meta = suggestion.metadata as Metadata;
 
@@ -103,16 +105,27 @@ export const findExactMatch = (
       return true;
     }
 
+    if (meta && meta.IATAFlightID?.toLowerCase() === lowerTerm) {
+      return true;
+    }
+
+    if (meta && meta.ICAOairportCode?.toLowerCase() === lowerTerm) {
+      console.log('ICAOairportCode match found in findExactMatch', meta.ICAOairportCode);
+      return true;
+    }
+
+    if (meta && meta.IATAairportCode?.toLowerCase() === lowerTerm) {
+      return true;
+    }
     // 2. Flight Check: Digit Only Match (e.g. "4433" matches "UA4433")
     if (suggestion.type === "flight") {
-      const digits = suggestion.label
-        ? meta.ICAOFlightID?.replace(/\D/g, "")
-        : "";
-      return digits === trimmedTerm;
+      const digits = meta.ICAOFlightID?.replace(/\D/g, "")
+      return digits === lowerTerm;
     }
 
     // 3. Airport Check: ICAO or IATA Code Match
     if (suggestion.type === "airport") {
+      console.log('airport match found in findExactMatch', meta.ICAOairportCode, meta.IATAairportCode);
       const airportIdentifier = meta.ICAOairportCode || meta.IATAairportCode;
       if (!airportIdentifier) return false;
       return airportIdentifier.toLowerCase() === lowerTerm;
@@ -127,4 +140,168 @@ export const findExactMatch = (
 
     return false;
   });
+};
+
+/**
+ * Result type for string submission processing
+ */
+export type StringSubmissionResult =
+  | { type: "exact_match"; value: FormattedSuggestion }
+  | { type: "multiple_airports"; inputValue: string }
+  | { type: "single_airport_match"; value: FormattedSuggestion }
+  | { type: "recent_match"; value: FormattedSuggestion }
+  | { type: "api_exact_match"; value: FormattedSuggestion }
+  | { type: "api_ambiguous"; query: FormattedSuggestion; candidates: FormattedSuggestion[] }
+  | { type: "api_no_results"; fallback: FormattedSuggestion }
+  | { type: "api_error"; fallback: FormattedSuggestion };
+
+/**
+ * Checks localStorage for a recent match that could match the search term
+ */
+const findRecentMatch = (trimmedSubmitTerm: string): FormattedSuggestion | null => {
+  try {
+    const recentSearches = JSON.parse(
+      localStorage.getItem("recentSearches") || "[]",
+    );
+    // Find a recent search that could be a flight number match
+    const recentMatch = recentSearches.find((item: any) => {
+      if (item.type === "flight") {
+        // Extract just the digits from the stored flight label or a display property if it exists
+        const flightIdentifier = item.display || item.label;
+        const digits = flightIdentifier.replace(/\D/g, "");
+        return digits === trimmedSubmitTerm;
+      }
+      return false;
+    });
+    return recentMatch || null;
+  } catch (error) {
+    console.error("Could not check recent searches from localStorage:", error);
+    return null;
+  }
+};
+
+/**
+ * Checks if there are multiple airport matches for a given search term
+ */
+const findAirportNameMatches = (
+  suggestions: FormattedSuggestion[],
+  trimmedSubmitTerm: string,
+): FormattedSuggestion[] => {
+  return suggestions.filter(
+    (suggestion: FormattedSuggestion) =>
+      suggestion.type === "airport" &&
+      suggestion.label.toLowerCase().includes(trimmedSubmitTerm.toLowerCase()),
+  );
+};
+
+/**
+ * Processes API response and determines the result type
+ */
+const processApiResponse = (
+  formattedResults: FormattedSuggestion[],
+  trimmedSubmitTerm: string,
+): StringSubmissionResult => {
+  if (formattedResults && formattedResults.length > 0) {
+    // Try to find an Exact Match (e.g. User typed "AA1010")
+    const exactMatch = findExactMatch(formattedResults, trimmedSubmitTerm);
+
+    if (exactMatch) {
+      // SCENARIO A: Exact Match Found - Go straight to that flight
+      return { type: "api_exact_match", value: exactMatch };
+    } else {
+      // SCENARIO B: Ambiguous Search (User typed "101", Backend returned "AA1010", "AA1012"...)
+      const userQueryObject: FormattedSuggestion = {
+        id: `raw-${Date.now()}`,
+        label: trimmedSubmitTerm,
+        type: "ambiguous",
+        metadata: {},
+      };
+      return {
+        type: "api_ambiguous",
+        query: userQueryObject,
+        candidates: formattedResults,
+      };
+    }
+  } else {
+    // SCENARIO C: No results at all (Backend returned [])
+    const fallbackTerm: FormattedSuggestion = {
+      id: `fallback-${Date.now()}`,
+      label: trimmedSubmitTerm,
+      type: "unknown",
+      metadata: {},
+    };
+    return { type: "api_no_results", fallback: fallbackTerm };
+  }
+};
+
+/**
+ * Processes a raw string submission and determines the appropriate action.
+ * This function handles all the complex logic for string submissions including:
+ * - Exact matches in suggestions
+ * - Multiple airport matches
+ * - Recent search matches
+ * - API calls and response processing
+ * 
+ * @param trimmedSubmitTerm - The trimmed search term
+ * @param suggestions - Current suggestions from dropdown
+ * @param fetchRawQuery - Function to fetch raw query from API
+ * @returns Promise that resolves to a StringSubmissionResult indicating what action to take
+ */
+export const processStringSubmission = async (
+  trimmedSubmitTerm: string,
+  suggestions: FormattedSuggestion[],
+  fetchRawQuery: (query: string) => Promise<any>,
+): Promise<StringSubmissionResult> => {
+  // Step 1: Check for exact match in suggestions
+  const exactMatch = findExactMatch(suggestions, trimmedSubmitTerm);
+
+  if (exactMatch) {
+    // If exact match found, still fetch from API to get full data
+    try {
+      const rawReturn = await fetchRawQuery(trimmedSubmitTerm);
+      const formattedResults = formatRawSearchResults(rawReturn);
+      return processApiResponse(formattedResults, trimmedSubmitTerm);
+    } catch (error) {
+      console.error("Error fetching raw query data:", error);
+      // Fallback to using the exact match from suggestions
+      return { type: "exact_match", value: exactMatch };
+    }
+  }
+
+  // Step 2: Check for airport name matches
+  const airportNameMatches = findAirportNameMatches(suggestions, trimmedSubmitTerm);
+
+  if (airportNameMatches.length > 1) {
+    // Multiple airports found - user needs to select
+    return { type: "multiple_airports", inputValue: trimmedSubmitTerm };
+  } else if (airportNameMatches.length === 1) {
+    // Single airport match found
+    return { type: "single_airport_match", value: airportNameMatches[0] };
+  }
+
+  // Step 3: Check localStorage for recent matches
+  const recentMatch = findRecentMatch(trimmedSubmitTerm);
+  if (recentMatch) {
+    return { type: "recent_match", value: recentMatch };
+  }
+
+  // Step 4: Fallback to API call
+  const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
+  const finalQuery = isNumeric ? trimmedSubmitTerm.toUpperCase() : trimmedSubmitTerm;
+
+  try {
+    const rawReturn = await fetchRawQuery(finalQuery);
+    const formattedResults = formatRawSearchResults(rawReturn);
+    return processApiResponse(formattedResults, trimmedSubmitTerm);
+  } catch (error) {
+    console.error("Error fetching raw query data:", error);
+    const fallbackTerm: FormattedSuggestion = {
+      id: "",
+      referenceId: "",
+      label: trimmedSubmitTerm,
+      type: "unknown",
+      metadata: {},
+    };
+    return { type: "api_error", fallback: fallbackTerm };
+  }
 };

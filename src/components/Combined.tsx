@@ -26,13 +26,19 @@ interface FlightCardProps {
   EDCT: any;
   isLoadingEdct: boolean;
   isLoadingWeatherNas: boolean;
+  possibleMatches: any[]; // Fixed array type
 }
 
 /**
  * Main component for displaying comprehensive flight information
  * This component now features a top-level date-based tab navigation.
  */
-const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWeatherNas }: FlightCardProps ) => {
+const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWeatherNas, possibleMatches: possibleSimilarMatches }: FlightCardProps ) => {
+  // TODO ismial. see if you can get this to show up right above the summaryCard as `similar:` options and replicate the same for gate and airport.
+  // if (possibleSimilarMatches) {
+  //   console.log('possible matches', possibleSimilarMatches);
+  // }
+
   // TODO VHP Ismail: User feature request - cache flightdata into localstorage so it doesn't reset every few mins or when they go airplane mode
 
   // --- Start: Tab logic ---
@@ -246,6 +252,8 @@ const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWe
         {/* Summary Table for today's flight */}
         <SummaryTable flightData={flightData} EDCT={EDCT} isLoadingEdct={isLoadingEdct} />
         
+        <div>
+        </div>
         {isLoadingWeatherNas ? (
           <div style={{ marginTop: '20px' }}>
             <LoadingAirportCard />

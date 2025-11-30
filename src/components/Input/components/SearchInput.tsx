@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import parse from "autosuggest-highlight/parse";
@@ -50,11 +50,18 @@ export default function SearchInput({ userEmail }: SearchInputProps) {
    * @param {object} itemToRemove - The suggestion object to remove.
    */
 
-  const handleRemoveRecent = (
+  const handleRemoveRecent = useCallback((
     e: React.MouseEvent,
     itemToRemove: FormattedSuggestion,
   ) => {
-    e.stopPropagation(); // Prevents the Autocomplete's onChange from firing.
+    e.stopPropagation();
+    // ... localStorage logic
+
+  // const handleRemoveRecent = (
+  //   e: React.MouseEvent,
+  //   itemToRemove: FormattedSuggestion,
+  // ) => {
+  //   e.stopPropagation(); // Prevents the Autocomplete's onChange from firing.
 
     let recentSearches: FormattedSuggestion[] = [];
     try {
@@ -82,7 +89,8 @@ export default function SearchInput({ userEmail }: SearchInputProps) {
 
     // Instantly trigger a refresh of the suggestions from the hook.
     refreshRecentSearches();
-  };
+  }, [refreshRecentSearches]); // Depends on refreshRecentSearches from hook
+  // };
 
   return (
     <div className="search-container">

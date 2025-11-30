@@ -8,6 +8,7 @@ import { CombinedWeatherData, EDCTData, NASData, NASResponse, SearchValue, Weath
 import useAirportData, { airportWeatherAPI } from "./utility/airportService";
 import { normalizeAjms, validateAirportData } from "./utility/dataUtils";
 import { CloudCog } from "lucide-react";
+import { FormattedSuggestion } from "./Input/utils/searchUtils";
 
 // =================================================================================
 // Configuration
@@ -19,7 +20,6 @@ type FlightState = {
   loadingFlight: boolean,      // For the main flight data
   loadingEdct: boolean,        // For the EDCT section
   loadingWeatherNas: boolean,  // For Weather and NAS tabs
-  // loading: boolean;
   flightData: any;
   weather: CombinedWeatherData | null;
   nas: NASData | null;
@@ -31,62 +31,6 @@ type FlightState = {
 // CUSTOM HOOK for fetching Flight Data
 // This hook is responsible for all logic related to fetching flight, weather, NAS, and EDCT data.
 // =================================================================================
-type AirportRole =
-  | "departure"
-  | "arrival"
-  | "departureAlternate"
-  | "arrivalAlternate";
-
-type WeatherAccumulatorEntry = {
-  live?: WeatherData | null;
-  mdb?: WeatherData | null;
-};
-
-const AIRPORT_KEY_MAP: Record<
-  AirportRole,
-  { live: string; mdb: string; nas: string }
-> = {
-  departure: {
-    live: "departureWeatherLive",
-    mdb: "departureWeatherMdb",
-    nas: "departureNAS",
-  },
-  arrival: {
-    live: "arrivalWeatherLive",
-    mdb: "arrivalWeatherMdb",
-    nas: "arrivalNAS",
-  },
-  departureAlternate: {
-    live: "departureAlternateWeatherLive",
-    mdb: "departureAlternateWeatherMdb",
-    nas: "departureAlternateNAS",
-  },
-  arrivalAlternate: {
-    live: "arrivalAlternateWeatherLive",
-    mdb: "arrivalAlternateWeatherMdb",
-    nas: "arrivalAlternateNAS",
-  },
-};
-
-const flattenAirportData = (
-  weatherMap: Record<string, WeatherAccumulatorEntry>,
-  nasMap: Record<string, NASResponse | NASData | null>
-) => {
-  console.log('weatherMap', weatherMap)
-  const flattenedWeather: Record<string, WeatherData | null> = {};
-  const flattenedNAS: Record<string, NASResponse | NASData | null> = {};
-
-  (Object.keys(AIRPORT_KEY_MAP) as AirportRole[]).forEach(role => {
-    const mapping = AIRPORT_KEY_MAP[role];
-    const weatherEntry = weatherMap[role] || {};
-    flattenedWeather[mapping.live] =
-      (weatherEntry.live as WeatherData) ?? null;
-    flattenedWeather[mapping.mdb] = (weatherEntry.mdb as WeatherData) ?? null;
-    flattenedNAS[mapping.nas] = nasMap[role] ?? null;
-  });
-
-  return { flattenedWeather, flattenedNAS };
-};
 
 const useFlightData = (searchValue: SearchValue | null) => {
   // We manage all related states within a single object. This simplifies state updates and reduces re-renders.
@@ -101,145 +45,6 @@ const useFlightData = (searchValue: SearchValue | null) => {
     edct: null,
     error: null,
   });
-
-  // console.log("airportsToFetch", airportsToFetch);
-  // console.log("singleAirportToFetch", singleAirportToFetch);
-  // Might just return the ICAO airport along with weather and nas? This will clissify.
-  // const {
-  //       airportWxLive,
-  //       airportWxMdb,
-  //       nasResponseAirport,
-  //       // loadingWeather,
-  // } = useAirportData(singleAirportToFetch, apiUrl);
-
-    // Then use separate airport data hooks for each airport
-  // const departureData = useAirportData(flightData?.departure, apiUrl);
-  // const arrivalData = useAirportData(flightData?.arrival, apiUrl);
-  // const depAlternateData = useAirportData(flightData?.departureAlternate, apiUrl);
-  // const arrAlternateData = useAirportData(flightData?.arrivalAlternate, apiUrl);
-  // Initialize: When airportsToFetch changes, reset and start with first airport
-  // useEffect(() => {
-  //   // This only seems to run once and the there are about 3 airports to fetch.
-  //   if (airportsToFetch.length > 0) {
-  //     // console.log("airportsToFetch more than 0", airportsToFetch);
-  //     setCurrentIndex(0);
-  //     processedAirportsRef.current.clear();
-  //     weatherRef.current = {};
-  //     nasRef.current = {};
-  //     // return;
-  //     setsingleAirportToFetch(airportsToFetch[0].ICAOairportCode);
-  //   } else {
-  //     // console.log("airportsToFetch is 0", airportsToFetch.length);
-  //     setsingleAirportToFetch(null);
-  //     setCurrentIndex(0);
-  //     processedAirportsRef.current.clear();
-  //   }
-  // }, [airportsToFetch]);
-  // // console.log('airport', singleAirportToFetch)
-  // // console.log('currentIndex', currentIndex)
-
-  // Process airport data when it arrives - but only once per airport
-  // useEffect(() => {
-  //   const hasWeatherLive =
-  //     Object.keys(airportWxLive || {}).length > 0;
-  //   const hasWeatherMdb =
-  //     Object.keys(airportWxMdb || {}).length > 0;
-  //   const hasNas =
-  //     nasResponseAirport &&
-  //     typeof nasResponseAirport === "object" &&
-  //     Object.keys(nasResponseAirport).length > 0;
-  //   // console.log('airportWxLive', airportWxLive, 'airportWxMdb', airportWxMdb, 'nasResponseAirport', nasResponseAirport)
-  //   // Don't process if neither weather nor NAS is available yet
-  //   if (!hasWeatherLive && !hasWeatherMdb && !hasNas) return;
-  //    // Don't process if we don't have a current airport to identify which airport this data belongs to
-  //   if (!singleAirportToFetch) return;
-  //   // console.log('weatherLive', airportWxLive, 'weatherMdb', airportWxMdb, 'nas', nasResponseAirport)
-    
-    
-  //   const current = airportsToFetch[currentIndex];
-  //   // Don't process if we don't have a current airport
-  //   if (!current) return;
-
-  //   // console.log('current', current)
-    
-  //   // Find which airport in airportsToFetch matches the current singleAirportToFetch
-  //   const currentAirport = airportsToFetch.find(airport => 
-  //     airport.ICAOairportCode === singleAirportToFetch
-  //   );
-  //   // console.log('currentAirport', currentAirport)
-  //   if (!currentAirport) return;
-  //   // console.log('currentAirport', currentAirport)
-
-  //   // Create a unique key for this airport to prevent duplicate processing
-  //   const airportKeyWICAOCode = `${currentAirport.key}-${currentAirport.ICAOairportCode}`;
-  //   // console.log('airportKeyWICAOCode', airportKeyWICAOCode)
-  //   // console.log('Processing data for:', currentAirport.ICAOairportCode, {
-  //   //   hasLive: hasWeatherLive,
-  //   //   hasMdb: hasWeatherMdb, 
-  //   //   hasNas: hasNas
-  //   // });
-    
-  //   // Skip if we've already processed this airport
-  //   if (processedAirportsRef.current.has(airportKeyWICAOCode)) {
-  //     const currentBestData = weatherRef.current[currentAirport.key];
-  //     // console.log('currentBestData', currentBestData)
-  //     const hasBetterLiveData = airportWxLive && !currentBestData?.live;
-  //     // console.log('hasBetterLiveData', hasBetterLiveData)
-  //     if (!hasBetterLiveData) {
-  //       return; // Skip if no better data
-  //     }
-  //     // Otherwise, continue processing to update with live data
-  //     // return;
-  //   }
-    
-  //   // Mark as processed BEFORE updating refs to prevent race conditions
-  //   processedAirportsRef.current.add(airportKeyWICAOCode);
-  //   // console.log('processedAirportsRef', processedAirportsRef.current, airportKey)
-
-  //   // Save to refs
-  //   console.log('weatherRef.current[currentAirport.key]', weatherRef.current[currentAirport.key])
-  //   console.log('airportWxMdb', airportWxMdb)
-  //   console.log('airportWxLive', airportWxLive)
-
-  //   weatherRef.current = {
-  //     ...weatherRef.current,
-  //     [currentAirport.key]: {
-  //       ...(weatherRef.current[currentAirport.key] || {}),
-  //       live: airportWxLive ?? weatherRef.current[currentAirport.key]?.live ?? null,
-  //       mdb: airportWxMdb ?? weatherRef.current[currentAirport.key]?.mdb ?? null,
-  //     },
-  //   };
-  //   console.log('weatherRef', weatherRef.current)
-
-  //   nasRef.current = {
-  //     ...nasRef.current,
-  //     [currentAirport.key]: nasResponseAirport ?? null,
-  //   };
-
-  //   const nextIndex = currentIndex + 1;
-
-  //   console.log('nextIndex', nextIndex)
-  //   // console.log('nextIndex', nextIndex, 'airportsToFetch.length', airportsToFetch.length)
-  //   if (nextIndex < airportsToFetch.length) {
-  //     setCurrentIndex(nextIndex);
-  //     setsingleAirportToFetch(airportsToFetch[nextIndex].ICAOairportCode);
-  //   } else {
-  //     // return;
-  //     const { flattenedWeather, flattenedNAS } = flattenAirportData(
-  //       weatherRef.current,
-  //       nasRef.current
-  //     );
-  //     // console.log('flattenedWeather', flattenedWeather)
-  //     setFlightState((prev: FlightState) => ({
-  //       ...prev,
-  //       weather: flattenedWeather,
-  //       nas: null,
-  //       loadingWeatherNas: false
-  //     }));
-  //   }
-  // }, [airportWxLive, airportWxMdb, nasResponseAirport, currentIndex, airportsToFetch]);
-
-
   // This `useEffect` hook triggers the data fetching logic whenever the `searchValue` changes.
   useEffect(() => {
     // First, we perform a guard check. If the search type isn't for a flight, we reset the state and do nothing further.
