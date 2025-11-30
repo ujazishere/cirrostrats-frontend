@@ -18,6 +18,7 @@ import TabFormat from "./TabFormat";
 import GateCard from "./GateCard";
 import { FlightData, NASData } from "../types";
 import { LoadingAirportCard } from "./Skeleton";
+import { useNavigate } from "react-router-dom";
 
 interface FlightCardProps {
   flightData: FlightData;
@@ -26,14 +27,40 @@ interface FlightCardProps {
   EDCT: any;
   isLoadingEdct: boolean;
   isLoadingWeatherNas: boolean;
-  possibleMatches: any[]; // Fixed array type
+  possibleSimilarMatches: any[]; // Fixed array type
 }
 
 /**
  * Main component for displaying comprehensive flight information
  * This component now features a top-level date-based tab navigation.
  */
-const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWeatherNas, possibleMatches: possibleSimilarMatches }: FlightCardProps ) => {
+const FlightCard = ({
+  flightData,
+  weather,
+  NAS,
+  EDCT,
+  isLoadingEdct,
+  isLoadingWeatherNas,
+  possibleSimilarMatches,
+}: FlightCardProps) => {
+  const navigate = useNavigate();
+
+  const handleSuggestionClick = (suggestion: any) => {
+    navigate("/details", {
+      state: {
+        searchValue: suggestion,
+        possibleMatches: possibleSimilarMatches,
+      },
+    });
+  };
+
+  // <--- ADD THIS FILTER (Don't show AAY101 chip if we are already viewing AAY101) ---
+  const filteredMatches = possibleSimilarMatches?.filter(
+    (m) =>
+      m.id !== flightData?.flightID &&
+      m.metadata?.ICAOFlightID !== flightData?.flightID
+  );
+
   // TODO ismial. see if you can get this to show up right above the summaryCard as `similar:` options and replicate the same for gate and airport.
   // if (possibleSimilarMatches) {
   //   console.log('possible matches', possibleSimilarMatches);
@@ -195,6 +222,39 @@ const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWe
           .flight-card-content [class*="tab"] {
             border-radius: 5px;
           }
+
+          .suggestion-bar-container {
+          margin-top: 60px; 
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+          }
+          .suggestion-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 600;
+          }
+          .suggestion-chip {
+            background-color: white;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.9rem;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          .suggestion-chip:hover {
+            background-color: #e9ecef;
+            color: #212529;
+          }
         `}
       </style>
 
@@ -202,6 +262,21 @@ const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWe
       <div className="combined-search">
         <Input userEmail="user@example.com" isLoggedIn={true} />
       </div>
+
+      {filteredMatches && filteredMatches.length > 0 && (
+        <div className="suggestion-bar-container">
+          <span className="suggestion-label">More options:</span>
+          {filteredMatches.map((match: any) => (
+            <div
+              key={match.id}
+              className="suggestion-chip"
+              onClick={() => handleSuggestionClick(match)}
+            >
+              {match.display || match.label}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* COMMENTED OUT: Date tabs container - uncomment to re-enable */}
       {/* <div className="date-tabs-container">
@@ -250,18 +325,21 @@ const FlightCard = ({ flightData, weather, NAS, EDCT, isLoadingEdct, isLoadingWe
       {/* TEMPORARY: Direct content display while date tabs are disabled */}
       <div className="flight-card-content">
         {/* Summary Table for today's flight */}
-        <SummaryTable flightData={flightData} EDCT={EDCT} isLoadingEdct={isLoadingEdct} />
-        
-        <div>
-        </div>
+        <SummaryTable
+          flightData={flightData}
+          EDCT={EDCT}
+          isLoadingEdct={isLoadingEdct}
+        />
+
+        <div></div>
         {isLoadingWeatherNas ? (
-          <div style={{ marginTop: '20px' }}>
+          <div style={{ marginTop: "20px" }}>
             <LoadingAirportCard />
           </div>
         ) : (
           // Weather & NAS Tabs for Departure/Destination
-          <TabFormat 
-            flightData={flightData} 
+          <TabFormat
+            flightData={flightData}
             weather={weather}
             NAS={NAS}
             hideChildSearchBars={true} // Prop to hide search bars in the nested component

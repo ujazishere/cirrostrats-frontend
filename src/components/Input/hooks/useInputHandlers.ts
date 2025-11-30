@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackSearch } from "./useTrackSearch";
 import searchService from "../api/searchservice";
-import { FormattedSuggestion, findExactMatch, formatRawSearchResults } from "../utils/searchUtils"; 
+import {
+  FormattedSuggestion,
+  findExactMatch,
+  formatRawSearchResults,
+} from "../utils/searchUtils";
 import { Metadata } from "../../../types";
 
 /*
@@ -23,13 +27,13 @@ interface UseInputHandlersReturn {
     e: any,
     submitTerm: any,
     userEmail: string,
-    suggestions?: FormattedSuggestion[],
+    suggestions?: FormattedSuggestion[]
   ) => void;
   handleValue: (value: FormattedSuggestion | null) => void;
   handleInputChange: (
     event: any,
     newInputValue: string,
-    userEmail: string,
+    userEmail: string
   ) => void;
   handleFocus: () => void;
   handleBlur: (event: any) => void;
@@ -66,7 +70,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
   const handleInputChange = (
     _event: any,
     newInputValue: string,
-    _userEmail: string,
+    _userEmail: string
   ): void => {
     // TODO search: user based popular searches
     // Here the user should have their own most popular search terms displayed on the top in blue in the dropdown.
@@ -95,7 +99,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // If 'recentSearches' doesn't exist in storage, it defaults to an empty array string '[]'.
       // The '||' operator is a nice fallback here.
       recentSearches = JSON.parse(
-        localStorage.getItem("recentSearches") || "[]",
+        localStorage.getItem("recentSearches") || "[]"
       );
     } catch (error) {
       // If the data in localStorage is corrupted (maybe the user edited it?), it could crash the app.
@@ -220,10 +224,6 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     }, 3000);
   };
 
-
-
-
-
   /**
    * @function handleSubmit
    * @description Handles the search submission event. It intelligently determines whether the user
@@ -237,7 +237,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     e: any,
     submitTerm: any,
     userEmail: string,
-    suggestions: FormattedSuggestion[] = [],
+    suggestions: FormattedSuggestion[] = []
   ): void => {
     // Prevent the default browser action for the event (e.g., page reload on form submit).
     if (e) e.preventDefault();
@@ -260,18 +260,16 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     if (
       // TODO search suggestions: inspect this submit
       typeof submitTerm === "object" &&
-      (
-        submitTerm.referenceId ||
-        submitTerm.metadata.ICAO ||         // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
+      (submitTerm.referenceId ||
+        submitTerm.metadata.ICAO || // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
         submitTerm.metadata.ICAOairportCode ||
         submitTerm.metadata.IATAairportCode ||
-        submitTerm.metadata.flightID ||       // for flights. TODO search suggestions: may not need this keep it standard with ICAOFlightID/IATAFlightID?
+        submitTerm.metadata.flightID || // for flights. TODO search suggestions: may not need this keep it standard with ICAOFlightID/IATAFlightID?
         submitTerm.metadata.ICAOFlightID ||
         submitTerm.metadata.IATAFlightID ||
         submitTerm.metadata.gate ||
-        submitTerm.metadata.nnumber
-        ))
-     {
+        submitTerm.metadata.nnumber)
+    ) {
       // --- Case 1: A dropdown item was explicitly selected ---
       // The term is already in the correct format, this is the easy path.
       // console.log("Submitting selected term:", submitTerm);
@@ -286,7 +284,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       const trimmedSubmitTerm = submitTerm.trim(); // trimming leading and trailing white spaces
 
       // NEW IMPROVED LOGIC: Check if there's an exact match in ANY of the current suggestions
-        // This now handles airports, gates, and flights properly. Much smarter.
+      // This now handles airports, gates, and flights properly. Much smarter.
       const exactMatch = findExactMatch(suggestions, trimmedSubmitTerm);
 
       let formattedResults: FormattedSuggestion[] = [];
@@ -298,14 +296,14 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         searchService
           .fetchRawQuery(trimmedSubmitTerm)
           .then((rawReturn) => {
-            console.log('rawReturn in handleSubmit for exact match', rawReturn);
+            console.log("rawReturn in handleSubmit for exact match", rawReturn);
             formattedResults = formatRawSearchResults(rawReturn);
             // Navigate ONLY after we have the data for type : flight
-            navigate("/details", { 
-              state: { 
-                searchValue: exactMatch, 
-                possibleMatches: formattedResults 
-              } 
+            navigate("/details", {
+              state: {
+                searchValue: exactMatch,
+                possibleMatches: formattedResults,
+              },
             });
             setSelectedValue(exactMatch);
           })
@@ -320,10 +318,10 @@ const useInputHandlers = (): UseInputHandlersReturn => {
         // NEW: Check if it could be a partial airport name match (e.g., "Newark" matches "EWR - Newark Liberty...")
         const airportNameMatches = suggestions.filter(
           (suggestion: FormattedSuggestion) =>
-            (suggestion.type === "airport") &&
+            suggestion.type === "airport" &&
             suggestion.label
               .toLowerCase()
-              .includes(trimmedSubmitTerm.toLowerCase()),
+              .includes(trimmedSubmitTerm.toLowerCase())
         );
 
         // NEW FEATURE: Check if there are multiple airport matches for the same city/name
@@ -331,7 +329,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
           console.log(
             "Multiple airport matches found for city:",
             trimmedSubmitTerm,
-            airportNameMatches,
+            airportNameMatches
           );
 
           // Trigger shake animation on search bar
@@ -356,14 +354,15 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             state: { searchValue: airportNameMatches[0] },
           });
           setSelectedValue(airportNameMatches[0]);
-        } else {    // check within localStorage
+        } else {
+          // check within localStorage
           // --- START: FIX FOR RACE CONDITION ---
           // Before falling back to the API, check localStorage for a recent successful match.
           // This prevents failures when the user re-searches something faster than suggestions can load.
           let recentMatch = null;
           try {
             const recentSearches = JSON.parse(
-              localStorage.getItem("recentSearches") || "[]",
+              localStorage.getItem("recentSearches") || "[]"
             );
             // Find a recent search that could be a flight number match
             recentMatch = recentSearches.find((item: any) => {
@@ -378,7 +377,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
           } catch (error) {
             console.error(
               "Could not check recent searches from localStorage:",
-              error,
+              error
             );
           }
 
@@ -397,14 +396,17 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             // we revert to calling the API to try and resolve the raw query. This is our last hope.
 
             // Check if the search term is a number-only string
-            
+
             const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
             let finalQuery = trimmedSubmitTerm;
 
             // If it's a number, assume it's a flight number and prepend a common carrier code
             // This is the core fix to prevent the API from failing on raw numbers like '414'
             if (isNumeric) {
-              console.log("Final else block: digits submitted", trimmedSubmitTerm);
+              console.log(
+                "Final else block: digits submitted",
+                trimmedSubmitTerm
+              );
               finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
             }
 
@@ -413,59 +415,63 @@ const useInputHandlers = (): UseInputHandlersReturn => {
               .then((rawReturn) => {
                 const formattedResults = formatRawSearchResults(rawReturn);
 
-                console.log('formattedResults in handleSubmit for raw return when submitting numeric query', formattedResults);
-                // Check if we got ANY results back
                 if (formattedResults && formattedResults.length > 0) {
-                  
-                  // 1. Try to find an Exact Match (e.g. User typed "AA1010")
-                  const exactMatch = findExactMatch(formattedResults, trimmedSubmitTerm);
+                  const exactMatch = findExactMatch(
+                    formattedResults,
+                    trimmedSubmitTerm
+                  );
 
                   if (exactMatch) {
-                    // SCENARIO A: Exact Match Found - Go straight to that flight
-                    console.log("Exact digitsmatch found from backend returns:", exactMatch);
+                    // SCENARIO A: Match Found (e.g. Logic matched "101" to "AAY101")
+                    console.log(
+                      "Exact digitsmatch found from backend returns:",
+                      exactMatch
+                    );
                     saveSearchToLocalStorage(exactMatch);
-                    
-                    navigate("/details", { 
-                      state: { searchValue: exactMatch } 
+
+                    // ✅ FIX: Pass formattedResults as possibleMatches
+                    navigate("/details", {
+                      state: {
+                        searchValue: exactMatch,
+                        possibleMatches: formattedResults, // <--- ADD THIS LINE
+                      },
                     });
                     setSelectedValue(exactMatch);
-
                   } else {
-                    // SCENARIO B: Ambiguous Search (User typed "101", Backend returned "AA1010", "AA1012"...)
-                    console.log("No exact match. Passing candidates to Details page.");
-                    
-                    // Create a temporary object representing what the user ACTUALLY typed
+                    // SCENARIO B: Ambiguous Search
+                    // ... (Your existing Scenario B logic is fine, it already passes possibleMatches)
+                    console.log(
+                      "No exact match. Loading first result and passing candidates."
+                    );
+                    const bestGuess = formattedResults[0];
+
                     const userQueryObject: FormattedSuggestion = {
                       id: `raw-${Date.now()}`,
-                      label: trimmedSubmitTerm, // "101"
-                      type: "ambiguous",        // Mark type as ambiguous
-                      metadata: {}
+                      label: trimmedSubmitTerm,
+                      type: "ambiguous",
+                      metadata: {},
                     };
-
-                    // Save "101" to history (optional, but good for UX)
                     saveSearchToLocalStorage(userQueryObject);
 
-                    // Navigate to details, but PASS THE CANDIDATES list in the state
                     navigate("/details", {
-                      state: { 
-                        searchValue: userQueryObject, // The page will show "No results for 101"
-                        possibleMatches: formattedResults // The page will render the list "Did you mean..."
-                      }
+                      state: {
+                        searchValue: bestGuess,
+                        possibleMatches: formattedResults,
+                      },
                     });
-                    setSelectedValue(userQueryObject);
+                    setSelectedValue(bestGuess);
                   }
-
                 } else {
                   // SCENARIO C: No results at all (Backend returned [])
                   console.warn("No results found in raw query");
-                  
+
                   const fallbackTerm: FormattedSuggestion = {
                     id: `fallback-${Date.now()}`,
                     label: trimmedSubmitTerm,
                     type: "unknown",
                     metadata: {},
                   };
-                  
+
                   saveSearchToLocalStorage(fallbackTerm);
                   navigate("/details", {
                     state: { searchValue: fallbackTerm },
@@ -481,7 +487,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                   referenceId: "",
                   label: trimmedSubmitTerm,
                   type: "unknown",
-                  metadata: {}
+                  metadata: {},
                 };
                 saveSearchToLocalStorage(fallbackTerm);
                 navigate("/details", {
@@ -489,22 +495,17 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                 });
                 setSelectedValue(fallbackTerm);
               });
-                 // ... existing catch logic ...
+            // ... existing catch logic ...
 
-                // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
-                // May have to account for this in the search interface.
-                // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
-                // Save the result (either from the API or the raw text) to local storage.
-            }   
+            // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
+            // May have to account for this in the search interface.
+            // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
+            // Save the result (either from the API or the raw text) to local storage.
           }
         }
       }
-    
+    }
   };
-
-
-
-
 
   // This handles what happens when the user clicks INTO the search bar
   const handleFocus = () => {

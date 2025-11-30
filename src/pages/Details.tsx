@@ -1,5 +1,13 @@
 // ✅ ADD: Import useState, useEffect, Suspense, and lazy for the feedback popup functionality.
-import { useState, useEffect, useRef, useMemo, Suspense, lazy, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  Suspense,
+  lazy,
+  useCallback,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Hook to access the current URL's location object, used here to get state passed during navigation.
 import UTCTime from "../components/UTCTime"; // Displays the current time in UTC.
 import { AirportToFetch } from "../types/index";
@@ -8,7 +16,7 @@ import { FlightCard, GateCard } from "../components/Combined"; // Cards for disp
 import { LoadingFlightCard } from "../components/Skeleton"; // A placeholder/skeleton UI shown while data is loading.
 import useAirportData from "../components/utility/airportService.ts"; // Custom hook to fetch airport weather and NAS data.
 import useGateData from "../components/GateData"; // Our newly separated custom hook for fetching gate-specific data.
-import flightService from '../components/utility/flightService'; // A service module with helper functions for flight data retrieval.
+import flightService from "../components/utility/flightService"; // A service module with helper functions for flight data retrieval.
 
 // ✅ CHANGE: Import the newly created custom hook for fetching flight-specific data from its own file.
 import useFlightData from "../components/FlightData.tsx"; // Our newly separated custom hook for fetching flight data.
@@ -78,12 +86,11 @@ const Details = () => {
     if (possibleSimilarMatches) return null;
     if (searchValue?.type !== "airport") return null;
     return {
-      ICAOairportCode: searchValue?.metadata?.ICAO || searchValue?.label || null,
+      ICAOairportCode:
+        searchValue?.metadata?.ICAO || searchValue?.label || null,
       referenceId: searchValue?.referenceId || null,
     };
   }, [searchValue]);
-
-
 
   // Hook for airport-specific searches.
   const {
@@ -158,9 +165,9 @@ const Details = () => {
   const handleSubmitFeedback = useCallback(async () => {
     if (!feedbackMessage.trim()) return;
     setIsSubmitting(true);
-  // const handleSubmitFeedback = async () => {
-  //   if (!feedbackMessage.trim()) return; // Prevent empty submissions.
-  //   setIsSubmitting(true);
+    // const handleSubmitFeedback = async () => {
+    //   if (!feedbackMessage.trim()) return; // Prevent empty submissions.
+    //   setIsSubmitting(true);
 
     try {
       // Add feedback document to the Firestore 'feedback' collection.
@@ -195,7 +202,9 @@ const Details = () => {
       handleCloseFeedback();
     } catch (error) {
       console.error("Error adding document: ", error);
-      alert("Sorry, there was an an error submitting your feedback. Please try again.");
+      alert(
+        "Sorry, there was an an error submitting your feedback. Please try again."
+      );
     } finally {
       setIsSubmitting(false); // Re-enable the submit button regardless of outcome.
     }
@@ -230,15 +239,18 @@ const Details = () => {
   // A search must exist, content should not be loading, and there must be no errors.
   const showFeedbackSection = searchValue && !isContentLoading && !hasError;
 
-  const handleSuggestionClick = useCallback((suggestion: any) => {
-    navigate("/details", { 
-      state: { searchValue: suggestion } 
-    });
-  }, [navigate]); // Dependency array
+  const handleSuggestionClick = useCallback(
+    (suggestion: any) => {
+      navigate("/details", {
+        state: { searchValue: suggestion },
+      });
+    },
+    [navigate]
+  ); // Dependency array
   // without useCallback
   // const handleSuggestionClick = (suggestion: any) => {
-  //   navigate("/details", { 
-  //     state: { searchValue: suggestion } 
+  //   navigate("/details", {
+  //     state: { searchValue: suggestion }
   //   });
   // };
 
@@ -263,11 +275,11 @@ const Details = () => {
     //     <div className="ambiguous-results-container">
     //       <h2>No exact match found for "{searchValue?.label}"</h2>
     //       <p>Did you mean one of these?</p>
-          
+
     //       <div className="suggestions-grid">
     //         {possibleSimilarMatches.map((item: any) => (
-    //           <div 
-    //             key={item.id} 
+    //           <div
+    //             key={item.id}
     //             className="suggestion-card"
     //             onClick={() => handleSuggestionClick(item)}
     //             style={{ cursor: "pointer", padding: "10px", border: "1px solid #ccc", margin: "5px 0" }} // Inline style just for functionality
