@@ -265,10 +265,12 @@ test("Recent Search - GJS4433", async ({ page }) => {
   await expect(page.getByText("Invalid Flight ID")).not.toBeVisible();
 });
 
-test("Details : Flight : Ambiguous Raw Input : 101 -> Suggestions Interaction", async ({ page }) => {
+
+
+test("101 - Raw - Alternate Suggestion", async ({ page }) => {
   const query = "101";
-  const defaultExpectation = "AAY101"; // Based on your logs, this is index 0
-  const alternativeExpectation = "DAL101"; // This is index 1
+  const defaultExpectation = "AAY101"; 
+  const alternativeExpectation = "DAL101"; 
 
   // 1. Navigate using raw query "101"
   await navigateToDetailsPage({
