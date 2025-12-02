@@ -179,7 +179,7 @@ test("Details : Flight : Invalid Raw : 00000", async ({ page }) => {
   // 2. Locate the expected "no data" message
   // TODO test: This is assuming UA- fix at source for fallback to UA.
   const noDataMessage = page.getByText(
-    "Error fetching flight data: Could not retrieve data for flight UA0000",
+    "Error fetching flight data: Invalid Flight ID",
   );
 
   // 3. Assert that the message is visible on the page.

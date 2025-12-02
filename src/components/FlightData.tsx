@@ -311,13 +311,29 @@ const useFlightData = (searchValue: SearchValue | null) => {
       if (departureAlternateData.nasResponseAirport) NAS.departureAlternateNAS = departureAlternateData.nasResponseAirport;
       if (arrivalAlternateData.nasResponseAirport) NAS.arrivalAlternateNAS = arrivalAlternateData.nasResponseAirport;
 
+      const isAnyLoading =
+        departureData.loadingWeather || departureData.LoadingNAS ||
+        arrivalData.loadingWeather || arrivalData.LoadingNAS ||
+        departureAlternateData.loadingWeather || departureAlternateData.LoadingNAS ||
+        arrivalAlternateData.loadingWeather || arrivalAlternateData.LoadingNAS;
+
       setFlightState(prev => ({
         ...prev,
         nas: Object.keys(NAS).length > 0 ? NAS : prev.nas,
-        loadingWeatherNas: false // Set to false when we have some data
+        loadingWeatherNas: isAnyLoading ? true : false
       }));
     }
-  }, [departureData.airportWxLive, departureData.airportWxMdb, departureData.nasResponseAirport,
+  }, [
+    
+    flightState.flightData, 
+    airportsToFetch.length,
+
+    departureData.loadingWeather, departureData.LoadingNAS,
+    arrivalData.loadingWeather, arrivalData.LoadingNAS,
+    departureAlternateData.loadingWeather, departureAlternateData.LoadingNAS,
+    arrivalAlternateData.loadingWeather, arrivalAlternateData.LoadingNAS,
+    
+    departureData.airportWxLive, departureData.airportWxMdb, departureData.nasResponseAirport,
     arrivalData.airportWxLive, arrivalData.airportWxMdb, arrivalData.nasResponseAirport,
     departureAlternateData.airportWxLive, departureAlternateData.airportWxMdb, departureAlternateData.nasResponseAirport,
     arrivalAlternateData.airportWxLive, arrivalAlternateData.airportWxMdb, arrivalAlternateData.nasResponseAirport,
