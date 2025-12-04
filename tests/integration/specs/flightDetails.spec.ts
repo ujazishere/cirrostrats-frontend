@@ -3,6 +3,7 @@ import { navigateToDetailsPage } from "../utils/details";
 
 // TODO: A simple test for the skeleton of the flight page, not verifying any content,
     // assert using mock data: partial flight data/weather  data/ NAS data.
+    // assert partial flight data and usage of expand/contract with individual and multiple component unavailable
 
 // TODO search: simulate various submit types - button click, return key, dropdown select - for each, perform exact match submit, multiple city match(chicago,miami) submit
 

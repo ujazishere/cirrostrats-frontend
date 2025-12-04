@@ -407,6 +407,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                 trimmedSubmitTerm
               );
               finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
+            } else {
+              console.log("Final else block: non-digits submitted", trimmedSubmitTerm);
             }
 
             searchService

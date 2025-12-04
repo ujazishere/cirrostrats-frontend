@@ -13,7 +13,7 @@ import UTCTime from "../components/UTCTime"; // Displays the current time in UTC
 import { AirportToFetch } from "../types/index";
 import AirportCard from "../components/AirportCard"; // A card component to display airport details.
 import { FlightCard, GateCard } from "../components/Combined"; // Cards for displaying flight and gate information.
-import { LoadingFlightCard } from "../components/Skeleton"; // A placeholder/skeleton UI shown while data is loading.
+import { LoadingFlightCard, LoadingAirportCard } from "../components/Skeleton"; // A placeholder/skeleton UI shown while data is loading.
 import useAirportData from "../components/utility/airportService.ts"; // Custom hook to fetch airport weather and NAS data.
 import useGateData from "../components/GateData"; // Our newly separated custom hook for fetching gate-specific data.
 import flightService from "../components/utility/flightService"; // A service module with helper functions for flight data retrieval.
@@ -108,6 +108,7 @@ const Details = () => {
     loadingEdct,
     loadingWeatherNas,
     flightData: flightData,
+    rawSubmitTerm: rawSubmitTerm,
     weather: weatherResponseFlight,
     nas: nasResponseFlight,
     edct: EDCT,
@@ -268,7 +269,21 @@ const Details = () => {
       return <LoadingFlightCard />;
     }
 
-    // // TODO ismail : ismail's code to show multiple options on raw submit.
+    if (loadingWeather === true) {
+       return <LoadingAirportCard />;
+    }
+
+    if (
+      (isAirportSearch && (hasSearchChanged || loadingWeather)) ||
+      (isGateSearch && (hasSearchChanged || loadingGateData))
+    ) {
+      return null;
+    }
+
+    // --- DATA, ERROR, and NO-DATA LOGIC ---
+    // If we get here, it means all loading is complete and we are ready to display the final result.
+
+    // // TODO ismail : ismail's code to show multiple options on raw submit: This is a fallback code when nothing is matches for exact match and multiple results are available.
     // if (possibleSimilarMatches && possibleSimilarMatches.length > 0) {
     //   return (
     //     <div className="ambiguous-results-container">
@@ -290,16 +305,6 @@ const Details = () => {
     //     </div>
     //   );
     // }
-
-    if (
-      (isAirportSearch && (hasSearchChanged || loadingWeather)) ||
-      (isGateSearch && (hasSearchChanged || loadingGateData))
-    ) {
-      return null;
-    }
-
-    // --- DATA, ERROR, and NO-DATA LOGIC ---
-    // If we get here, it means all loading is complete and we are ready to display the final result.
 
     if (searchValue) {
       // A `switch` statement is a clean way to handle rendering for different search types.

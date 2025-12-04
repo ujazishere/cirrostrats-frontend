@@ -15,44 +15,39 @@ export const isMeaningfulWeather = (weatherObj: WeatherData): boolean =>
 type ChooseArgs = {
   apiUrl: string;
   mdbAirportReferenceId?: string | null;
-  airportCodeICAO?: string | null; // e.g., KJFK
+  airportCode?: string | null; // e.g., KJFK
   mdbData?: any | null;
   liveData?: any | null;
 };
 
-// Chooses live over mdb when meaningful. If live differs from mdb and we have mdbAirportReferenceId,
-// it will notify backend to store fresh live weather. Returns the chosen payload (or null).
-export async function chooseAirportWeatherAndMaybeUpdate({
+export async function maybeUpdateMdbWithLiveWeather({
   apiUrl,
-  mdbAirportReferenceId,
-  airportCodeICAO,
+  // mdbAirportReferenceId,
+  airportCode,
   mdbData,
   liveData,
 }: ChooseArgs): Promise<any | null> {
-  const hasLive = isMeaningfulWeather(liveData);
-  const hasMdb = isMeaningfulWeather(mdbData);
+  // const hasLive = isMeaningfulWeather(liveData);
+  // const hasMdb = isMeaningfulWeather(mdbData);
 
-  if (hasLive) {
-    if (
-      mdbAirportReferenceId &&
-      hasMdb &&
+  // if (hasLive) {
+  if (
+      // mdbAirportReferenceId &&
       JSON.stringify(liveData) !== JSON.stringify(mdbData)
-    ) {
+  ) {
+      console.log('airportCode in store',airportCode)
       try {
         await axios.post(
-          `${apiUrl}/storeLiveWeather?mdbAirportReferenceId=${mdbAirportReferenceId}&rawCode=${airportCodeICAO || ""}`
+          `${apiUrl}/storeLiveWeather?&rawCode=${airportCode || ""}`
         );
       } catch (e) {
         console.error("Error notifying backend to store live weather:", e);
       }
-    }
-    return liveData;
   }
-
-  if (hasMdb) return mdbData;
-
-  return null;
 }
+    // return liveData;
+  // if (hasMdb) return mdbData;
+  // return null;
 
 export const airportWeatherAPI = {
   /**
@@ -318,6 +313,7 @@ const useAirportData = (
 
             setAirportWxMdb(mdbAirportWeatherUsingICAO?.weather as WeatherData);
             setLoadingWeather(false);
+            
 
             // console.log("ICAOformattedAirportCode", ICAOformattedAirportCode);
             // setLoadingWeather(true);
@@ -345,22 +341,15 @@ const useAirportData = (
             if (isMeaningful(liveData)) {
               console.log("!!! SUCCESSFUL LIVE DATA FETCH  and state updated!!!");
               setAirportWxLive(liveData);
-              // If live data is different from MDB data, trigger a backend update.
-              if (
-                mdbAirportReferenceId &&
-                JSON.stringify(liveData) !== JSON.stringify(mdbData)
-              ) {
-                await axios
-                  .post(
-                    `${apiUrl}/storeLiveWeather?mdbAirportReferenceId=${mdbAirportReferenceId}&rawCode=${ICAOformattedAirportCode}`
-                  )
-                  .catch(e => {
-                    console.error(
-                      "Error sending airport code/mdbAirportReferenceId to backend for fresh data fetch and store:",
-                      e
-                    );
-                  });
-              }
+              setLoadingWeather(false);
+              // Abstracted: If live data differs from MDB, notify backend to update the weather in airports_cache
+              await maybeUpdateMdbWithLiveWeather({
+                apiUrl,
+                mdbAirportReferenceId,
+                airportCode,
+                liveData,
+                mdbData,
+              });
             } else if (isMeaningful(mdbData)) {
               console.log("mdbData is meaningful", mdbData);
               setAirportWxMdb(mdbData);
@@ -371,7 +360,7 @@ const useAirportData = (
             }
 
             // Finally, set loading to false.
-            setLoadingWeather(false);
+            // setLoadingWeather(false);
           } else {
             // FIX: If there's no airport code to search with, ensure state is null.
             console.log("no airport code to search with, setting state to null");
