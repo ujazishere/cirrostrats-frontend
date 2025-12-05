@@ -20,6 +20,8 @@ import flightService from "../components/utility/flightService"; // A service mo
 
 // ✅ CHANGE: Import the newly created custom hook for fetching flight-specific data from its own file.
 import useFlightData from "../components/FlightData.tsx"; // Our newly separated custom hook for fetching flight data.
+import searchService from "../components/Input/api/searchservice"; //
+import { formatRawSearchResults } from "../components/Input/utils/searchUtils"; //
 
 // type FlightService = typeof flightService;
 
@@ -62,7 +64,31 @@ const Details = () => {
   const navigate = useNavigate();
   // Safely access the `searchValue` from the location's state. It might be undefined if the page is loaded directly.
   const searchValue = location?.state?.searchValue;
-  const possibleSimilarMatches = location?.state?.possibleMatches;
+  const [possibleSimilarMatches, setPossibleSimilarMatches] = useState(
+    location?.state?.possibleMatches || []
+  );
+
+  useEffect(() => {
+    if (location?.state?.isOptimistic && searchValue?.label) {
+      console.log("Loading background matches for:", searchValue.label);
+
+      const fetchBackgroundMatches = async () => {
+        try {
+          // Perform the slow search now, while the user is already looking at the page
+          const rawReturn = await searchService.fetchRawQuery(
+            searchValue.label
+          );
+          const formattedResults = formatRawSearchResults(rawReturn);
+
+          setPossibleSimilarMatches(formattedResults);
+        } catch (error) {
+          console.error("Background fetch failed", error);
+        }
+      };
+
+      fetchBackgroundMatches();
+    }
+  }, [searchValue, location.state]);
 
   // ✅ FIX: Use a ref to track the previous search value. This is essential to detect
   // the very first render after a search has changed, which is when states can be inconsistent.
@@ -86,7 +112,11 @@ const Details = () => {
     // if (possibleSimilarMatches) return null;
     if (searchValue?.type !== "airport") return null;
     return {
-      ICAOAirportCode: searchValue?.metadata?.ICAOAirportCode || searchValue?.metadata?.ICAO || searchValue?.label || null,
+      ICAOAirportCode:
+        searchValue?.metadata?.ICAOAirportCode ||
+        searchValue?.metadata?.ICAO ||
+        searchValue?.label ||
+        null,
       referenceId: searchValue?.referenceId || null,
     };
   }, [searchValue]);
@@ -270,7 +300,7 @@ const Details = () => {
     }
 
     if (loadingWeather === true) {
-       return <LoadingAirportCard />;
+      return <LoadingAirportCard />;
     }
 
     if (

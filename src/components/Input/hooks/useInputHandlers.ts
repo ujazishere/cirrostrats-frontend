@@ -8,6 +8,7 @@ import {
   formatRawSearchResults,
 } from "../utils/searchUtils";
 import { Metadata } from "../../../types";
+import { is } from "date-fns/locale";
 
 /*
 This file manages UI interactions (click, submit, keyboard events)
@@ -260,9 +261,8 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     if (
       // TODO search suggestions: inspect this submit
       typeof submitTerm === "object" &&
-      (
-        // submitTerm.referenceId ||        // This maybe used later once ICAO airport searches stabalize. Was commented out since it was causing complications on wx state update.
-        submitTerm.metadata.ICAO ||         // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
+      // submitTerm.referenceId ||        // This maybe used later once ICAO airport searches stabalize. Was commented out since it was causing complications on wx state update.
+      (submitTerm.metadata.ICAO || // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
         submitTerm.metadata.ICAOairportCode ||
         submitTerm.metadata.IATAairportCode ||
         submitTerm.metadata.flightID || // for flights. TODO search suggestions: may not need this keep it standard with ICAOFlightID/IATAFlightID?
@@ -397,7 +397,40 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             // Check if the search term is a number-only string
 
             const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
-            let finalQuery = trimmedSubmitTerm;
+
+            let optimisticType = "unknown";
+            let optimisticMetadata: Metadata = {};
+
+            if (isNumeric) {
+              optimisticType = "flight";
+
+              optimisticMetadata = {
+                ICAOFlightID: trimmedSubmitTerm.toUpperCase(),
+              };
+            } else if (
+              trimmedSubmitTerm.length === 3 ||
+              trimmedSubmitTerm.length === 4
+            ) {
+              optimisticType = "airport";
+
+              optimisticMetadata = {
+                ICAOAirportCode: trimmedSubmitTerm.toUpperCase(),
+              };
+            }
+
+            const optimisticSearchValue: FormattedSuggestion = {
+              id: `opt-${Date.now()}`,
+              label: trimmedSubmitTerm.toUpperCase(),
+              type: optimisticType,
+              metadata: optimisticMetadata,
+              display: trimmedSubmitTerm.toUpperCase(),
+            };
+
+            saveSearchToLocalStorage(optimisticSearchValue);
+            navigate("/details", {
+              state: { searchValue: optimisticSearchValue, isOptimistic: true },
+            });
+            setSelectedValue(optimisticSearchValue);
 
             // If it's a number, assume it's a flight number and prepend a common carrier code
             // This is the core fix to prevent the API from failing on raw numbers like '414'
@@ -408,7 +441,10 @@ const useInputHandlers = (): UseInputHandlersReturn => {
               );
               finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
             } else {
-              console.log("Final else block: non-digits submitted", trimmedSubmitTerm);
+              console.log(
+                "Final else block: non-digits submitted",
+                trimmedSubmitTerm
+              );
             }
 
             searchService
@@ -424,7 +460,10 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
                   if (exactMatch) {
                     // SCENARIO A: Exact Match Found - Go straight to that flight
-                    console.log("Exact found from backend returns:", formattedResults);
+                    console.log(
+                      "Exact found from backend returns:",
+                      formattedResults
+                    );
                     saveSearchToLocalStorage(exactMatch);
 
                     // ✅ FIX: Pass formattedResults as possibleMatches
