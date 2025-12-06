@@ -35,7 +35,6 @@ export async function maybeUpdateMdbWithLiveWeather({
       // mdbAirportReferenceId &&
       JSON.stringify(liveData) !== JSON.stringify(mdbData)
   ) {
-      console.log('airportCode in store',airportCode)
       try {
         await axios.post(
           `${apiUrl}/storeLiveWeather?&rawCode=${airportCode || ""}`

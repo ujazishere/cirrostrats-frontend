@@ -8,6 +8,7 @@ import {
   formatRawSearchResults,
 } from "../utils/searchUtils";
 import { Metadata } from "../../../types";
+import { is } from "date-fns/locale";
 
 /*
 This file manages UI interactions (click, submit, keyboard events)
@@ -224,6 +225,9 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     }, 3000);
   };
 
+
+
+
   /**
    * @function handleSubmit
    * @description Handles the search submission event. It intelligently determines whether the user
@@ -249,20 +253,19 @@ const useInputHandlers = (): UseInputHandlersReturn => {
     ) {
       return;
     }
+    
 
     // TODO serach: SearchTracking is not working for other airliners from JMS - like delta/american and such.
     // Call a tracking function to log the search event for analytics.
     trackSearch(userEmail, submitTerm);
 
-    // Check if the submitted term is a structured object (meaning it was selected from the dropdown).
-    // console.log("submitTerm", submitTerm);
+    // Check if the submitted term is a structured object (May mean it was selected from the dropdown).
     // Accept either referenceId or metadata.ICAO as a unique indicator (for airports)
     if (
       // TODO search suggestions: inspect this submit
       typeof submitTerm === "object" &&
-      (
-        // submitTerm.referenceId ||        // This maybe used later once ICAO airport searches stabalize. Was commented out since it was causing complications on wx state update.
-        submitTerm.metadata.ICAO ||         // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
+      // submitTerm.referenceId ||        // This maybe used later once ICAO airport searches stabalize. Was commented out since it was causing complications on wx state update.
+      (submitTerm.metadata.ICAO || // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
         submitTerm.metadata.ICAOairportCode ||
         submitTerm.metadata.IATAairportCode ||
         submitTerm.metadata.flightID || // for flights. TODO search suggestions: may not need this keep it standard with ICAOFlightID/IATAFlightID?
@@ -286,29 +289,37 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // STEP 1: Check if there's an exact match in ANY of the current dropdown suggestions
       const exactMatch = findExactMatch(suggestions, trimmedSubmitTerm);
 
-      let formattedResults: FormattedSuggestion[] = [];
+      // let formattedResults: FormattedSuggestion[] = [];
       if (exactMatch) {
-        console.log("exactMatch found from dropdown suggestions: ", exactMatch);
+        console.log("exactMatch found from dropdown suggestions: ");
         // If an exact match is found in suggestions, use it as the definitive search term.
         saveSearchToLocalStorage(exactMatch);
+        navigate("/details", {
+          state: {
+            searchValue: exactMatch,
+            // possibleMatches: formattedResults,
+            submitTermString: trimmedSubmitTerm,
+          },
+        });
         // Fetch the raw query from the API to show the `see more` on the details page
-        searchService
-          .fetchRawQuery(trimmedSubmitTerm)
-          .then((rawReturn) => {
-            console.log("rawReturn in handleSubmit for exact match", rawReturn);
-            formattedResults = formatRawSearchResults(rawReturn);
-            // Navigate ONLY after we have the data for type : flight
-            navigate("/details", {
-              state: {
-                searchValue: exactMatch,
-                possibleMatches: formattedResults,
-              },
-            });
-            setSelectedValue(exactMatch);
-          })
-          .catch((error) => {
-            console.error("Error fetching raw query data:", error);
-          });
+        // searchService
+        //   .fetchRawQuery(trimmedSubmitTerm)
+        //   .then((rawReturn) => {
+        //     console.log("rawReturn in handleSubmit for exact match", rawReturn);
+        //     formattedResults = formatRawSearchResults(rawReturn);
+        //     // Navigate ONLY after we have the data for type : flight
+        //     navigate("/details", {
+        //       state: {
+        //         searchValue: exactMatch,
+        //         // possibleMatches: formattedResults,
+        //         submitTermString: trimmedSubmitTerm,
+        //       },
+        //     });
+        //     setSelectedValue(exactMatch);
+        //   })
+        //   .catch((error) => {
+        //     console.error("Error fetching raw query data:", error);
+        //   });
 
         // Final navigation to details page with the exact match and raw formatted results as `see more`
         // navigate("/details", { state: { searchValue: exactMatch, possibleMatches: formattedResults } });
@@ -397,7 +408,28 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             // Check if the search term is a number-only string
 
             const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
-            let finalQuery = trimmedSubmitTerm;
+
+            // let optimisticType = "unknown";
+            // let optimisticMetadata: Metadata = {};
+
+            // if (isNumeric) {
+            //   optimisticType = "flight";
+            // }
+
+            // const optimisticSearchValue: FormattedSuggestion = {
+            //   id: `opt-${Date.now()}`,
+            //   label: trimmedSubmitTerm.toUpperCase(),
+            //   type: optimisticType,
+            //   metadata: optimisticMetadata,
+            //   display: trimmedSubmitTerm.toUpperCase(),
+            // };
+
+            // saveSearchToLocalStorage(optimisticSearchValue);
+            // navigate("/details", {
+            //   state: { searchValue: trimmedSubmitTerm},
+            //   // state: { searchValue: trimmedSubmitTerm, isOptimistic: true },
+            // });
+            // setSelectedValue(trimmedSubmitTerm);
 
             // If it's a number, assume it's a flight number and prepend a common carrier code
             // This is the core fix to prevent the API from failing on raw numbers like '414'
@@ -406,25 +438,25 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                 "Final else block: digits submitted",
                 trimmedSubmitTerm
               );
-              finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
-            } else {
-              console.log("Final else block: non-digits submitted", trimmedSubmitTerm);
-            }
+              const finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
 
-            searchService
-              .fetchRawQuery(finalQuery)
-              .then((rawReturn) => {
-                const formattedResults = formatRawSearchResults(rawReturn);
+              searchService
+                .fetchRawQuery(finalQuery)
+                .then((rawReturn) => {
+                  const formattedResults = formatRawSearchResults(rawReturn);
 
-                if (formattedResults && formattedResults.length > 0) {
-                  const exactMatch = findExactMatch(
-                    formattedResults,
-                    trimmedSubmitTerm
-                  );
+                  if (formattedResults && formattedResults.length > 0) {
+                    const exactMatch = findExactMatch(
+                      formattedResults,
+                      trimmedSubmitTerm
+                    );
 
                   if (exactMatch) {
                     // SCENARIO A: Exact Match Found - Go straight to that flight
-                    console.log("Exact found from backend returns:", formattedResults);
+                    console.log(
+                      "Exact found from backend returns:",
+                      formattedResults
+                    );
                     saveSearchToLocalStorage(exactMatch);
 
                     // ✅ FIX: Pass formattedResults as possibleMatches
@@ -436,12 +468,12 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                     });
                     setSelectedValue(exactMatch);
                   } else {
-                    // SCENARIO B: Ambiguous Search
-                    // ... (Your existing Scenario B logic is fine, it already passes possibleMatches)
+                    // SCENARIO B: Ambiguous Search without exactMatch
+                    // TODO ismail pass search type here as ambiguous and possible matches such that multiple options are shown on the details page.
                     console.log(
-                      "No exact match. Loading first result and passing candidates."
+                      "No exact match. passing potential candidates."
                     );
-                    const bestGuess = formattedResults[0];
+                    // const bestGuess = formattedResults[0];
 
                     const userQueryObject: FormattedSuggestion = {
                       id: `raw-${Date.now()}`,
@@ -453,11 +485,11 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
                     navigate("/details", {
                       state: {
-                        searchValue: bestGuess,
+                        searchValue: userQueryObject,
                         possibleMatches: formattedResults,
                       },
                     });
-                    setSelectedValue(bestGuess);
+                    setSelectedValue(userQueryObject);
                   }
                 } else {
                   // SCENARIO C: No results at all (Backend returned [])
@@ -470,7 +502,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
                     metadata: {},
                   };
 
-                  saveSearchToLocalStorage(fallbackTerm);
+                  // saveSearchToLocalStorage(fallbackTerm);
                   navigate("/details", {
                     state: { searchValue: fallbackTerm },
                   });
@@ -500,10 +532,14 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
             // Save the result (either from the API or the raw text) to local storage.
           }
+          }
         }
       }
     }
   };
+
+
+
 
   // This handles what happens when the user clicks INTO the search bar
   const handleFocus = () => {

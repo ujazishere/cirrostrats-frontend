@@ -8,6 +8,8 @@ import { CombinedWeatherData, EDCTData, NASData, NASResponse, SearchValue, Weath
 import useAirportData, { airportWeatherAPI } from "./utility/airportService";
 import { normalizeAjms, validateAirportData } from "./utility/dataUtils";
 import { CloudCog } from "lucide-react";
+import searchService from "../components/Input/api/searchservice"; //
+import { formatRawSearchResults, FormattedSuggestion } from "../components/Input/utils/searchUtils"; //
 
 // =================================================================================
 // Configuration
@@ -20,6 +22,7 @@ type FlightState = {
   loadingEdct: boolean,        // For the EDCT section
   loadingWeatherNas: boolean,  // For Weather and NAS tabs
   flightData: any;
+  possibleSimilarMatches: object | null;
   weather: CombinedWeatherData | null;
   nas: NASData | null;
   edct: EDCTData | null;
@@ -31,7 +34,7 @@ type FlightState = {
 // This hook is responsible for all logic related to fetching flight, weather, NAS, and EDCT data.
 // =================================================================================
 
-const useFlightData = (searchValue: SearchValue | null) => {
+const useFlightData = (searchValue: SearchValue | null, submitTermString: string) => {
   // We manage all related states within a single object. This simplifies state updates and reduces re-renders.
   // REFACTORED: State now has granular loading flags for each data piece.
   const [flightState, setFlightState] = useState<FlightState>({
@@ -39,17 +42,21 @@ const useFlightData = (searchValue: SearchValue | null) => {
     loadingEdct: true,
     loadingWeatherNas: true,
     flightData: null,
+    possibleSimilarMatches: null,
     weather: null,
     nas: null,
     edct: null,
     error: null,
   });
+
+
   // This `useEffect` hook triggers the data fetching logic whenever the `searchValue` changes.
   useEffect(() => {
     // First, we perform a guard check. If the search type isn't for a flight, we reset the state and do nothing further.
     // This prevents the hook from running unnecessarily.
       if (searchValue?.type !== "flight" && searchValue?.type !== "nNumber") {
-        setFlightState({
+        setFlightState(prev => ({
+          ...prev,
           loadingFlight: false,
           loadingEdct: false,
           loadingWeatherNas: false,
@@ -58,13 +65,14 @@ const useFlightData = (searchValue: SearchValue | null) => {
           nas: null,
           edct: null,
           error: null,
-        }); // Reset state to default.
+        })); // Reset state to default.
         return; // Exit the effect.
       }
       // Define an async function to handle the entire flight data fetching process.
     const fetchFlightData = async () => {
         // On new search, reset all states and set all loaders to true.
-        setFlightState({
+        setFlightState(prev => ({
+          ...prev,
           loadingFlight: true,
           loadingEdct: true,
           loadingWeatherNas: true,
@@ -73,7 +81,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
           nas: null,
           edct: null,
           error: null,
-        });
+        }));
         
             // Check for a specific environment variable to use mock/test data. This is invaluable for development and testing without hitting live APIs.
         if (import.meta.env.VITE_APP_TEST_FLIGHT_DATA === "true") {
@@ -82,7 +90,8 @@ const useFlightData = (searchValue: SearchValue | null) => {
             const res = await axios.get(`${apiUrl}/testDataReturns`);
             console.log("!!TEST FLIGHT DATA!!", res.data); // Log that we are using test data.
             // Populate the state with the mock data.
-            setFlightState({
+            setFlightState(prev => ({
+              ...prev,
               loadingFlight: false,
               loadingEdct: false,
               loadingWeatherNas: false,
@@ -91,11 +100,12 @@ const useFlightData = (searchValue: SearchValue | null) => {
               nas: res.data.NAS || res.data,
               edct: res.data.EDCT || res.data,
               error: null,
-            });
+            }));
           } catch (e) {
             console.error("Test Data Error:", e); // Log any errors fetching test data.
             // Set an error state if the mock data fetch fails.
-            setFlightState({
+            setFlightState(prev => ({
+              ...prev,
               loadingFlight: false,
               loadingEdct: false,
               loadingWeatherNas: false,
@@ -104,7 +114,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
               nas: null,
               edct: null,
               error: "Failed to load test data.",
-            });
+            }));
           }
           return; // Exit after handling test data.
         }
@@ -160,7 +170,8 @@ const useFlightData = (searchValue: SearchValue | null) => {
           // Newer code:
           // If core data sources fail, we can't build a complete picture. Set an error and exit.
           if ((ajms as any).error && (flightAwareRes as any).error) {
-            setFlightState({
+            setFlightState(prev => ({
+              ...prev,
               loadingFlight: false,
               loadingEdct: false,
               loadingWeatherNas: false,
@@ -169,10 +180,11 @@ const useFlightData = (searchValue: SearchValue | null) => {
               nas: null,
               edct: null,
               error: `Could not retrieve data for flight ${flightID}.`,
-            });
+            }));
             return;
           }
           // Older code:
+          
           // if (ajms.error && flightAwareRes.error) throw new Error(`Could not retrieve JMS or FlightAware data for flight ${flightID}.`);
           
           // TODO VHP: airport descrepency handling -
@@ -191,7 +203,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
             ...flightAwareRes.data,
             ...flightStatsTZRes.data,
           };
-          // console.log('final combinedFlights', combinedFlightData);
+          console.log('final combinedFlights', combinedFlightData);
 
           // --- FIX: VALIDATE DATA BEFORE PROCEEDING TO FURTHER FETCHES ---
           // A flight is considered to have no real data if we couldn't find its
@@ -204,7 +216,8 @@ const useFlightData = (searchValue: SearchValue | null) => {
 
           // If the initial data is empty, stop here and set the state to null.
           if (isDataEffectivelyEmpty) {
-            setFlightState({
+            setFlightState(prev => ({
+              ...prev,
               loadingFlight: false,
               loadingEdct: false,
               loadingWeatherNas: false,
@@ -213,7 +226,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
               nas: null,
               edct: null,
               error: `Could not retrieve data for flight ${flightID}.`,
-            });
+            }));
             return;
           }
 
@@ -231,7 +244,7 @@ const useFlightData = (searchValue: SearchValue | null) => {
           if (import.meta.env.VITE_EDCT_FETCH === "1" && departure && arrival) {
             // Log in development mode to remind developers this potentially costly fetch is active.
             if (import.meta.env.VITE_ENV === "dev") {
-              console.warn(
+              console.log(
                 "Getting EDCT data. Switch it off in .env if not needed"
               );
             }
@@ -263,7 +276,17 @@ const useFlightData = (searchValue: SearchValue | null) => {
 
         } catch (e) {
           console.error("Error fetching primary flight details:", e);
-          setFlightState({ loadingFlight: false, loadingEdct: false, loadingWeatherNas: false, flightData: null, weather: null, nas: null, edct: null, error: e.message });
+          setFlightState((prevState: FlightState)=> ({ 
+            ...prevState, 
+            loadingFlight: false,
+            loadingEdct: false,
+            loadingWeatherNas: false,
+            flightData: null,
+            weather: null,
+            nas: null,
+            edct: null,
+            error: e.message
+          }));
         }
   };
     fetchFlightData();
@@ -338,8 +361,38 @@ const useFlightData = (searchValue: SearchValue | null) => {
     departureAlternateData.airportWxLive, departureAlternateData.airportWxMdb, departureAlternateData.nasResponseAirport,
     arrivalAlternateData.airportWxLive, arrivalAlternateData.airportWxMdb, arrivalAlternateData.nasResponseAirport,
     ]);
+
+  // PossibleSimilarMatches fetching mechanism
+  useEffect(() => {
+    if (submitTermString && submitTermString.length > 0) {
+
+      const fetchBackgroundMatches = async () => {
+        try {
+          // Perform the slow search now, while the user is already looking at the page
+          const rawReturn = await searchService.fetchRawQuery(
+            submitTermString.toUpperCase()
+          );
+          // let formattedResults: = [];
+          const formattedResults: FormattedSuggestion[]  = formatRawSearchResults(rawReturn);
+
+          console.log('possibleMatfhces found', formattedResults)
+          setFlightState(prev => ({
+            ...prev,
+            possibleSimilarMatches: formattedResults
+          }));
+
+        } catch (error) {
+          console.error("Background fetch failed", error);
+        }
+      };
+
+      fetchBackgroundMatches();
+    }
+  }, [submitTermString]);
+
   // The hook returns its state object, providing the component with everything it needs to render.
   return flightState;
+
 };
 
 // ✅ ADD: Export the custom hook to make it available for import in other files.
