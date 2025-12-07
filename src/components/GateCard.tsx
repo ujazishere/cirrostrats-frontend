@@ -113,14 +113,15 @@ const GateCard: React.FC<GateCardProps> = ({
   const formatTimeOnly = (dateString: string): string => {
     if (!dateString || dateString === "None") return "N/A";
     try {
-      const date: Date = new Date(dateString);
+      const safeDateString = dateString.endsWith("Z") ? dateString : `${dateString}Z`;
+      const date: Date = new Date(safeDateString);
       if (isNaN(date.getTime())) return "Invalid Time";
 
       const timeOptions: Intl.DateTimeFormatOptions = {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
-        timeZone: "America/New_York",
+        timeZone: "UTC",
       };
 
       return `${date.toLocaleTimeString("en-US", timeOptions)} EST`;
@@ -139,11 +140,11 @@ const GateCard: React.FC<GateCardProps> = ({
       return [];
     }
     return [...gateData].sort((a: GateData, b: GateData) => {
-      const dateA: number = a.Scheduled ? new Date(a.Scheduled).getTime() : 0;
-      const dateB: number = b.Scheduled ? new Date(b.Scheduled).getTime() : 0;
-      if (!dateA) return 1;
-      if (!dateB) return -1;
-      return dateB - dateA;
+      const timeA = a.Scheduled ? new Date(a.Scheduled.endsWith("Z") ? a.Scheduled : a.Scheduled + "Z").getTime() : 0;
+      const timeB = b.Scheduled ? new Date(b.Scheduled.endsWith("Z") ? b.Scheduled : b.Scheduled + "Z").getTime() : 0;
+      if (!timeA) return 1;
+      if (!timeB) return -1;
+      return timeB - timeA;
     });
   };
 
@@ -163,14 +164,19 @@ const GateCard: React.FC<GateCardProps> = ({
         if (!flight.Scheduled) return acc; // Skip flights without a schedule
 
         try {
-          const scheduleDate: Date = new Date(flight.Scheduled);
+          const safeDateString = flight.Scheduled.endsWith("Z") 
+            ? flight.Scheduled 
+            : `${flight.Scheduled}Z`;
+          
+
+          const scheduleDate: Date = new Date(safeDateString);
           if (isNaN(scheduleDate.getTime())) return acc; // Skip invalid dates
 
           // Create a date key like "August 5". This will be our group header.
           const dateKey: string = scheduleDate.toLocaleDateString("en-US", {
             month: "long",
             day: "numeric",
-            timeZone: "America/New_York",
+            timeZone: "UTC",
           });
 
           // If this date key is new, create an entry for it.
