@@ -87,19 +87,22 @@ function shouldHaveWeatherCards({
 function shouldHaveMetarFormatAfterClicking({
   navigationMethod,
   query,
-  airportCode,
+  ICAOAirportCode,
+  IATAAirportCode,
   clickedOption,
 }:
   | {
       navigationMethod: "click";
       query: string;
-      airportCode: string;
+      ICAOAirportCode: string;
+      IATAAirportCode: string;
       clickedOption: string;
     }
   | {
       navigationMethod: "raw";
       query: string;
-      airportCode: string;
+      ICAOAirportCode: string;
+      IATAAirportCode: string;
       clickedOption?: never;
     }) {
   return async ({ page }: { page: Page }) => {
@@ -124,7 +127,7 @@ function shouldHaveMetarFormatAfterClicking({
 
     // Validate that the METAR starts with the airport code (K followed by 3 letters) and time format (6 digits followed by Z)
     const basicMETARRegex = new RegExp(
-      `^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`
+      `^(?:METAR\\s+|SPECI\\s+)?${ICAOAirportCode}\\s+\\d{6}Z`
     );
     // This will look like /^KEWR\s+\d{6}Z/
 
@@ -139,19 +142,22 @@ function shouldHaveMetarFormatAfterClicking({
 function _shouldHaveTafFormatAfterClicking({
   navigationMethod,
   query,
-  airportCode,
+  ICAOAirportCode,
+  IATAAirportCode,
   clickedOption,
 }:
   | {
       navigationMethod: "click";
       query: string;
-      airportCode: string;
+      ICAOAirportCode: string,
+      IATAAirportCode: string,
       clickedOption: string;
     }
   | {
       navigationMethod: "raw";
       query: string;
-      airportCode: string;
+      ICAOAirportCode: string,
+      IATAAirportCode: string,
       clickedOption?: never;
     }) {
   return async ({ page }: { page: Page }) => {
@@ -175,7 +181,7 @@ function _shouldHaveTafFormatAfterClicking({
     });
 
     // Validate that the TAF starts with "TAF" + airport code and timestamp in DDHHMMZ format
-    const basicTAFRegex = new RegExp(`^TAF\\s+K${airportCode}\\s+\\d{6}Z`);
+    const basicTAFRegex = new RegExp(`^TAF\\s+${ICAOAirportCode}\\s+\\d{6}Z`);
 
     await expect(tafCard.locator("p")).toContainText(basicTAFRegex);
   };
@@ -192,19 +198,23 @@ function _shouldHaveTafFormatAfterClicking({
 function _shouldHaveDAtisFormatAfterClicking({
   navigationMethod,
   query,
-  airportCode,
+  ICAOAirportCode,
+  IATAAirportCode,
   clickedOption,
 }:
   | {
       navigationMethod: "click";
       query: string;
-      airportCode: string;
+      ICAOAirportCode: string,
+      IATAAirportCode: string,
       clickedOption: string;
     }
   | {
       navigationMethod: "raw";
       query: string;
-      airportCode: string;
+      ICAOAirportCode: string,
+      IATAAirportCode: string,
+      // airportCode: string;
       clickedOption?: never;
     }) {
   return async ({ page }: { page: Page }) => {
@@ -230,7 +240,7 @@ function _shouldHaveDAtisFormatAfterClicking({
     // Updated regex based on actual ATIS format from ORD, BOS, EWR
     // Matches: "<AIRPORT> ATIS INFO <Letter> <DDHHZ>."
     const basicDAtisRegex = new RegExp(
-      `^${airportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z(?:\\s+SPECIAL)?\\.`
+      `^${IATAAirportCode}\\s+ATIS\\s+INFO\\s+[A-Z]\\s+\\d{4}Z(?:\\s+SPECIAL)?\\.`
     );
 
     await expect(dAtisCard.locator("p")).toContainText(basicDAtisRegex);
@@ -251,19 +261,22 @@ function _shouldHaveDAtisFormatAfterClicking({
 function shouldHaveValidWeatherInfo({
   navigationMethod,
   query,
-  airportCode,
+  ICAOAirportCode,
+  IATAAirportCode,
   clickedOption,
 }:
   | {
       navigationMethod: "click";
       query: string;
-      airportCode: string;
+      ICAOAirportCode: string,
+      IATAAirportCode: string,
       clickedOption: string;
     }
   | {
       navigationMethod: "raw";
       query: string;
-      airportCode: string;
+      ICAOAirportCode: string,
+      IATAAirportCode: string,
       clickedOption?: never;
     }) {
   return async ({ page }: { page: Page }) => {
@@ -285,14 +298,14 @@ function shouldHaveValidWeatherInfo({
     await expect(page, "Page should be on details page").toHaveURL("/details");
 
     // TODO ismial. Make this optional such that if this NAS lookup fails it shows flaky
-    if (airportCode === "LAS") {
+    if (IATAAirportCode === "LAS") {
       await expect(
         page.getByRole("heading", { name: "NAS Status" })
       ).toBeVisible();
     }
 
     // This new check asserts that DEP/ARR buttons are present for specific airports.
-    if (airportCode === "PHL" || airportCode === "ATL") {
+    if (IATAAirportCode === "PHL" || IATAAirportCode === "ATL") {
       const dAtisCard = page
         .locator(".weather-card")
         .filter({ has: page.getByRole("heading", { name: "D-ATIS" }) });
@@ -327,22 +340,22 @@ function shouldHaveValidWeatherInfo({
 
     // Step 4: Validate the format of each weather report using regular expressions
     const dAtisRegex = new RegExp(
-      `^${airportCode}\\s+(?:ATIS|DEP|ARR)\\s+INFO\\s+[A-Z]\\s+\\d{4,}Z`
+      `^${IATAAirportCode}\\s+(?:ATIS|DEP|ARR)\\s+INFO\\s+[A-Z]\\s+\\d{4,}Z`
     );
     const metarRegex = new RegExp(
-      `^(?:METAR\\s+|SPECI\\s+)?K${airportCode}\\s+\\d{6}Z`
+      `^(?:METAR\\s+|SPECI\\s+)?${ICAOAirportCode}\\s+\\d{6}Z`
     );
-    const tafRegex = new RegExp(`^TAF\\s+K${airportCode}\\s+\\d{6}Z`);
+    const tafRegex = new RegExp(`^TAF\\s+${ICAOAirportCode}\\s+\\d{6}Z`);
 
-    await expect(dAtisCard.locator("p")).toContainText(dAtisRegex);
+    if (ICAOAirportCode !== "EGLL" ) {
+      await expect(dAtisCard.locator("p")).toContainText(dAtisRegex);
+    }
     await expect(metarCard.locator("p")).toContainText(metarRegex);
     await expect(tafCard.locator("p")).toContainText(tafRegex);
   };
 }
 
 // added tests for PHL and ATL below
-// two - raw and click? each of them have two tests - ones checking metar format and
-// other checking weather cards. Merge them to check both instead of having separate tests?
 // MERGED: EWR & BOS Weather Validation Tests
 // These tests now use the consolidated `shouldHaveValidWeatherInfo` function.
 // -----------------------------------------------------------------------------
@@ -352,17 +365,20 @@ test(
   shouldHaveValidWeatherInfo({
     navigationMethod: "click",
     query: "EWR",
-    airportCode: "EWR",
+    ICAOAirportCode: "KEWR",
+    IATAAirportCode: "EWR",
     clickedOption: "EWR - Newark Liberty",
   })
 );
 
+// TODO ismail: Follow this up with local storage search.
 test(
   "Details : Airport : Raw : Validate All Weather Info : KEWR",
   shouldHaveValidWeatherInfo({
     navigationMethod: "raw",
     query: "KEWR",
-    airportCode: "EWR",
+    ICAOAirportCode: "KEWR",
+    IATAAirportCode: "EWR",
   })
 );
 
@@ -372,7 +388,8 @@ test(
   shouldHaveValidWeatherInfo({
     navigationMethod: "click",
     query: "BOS",
-    airportCode: "BOS",
+    ICAOAirportCode: "KBOS",
+    IATAAirportCode: "BOS",
     clickedOption: "BOS - General Edward Lawrence Logan International Airport",
   })
 );
@@ -382,7 +399,8 @@ test(
   shouldHaveValidWeatherInfo({
     navigationMethod: "raw",
     query: "KBOS",
-    airportCode: "BOS",
+    ICAOAirportCode: "KBOS",
+    IATAAirportCode: "BOS",
   })
 );
 
@@ -391,7 +409,18 @@ test(
   shouldHaveValidWeatherInfo({
     navigationMethod: "raw",
     query: "KLAS",
-    airportCode: "LAS",
+    ICAOAirportCode: "KLAS",
+    IATAAirportCode: "LAS",
+  })
+);
+
+test(
+  "Details : Airport : Raw : Validate International airport: EGLL",
+  shouldHaveValidWeatherInfo({
+    navigationMethod: "raw",
+    query: "EGLL",
+    ICAOAirportCode: "EGLL",
+    IATAAirportCode: "LHR",
   })
 );
 
@@ -416,7 +445,8 @@ test(
   shouldHaveValidWeatherInfo({
     navigationMethod: "click",
     query: "PHL",
-    airportCode: "PHL",
+    ICAOAirportCode: "KPHL",
+    IATAAirportCode: "PHL",
     clickedOption: "PHL - Philadelphia International Airport",
   })
 );
@@ -427,7 +457,8 @@ test(
   shouldHaveValidWeatherInfo({
     navigationMethod: "click",
     query: "ATL",
-    airportCode: "ATL",
+    ICAOAirportCode: "KATL",
+    IATAAirportCode: "ATL",
     clickedOption: "ATL - Hartsfield - Jackson Atlanta International Airport",
   })
 );
@@ -461,7 +492,8 @@ test(
   shouldHaveMetarFormatAfterClicking({
     navigationMethod: "click",
     query: "POF",
-    airportCode: "POF",
+    ICAOAirportCode: "KPOF",
+    IATAAirportCode: "POF",
     clickedOption: "POF - Poplar Bluff Municipal Airport",
   })
 );

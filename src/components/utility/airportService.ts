@@ -197,6 +197,7 @@ const useAirportData = (
   const [nasResponseAirport, setNasResponseAirport] =
     useState<NASResponse | null>(null);
   const [loadingNAS, setLoadingNAS] = useState<boolean>(false);
+  // TODO bug - weather : separate mdb from live for international airport lookups - try `EGLL` - load skeleton bug
   const [loadingWeather, setLoadingWeather] = useState<boolean>(false);
   const [airportError, setAirportError] = useState<any>(null);
 

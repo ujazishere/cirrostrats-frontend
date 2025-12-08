@@ -10,6 +10,7 @@ interface RawSuggestion {
 }
 
 export const formatRawSearchResults = (rawResults: any[]): FormattedSuggestion[] => {
+  // TODO: similar function exists down below. is this similar function necessary?
   if (!rawResults || !Array.isArray(rawResults)) return [];
 
   return rawResults.map((item) => {

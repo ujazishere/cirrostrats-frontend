@@ -6,6 +6,7 @@ import {
   FormattedSuggestion,
   findExactMatch,
   formatRawSearchResults,
+  formatSuggestions,
 } from "../utils/searchUtils";
 import { Metadata } from "../../../types";
 import { is } from "date-fns/locale";
@@ -250,9 +251,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       !submitTerm ||
       (typeof submitTerm === "string" && !submitTerm.trim()) ||
       (typeof submitTerm === "object" && !submitTerm?.label)
-    ) {
-      return;
-    }
+    ) { return }
     
 
     // TODO serach: SearchTracking is not working for other airliners from JMS - like delta/american and such.
@@ -265,9 +264,9 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // TODO search suggestions: inspect this submit
       typeof submitTerm === "object" &&
       // submitTerm.referenceId ||        // This maybe used later once ICAO airport searches stabalize. Was commented out since it was causing complications on wx state update.
-      (submitTerm.metadata.ICAO || // for airports. TODO search suggestions: may not need this keep it standard with ICAOairportCode/IATAairportCode?
-        submitTerm.metadata.ICAOairportCode ||
-        submitTerm.metadata.IATAairportCode ||
+      (submitTerm.metadata.ICAO || // for airports. TODO search suggestions: may not need this keep it standard with ICAOAirportCode/IATAAirportCode?
+        submitTerm.metadata.ICAOAirportCode ||
+        submitTerm.metadata.IATAAirportCode ||
         submitTerm.metadata.flightID || // for flights. TODO search suggestions: may not need this keep it standard with ICAOFlightID/IATAFlightID?
         submitTerm.metadata.ICAOFlightID ||
         submitTerm.metadata.IATAFlightID ||
@@ -278,6 +277,7 @@ const useInputHandlers = (): UseInputHandlersReturn => {
       // The term is already in the correct format, this is the easy path.
       saveSearchToLocalStorage(submitTerm);
       // Navigate to the details page, passing the search object in the route's state.
+
       navigate("/details", { state: { searchValue: submitTerm } });
       // Update the Autocomplete component's value to reflect the selection.
       setSelectedValue(submitTerm);
@@ -301,28 +301,6 @@ const useInputHandlers = (): UseInputHandlersReturn => {
             submitTermString: trimmedSubmitTerm,
           },
         });
-        // Fetch the raw query from the API to show the `see more` on the details page
-        // searchService
-        //   .fetchRawQuery(trimmedSubmitTerm)
-        //   .then((rawReturn) => {
-        //     console.log("rawReturn in handleSubmit for exact match", rawReturn);
-        //     formattedResults = formatRawSearchResults(rawReturn);
-        //     // Navigate ONLY after we have the data for type : flight
-        //     navigate("/details", {
-        //       state: {
-        //         searchValue: exactMatch,
-        //         // possibleMatches: formattedResults,
-        //         submitTermString: trimmedSubmitTerm,
-        //       },
-        //     });
-        //     setSelectedValue(exactMatch);
-        //   })
-        //   .catch((error) => {
-        //     console.error("Error fetching raw query data:", error);
-        //   });
-
-        // Final navigation to details page with the exact match and raw formatted results as `see more`
-        // navigate("/details", { state: { searchValue: exactMatch, possibleMatches: formattedResults } });
         setSelectedValue(exactMatch);
       } else {
         // NEW: Check if it could be a partial airport name match (e.g., "Newark" matches "EWR - Newark Liberty...")
@@ -407,7 +385,6 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
             // Check if the search term is a number-only string
 
-            const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
 
             // let optimisticType = "unknown";
             // let optimisticMetadata: Metadata = {};
@@ -433,110 +410,108 @@ const useInputHandlers = (): UseInputHandlersReturn => {
 
             // If it's a number, assume it's a flight number and prepend a common carrier code
             // This is the core fix to prevent the API from failing on raw numbers like '414'
-            if (isNumeric) {
-              console.log(
-                "Final else block: digits submitted",
-                trimmedSubmitTerm
-              );
-              const finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
+            // This is probably not needed to check the digits - what you gonna do with it anyway?
+            // const isNumeric = /^\d+$/.test(trimmedSubmitTerm);
+            // if (isNumeric) {
+            //   console.log(
+            //     "Final else block: digits submitted",
+            //     trimmedSubmitTerm
+            //   );
+            // }
 
-              searchService
-                .fetchRawQuery(finalQuery)
-                .then((rawReturn) => {
-                  const formattedResults = formatRawSearchResults(rawReturn);
+            const finalQuery = `${trimmedSubmitTerm.toUpperCase()}`;
+            // TODO search suggestion: Abstract this away to details since if the backend has delay it wont go thru to load skeleton quickly and freeze up on submit.
+            searchService
+              .fetchRawQuery(finalQuery)
+              .then((rawReturn) => {
+                const formattedResults = formatSuggestions(rawReturn);
 
-                  if (formattedResults && formattedResults.length > 0) {
-                    const exactMatch = findExactMatch(
-                      formattedResults,
-                      trimmedSubmitTerm
-                    );
+                if (formattedResults && formattedResults.length > 0) {
+                  const exactMatch = findExactMatch(
+                    formattedResults,
+                    trimmedSubmitTerm
+                  );
 
-                  if (exactMatch) {
-                    // SCENARIO A: Exact Match Found - Go straight to that flight
-                    console.log(
-                      "Exact found from backend returns:",
-                      formattedResults
-                    );
-                    saveSearchToLocalStorage(exactMatch);
+                if (exactMatch) {
+                  // SCENARIO A: Exact Match Found - Go straight to that flight
+                  console.log(
+                    "Exact found from backend returns:",
+                    formattedResults
+                  );
+                  saveSearchToLocalStorage(exactMatch);
 
-                    // ✅ FIX: Pass formattedResults as possibleMatches
-                    navigate("/details", {
-                      state: {
-                        searchValue: exactMatch,
-                        possibleMatches: formattedResults, // <--- ADD THIS LINE
-                      },
-                    });
-                    setSelectedValue(exactMatch);
-                  } else {
-                    // SCENARIO B: Ambiguous Search without exactMatch
-                    // TODO ismail pass search type here as ambiguous and possible matches such that multiple options are shown on the details page.
-                    console.log(
-                      "No exact match. passing potential candidates."
-                    );
-                    // const bestGuess = formattedResults[0];
-
-                    const userQueryObject: FormattedSuggestion = {
-                      id: `raw-${Date.now()}`,
-                      label: trimmedSubmitTerm,
-                      type: "ambiguous",
-                      metadata: {},
-                    };
-                    saveSearchToLocalStorage(userQueryObject);
-
-                    navigate("/details", {
-                      state: {
-                        searchValue: userQueryObject,
-                        possibleMatches: formattedResults,
-                      },
-                    });
-                    setSelectedValue(userQueryObject);
-                  }
+                  // ✅ FIX: Pass formattedResults as possibleMatches
+                  navigate("/details", {
+                    state: {
+                      searchValue: exactMatch,
+                      possibleMatches: formattedResults, // <--- ADD THIS LINE
+                    },
+                  });
+                  setSelectedValue(exactMatch);
                 } else {
-                  // SCENARIO C: No results at all (Backend returned [])
-                  console.warn("No results found in raw query");
+                  // SCENARIO B: Ambiguous Search without exactMatch
+                  // TODO ismail pass search type here as ambiguous and possible matches such that multiple options are shown on the details page.
+                  console.log(
+                    "No exact match. passing potential candidates."
+                  );
+                  // const bestGuess = formattedResults[0];
 
-                  const fallbackTerm: FormattedSuggestion = {
-                    id: `fallback-${Date.now()}`,
+                  const userQueryObject: FormattedSuggestion = {
+                    id: `raw-${Date.now()}`,
                     label: trimmedSubmitTerm,
-                    type: "unknown",
+                    type: "ambiguous",
                     metadata: {},
                   };
+                  saveSearchToLocalStorage(userQueryObject);
 
-                  // saveSearchToLocalStorage(fallbackTerm);
                   navigate("/details", {
-                    state: { searchValue: fallbackTerm },
+                    state: {
+                      searchValue: userQueryObject,
+                      possibleMatches: formattedResults,
+                    },
                   });
-                  setSelectedValue(fallbackTerm);
+                  setSelectedValue(userQueryObject);
                 }
-              })
-              .catch((error) => {
-                // ... your existing catch block ...
-                console.error("Error fetching raw query data:", error);
+              } else {
+                // SCENARIO C: No results at all (Backend returned [])
+                console.warn("No results found in raw query");
+
                 const fallbackTerm: FormattedSuggestion = {
-                  id: "",
-                  referenceId: "",
+                  id: `fallback-${Date.now()}`,
                   label: trimmedSubmitTerm,
                   type: "unknown",
                   metadata: {},
                 };
-                saveSearchToLocalStorage(fallbackTerm);
+
+                // saveSearchToLocalStorage(fallbackTerm);
                 navigate("/details", {
                   state: { searchValue: fallbackTerm },
                 });
                 setSelectedValue(fallbackTerm);
+              }
+            })
+            .catch((error) => {
+              // ... your existing catch block ...
+              console.error("Error fetching raw query data:", error);
+              const fallbackTerm: FormattedSuggestion = {
+                id: "",
+                referenceId: "",
+                label: trimmedSubmitTerm,
+                type: "unknown",
+                metadata: {},
+              };
+              saveSearchToLocalStorage(fallbackTerm);
+              navigate("/details", {
+                state: { searchValue: fallbackTerm },
               });
-            // ... existing catch logic ...
-
-            // TODO uj: this raw return contains essential info thru parse query. save it in local storage as is.
-            // May have to account for this in the search interface.
-            // const finalTerm = rawReturn && rawReturn.label ? rawReturn : { label: trimmedSubmitTerm };
-            // Save the result (either from the API or the raw text) to local storage.
-          }
-          }
+              setSelectedValue(fallbackTerm);
+            });
+            }
         }
       }
     }
-  };
+    }
+  // };
 
 
 

@@ -98,7 +98,6 @@ export default function useSearchSuggestions(
             "",
           );
           const formatted = formatSuggestions(rawData);
-          // console.log('formatted data', formatted);
 
           // Step 3: Store the raw popular suggestions.
           // FIX: The 'isRecent' flag is NOT applied here. It will be added dynamically in the filtering

@@ -1,11 +1,11 @@
 // ✅ NEW FILE: This file contains the refactored custom hook for fetching flight data.
 // By isolating this logic, we make the Details.jsx component cleaner and the flight data logic reusable.
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios"; // A promise-based HTTP client for making requests to our backend API.
 import flightService from './utility/flightService'; // A service module with helper functions for flight data retrieval.
-import { CombinedWeatherData, EDCTData, NASData, NASResponse, SearchValue, WeatherData } from "../types";
-import useAirportData, { airportWeatherAPI } from "./utility/airportService";
+import { CombinedWeatherData, EDCTData, NASData, NASResponse, SearchValue } from "../types";
+import useAirportData from "./utility/airportService";
 import { normalizeAjms, validateAirportData } from "./utility/dataUtils";
 import { CloudCog } from "lucide-react";
 import searchService from "../components/Input/api/searchservice"; //
