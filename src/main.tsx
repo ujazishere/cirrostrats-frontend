@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025 Cirrostrats.
+ * Licensed under the Elastic License 2.0.
+ * See LICENSE.txt for details.
+ */
+
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
