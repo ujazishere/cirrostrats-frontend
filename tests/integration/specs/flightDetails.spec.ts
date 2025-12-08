@@ -47,10 +47,7 @@ test("Details : Flight : Raw : UA414", async ({ page }) => {
 });
 
 
-  // -ADDED TEST TO CHECK LOCALSTORAGE - AND REMOVED ROUTE BECAUSE 414 RAW LEADS TO AMERICAN AIRLINES FLIGHT AND IT DOES NOT SHOW ROUTE 
-  // DOONE TODO ismail This section fails - subsequent search for 414 does not work due to match in suggestions not accounting for localStorage? - 
-    // design test in series such that a funciton should search something and then access the localStorage for search to validate localStorage works.
-// New test for the query "414" - commented it out because 414 shows an error in test but works fine in local environment
+// TODO ismail: design a subsequent raw test after localstorage aceesed to solidify subsequent searches - not just forthis but all other major lookups. 
 test("Details : Flight : Raw : 414 & LocalStorage History", async ({ page }) => {
   const query = "414";
 
