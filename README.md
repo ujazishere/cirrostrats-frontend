@@ -1,3 +1,13 @@
+## License
+
+This project is licensed under the **Elastic License 2.0 (ELv2)**.
+
+You may use, modify, and redistribute this software under the terms of the Elastic License 2.0.
+You may **not** provide this software to third parties as a hosted or managed service that exposes
+a substantial set of its features or functionality. See `LICENSE.txt` and
+https://www.elastic.co/licensing/elastic-license for full details.
+
+
 # One of two ways to do this:
 
 **A: Docker container(spools up frontend, backend and nginx using docker:) - Most efficient and Full-Featured:**
