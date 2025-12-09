@@ -202,7 +202,7 @@ const Details = () => {
 
   // The final condition for showing the feedback section:
   // A search must exist, content should not be loading, and there must be no errors.
-  const showFeedbackSection = searchValue && !isContentLoading && !hasError;
+  const showFeedbackSection = searchValue && !isContentLoading;
 
   // TODO ismail: used for ambiguous search to show multiple options on the details page.
   const handleSuggestionClick = useCallback(
@@ -326,7 +326,7 @@ const Details = () => {
 
         // A default case is good practice for unhandled search types.
         default:
-          return <p>Select a search type to begin.</p>;
+          return <p>Error fetching data</p>;
       }
     }
 

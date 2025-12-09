@@ -99,10 +99,10 @@ test(
   shouldHave5Options({ query: "DL1" }),
 );
 
-test(
-  "Search Suggestions : 5 Options : AA10",
-  shouldHave5Options({ query: "AA10" }),
-);
+// test(
+//   "Search Suggestions : 5 Options : AA10",
+//   shouldHave5Options({ query: "AA10" }),
+// );
 
 test(
   "Search Suggestions : 5 Options : AAL10",

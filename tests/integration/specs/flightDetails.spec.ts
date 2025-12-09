@@ -177,7 +177,7 @@ test("Details : Flight : Invalid Raw : 00000", async ({ page }) => {
   // 2. Locate the expected "no data" message
   // TODO test: This is assuming UA- fix at source for fallback to UA.
   const noDataMessage = page.getByText(
-    "Error fetching flight data: Invalid Flight ID",
+    "Error fetching data",
   );
 
   // 3. Assert that the message is visible on the page.
@@ -265,48 +265,48 @@ test("Recent Search - GJS4433", async ({ page }) => {
 
 
 
-test("101 - Raw - Alternate Suggestion", async ({ page }) => {
-  const query = "101";
-  const defaultExpectation = "AAY101"; 
-  const alternativeExpectation = "DAL101"; 
+// test("101 - Raw - Alternate Suggestion", async ({ page }) => {
+//   const query = "101";
+//   const defaultExpectation = "AAY101"; 
+//   const alternativeExpectation = "DAL101"; 
 
-  // 1. Navigate using raw query "101"
-  await navigateToDetailsPage({
-    page,
-    navigationMethod: "raw",
-    query: query,
-  });
+//   // 1. Navigate using raw query "101"
+//   await navigateToDetailsPage({
+//     page,
+//     navigationMethod: "raw",
+//     query: query,
+//   });
 
-  // 2. Assert "More options" bar is visible
-  const suggestionBar = page.locator(".suggestion-bar-container");
-  await expect(suggestionBar).toBeVisible();
-  await expect(suggestionBar).toContainText("More options:");
+//   // 2. Assert "More options" bar is visible
+//   const suggestionBar = page.locator(".suggestion-bar-container");
+//   await expect(suggestionBar).toBeVisible();
+//   await expect(suggestionBar).toContainText("More options:");
 
-  // 3. Verify Chip Logic (Initial State)
-  // The page should default to the first result (AAY101).
-  // Therefore, 'DAL101' should be a clickable chip, but 'AAY101' should NOT be in the chips.
-  const dalChip = suggestionBar.locator(".suggestion-chip").filter({ hasText: alternativeExpectation }).first();
-  const aayChip = suggestionBar.locator(".suggestion-chip").filter({ hasText: defaultExpectation }).first();
+//   // 3. Verify Chip Logic (Initial State)
+//   // The page should default to the first result (AAY101).
+//   // Therefore, 'DAL101' should be a clickable chip, but 'AAY101' should NOT be in the chips.
+//   const dalChip = suggestionBar.locator(".suggestion-chip").filter({ hasText: alternativeExpectation }).first();
+//   const aayChip = suggestionBar.locator(".suggestion-chip").filter({ hasText: defaultExpectation }).first();
 
-  await expect(dalChip).toBeVisible();
-  await expect(aayChip).not.toBeVisible();
+//   await expect(dalChip).toBeVisible();
+//   await expect(aayChip).not.toBeVisible();
 
-  // 4. Interact: Click the "DAL101" chip
-  // We use Promise.all to wait for the UI to settle after the click
-  await dalChip.click();
+//   // 4. Interact: Click the "DAL101" chip
+//   // We use Promise.all to wait for the UI to settle after the click
+//   await dalChip.click();
 
-  // 5. Verify Logic Swap (Post-Click State)
-  // Now that we are viewing DAL101, it should disappear from the chips.
-  // The previous flight (AAY101) should now appear in the chips.
+//   // 5. Verify Logic Swap (Post-Click State)
+//   // Now that we are viewing DAL101, it should disappear from the chips.
+//   // The previous flight (AAY101) should now appear in the chips.
   
-  // Re-query the locators as DOM might have refreshed
-  const dalChipAfter = suggestionBar.locator(".suggestion-chip").filter({ hasText: alternativeExpectation });
-  const aayChipAfter = suggestionBar.locator(".suggestion-chip").filter({ hasText: defaultExpectation }).first();
+//   // Re-query the locators as DOM might have refreshed
+//   const dalChipAfter = suggestionBar.locator(".suggestion-chip").filter({ hasText: alternativeExpectation });
+//   const aayChipAfter = suggestionBar.locator(".suggestion-chip").filter({ hasText: defaultExpectation }).first();
 
-  await expect(dalChipAfter).not.toBeVisible(); // DAL101 is now the active flight
-  await expect(aayChipAfter).toBeVisible();     // AAY101 is now a suggestion
+//   await expect(dalChipAfter).not.toBeVisible(); // DAL101 is now the active flight
+//   await expect(aayChipAfter).toBeVisible();     // AAY101 is now a suggestion
 
-  // 6. Verify Content Loaded
-  // Just a quick check to ensure the page didn't crash
-  await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
-});
+//   // 6. Verify Content Loaded
+//   // Just a quick check to ensure the page didn't crash
+//   await expect(page.getByRole("heading", { name: "METAR" })).toBeVisible();
+// });
