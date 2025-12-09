@@ -1,0 +1,190 @@
+/* TnC.css */
+
+.tnc-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8edf2 100%);
+  padding: 40px 20px;
+}
+
+.tnc-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Header Styles */
+.tnc-header {
+  background: #2c3239;
+  padding: 50px 40px;
+  text-align: center;
+  color: white;
+}
+
+.tnc-main-title {
+  font-size: 2.5em;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+  letter-spacing: -0.5px;
+}
+
+.tnc-effective-date {
+  font-size: 1em;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Content Styles */
+.tnc-content {
+  padding: 50px 40px;
+}
+
+.tnc-section {
+  margin-bottom: 40px;
+}
+
+.tnc-section:last-child {
+  margin-bottom: 0;
+}
+
+.tnc-section-title {
+  font-size: 1.6em;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #2c3239;
+  display: inline-block;
+}
+
+.tnc-paragraph {
+  font-size: 1.05em;
+  line-height: 1.8;
+  color: #4a5568;
+  margin: 0 0 16px 0;
+  text-align: justify;
+}
+
+.tnc-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.tnc-link {
+  color: #2c3239;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.tnc-link:hover {
+  color: #4a5568;
+  text-decoration: underline;
+}
+
+/* Footer Styles */
+.tnc-footer {
+  background: #f8f9fa;
+  padding: 30px 40px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.tnc-footer p {
+  margin: 0;
+  color: #718096;
+  font-size: 0.95em;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tnc-container {
+    padding: 20px 10px;
+  }
+
+  .tnc-header {
+    padding: 40px 25px;
+  }
+
+  .tnc-main-title {
+    font-size: 2em;
+  }
+
+  .tnc-effective-date {
+    font-size: 0.95em;
+  }
+
+  .tnc-content {
+    padding: 35px 25px;
+  }
+
+  .tnc-section {
+    margin-bottom: 35px;
+  }
+
+  .tnc-section-title {
+    font-size: 1.4em;
+  }
+
+  .tnc-paragraph {
+    font-size: 1em;
+    text-align: left;
+  }
+
+  .tnc-footer {
+    padding: 25px 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tnc-header {
+    padding: 30px 20px;
+  }
+
+  .tnc-main-title {
+    font-size: 1.75em;
+  }
+
+  .tnc-content {
+    padding: 30px 20px;
+  }
+
+  .tnc-section-title {
+    font-size: 1.3em;
+  }
+
+  .tnc-paragraph {
+    font-size: 0.95em;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .tnc-container {
+    background: white;
+    padding: 0;
+  }
+
+  .tnc-wrapper {
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .tnc-header {
+    background: white;
+    color: black;
+    border-bottom: 2px solid #000;
+  }
+
+  .tnc-section-title {
+    border-bottom-color: #000;
+  }
+
+  .tnc-link {
+    color: #000;
+    text-decoration: underline;
+  }
+}

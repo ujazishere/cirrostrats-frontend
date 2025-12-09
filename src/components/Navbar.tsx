@@ -152,6 +152,20 @@ const Navbar: React.FC = () => {
               Live Map
             </NavLink>
           </li>
+
+          {/* Terms and Conditions Link */}
+                    <li className="navbar__list__item">
+            <NavLink
+              to="tnc"
+              className={({ isActive }) =>
+                isActive ? "active" : "navbar__list__item__link"
+              }
+              onClick={closeSidebar}
+            >
+              Terms and Conditions
+            </NavLink>
+          </li>
+
         </ul>
       </nav>
     </div>

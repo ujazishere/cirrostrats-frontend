@@ -239,7 +239,7 @@ New Feedback Received! 📬
 
       <footer className="simple-footer">
         <div className="simple-footer-container">
-          <p>© 2024 Cirrostrats. All rights reserved.</p>
+          <p>© 2025 Cirrostrats. All rights reserved.</p>
         </div>
       </footer>
 

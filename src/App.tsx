@@ -8,6 +8,7 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
+import TnC from "./pages/TnC";
 import Story from "./pages/Story";
 import Contact from "./pages/Contact";
 import Source from "./pages/Source";
@@ -40,6 +41,7 @@ function App(): JSX.Element {
           <Route path="/st" element={<SearchesTimeline />} />
           <Route path="/livemap" element={<LiveMap />} />
           <Route path="/analytics" element={<SearchAnalyticsDashboard />} />
+          <Route path="/tnc" element={<TnC />} />
         </Routes>
       </div>
     </GoogleOAuthProvider>
