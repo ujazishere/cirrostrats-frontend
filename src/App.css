@@ -35,6 +35,24 @@
 }
 
 
+.simple-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  padding: 20px 0;
+  margin-top: 40px;
+}
+
+.simple-footer-container {
+  text-align: center;
+}
+
+.simple-footer p {
+  color: #999;
+  font-size: 0.85em;
+  margin: 0;
+}
+
+
 
 /* Updated CSS for the feedback trigger on the Details page */
 .feedback-trigger-container {

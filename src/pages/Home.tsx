@@ -237,6 +237,12 @@ New Feedback Received! 📬
         <div className="container">{/* Content area */}</div>
       </div>
 
+      <footer className="simple-footer">
+        <div className="simple-footer-container">
+          <p>© 2024 Cirrostrats. All rights reserved.</p>
+        </div>
+      </footer>
+
       {/* --- FOOTER COMMENTED OUT --- */}
       {/*
       <footer className="footer-support">
