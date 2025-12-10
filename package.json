@@ -48,9 +48,6 @@
     "gtag": "^1.0.1",
     "lucide-react": "^0.511.0",
     "typescript": "^5.9.3",
-    "vite": "^5.1.4",
-    "name": "cirrostrats",
-    "version": "1.0.0",
-    "license": "Elastic-2.0"
+    "vite": "^5.1.4"
   }
 }
