@@ -11,4 +11,19 @@ export default defineConfig({
     allowedHosts: ["test.cirrostrats.us"],
   },
   plugins: [react()],
+
+build: {
+    // Defines the output directory (standard is 'dist')
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        // This forces Vite to add a hash to every JS and CSS file it builds
+        entryFileNames: `assets/[name].[hash].js`,
+        chunkFileNames: `assets/[name].[hash].js`,
+        assetFileNames: `assets/[name].[hash].[ext]`,
+      },
+    },
+  },
+  // ------------------------
 });
+
