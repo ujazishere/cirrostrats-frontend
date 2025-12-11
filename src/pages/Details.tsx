@@ -16,6 +16,7 @@ import { FlightCard, GateCard } from "../components/Combined"; // Cards for disp
 import { LoadingFlightCard, LoadingAirportCard } from "../components/Skeleton"; // A placeholder/skeleton UI shown while data is loading.
 import useAirportData from "../components/utility/airportService.ts"; // Custom hook to fetch airport weather and NAS data.
 import useGateData from "../components/GateData"; // Our newly separated custom hook for fetching gate-specific data.
+import Input from "../components/Input/Index";
 
 // ✅ CHANGE: Import the newly created custom hook for fetching flight-specific data from its own file.
 import useFlightData from "../components/FlightData.tsx"; // Our newly separated custom hook for fetching flight data.
@@ -325,8 +326,18 @@ const Details = () => {
           );
 
         // A default case is good practice for unhandled search types.
-        default:
-          return <p>Error fetching data</p>;
+default:
+          return (
+            <div className="error-container" style={{ textAlign: "center", padding: "4rem 2rem" }}>
+              <p style={{ fontSize: "1.2rem", color: "#666", marginBottom: "1.5rem" }}>
+                Nothing found. Would you like to tell us what you were trying to search? ⁠
+              </p>
+              {/* Reuse the Input component here. We pass "Anonymous" since we are not in the main auth flow context */}
+              <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+                <Input userEmail="Anonymous" isLoggedIn={false} />
+              </div>
+            </div>
+          );
       }
     }
 
