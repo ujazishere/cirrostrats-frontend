@@ -336,6 +336,56 @@ default:
               <div style={{ maxWidth: "600px", margin: "0 auto" }}>
                 <Input userEmail="Anonymous" isLoggedIn={false} />
               </div>
+
+              {/* ✅ ADDED: Inline Feedback Form */}
+              <div className="inline-feedback-form" style={{ maxWidth: "480px", margin: "0 auto", textAlign: "left", padding: "24px", border: "1px solid #e2e8f0", borderRadius: "12px", backgroundColor: "#ffffff", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}>
+                <h3 style={{ marginTop: 0, marginBottom: "16px", fontSize: "1.1rem", fontWeight: "600", color: "#1e293b" }}>
+                  Report Missing Data
+                </h3>
+                
+                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.9rem", fontWeight: "500", color: "#475569" }}>
+                  Issue Type
+                </label>
+                <select 
+                  value={feedbackType} 
+                  onChange={(e) => setFeedbackType(e.target.value)}
+                  style={{ width: "100%", padding: "10px", marginBottom: "16px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "0.95rem" }}
+                >
+                  <option value="Data Discrepancy">Data Discrepancy</option>
+                  <option value="Missing Flight">Missing Flight</option>
+                  <option value="Bug Report">Bug Report</option>
+                  <option value="Other">Other</option>
+                </select>
+
+                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.9rem", fontWeight: "500", color: "#475569" }}>
+                  Details
+                </label>
+                <textarea
+                  value={feedbackMessage}
+                  onChange={(e) => setFeedbackMessage(e.target.value)}
+                  placeholder="Please tell us what flight or airport you were looking for..."
+                  rows={4}
+                  style={{ width: "100%", padding: "10px", marginBottom: "20px", borderRadius: "6px", border: "1px solid #cbd5e1", resize: "vertical", fontFamily: "inherit" }}
+                />
+
+                <button 
+                  onClick={handleSubmitFeedback}
+                  disabled={isSubmitting}
+                  style={{ 
+                    backgroundColor: isSubmitting ? "#94a3b8" : "#2563eb", 
+                    color: "white", 
+                    padding: "12px 24px", 
+                    borderRadius: "8px", 
+                    border: "none", 
+                    cursor: isSubmitting ? "not-allowed" : "pointer",
+                    fontWeight: "600",
+                    width: "100%",
+                    transition: "background-color 0.2s"
+                  }}
+                >
+                  {isSubmitting ? "Sending..." : "Submit Report"}
+                </button>
+              </div>
             </div>
           );
       }
@@ -377,37 +427,6 @@ default:
       ) : (
         <p>Please perform a search to see details.</p>
       )}
-
-      {/* --- FEEDBACK LINK START (NOW WITH CORRECT VISIBILITY LOGIC) --- */}
-      {/* ✅ BUG FIX: The entire feedback container is now conditionally rendered
-          using the `showFeedbackSection` variable. This variable is only true
-          when data has finished loading and no errors have occurred, preventing the flash. */}
-      {showFeedbackSection && (
-        <div className="feedback-trigger-container">
-          <span onClick={handleFeedbackClick} className="feedback-trigger-link">
-            Found an issue or data discrepancy? Report it.
-          </span>
-        </div>
-      )}
-      {/* --- FEEDBACK LINK END --- */}
-
-      {/* --- FEEDBACK POPUP START --- */}
-      {/* ✅ ADD: Suspense for the lazy-loaded FeedbackPopup component.
-          It's conditionally rendered based on the 'showFeedbackPopup' state. */}
-      <Suspense fallback={null}>
-        {showFeedbackPopup && (
-          <FeedbackPopup
-            onClose={handleCloseFeedback}
-            onSubmit={handleSubmitFeedback}
-            feedbackType={feedbackType}
-            setFeedbackType={setFeedbackType}
-            feedbackMessage={feedbackMessage}
-            setFeedbackMessage={setFeedbackMessage}
-            isSubmitting={isSubmitting}
-          />
-        )}
-      </Suspense>
-      {/* --- FEEDBACK POPUP END --- */}
     </div>
   );
 };
