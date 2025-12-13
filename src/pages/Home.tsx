@@ -284,7 +284,7 @@ New Feedback Received! 📬
         5. Refresh your phone. If it turns GREEN immediately, caching is fixed.
         --------------------------------------------------
       */}
-      <button
+      {/* <button
         onClick={() => window.location.reload()}
         style={{
           position: 'fixed',
@@ -304,8 +304,8 @@ New Feedback Received! 📬
         }}
       >
         🔄 TEST: VERSION 1
-      </button>
-      
+      </button> */}
+
     </div>
   );
 };
