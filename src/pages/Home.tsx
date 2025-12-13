@@ -272,8 +272,43 @@ New Feedback Received! 📬
           />
         )}
       </Suspense>
+
+      {/* --------------------------------------------------
+        🔴 CACHE TEST BUTTON (VERSION 1)
+        --------------------------------------------------
+        Instructions:
+        1. Deploy this code. You will see a RED button.
+        2. Open on phone. Verify you see the RED button.
+        3. Change the text below to "VERSION 2" and color to "#16a34a" (Green).
+        4. Deploy again.
+        5. Refresh your phone. If it turns GREEN immediately, caching is fixed.
+        --------------------------------------------------
+      */}
+      <button
+        onClick={() => window.location.reload()}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          backgroundColor: '#dc2626', // <--- CHANGE THIS TO '#16a34a' FOR V2
+          color: 'white',
+          border: '2px solid white',
+          padding: '15px 25px',
+          borderRadius: '50px',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          zIndex: 9999,
+          boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        🔄 TEST: VERSION 1
+      </button>
+      
     </div>
   );
 };
+
 
 export default HomePage;
